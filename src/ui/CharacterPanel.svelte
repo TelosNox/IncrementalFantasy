@@ -47,17 +47,25 @@
     <div class="bar limit"><div class="fill" style:width="{limitPct}%"></div></div>
   </div>
 
-  <div class="actions">
-    <button class="action attack" disabled={!game.awaitingAttack} onclick={() => game.attack()}>Attack</button>
-    {#if game.canUseSpecial}
-      <button class="action special" disabled={claude.mp < (claude.specialMpCost ?? Infinity)} onclick={() => game.useSpecial()}>
-        Special ({claude.specialMpCost} MP)
-      </button>
-    {/if}
-    {#if game.canFireLimit}
-      <button class="action limit" onclick={() => game.fireLimit()}>Limit</button>
-    {/if}
-  </div>
+  <!-- ui-layout.md "Charakter-Steuerung": vor atb>=1.0 ist NICHTS von der Aktionswahl sichtbar,
+       auch kein ausgegrauter Button - das Popup existiert erst im Moment der ATB-Bereitschaft. -->
+  {#if game.awaitingAttack}
+    <div class="actions">
+      <button class="action attack" onclick={() => game.attack()}>Attack</button>
+      {#if game.canUseSpecial}
+        <button
+          class="action special"
+          disabled={claude.mp < (claude.specialMpCost ?? Infinity)}
+          onclick={() => game.useSpecial()}
+        >
+          Special ({claude.specialMpCost} MP)
+        </button>
+      {/if}
+      {#if game.canFireLimit}
+        <button class="action limit" onclick={() => game.fireLimit()}>Limit</button>
+      {/if}
+    </div>
+  {/if}
 
   {#if game.canBuyWeapon}
     <button class="buy-weapon" disabled={!game.canAffordWeapon} onclick={() => game.buyWeapon()}>

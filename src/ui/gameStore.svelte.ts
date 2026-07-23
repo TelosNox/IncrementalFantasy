@@ -43,6 +43,9 @@ const WEAPON_COST_GIL = 8
 /** feinspec §7.1 Schritt 3/gambits.md §6 - ab Zone 5 schaltet die Auto-Attack-Regel + der Auto/Manual-Schalter frei. */
 const AUTO_ATTACK_UNLOCK_ZONE = 5
 
+/** ui-layout.md "Freischaltungs-Hinweis" - 2-4s Anzeigedauer, hier die Mitte des Bands. */
+const CALLOUT_DURATION_SECONDS = 3.0
+
 export type Phase = 'battle' | 'retry' | 'region1-paused'
 
 function findZone(zoneIndex: number): Zone {
@@ -89,10 +92,13 @@ export class GameStore {
   battle = $state<BattleState>(spawnBattle(findZone(this.save.currentZone), this.save.party))
   phase = $state<Phase>('battle')
   retryRemaining = $state(0)
+  /** ui-layout.md "Freischaltungs-Hinweis" - kurzer, nicht-blockierender Toast bei Rollout-Flag-Wechseln. */
+  calloutMessage = $state<string | null>(null)
 
   #frameHandle = 0
   #lastTimestamp = 0
   #accumulator = 0
+  #calloutRemaining = 0
   #autosave: AutosaveHandle | null = null
 
   get claude() {
@@ -127,9 +133,21 @@ export class GameStore {
     return this.awaitingAttack && this.claude.limit >= LIMIT_MAX
   }
 
+  /** ui-layout.md "Freischaltungs-Hinweis" - Anzeigedauer ODER nächste Spieleraktion, je nachdem was zuerst eintritt. */
+  #triggerCallout(message: string): void {
+    this.calloutMessage = message
+    this.#calloutRemaining = CALLOUT_DURATION_SECONDS
+  }
+
+  #dismissCallout(): void {
+    this.calloutMessage = null
+    this.#calloutRemaining = 0
+  }
+
   /** feinspec §5.1 Schritt 3/4 - Spieler wählt "Attack", die Uhr läuft danach weiter. */
   attack(): void {
     if (!this.awaitingAttack) return
+    this.#dismissCallout()
     const actor = this.claude
     const targets = this.battle.enemies.filter(isAlive)
     if (!targets.length) return
@@ -142,6 +160,7 @@ export class GameStore {
   /** feinspec §4.7 Regel 4 - Claudes Special (×3 ATK) aufs stärkste Ziel, kostet MP. */
   useSpecial(): void {
     if (!this.canUseSpecial) return
+    this.#dismissCallout()
     const actor = this.claude
     if (actor.mp < (actor.specialMpCost ?? Infinity)) return
     const targets = this.battle.enemies.filter(isAlive)
@@ -155,6 +174,7 @@ export class GameStore {
   /** feinspec §3.4 - Limit-Zünden: schaden(4,5·ATK, DEF) mit DEF-Ignore aufs stärkste Ziel. */
   fireLimit(): void {
     if (!this.canFireLimit) return
+    this.#dismissCallout()
     const actor = this.claude
     const targets = this.battle.enemies.filter(isAlive)
     if (!targets.length) return
@@ -168,6 +188,7 @@ export class GameStore {
   /** feinspec §7.1 Schritt 2 - der erste Gil-Kauf: Special + MP-Leiste werden sichtbar. */
   buyWeapon(): void {
     if (!this.canBuyWeapon || !this.canAffordWeapon) return
+    this.#dismissCallout()
     const gil = this.save.currencies.gil.sub(WEAPON_COST_GIL)
     const claudeId = this.claude.id
     const party = this.save.party.map((c) => (c.id === claudeId ? { ...c, weaponTier: 1 } : c))
@@ -177,11 +198,13 @@ export class GameStore {
       currencies: { ...this.save.currencies, gil },
       flags: { ...this.save.flags, mpVisible: true },
     }
+    this.#triggerCallout('Weapon equipped – Special & MP online!')
   }
 
   /** gambits.md §3/§6 - Auto/Manual-Umschalter je Figur, erst ab `manualToggleUnlocked` sichtbar. */
   setControlMode(mode: ControlMode): void {
     if (!this.save.flags.manualToggleUnlocked) return
+    this.#dismissCallout()
     const unit = this.claude
     unit.controlMode = mode
     // Wechselt eine Figur waehrend ihrer eigenen Bedenkzeit-Pause auf Auto,
@@ -216,6 +239,11 @@ export class GameStore {
 
   /** Ein Zeitschritt der Kampfuhr (feinspec §5/§5.1) - von `start()`s rAF-Loop getrieben, öffentlich für Tests. */
   advance(deltaSeconds: number): void {
+    if (this.calloutMessage) {
+      this.#calloutRemaining -= deltaSeconds
+      if (this.#calloutRemaining <= 0) this.#dismissCallout()
+    }
+
     if (this.phase === 'retry') {
       this.retryRemaining -= deltaSeconds
       if (this.retryRemaining <= 0) {
@@ -256,6 +284,7 @@ export class GameStore {
     if (!flags.manualToggleUnlocked && nextZone >= AUTO_ATTACK_UNLOCK_ZONE) {
       flags = { ...flags, autoAttackUnlocked: true, manualToggleUnlocked: true }
       party = party.map((c) => ({ ...c, controlMode: 'auto' }))
+      this.#triggerCallout('Auto-Attack online – the party fights on its own now.')
     }
 
     this.save = { ...this.save, party, currentZone: nextZone, flags, currencies: { ...this.save.currencies, gil } }

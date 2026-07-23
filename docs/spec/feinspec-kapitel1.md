@@ -424,7 +424,7 @@ Ein Item je Figur, Tier 0–4, gekoppelt an den Fortschritt (Faustregel `tier = 
 
 1. **Zone 1–2, Klicker:** Ein Blando erscheint. Claude hat noch keinen Special; der Spieler tippt „Attack". Alle 2 s ein Treffer à 12 → Blando fällt nach **8 s**. Nach dem Sieg +25 % MP (unsichtbar, bis der Special da ist).
 2. **Zone 3, Waffe & MP:** Der erste Gil-Kauf gibt Claude die Waffe → **Special freigeschaltet, MP-Leiste wird sichtbar**. Der Special (×3 ATK = 42) one-shottet einen Blando; nach 2 Casts ist MP leer → Angriffe füllen wieder auf.
-3. **Zone 5, Automatik:** Die **Auto-Attack-Regel** schaltet auf; Trash läuft jetzt idle, der Spieler greift nur noch für den Special ein. ★ Erster „vom Tappen zum mühelosen Fortschritt"-Moment.
+3. **Zone 5, Automatik:** Die **Auto-Attack-Regel** schaltet auf; Trash läuft jetzt idle, der Spieler greift nur noch für den Special ein. ★ Erster „vom Tappen zum mühelosen Fortschritt"-Moment – **begleitet von einem kurzen Freischaltungs-Hinweis** (`ui-layout.md` „Freischaltungs-Hinweis (Unlock-Callout)"), sonst wirkt derselbe Moment verwirrend statt befreiend (Playtest-Learning nach M6).
 4. **Zone 6–7, kleine Wand:** Drei Blandos setzen Claude zu – ein, zwei Retries oder kurzes Grinden in Z5, dann weiter (Ventil: EXP fließt).
 5. **Zone 8, Miniboss & Limit:** **Blandzilla** (130 HP), der Karton-Kaiju. Reiner Angriff wäre zäh; die über die Region geladene **Limit-Leiste** ist der telegrafierte Durchbruch. ★ Lehrt Limit als Wand-Brecher. Danach Claude ~Level 6.
 
@@ -474,7 +474,7 @@ Die drei Kapitel-1-Bosse (maßstabsgetreu, Minibosse 1,5× / Kapitel-Boss 2×) �
 
 ![Boss-Sprites Kapitel 1](assets/bosses/_sheet.png)
 
-**Sprite-Regeln** (`charaktere-visuals.md`): 64×64, transparent, Nearest-Neighbor-Upscale, Party links / Gegner rechts auf gemeinsamer Bodenlinie, Kopfraum für HP/Shock/Telegraf frei. **Kulissen-Hinweis aus dem Mockup-Bau:** das fokale Reaktor-Motiv der MegaCorp-Kulisse sitzt nah am rechten Rand und ragt sonst in die Seitenleisten-Zone – Backdrop nach links ausrichten/breiter anlegen (bestätigt die Warnung in `ui-layout.md`).
+**Sprite-Regeln** (`charaktere-visuals.md`): 64×64, transparent, Nearest-Neighbor-Upscale, Party links / Gegner rechts auf gemeinsamer Bodenlinie, Kopfraum für HP/Shock/Telegraf frei. **Display-Zoom (Playtest-Korrektur nach M6):** auf der Stage zusätzlich **2× Nearest-Neighbor-Zoom** auf alle Sprites gemeinsam (Details & Begründung: `ui-layout.md` „Battle-Stage & Standfläche") – die native Größenhierarchie Standard/Miniboss/Boss aus `charaktere-visuals.md` bleibt dabei erhalten. **Kulissen-Hinweis aus dem Mockup-Bau:** das fokale Reaktor-Motiv der MegaCorp-Kulisse sitzt nah am rechten Rand und ragt sonst in die Seitenleisten-Zone – Backdrop nach links ausrichten/breiter anlegen (bestätigt die Warnung in `ui-layout.md`).
 
 ---
 

@@ -16,17 +16,23 @@
 </script>
 
 <div class="stage" style:background-image={`url(${backdrop})`}>
-  <div class="banner">
-    {#if game.phase === 'region1-paused'}
-      Victory! Region 1 complete – Region 2 continues in M7 (Barrel, Analysis/Bestiary).
-    {:else if game.phase === 'retry'}
-      Defeat – retry in {Math.ceil(game.retryRemaining)}s
-    {:else if game.awaitingAttack}
-      Claude is ready – choose an action
-    {:else}
-      Zone {game.save.currentZone} / {REGION1_MAX_ZONE} – Reactor Row
-    {/if}
-  </div>
+  <!-- ui-layout.md "Freischaltungs-Hinweis": ueberdeckt kurzzeitig die normale Statuszeile,
+       pausiert aber nichts - reines Lesbarkeits-Add-on bei Rollout-Flag-Wechseln. -->
+  {#if game.calloutMessage}
+    <div class="banner callout">{game.calloutMessage}</div>
+  {:else}
+    <div class="banner">
+      {#if game.phase === 'region1-paused'}
+        Victory! Region 1 complete – Region 2 continues in M7 (Barrel, Analysis/Bestiary).
+      {:else if game.phase === 'retry'}
+        Defeat – retry in {Math.ceil(game.retryRemaining)}s
+      {:else if game.awaitingAttack}
+        Claude is ready – choose an action
+      {:else}
+        Zone {game.save.currentZone} / {REGION1_MAX_ZONE} – Reactor Row
+      {/if}
+    </div>
+  {/if}
 
   <div class="floor">
     <div class="party-side">
@@ -79,6 +85,11 @@
     border-radius: 2px;
   }
 
+  .banner.callout {
+    border-color: var(--game-hp);
+    color: var(--game-hp);
+  }
+
   .floor {
     position: absolute;
     bottom: 8%;
@@ -105,15 +116,17 @@
     gap: 4px;
   }
 
+  /* ui-layout.md "Display-Zoom": 2x Nearest-Neighbor-Zoom auf allen Sprite-Klassen
+     gemeinsam - Standard 64px nativ -> 128px effektiv, Miniboss 96px nativ -> 192px effektiv. */
   .unit img {
-    width: 64px;
-    height: 64px;
+    width: 128px;
+    height: 128px;
     image-rendering: pixelated;
   }
 
   .unit img.boss {
-    width: 96px;
-    height: 96px;
+    width: 192px;
+    height: 192px;
   }
 
   .unit-label {
@@ -122,7 +135,7 @@
   }
 
   .mini-bar {
-    width: 64px;
+    width: 128px;
     height: 5px;
     background: rgba(0, 0, 0, 0.5);
     border: 1px solid var(--game-border);

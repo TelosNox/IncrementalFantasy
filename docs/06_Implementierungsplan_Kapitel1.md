@@ -116,6 +116,13 @@ Jeder Meilenstein ist als eigenständige Arbeitseinheit gedacht (in etwa PR-Grö
 - Auto-Attack-Regel schaltet sich frei (Zone 5), `controlMode`-Konzept wird technisch relevant. **Hier erscheint erstmals der Auto/Manual-Schalter je Figur** (vorher bewusst nicht vorhanden, s. M5).
 - Limit-Leiste + Zünden-Aktion.
 - Blandzilla-Miniboss (Zone 8).
+- **Freischaltungs-Hinweis (Unlock-Callout)** bei jedem Rollout-Flag-Wechsel (mind. Auto-Attack-Freischaltung Zone 5), s. `ui-layout.md`.
+
+**Playtest-Korrekturen (nach erster Preview, vor Abnahme):**
+
+1. **Sprite-Größe:** Figuren/Monster 2× größer rendern (Display-Zoom, s. `ui-layout.md` „Battle-Stage & Standfläche" und `feinspec-kapitel1.md` §8) – war ein offener Parameter, jetzt entschieden.
+2. **Aktions-Button/Popup vor ATB-Bereitschaft:** ein dauerhaft sichtbarer, grau ausgegrauter „Attack"-Button während des ATB-Ladens ist **falsch** – vor `atb >= 1.0` darf **nichts** von der Aktionswahl sichtbar sein (Bug-Fix, kein „kommt später", s. `ui-layout.md` „Charakter-Steuerung: Panels & Aktions-Popup").
+3. **Automatik-Freischaltung ohne Ankündigung:** das fehlende Gambit-UI ist **korrekt** (Gambit-Editor bleibt bis 1. Reunion bewusst unsichtbar), aber der Übergang braucht den neuen **Freischaltungs-Hinweis** (Punkt oben), sonst wirkt der Moment verwirrend statt als Belohnung.
 
 **Abnahme:** Region 1 end-to-end spielbar exakt entlang feinspec §7.1 (Schritte 2–5); Level Claude ≈ 6 nach dem Miniboss.
 
