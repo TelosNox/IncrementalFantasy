@@ -10,9 +10,10 @@
 import Decimal from 'break_eternity.js'
 import { GATE_MONSTER_IDS, MONSTERS } from '../content/monsters'
 import { ZONES } from '../content/zones'
-import { createEnemyUnit, createPartyUnit, deriveCharacterMaxHp, deriveCharacterMaxMp } from './battle'
+import { createEnemyUnit, createPartyUnit } from './battle'
 import type { Character, Zone } from './entities'
-import { RETRY_PENALTY, applyExpGain, scaleEnemyStat } from './formulas'
+import { RETRY_PENALTY } from './formulas'
+import { applyVictoryExp, zoneReward } from './progression'
 import { createBattleState, simulateBattle } from './tick'
 
 export const OFFLINE_CAP_SECONDS = 8 * 60 * 60 // feinspec §2: Offline-Deckel 8h
@@ -26,17 +27,6 @@ function findZone(zoneIndex: number): Zone {
 
 function isGateZone(zone: Zone): boolean {
   return zone.waves[0].some((ref) => GATE_MONSTER_IDS.has(ref.monster))
-}
-
-function zoneRewardPerClear(zone: Zone): { exp: number; gil: number } {
-  let exp = 0
-  let gil = 0
-  for (const ref of zone.waves[0]) {
-    const monster = MONSTERS[ref.monster]
-    exp += scaleEnemyStat(monster.reward.exp, zone.zone)
-    gil += scaleEnemyStat(monster.reward.gil, zone.zone)
-  }
-  return { exp, gil }
 }
 
 export interface OfflineProjection {
@@ -76,18 +66,11 @@ export function projectOffline(party: Character[], zoneIndex: number, elapsedSec
     }
   }
 
-  const reward = zoneRewardPerClear(zone)
+  const reward = zoneReward(zone)
   const totalExp = reward.exp * repeats
   const gilGained = new Decimal(reward.gil).mul(repeats)
 
-  const updatedParty = party.map((character) => {
-    const gained = applyExpGain(character.level, character.exp, totalExp)
-    if (gained.level === character.level) {
-      return { ...character, exp: gained.exp }
-    }
-    const leveled: Character = { ...character, level: gained.level, exp: gained.exp }
-    return { ...leveled, hp: deriveCharacterMaxHp(leveled), mp: deriveCharacterMaxMp(leveled) }
-  })
+  const updatedParty = party.map((character) => applyVictoryExp(character, totalExp))
 
   return {
     elapsedSeconds,

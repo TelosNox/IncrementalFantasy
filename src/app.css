@@ -1,53 +1,34 @@
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
+  --game-bg-deep: #10121a;
+  --game-panel-bg: #171a24;
+  --game-border: #2e303e;
+  --game-text: #9ca3af;
+  --game-text-bright: #f3f4f6;
+  --game-gold: #e0a52e;
+  --game-hp: #3ddc84;
+  --game-atb: #4ea1f5;
+  --game-limit: #f5a623;
 
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
 
-  font: 18px/145% var(--sans);
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
+  font: 16px/145% var(--sans);
+  color-scheme: dark;
+  color: var(--game-text);
+  background: var(--game-bg-deep);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-  }
-}
-
+html,
 body {
   margin: 0;
-}
-
-h1 {
-  font-family: var(--sans);
-  font-weight: 500;
-  color: var(--text-h);
-  font-size: 40px;
-  margin: 0 0 8px;
-}
-
-p {
-  margin: 0;
+  height: 100%;
+  overflow: hidden;
 }
 
 #app {
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  place-content: center;
-  place-items: center;
-  text-align: center;
-  box-sizing: border-box;
-  padding: 24px;
+  height: 100vh;
+  width: 100vw;
 }

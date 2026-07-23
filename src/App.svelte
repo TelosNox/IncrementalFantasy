@@ -1,2 +1,5 @@
-<h1>IncrementalFantasy</h1>
-<p>in Entwicklung</p>
+<script lang="ts">
+  import GameScreen from './ui/GameScreen.svelte'
+</script>
+
+<GameScreen />
