@@ -139,6 +139,14 @@ Jeder Meilenstein ist als eigenständige Arbeitseinheit gedacht (in etwa PR-Grö
 
 **Abnahme:** Region 2 end-to-end spielbar; Bestiarium zeigt nach Erstsieg korrekt Grundstats + Schwäche-Teaser für jedes der Region-2-Monster.
 
+**Umsetzungsentscheidungen (M7):**
+
+1. **gameStore auf variable Party verallgemeinert:** M5/M6 hatten Claude fest verdrahtet (`game.claude`); M7 ersetzt das durch `game.party`/`game.awaitingUnit` und parametrisiert `CharacterPanel`/`ActionPopup` über ein `unit`-Prop – Region 3 (Tofa+Arris, M8) braucht dieselbe Erweiterung nicht mehr strukturell, nur Content.
+2. **Waffenkauf pro Figur, gleicher Flat-Preis (8 Gil):** Wie in §11 als offene Stellschraube markiert. Barrel braucht keine eigene Zonen-Schwelle wie Claude (Zone 3) – sein Roster-Beitritt selbst (Zone 9) ist bereits das Gate.
+3. **Suppress-Zielwahl ohne SPD-≥140-Gegner:** Die Default-Gambit-Regel 3 (feinspec §4.7) feuert nur, wenn ein schneller Gegner da ist. Für die manuelle Popup-Nutzung braucht Barrels Special aber immer ein Ziel – Fallback ist das stärkste (meiste HP) Ziel, analog zu Claudes Special/Limit-Zielwahl.
+4. **Bestiarium-Nummerierung** ("Entry 04/10") zählt über die interne Reihenfolge von `content/monsters.ts` (7 Monster + 3 Gates = 10) – nicht über die vollständige 10-Monster-Forschungsliste aus `gegner-katalog.md` (die auch Kapitel-2-Arten wie Mitoslime enthält). Rein kosmetisch, keine Gameplay-Bedeutung.
+5. **Bugfix beim Spielen gefunden:** `resetSave()` löschte den Save, aber der Autosave-`pagehide`-Listener lief noch und schrieb den (noch im Speicher stehenden) alten Zustand beim Reload sofort zurück – der Button wirkte, tat aber nichts. Fix: `stop()` (entfernt die Autosave-Listener) läuft jetzt vor `clearSave()`.
+
 ---
 
 ## M8 – Region 3: Volle Party, Shock, manuelle Steuerung

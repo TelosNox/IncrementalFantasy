@@ -1,18 +1,14 @@
 <script lang="ts">
-  import claudeSprite from '../assets/characters/claude_64.png'
-  import blandoSprite from '../assets/monsters/blando_64.png'
-  import blandzillaSprite from '../assets/bosses/blandzilla_base.png'
-  import backdrop from '../assets/regions/reactor_row_480.png'
-  import { REGION1_MAX_ZONE, game } from './gameStore.svelte'
+  import reactorRow from '../assets/regions/reactor_row_480.png'
+  import bargainBazaar from '../assets/regions/bargain_bazaar_480.png'
+  import { GATE_MONSTER_IDS } from '../content/monsters'
+  import { CHARACTER_SPRITES, ENEMY_SPRITES } from './sprites'
+  import { REGION2_MAX_ZONE, game } from './gameStore.svelte'
 
-  const ENEMY_SPRITES: Record<string, string> = {
-    blando: blandoSprite,
-    blandzilla: blandzillaSprite,
-  }
-
-  const claude = $derived(game.claude)
-  const claudeHpPct = $derived((Math.max(0, claude.hp) / claude.maxHp) * 100)
-  const claudeAtbPct = $derived(Math.min(1, claude.atb) * 100)
+  // encounter-zyklus1.md/feinspec §3.7 - Region 1 = Zone 1-8, Region 2 = 9-18.
+  // Vaultron/Region 3 (Zone 19-30) folgt erst in M8.
+  const backdrop = $derived(game.save.currentZone <= 8 ? reactorRow : bargainBazaar)
+  const regionLabel = $derived(game.save.currentZone <= 8 ? 'R1 · Reactor Row' : 'R2 · Bargain Bazaar')
 </script>
 
 <div class="stage" style:background-image={`url(${backdrop})`}>
@@ -22,38 +18,42 @@
     <div class="banner callout">{game.calloutMessage}</div>
   {:else}
     <div class="banner">
-      {#if game.phase === 'region1-paused'}
-        Victory! Region 1 complete – Region 2 continues in M7 (Barrel, Analysis/Bestiary).
+      {#if game.phase === 'region2-paused'}
+        Victory! Region 2 complete – Region 3 continues in M8 (Tofa, Arris, Shock).
       {:else if game.phase === 'retry'}
         Defeat – retry in {Math.ceil(game.retryRemaining)}s
-      {:else if game.awaitingAttack}
-        Claude is ready – choose an action
+      {:else if game.awaitingUnit}
+        {game.awaitingUnit.name} is ready – choose an action
       {:else}
-        Zone {game.save.currentZone} / {REGION1_MAX_ZONE} – Reactor Row
+        {regionLabel} – Zone {game.save.currentZone} / {REGION2_MAX_ZONE}
       {/if}
     </div>
   {/if}
 
   <div class="floor">
     <div class="party-side">
-      <div class="unit party">
-        <div class="unit-label">{claude.name}</div>
-        <div class="mini-bar hp"><div class="fill" style:width="{claudeHpPct}%"></div></div>
-        <div class="mini-bar atb"><div class="fill" style:width="{claudeAtbPct}%"></div></div>
-        <img src={claudeSprite} alt={claude.name} />
-      </div>
+      {#each game.party as unit (unit.id)}
+        {@const hpPct = (Math.max(0, unit.hp) / unit.maxHp) * 100}
+        {@const atbPct = Math.min(1, unit.atb) * 100}
+        <div class="unit party">
+          <div class="unit-label">{unit.name}</div>
+          <div class="mini-bar hp"><div class="fill" style:width="{hpPct}%"></div></div>
+          <div class="mini-bar atb"><div class="fill" style:width="{atbPct}%"></div></div>
+          <img src={CHARACTER_SPRITES[unit.id]} alt={unit.name} />
+        </div>
+      {/each}
     </div>
 
     <div class="enemy-side">
       {#each game.enemies as enemy, i (i)}
         {@const hpPct = (Math.max(0, enemy.hp) / enemy.maxHp) * 100}
         {@const atbPct = Math.min(1, enemy.atb) * 100}
-        {@const isBoss = enemy.id === 'blandzilla'}
-        <div class="unit enemy" class:boss={isBoss}>
+        {@const isGate = GATE_MONSTER_IDS.has(enemy.id)}
+        <div class="unit enemy" class:boss={isGate}>
           <div class="unit-label">{enemy.name}</div>
           <div class="mini-bar hp"><div class="fill" style:width="{hpPct}%"></div></div>
           <div class="mini-bar atb"><div class="fill" style:width="{atbPct}%"></div></div>
-          <img src={ENEMY_SPRITES[enemy.id]} alt={enemy.name} class:boss={isBoss} />
+          <img src={ENEMY_SPRITES[enemy.id]} alt={enemy.name} class:boss={isGate} />
         </div>
       {/each}
     </div>

@@ -1,31 +1,38 @@
 <script lang="ts">
   // ui-layout.md "Charakter-Steuerung: Panels & Aktions-Popup" - eigenstaendige
   // FF7-Menuebox, waechst nach oben in die Stage (ueber der Bottom-Leiste), auf
-  // der Party-Seite. Existiert ausschliesslich waehrend `awaitingAttack` - kein
-  // ausgegrauter Button/keine Vorschau davor (Playtest-Korrektur nach M6).
+  // der Party-Seite. Existiert ausschliesslich waehrend die uebergebene Figur
+  // `awaitingPlayerChoice` ist - kein ausgegrauter Button/keine Vorschau davor
+  // (Playtest-Korrektur nach M6). M7: pro Party-Mitglied eine eigene Instanz.
   import { game } from './gameStore.svelte'
+  import type { BattleUnit } from '../core/battle'
 
-  const claude = $derived(game.claude)
-  const specialDisabled = $derived(claude.mp < (claude.specialMpCost ?? Infinity))
+  interface Props {
+    unit: BattleUnit
+  }
+  const { unit }: Props = $props()
+
+  const ready = $derived(game.awaitingUnit === unit)
+  const specialDisabled = $derived(unit.mp < (unit.specialMpCost ?? Infinity))
 
   // FF7-Signatur: Limit in bunten Buchstaben, sobald geladen (ui-layout.md).
   const RAINBOW = ['#ff5c5c', '#ffa64d', '#ffe14d', '#5cff8f', '#5cc3ff', '#b366ff']
 </script>
 
-{#if game.awaitingAttack}
+{#if ready}
   <div class="popup">
-    <div class="popup-title">{claude.name} – ready</div>
+    <div class="popup-title">{unit.name} – ready</div>
 
-    <button class="row" onclick={() => game.attack()}>Attack</button>
+    <button class="row" onclick={() => game.attack(unit)}>Attack</button>
 
-    {#if game.canUseSpecial}
-      <button class="row" class:disabled={specialDisabled} disabled={specialDisabled} onclick={() => game.useSpecial()}>
-        Special <span class="cost">({claude.specialMpCost} MP)</span>
+    {#if game.canUseSpecial(unit)}
+      <button class="row" class:disabled={specialDisabled} disabled={specialDisabled} onclick={() => game.useSpecial(unit)}>
+        Special <span class="cost">({unit.specialMpCost} MP)</span>
       </button>
     {/if}
 
-    {#if game.canFireLimit}
-      <button class="row limit" onclick={() => game.fireLimit()}>
+    {#if game.canFireLimit(unit)}
+      <button class="row limit" onclick={() => game.fireLimit(unit)}>
         {#each 'Limit'.split('') as letter, i (i)}
           <span style:color={RAINBOW[i % RAINBOW.length]}>{letter}</span>
         {/each}

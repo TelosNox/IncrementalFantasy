@@ -1,23 +1,30 @@
 <script lang="ts">
   import { game } from './gameStore.svelte'
+  import type { BattleUnit } from '../core/battle'
   import ActionPopup from './ActionPopup.svelte'
 
-  const claude = $derived(game.claude)
-  const hpPct = $derived((Math.max(0, claude.hp) / claude.maxHp) * 100)
-  const mpPct = $derived(claude.maxMp > 0 ? (claude.mp / claude.maxMp) * 100 : 0)
-  const atbPct = $derived(Math.min(1, claude.atb) * 100)
-  const limitPct = $derived(Math.min(100, claude.limit))
+  interface Props {
+    unit: BattleUnit
+  }
+  const { unit }: Props = $props()
+
+  const hpPct = $derived((Math.max(0, unit.hp) / unit.maxHp) * 100)
+  const mpPct = $derived(unit.maxMp > 0 ? (unit.mp / unit.maxMp) * 100 : 0)
+  const atbPct = $derived(Math.min(1, unit.atb) * 100)
+  const limitPct = $derived(Math.min(100, unit.limit))
   const mpVisible = $derived(game.save.flags.mpVisible)
   const toggleVisible = $derived(game.save.flags.manualToggleUnlocked)
 </script>
 
 <div class="panel">
   <div class="header">
-    <span class="name">{claude.name}</span>
+    <span class="name">{unit.name}</span>
     {#if toggleVisible}
       <div class="mode-toggle">
-        <button class:active={claude.controlMode === 'auto'} onclick={() => game.setControlMode('auto')}>Auto</button>
-        <button class:active={claude.controlMode === 'manual'} onclick={() => game.setControlMode('manual')}>
+        <button class:active={unit.controlMode === 'auto'} onclick={() => game.setControlMode(unit.id, 'auto')}>
+          Auto
+        </button>
+        <button class:active={unit.controlMode === 'manual'} onclick={() => game.setControlMode(unit.id, 'manual')}>
           Manual
         </button>
       </div>
@@ -27,14 +34,14 @@
   <div class="row">
     <span class="label">HP</span>
     <div class="bar hp"><div class="fill" style:width="{hpPct}%"></div></div>
-    <span class="value">{Math.max(0, claude.hp)}/{claude.maxHp}</span>
+    <span class="value">{Math.max(0, unit.hp)}/{unit.maxHp}</span>
   </div>
 
   {#if mpVisible}
     <div class="row">
       <span class="label">MP</span>
       <div class="bar mp"><div class="fill" style:width="{mpPct}%"></div></div>
-      <span class="value">{claude.mp}/{claude.maxMp}</span>
+      <span class="value">{unit.mp}/{unit.maxMp}</span>
     </div>
   {/if}
 
@@ -48,10 +55,10 @@
     <div class="bar limit"><div class="fill" style:width="{limitPct}%"></div></div>
   </div>
 
-  <ActionPopup />
+  <ActionPopup {unit} />
 
-  {#if game.canBuyWeapon}
-    <button class="buy-weapon" disabled={!game.canAffordWeapon} onclick={() => game.buyWeapon()}>
+  {#if game.canBuyWeapon(unit.id)}
+    <button class="buy-weapon" disabled={!game.canAffordWeapon(unit.id)} onclick={() => game.buyWeapon(unit.id)}>
       Buy weapon ({game.weaponCostGil} Gil)
     </button>
   {/if}

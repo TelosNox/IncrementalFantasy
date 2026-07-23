@@ -1,9 +1,12 @@
 <script lang="ts">
+  import { game } from './gameStore.svelte'
   import CharacterPanel from './CharacterPanel.svelte'
 </script>
 
 <div class="bottom-bar">
-  <CharacterPanel />
+  {#each game.party as unit (unit.id)}
+    <CharacterPanel {unit} />
+  {/each}
 </div>
 
 <style>
@@ -14,5 +17,6 @@
     padding: 12px;
     box-sizing: border-box;
     gap: 12px;
+    overflow-x: auto;
   }
 </style>

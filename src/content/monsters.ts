@@ -132,3 +132,19 @@ export const MONSTERS: Record<string, Monster> = {
 // Gates/Bosse lösen im Kampf die generische Limit-Zünden-Regel aus
 // (sim_chapter1.py: use_limit_on_gate) statt der normalen Default-Gambits.
 export const GATE_MONSTER_IDS = new Set(['blandzilla', 'fort_knoxious', 'vaultron'])
+
+// Reines Präsentations-Flavor für die Bestiarium-Karte (M7) - "Vorbild"-Spalte
+// aus gegner-katalog.md, kein Gameplay-Feld, daher bewusst getrennt vom
+// 1:1-Schema in entities.ts/§4.2.
+export const MONSTER_INSPIRED_BY: Record<string, string> = {
+  blando: 'Guard Hound',
+  caffiend: 'Mu',
+  safeguard: 'Sahagin / Heavy Tank',
+  kindlebale: 'Hedgehog Pie',
+  shortfuse: 'Bomb (Self-Destruct)',
+  funkus: 'Grashtrike / Zenene',
+  pilferret: 'Vice',
+  blandzilla: 'Guard Scorpion',
+  fort_knoxious: 'Wall Market gate guard',
+  vaultron: 'Shinra HQ mecha finale',
+}
