@@ -173,7 +173,7 @@ Jeder Meilenstein ist als eigenständige Arbeitseinheit gedacht (in etwa PR-Grö
 
 - Save-Export/Import (Architektur §6, Sicherheitsnetz).
 - Fehlerbehandlung korrupter/fremder Saves (Warnung statt Datenverlust).
-- Playtest-Debugwerkzeug gegenprüfen (Architektur §6a, „Reset save"-Button): als Dev-Tool behalten oder entfernen.
+- Playtest-Debugwerkzeug gegenprüfen (Architektur §6a, „Reset save"-Button, aktuell bewusst auch im veröffentlichten Build sichtbar): vor echtem Publikum hinter `import.meta.env.DEV` verstecken oder entfernen.
 - MegaCorp-Kulisse rechts ausrichten/verbreitern (bekannte Warnung aus feinspec §8).
 - Cross-Browser-Kurzcheck (Chrome/Firefox/Safari, Desktop + mobil falls Layout es zulässt).
 - Performance-Check des Live-Loops über eine längere Session (kein Speicher-/Timer-Leck durch wiederholtes `visibilitychange`).

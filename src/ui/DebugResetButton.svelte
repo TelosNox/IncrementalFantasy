@@ -1,7 +1,7 @@
 <script lang="ts">
   // Architektur §6a - reines Playtest-Debugwerkzeug, kein Spielfeature.
-  // Nur in Dev-Builds sichtbar (npm run dev); `vite build` setzt DEV auf
-  // false, damit dieser Button nie im veröffentlichten GitHub-Pages-Build landet.
+  // Bewusst auch im veroeffentlichten Build sichtbar (Playtest-Phase ohne
+  // Publikum, s. Architektur §6a) - vor echtem Release/M10 gegenzupruefen.
   import { game } from './gameStore.svelte'
 
   function handleClick() {
@@ -11,11 +11,9 @@
   }
 </script>
 
-{#if import.meta.env.DEV}
-  <button class="debug-reset" onclick={handleClick} title="Playtest debug tool - clears the save and reloads">
-    ⟳ Reset save
-  </button>
-{/if}
+<button class="debug-reset" onclick={handleClick} title="Playtest debug tool - clears the save and reloads">
+  ⟳ Reset save
+</button>
 
 <style>
   .debug-reset {

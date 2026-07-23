@@ -117,7 +117,7 @@ vite.config.ts
 
 Ein kleiner, unauffälliger **„⟳ Reset save"-Button** unten rechts (`ui/DebugResetButton.svelte`) löscht den Save-Slot (`clearSave()`) und lädt die Seite neu, damit ein Testlauf jederzeit wieder bei Zone 1 beginnen kann – mit Bestätigungsdialog gegen Versehen. Reload statt In-Place-Reset, damit Loop/Autosave/Timer garantiert sauber neu aufgesetzt werden.
 
-**Nur in Dev-Builds sichtbar** (`import.meta.env.DEV`, Vite-Standardflag) – `npm run build` setzt das Flag auf `false`, der Button landet nie im veröffentlichten GitHub-Pages-Build. Kein Ersatz für die „echte" Reunion (die ist ein verdientes Spielfeature mit Persistenz-Regeln, s. `prestige-reunion.md`) und keine Vorstufe davon – reines Test-Werkzeug, das vor Kapitel-1-Release (spätestens M10) noch einmal bewusst gegengeprüft werden sollte (behalten als Dev-Tool vs. entfernen).
+**Bewusst auch im veröffentlichten Build sichtbar** (nicht hinter `import.meta.env.DEV` versteckt) – der Nutzer testet aktiv auf `telosnox.github.io/IncrementalFantasy/`, und in der aktuellen Playtest-Phase ohne Publikum ist ein sichtbarer Debug-Button unkritisch. Kein Ersatz für die „echte" Reunion (die ist ein verdientes Spielfeature mit Persistenz-Regeln, s. `prestige-reunion.md`) und keine Vorstufe davon – reines Test-Werkzeug. **Vor dem ersten echten Release (spätestens M10) zwingend erneut gegenprüfen:** entweder wieder hinter `import.meta.env.DEV` verstecken oder bewusst entfernen, sobald es ein Publikum gibt, das ihn versehentlich treffen könnte.
 
 ---
 
