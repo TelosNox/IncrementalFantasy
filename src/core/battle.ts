@@ -51,18 +51,28 @@ export function isAlive(unit: BattleUnit): boolean {
   return unit.hp > 0 && !unit.fled
 }
 
+/** feinspec §4.1/§6.4 - maximale HP einer Figur aus Level + Waffen-Tier. */
+export function deriveCharacterMaxHp(character: Character): number {
+  const hpAfterLevel = deriveStat(character.base.hp, character.growth.hp, character.level)
+  return Math.round(hpAfterLevel * weaponStatMod(character.weaponTier).hp)
+}
+
+/** feinspec §4.1 - maximale MP einer Figur aus Level (MP-Sonderfall, s. formulas.ts). */
+export function deriveCharacterMaxMp(character: Character): number {
+  return deriveMaxMp(character.base.mp, character.level)
+}
+
 /** feinspec §4.1/§6.4 - Party-Kampfeinheit aus Level + Waffen-Tier ableiten. */
 export function createPartyUnit(character: Character, zoneIndex: number): BattleUnit {
   const level = character.level
-  const hpAfterLevel = deriveStat(character.base.hp, character.growth.hp, level)
   const atkAfterLevel = deriveStat(character.base.atk, character.growth.atk, level)
   const magAfterLevel = deriveStat(character.base.mag, character.growth.mag, level)
   const defAfterLevel = deriveStat(character.base.def, character.growth.def, level)
   const spdAfterLevel = deriveStat(character.base.spd, character.growth.spd, level)
-  const mpAfterLevel = deriveMaxMp(character.base.mp, level)
 
   const mod = weaponStatMod(character.weaponTier)
-  const maxHp = Math.round(hpAfterLevel * mod.hp)
+  const maxHp = deriveCharacterMaxHp(character)
+  const mpAfterLevel = deriveCharacterMaxMp(character)
 
   return {
     id: character.id,
