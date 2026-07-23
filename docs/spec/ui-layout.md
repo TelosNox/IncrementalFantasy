@@ -27,14 +27,14 @@
 
 ## Charakter-Steuerung: Panels & Aktions-Popup
 
-Die Bottom-Leiste trägt je Figur ein **Charakter-Panel** (HP/MP/ATB/Limit) plus einen **Auto/Manuell-Schalter** (erscheint mit der ersten Automatik, s. `gambits.md` §6). Bedien-Flow (Modus je Figur, globale Wait-Pause, Warteschlange): `gambits.md` §3.
+Die Bottom-Leiste trägt je Figur ein **Charakter-Panel** (HP/MP/ATB/Limit) plus einen **Auto/Manual-Schalter** (erscheint mit der ersten Automatik, s. `gambits.md` §6). Bedien-Flow (Modus je Figur, globale Wait-Pause, Warteschlange): `gambits.md` §3.
 
 **Aktions-Popup (FF7-Menübox):** Wird eine Manuell-Figur bereit, öffnet **direkt an ihrem Panel** ein Aktions-Popup (die Kampfuhr pausiert global).
 
 - **Look:** dunkle, leicht transparente Box im **Blau/Lila-Bereich** (FF7-Menübox-Anmutung), klar von der Stage abgesetzt; **helle Schrift** (Weiß / Weißgelb).
 - **Zustandskodierung doppelt (Lesbarkeit):** verfügbare Aktionen **hell + kräftige (dickere) Schrift**; nicht verfügbare (z. B. Spezial ohne MP) **gedämpft + dünne Schrift** – sichtbar, aber sofort als „gerade nicht möglich" lesbar.
 - **Limit:** wenn geladen, in **bunten Buchstaben** (jeder Buchstabe eine kräftige Farbe) – die FF7-Signatur.
-- **Skalierung:** feste Grundaktionen oben (Angriff, Spezial, Limit; Verteidigen ab Boss-Event); **Materia unter der Kategorie „Magie ▸"** als **scroll-/blätterbare Unterliste** → das Popup behält seine Größe, egal wie viele Materia (rutscht nie aus dem Bild). Kategorie nur sichtbar, wenn Materia-Aktionen existieren.
+- **Skalierung:** feste Grundaktionen oben (Attack, Special, Limit; Defend ab Boss-Event); **Materia unter der Kategorie „Magic ▸"** als **scroll-/blätterbare Unterliste** → das Popup behält seine Größe, egal wie viele Materia (rutscht nie aus dem Bild). Kategorie nur sichtbar, wenn Materia-Aktionen existieren.
 - **Platz:** Popup wächst nach **oben** in die Stage (über der Bottom-Leiste), auf der Party-Seite (links), damit es die Gegner-Seite und deren HUD nicht verdeckt.
 
 ## Nicht jetzt

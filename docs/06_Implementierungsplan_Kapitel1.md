@@ -100,10 +100,11 @@ Jeder Meilenstein ist als eigenständige Arbeitseinheit gedacht (in etwa PR-Grö
 **Ziel:** Erster spielbarer, wenn auch minimaler Screen – Claude solo gegen Blando, rein manuell.
 
 - Svelte-Grundlayout nach `ui-layout.md`-Platzbudget (Stage/Bottom/Sidebar-Rahmen, auch wenn Sidebar noch leer).
-- Charakter-Panel (HP/ATB), Gegner-Sprite, „Angriff"-Button.
+- Charakter-Panel (HP/ATB), Gegner-Sprite, „Attack"-Button.
 - Core-Loop an einen Svelte-Store angebunden; UI liest nur, schreibt nie direkt in `/core`-State.
+- **Kein Auto/Manual-Schalter und keinerlei Modus-Text** in diesem Screen (auch nicht als reiner Hinweis) – vor Zone 5 gibt es nichts zu automatisieren, ein sichtbarer Modus-Hinweis würde die Automatik spoilern (feinspec §1.1, `gambits.md` §6).
 
-**Abnahme:** Zone 1–2 im Browser spielbar wie in feinspec §7.1 Schritt 1 beschrieben (alle 2 s ein Treffer à 12, Blando fällt nach 8 s) – optisch grob vergleichbar mit Mockup `01_region1_klicker.png`.
+**Abnahme:** Zone 1–2 im Browser spielbar wie in feinspec §7.1 Schritt 1 beschrieben (alle 2 s ein Treffer à 12, Blando fällt nach 8 s) – optisch grob vergleichbar mit Mockup `01_region1_klicker.png`; kein Modus-Indikator sichtbar.
 
 ---
 
@@ -112,7 +113,7 @@ Jeder Meilenstein ist als eigenständige Arbeitseinheit gedacht (in etwa PR-Grö
 **Ziel:** Region 1 vollständig (Zone 1–8).
 
 - Waffenkauf (Gil-Sink) → Special + MP-Leiste werden sichtbar (Zone 3).
-- Auto-Attack-Regel schaltet sich frei (Zone 5), `controlMode`-Konzept wird technisch relevant (auch wenn Umschalt-UI erst später).
+- Auto-Attack-Regel schaltet sich frei (Zone 5), `controlMode`-Konzept wird technisch relevant. **Hier erscheint erstmals der Auto/Manual-Schalter je Figur** (vorher bewusst nicht vorhanden, s. M5).
 - Limit-Leiste + Zünden-Aktion.
 - Blandzilla-Miniboss (Zone 8).
 

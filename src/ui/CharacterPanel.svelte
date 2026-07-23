@@ -10,7 +10,6 @@
 <div class="panel">
   <div class="header">
     <span class="name">{claude.name}</span>
-    <span class="mode">MANUELL</span>
   </div>
 
   <div class="row">
@@ -29,7 +28,7 @@
     <div class="bar limit"><div class="fill" style:width="{limitPct}%"></div></div>
   </div>
 
-  <button class="attack" disabled={!game.awaitingAttack} onclick={() => game.attack()}> Angriff </button>
+  <button class="attack" disabled={!game.awaitingAttack} onclick={() => game.attack()}> Attack </button>
 </div>
 
 <style>
@@ -53,12 +52,6 @@
   .name {
     color: var(--game-text-bright);
     font-weight: 600;
-  }
-
-  .mode {
-    color: var(--game-gold);
-    font-size: 12px;
-    letter-spacing: 0.05em;
   }
 
   .row {

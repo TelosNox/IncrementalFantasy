@@ -57,7 +57,7 @@ Diese Zwei-Achsigkeit ist bewusst gewählt: horizontale Tiefe (Kampf) und vertik
 - **Umschaltbare Sets** (offensiv/defensiv), die sich auch **automatisch nach Gegner-Art** wechseln lassen – kein ständiges Herumschalten.
 - **Erwerb & Ausbau über Reunion:** mehr Slots, mehr Bedingungstypen, schnellere Reaktion. Automatisierung ist damit *verdiente* Prestige-Belohnung (löst Anti-Pattern #2 „zu früh automatisieren" von selbst).
 - **Ab-Werk-Presets:** funktionierende Standard-Sets, damit Casuals sofort spielen; Tiefe optional (Auflösung „Tiefe ⟷ Zugänglichkeit", §3, gegen D1/D4-Spreadsheet-Gefahr).
-- **Steuerung je Figur:** Auto/Manuell ist **pro Figur** umschaltbar – das Team kann automatisch kämpfen, während eine Figur gezielt manuell spielt (z. B. Heilung/Zauber zur Schwäche). Manuelle Auswahl läuft im **Wait-Modus** (die gesamte Kampfuhr pausiert) über ein **Aktions-Popup** am Charakter. Die Steuer-UI erscheint gestaffelt (Schalter ab erster Automatik, Materia-Kategorie ab Materia). Details: `spec/gambits.md`, `spec/ui-layout.md`.
+- **Steuerung je Figur:** Auto/Manual ist **pro Figur** umschaltbar – das Team kann automatisch kämpfen, während eine Figur gezielt manuell spielt (z. B. Heilung/Zauber zur Schwäche). Manuelle Auswahl läuft im **Wait-Modus** (die gesamte Kampfuhr pausiert) über ein **Aktions-Popup** am Charakter. Die Steuer-UI erscheint gestaffelt (Schalter ab erster Automatik, Materia-Kategorie ab Materia; vor der ersten Automatik-Freischaltung ist auch kein Modus-Text sichtbar – sonst spoilert er die Automatik). Details: `spec/gambits.md`, `spec/ui-layout.md`.
 
 ---
 

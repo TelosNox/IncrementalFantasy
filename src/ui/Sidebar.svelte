@@ -4,7 +4,7 @@
 
 <div class="sidebar">
   <div class="title">IncrementalFantasy</div>
-  <div class="subtitle">Kapitel 1 – The Grid</div>
+  <div class="subtitle">Chapter 1 – The Grid</div>
   <div class="zone">R1 · Reactor Row · Zone {game.save.currentZone}</div>
 
   <div class="currency">
@@ -13,7 +13,7 @@
   </div>
 
   <!-- ui-layout.md: Menü-Bereich bleibt reservierter Platz, Inhalt folgt ab M6+. -->
-  <div class="reserved">Team / Shop / Bestiarium / Stats folgen in späteren Meilensteinen.</div>
+  <div class="reserved">Team / Equipment / Bestiary / Stats coming in later milestones.</div>
 </div>
 
 <style>

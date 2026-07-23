@@ -15,11 +15,11 @@
 <div class="stage" style:background-image={`url(${backdrop})`}>
   <div class="banner">
     {#if game.phase === 'region1-paused'}
-      Sieg! Region 1 geht in M6 weiter (Waffe, Auto-Attack, Limit, Miniboss).
+      Victory! Region 1 continues in M6 (weapon, auto-attack, limit, miniboss).
     {:else if game.phase === 'retry'}
-      Niederlage – Neustart in {Math.ceil(game.retryRemaining)}s
+      Defeat – retry in {Math.ceil(game.retryRemaining)}s
     {:else if game.awaitingAttack}
-      Klicker-Auftakt: Klicke „Angriff", um Claudes ATB-Aktion zu wählen
+      Clicker intro: tap "Attack" to trigger Claude's ATB action
     {:else}
       Zone {game.save.currentZone} / {M5_MAX_ZONE} – Reactor Row
     {/if}

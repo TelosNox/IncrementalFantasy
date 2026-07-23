@@ -20,16 +20,16 @@
 
 - Jede Figur (und jeder Gegner) hat eine **ATB-Leiste**, die sich über Zeit füllt; die **Speed**-Stat bestimmt die Füllrate.
 - Ist die Leiste voll, wird **eine Aktion ausgelöst** – standardmäßig von den **Gambits** gewählt (das „Was"), optional vom Spieler überschrieben (Aktiv-Ebene).
-- **Auto-Attack ist kein eigenes System**, sondern die **unterste Gambit-Regel** („WENN nichts anderes greift DANN Angriff") mit garantiertem Fallback-Slot. Der **allererste Spielabschnitt** ist jedoch ein **manueller Klicker** (Aktionen werden bei ATB-Bereitschaft selbst gewählt); die Default-Attack-Regel ist die **erste Automatik-Freischaltung** kurz darauf. Steuerungs-Ebenen & Rollout: siehe `gambits.md`.
+- **Auto-Attack ist kein eigenes System**, sondern die **unterste Gambit-Regel** („WENN nichts anderes greift DANN Attack") mit garantiertem Fallback-Slot. Der **allererste Spielabschnitt** ist jedoch ein **manueller Klicker** (Aktionen werden bei ATB-Bereitschaft selbst gewählt); die Default-Attack-Regel ist die **erste Automatik-Freischaltung** kurz darauf. Steuerungs-Ebenen & Rollout: siehe `gambits.md`.
 - **Gegner handeln ebenfalls getaktet** (vereinfachtes, **telegrafiertes** ATB) – erst dadurch werden defensive Gambit-Sets und Heilung sinnvoll (gegen Einseitigkeit #5).
 - **Standard = Auto-Resolve:** Kein Input wird je erzwungen; manuelles Eingreifen ist immer Bonus (gegen Klick-Ermüdung A2).
 - **Bedenkzeit-Pause (Wait-Modus, verbindlich):** Sobald der Spieler eine Aktion selbst wählt (manuelle Übernahme / offenes Aktionsmenü), friert die **gesamte Kampfuhr** ein – **alle** ATB-Leisten, der **Shock-Auf- und -Abbau**, Gegner-Telegrafs und Statuseffekt-Ticks (Gift, Zünd-Zähler). Nichts läuft ab, während gewählt wird; ein Shock-Fenster wird durch Nachdenken **nie** verbraucht. Im Idle-/Auto-Modus (keine anstehende Spielerwahl) läuft die Uhr durchgehend. So bleibt Aktiv-Spiel überlegt statt hektisch (präzisiert den „Wait"-Modus aus `gambits.md` §3: es pausiert die *ganze* Simulation, nicht nur die eigene Leiste) und der Zeitdruck-Anti-Pattern (#12) wird vermieden.
 
 ## 2. Aktionstypen (bewusst schlank)
 
-- **Angriff** – kostenlos, Fallback; **gibt etwas MP zurück** (s. §3).
-- **Materia-Fähigkeit / Magie** – kostet **MP**.
-- **Verteidigen / Defensiv** – Schadensreduktion o. Ä. für defensive Sets.
+- **Attack** – kostenlos, Fallback; **gibt etwas MP zurück** (s. §3).
+- **Materia Ability / Magic** – kostet **MP**.
+- **Defend** – Schadensreduktion o. Ä. für defensive Sets.
 - **Limit** – eigene Ladeleiste, **kein** MP (s. §4).
 - **Keine Gegenstände/Items** (bewusste Entscheidung – hält das System schlank).
 
@@ -43,11 +43,11 @@ MP ist der **Limiter**, der die Gambit-Tiefe überhaupt erst erzeugt: Ohne Koste
 
 1. **Prozentualer Refill nach jedem gewonnenen Kampf** – Basis-Nachschub. Prozentual statt Fixwert, damit es über die gesamte Skalierung sauber bleibt (gegen tote Zahlen #10).
 2. **Trickle über Zeit pro ATB-Tick** im Kampf – Sustain in langen (Boss-)Kämpfen. **Hier sitzt der Build-Hebel:** Materia/Ausrüstung/Affinität steigern die Regen-Rate.
-3. **Angriff-Refund** – ein normaler Angriff gibt etwas MP zurück. Schließt den Loop „MP leer → Angriff → MP zurück → wieder zaubern" und macht die Auto-Attack strukturell unverzichtbar.
+3. **Attack-Refund** – ein normaler Angriff gibt etwas MP zurück. Schließt den Loop „MP leer → Angriff → MP zurück → wieder zaubern" und macht die Auto-Attack strukturell unverzichtbar.
 
 **Gestaffelter Rollout (C1/C2):** Früh nur Kanal 1 (simpel, lehrt die Ressource). Kanäle 2 und 3 sowie Regen-Materia gehen später über die Progressions-Achsen auf.
 
-**Idle-tauglich:** Die MP-Politik fahren die Gambits automatisch (z. B. „WENN MP hoch UND Gegner schwach DANN Feuga; SONST Angriff"). Der Spieler autort die Strategie einmal, der Sim führt sie aus – kein Pro-Kampf-Micromanagement.
+**Idle-tauglich:** Die MP-Politik fahren die Gambits automatisch (z. B. „WENN MP hoch UND Gegner schwach DANN Feuga; SONST Attack"). Der Spieler autort die Strategie einmal, der Sim führt sie aus – kein Pro-Kampf-Micromanagement.
 
 **Entscheidung:** MP allein genügt als Riegel – **kein** zusätzlicher Cooldown/Charge für Magie/Spezials. Stärkere Zauber werden schlicht über **höhere MP-Kosten** selten gehalten (teurer = seltener spammbar, und leert die Leiste schneller → Fallback auf Angriff). Limits (eigene Leiste) und Summons (später, eigene Mechanik) bleiben davon unberührte, separate Systeme – kein Zusatzriegel auf normale Magie.
 
@@ -71,7 +71,7 @@ MP ist der **Limiter**, der die Gambit-Tiefe überhaupt erst erzeugt: Ohne Koste
 
 Jeder Gegner sammelt **Shock** über zugefügten Schaden – **immer**, auch ohne Schwäche-Ausnutzung, nur langsamer. Voll aufgeladen → der Gegner wird **geschockt** (Wirkung s. „Shock-Zustand" unten).
 
-> **Rollout:** Das Shock-**System** wird erst in **Region 3** freigeschaltet – gebündelt mit **Tofa** (der Shock-Enablerin) und der vollen Party. Davor existiert weder Ring-Anzeige noch Aufbau; „immer" bezieht sich auf die Zeit *ab Freischaltung*. Der erste DEF-Gegner (Safeguard) taucht bewusst schon in Region 2 auf – als grindbarer Zäh-Gegner, der das Bedürfnis nach Shock *weckt*, den Region 3 dann als Konter liefert. Region 1 bleibt shock-frei (Angriff + Limit).
+> **Rollout:** Das Shock-**System** wird erst in **Region 3** freigeschaltet – gebündelt mit **Tofa** (der Shock-Enablerin) und der vollen Party. Davor existiert weder Ring-Anzeige noch Aufbau; „immer" bezieht sich auf die Zeit *ab Freischaltung*. Der erste DEF-Gegner (Safeguard) taucht bewusst schon in Region 2 auf – als grindbarer Zäh-Gegner, der das Bedürfnis nach Shock *weckt*, den Region 3 dann als Konter liefert. Region 1 bleibt shock-frei (Attack + Limit).
 
 **Drei Shock-Zustände des Gegners:**
 
@@ -109,14 +109,14 @@ Ein einziges Element (der Ring) trägt beide Phasen: **nach oben füllen = Aufba
 
 ## 8. Rollout-Reihenfolge (grob; exakte Zuordnung in `progression-regionen.md`)
 
-Angriff + Limit → Analyse/Bestiarium → Shock → MP-Regen-Ausbau (Trickle/Refund) → Schockanfälligkeit/Resistenzen.
+Attack + Limit → Analyse/Bestiarium → Shock → MP-Regen-Ausbau (Trickle/Refund) → Schockanfälligkeit/Resistenzen.
 
 ---
 
 ## Offene Detailfragen (nächste Iteration, dann mit Zahlen)
 
 - ATB-Füllformel und Gewichtung der Speed-Stat.
-- MP-Werte: %-Refill je Kampf, Trickle-Rate, Angriff-Refund-Höhe.
+- MP-Werte: %-Refill je Kampf, Trickle-Rate, Attack-Refund-Höhe.
 - Shock: Aufbau-Rate, Schwelle, Fenster-Dauer und -Bonus.
 - Gegner-Aktionstakt und Telegraf-Vorlauf.
 - Limit: Laderaten, Payoff-Höhe (Schub-Dauer bzw. Wucht) und Cap gegen Über-Banking.

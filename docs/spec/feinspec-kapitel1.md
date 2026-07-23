@@ -37,13 +37,13 @@ Die folgenden Mockups sind aus den vorhandenen Pixel-Assets (`assets/characters`
 
 ![Region 1 – Klicker-Auftakt](assets/mockups/01_region1_klicker.png)
 
-Der Einstieg: nur **Claude** gegen einen einzelnen **Blando** vor der Reactor-Row-Kulisse. Der Spieler wählt anfangs jede ATB-Aktion selbst (Banner oben). MP ist gerade sichtbar geworden (erster Waffen-Special). Unten Claudes Panel mit HP/MP/ATB und der ladenden **Limit**-Leiste. Modus „MANUELL".
+Der Einstieg: nur **Claude** gegen einen einzelnen **Blando** vor der Reactor-Row-Kulisse. Der Spieler wählt anfangs jede ATB-Aktion selbst (Banner oben). MP ist gerade sichtbar geworden (erster Waffen-Special). Unten Claudes Panel mit HP/MP/ATB und der ladenden **Limit**-Leiste. **Noch kein Auto/Manuell-Schalter sichtbar** – der erscheint erst mit der Default-Attack-Freischaltung (Zone 5, `gambits.md` §6). **Playtest-Learning (wichtig für die Implementierung):** Vor dieser Freischaltung darf die UI **keinerlei Modus-Anzeige** zeigen (auch keinen reinen Text-Hinweis) – sonst spoilert sie die Automatik, bevor der Spieler sie verdient hat. `assets/sim/make_mockups.py` rendert diesen Screen bereits korrekt ohne Modus-Anzeige (`show_mode=False`); diese Beschreibung war der Widerspruch dazu und ist hiermit behoben.
 
 ### 1.2 Region 3 – Volle Party & Shock-Fenster
 
 ![Region 3 – Shock-Kampf](assets/mockups/02_region3_shock.png)
 
-Der Kampf in seiner vollen Kapitel-1-Form: alle vier Figuren, drei Gegner. Ein **Blando ist geschockt** – **voller goldener Ring + Bruch-Symbol** (DEF ignoriert, ×2 Schaden, verlangsamt); der **Funkus** daneben zeigt seinen **Shock-Aufbau** als von unten gefüllten Ring. **Shortfuse** telegrafiert seine Selbstzerstörung („! ZUENDET"). **Tofas Limit ist voll** (leuchtet orange) – der aktive Spieler zündet es jetzt ins Shock-Fenster. Modus „AUTO" (Default-Regeln laufen selbst). Shock-Ring-Farbe & -Symbolik: `kampf-analyse-shock.md` §6.
+Der Kampf in seiner vollen Kapitel-1-Form: alle vier Figuren, drei Gegner. Ein **Blando ist geschockt** – **voller goldener Ring + Bruch-Symbol** (DEF ignoriert, ×2 Schaden, verlangsamt); der **Funkus** daneben zeigt seinen **Shock-Aufbau** als von unten gefüllten Ring. **Shortfuse** telegrafiert seine Selbstzerstörung („! DETONATING"). **Tofas Limit ist voll** (leuchtet orange) – der aktive Spieler zündet es jetzt ins Shock-Fenster. Modus „Auto" (Default-Regeln laufen selbst) – ab hier zulässig, da die Automatik seit Zone 5 freigeschaltet ist. Shock-Ring-Farbe & -Symbolik: `kampf-analyse-shock.md` §6.
 
 ### 1.3 Analyse & Bestiarium
 
@@ -61,7 +61,7 @@ Am Kapitelende: die klaren **Reset-** vs. **Persistenz-Listen** und der Ertrag i
 
 ![Aktions-Popup](assets/mockups/05_aktions_popup.png)
 
-Die manuelle Steuerung als **FF7-Menübox** am Charakter-Panel: dunkle Blau/Lila-Box, helle Schrift. **Arris** steht auf **Manuell** (cyan Chip), das übrige Team auf **Auto** – wird Arris bereit, pausiert die gesamte Uhr und ihr Popup öffnet. **Grundaktionen** (Angriff, Verteidigen, Spezial „Heilwind") stehen fix; **Limit** erscheint in **bunten Buchstaben**, wenn geladen; **nicht nutzbare Aktionen** bleiben sichtbar, aber **ausgegraut + dünn** (hier „Feuga – zu wenig MP"). Materia lebt unter der Kategorie **„Magie ▸"** als scroll-/blätterbare Unterliste – das Popup bleibt gleich groß, egal wie viele Zauber. Verhalten & Rollout: §5.1 sowie `gambits.md` / `ui-layout.md`. *(Hier im ausgebauten Zustand gezeigt; Verteidigen und die Magie-Kategorie erscheinen erst ab ihren Freischaltungen – in Kapitel 1 zunächst nur Angriff/Spezial/Limit.)*
+Die manuelle Steuerung als **FF7-Menübox** am Charakter-Panel: dunkle Blau/Lila-Box, helle Schrift. **Arris** steht auf **Manual** (cyan Chip), das übrige Team auf **Auto** – wird Arris bereit, pausiert die gesamte Uhr und ihr Popup öffnet. **Grundaktionen** (Attack, Defend, Special „Heal Wind") stehen fix; **Limit** erscheint in **bunten Buchstaben**, wenn geladen; **nicht nutzbare Aktionen** bleiben sichtbar, aber **ausgegraut + dünn** (hier „Feuga – not enough MP"). Materia lebt unter der Kategorie **„Magic ▸"** als scroll-/blätterbare Unterliste – das Popup bleibt gleich groß, egal wie viele Zauber. Verhalten & Rollout: §5.1 sowie `gambits.md` / `ui-layout.md`. *(Hier im ausgebauten Zustand gezeigt; Defend und die Magic-Kategorie erscheinen erst ab ihren Freischaltungen – in Kapitel 1 zunächst nur Attack/Special/Limit.)* **UI-Sprache (verbindlich):** alle Aktions-/Modus-Labels, die tatsächlich im Spiel zu sehen sind (Buttons, Chips, Kategorien, Telegrafs), sind **Englisch** – konsistent mit der Namenskonvention für Code/Identifiers (CLAUDE.md). Nur die Spezifikations-**Prosa** bleibt Deutsch.
 
 ---
 
@@ -278,12 +278,12 @@ Zahlen laufen über eine **BigNumber-/eigene Notation ab Tag 1** (`oekonomie-wae
 Die Auto-Battle IST bereits eine Prioritätsliste – der Spieler kann sie in Kap. 1 nur **nicht editieren** (das schaltet die 1. Reunion frei). Reihenfolge = erste zutreffende Regel gewinnt:
 
 ```
-1. WENN ich = Arris  UND ein Verbündeter HP < 45%  UND MP >= 10   DANN Heilung
-2. WENN ich = Tofa   UND Ziel nicht geschockt      UND MP >= 7    DANN Shock-Schlag
+1. WENN ich = Arris  UND ein Verbündeter HP < 45%  UND MP >= 10   DANN Heal
+2. WENN ich = Tofa   UND Ziel nicht geschockt      UND MP >= 7    DANN Shock Strike
 3. WENN ich = Barrel UND Gegner mit SPD >= 140 da  UND MP >= 6    DANN Suppress
 4. WENN ich = Claude UND MP >= 8                                  DANN Special (stärkstes Ziel)
 5. WENN Boss anwesend UND Limit voll                              DANN Limit
-6. SONST                                                          Angriff (Fallback, +MP)
+6. SONST                                                          Attack (Fallback, +MP)
 ```
 
 Zielwahl-Fallback: entschärfe zuerst `bomb`, dann `drain`, sonst schwächstes Ziel. **Steht `controlMode` einer Figur auf `manual`, werden diese Regeln für sie übersprungen** – der Spieler wählt im Aktions-Popup (globale Wait-Pause, s. §5.1).
@@ -347,14 +347,14 @@ Die **globale Pause** (bestätigt): Solange `awaitingPlayerChoice` gesetzt ist, 
 **Popup-Aktionsmenge (implementierungsnah):**
 
 ```
-actions = [ Angriff ]                                     # immer
-if figur.special.unlockedFromZone <= currentZone: + Spezial(mpCost)
-if flags.defenseUnlocked:                          + Verteidigen
+actions = [ Attack ]                                       # immer
+if figur.special.unlockedFromZone <= currentZone: + Special(mpCost)
+if flags.defenseUnlocked:                          + Defend
 if figur.limit >= 100:                             + Limit         # bunt dargestellt
-if flags.materiaUnlocked and figur.materiaActions: + "Magie ▸"     # Unterliste (scroll)
+if flags.materiaUnlocked and figur.materiaActions: + "Magic ▸"     # Unterliste (scroll)
 ```
 
-**Ausführbarkeit:** Eine Aktion ist *disabled*, wenn die Ressource fehlt (`Spezial` bei `mp < mpCost`) – sie wird **angezeigt, aber ausgegraut** (nie entfernt). `Limit` erscheint nur bei voller Leiste.
+**Ausführbarkeit:** Eine Aktion ist *disabled*, wenn die Ressource fehlt (`Special` bei `mp < mpCost`) – sie wird **angezeigt, aber ausgegraut** (nie entfernt). `Limit` erscheint nur bei voller Leiste.
 
 **Sichtbarkeits-Flags (Rollout, gestaffelt):** `manualToggleUnlocked` ab Default-Attack-Regel (Region 1; davor reiner Klicker ohne Schalter) · `defenseUnlocked` ab der ersten telegrafierten Boss-Aufladung · `materiaUnlocked` ab Kapitel 2. Vor `manualToggleUnlocked` ist jede Figur faktisch `manual` (Popup bei jeder Bereitschaft), nur ohne sichtbaren Umschalter.
 
@@ -366,10 +366,10 @@ if flags.materiaUnlocked and figur.materiaActions: + "Magie ▸"     # Unterlist
 
 | Figur | Region | HP | MP | ATK | MAG | DEF | SPD | Special (MP) | Rolle |
 |-------|:------:|---:|---:|----:|----:|----:|----:|--------------|-------|
-| **Claude** | 1 | 110 | 20 | 14 | 6 | 4 | 100 | Großer Einzelschaden ×3 ATK (8) | Damage |
-| **Barrel** | 2 | 140 | 20 | 11 | 5 | 8 | 80 | Suppress: Gegner-ATB ×0,5 / 4 s (6) | Kontrolle/Tank |
-| **Tofa** | 3 | 95 | 20 | 12 | 5 | 3 | 130 | Shock-Schlag: +45 Shock (7) | Shock-Enabler |
-| **Arris** | 3 | 80 | 30 | 7 | 14 | 3 | 95 | Gruppenheilung 2,2·MAG (10) | Heilung |
+| **Claude** | 1 | 110 | 20 | 14 | 6 | 4 | 100 | Big single-target hit ×3 ATK (8) | Damage |
+| **Barrel** | 2 | 140 | 20 | 11 | 5 | 8 | 80 | Suppress: enemy ATB ×0.5 / 4s (6) | Control/Tank |
+| **Tofa** | 3 | 95 | 20 | 12 | 5 | 3 | 130 | Shock Strike: +45 Shock (7) | Shock-Enabler |
+| **Arris** | 3 | 80 | 30 | 7 | 14 | 3 | 95 | Heal Wind: party heal 2.2·MAG (10) | Healing |
 
 ### 6.2 Monster- & Gate-Basiswerte (bei Einführung, vor `g`-Skalierung)
 
@@ -422,7 +422,7 @@ Ein Item je Figur, Tier 0–4, gekoppelt an den Fortschritt (Faustregel `tier = 
 
 ### 7.1 Region 1, die ersten Minuten (Claude solo)
 
-1. **Zone 1–2, Klicker:** Ein Blando erscheint. Claude hat noch keinen Special; der Spieler tippt „Angriff". Alle 2 s ein Treffer à 12 → Blando fällt nach **8 s**. Nach dem Sieg +25 % MP (unsichtbar, bis der Special da ist).
+1. **Zone 1–2, Klicker:** Ein Blando erscheint. Claude hat noch keinen Special; der Spieler tippt „Attack". Alle 2 s ein Treffer à 12 → Blando fällt nach **8 s**. Nach dem Sieg +25 % MP (unsichtbar, bis der Special da ist).
 2. **Zone 3, Waffe & MP:** Der erste Gil-Kauf gibt Claude die Waffe → **Special freigeschaltet, MP-Leiste wird sichtbar**. Der Special (×3 ATK = 42) one-shottet einen Blando; nach 2 Casts ist MP leer → Angriffe füllen wieder auf.
 3. **Zone 5, Automatik:** Die **Auto-Attack-Regel** schaltet auf; Trash läuft jetzt idle, der Spieler greift nur noch für den Special ein. ★ Erster „vom Tappen zum mühelosen Fortschritt"-Moment.
 4. **Zone 6–7, kleine Wand:** Drei Blandos setzen Claude zu – ein, zwei Retries oder kurzes Grinden in Z5, dann weiter (Ventil: EXP fließt).

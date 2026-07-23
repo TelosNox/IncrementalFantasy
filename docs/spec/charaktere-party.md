@@ -18,9 +18,9 @@ Jede Figur hat eine **über die Waffe freigeschaltete Spezialfähigkeit**, die i
 | Figur | Spezialfähigkeit | Rolle |
 |-------|------------------|-------|
 | **Claude** | großer Einzelschaden | Damage |
-| **Barrel** | Gegner unterdrücken (Gegner-ATB lädt langsamer / wird leicht reduziert) | Kontrolle |
+| **Barrel** | Gegner unterdrücken (Gegner-ATB lädt langsamer / wird leicht reduziert) | Control |
 | **Tofa** | verstärkt den Shock-Zustand | Shock-Enabler |
-| **Arris** | heilt die Gruppe | Heilung |
+| **Arris** | heilt die Gruppe | Healing |
 
 Roster-Rhythmus: Region 1 Claude allein → Region 2 Barrel → Region 3 Tofa + Arris gleichzeitig (volle Gruppe).
 
