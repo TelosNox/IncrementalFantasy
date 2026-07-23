@@ -2,6 +2,11 @@
 
 Projektkontext und Arbeitsanweisungen für IncrementalFantasy – ein parodistisches Incremental Game in Anlehnung an Final Fantasy 7.
 
+## Sprache (verbindlich)
+
+- **Antworten/Kommunikation:** immer auf Deutsch.
+- **Code:** immer auf Englisch (Bezeichner, Kommentare, Commit-Messages) – bestehende Projektregel, siehe z. B. `docs/spec/feinspec-kapitel1.md` §4.
+
 ## Rollen
 
 - **Claude Cowork:** professioneller Architekt und Produktmanager.
