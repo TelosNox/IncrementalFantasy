@@ -23,6 +23,8 @@ Wer eine Aktion wählt, wenn eine ATB-Leiste voll ist, hat drei Ebenen:
 
 Progression läuft von *manuell-only* hin zu *immer mehr Automatik* – der manuelle Zugriff bleibt aber immer als Option obendrauf.
 
+**Präzisierung (Playtest-Korrektur nach M7):** In Kapitel 1 (vor der 1. Reunion) existiert Ebene 2 **noch nicht** – es gibt keinen Gambit-Editor. Was ab Zone 5 automatisch läuft, ist ausschließlich Ebene 3, und Ebene 3 ist bewusst **stumpf**: reiner Angriffs-Fallback, nichts sonst (kein Special, kein Heal, kein Suppress, kein Limit). Diese Aktionen bleiben bis zur 1. Reunion exklusiv über Ebene 1 (Manual) erreichbar. Erst die 1. Reunion schaltet Ebene 2 frei – der programmierbare Gambit-Editor, der genau diese Aktionen als Bedingungen verfügbar macht (Details/Konsequenzen: `feinspec-kapitel1.md` §4.7).
+
 ## 2. Manueller Klicker-Einstieg
 
 Der allererste Abschnitt ist ein **kurzer manueller Klicker**: Aktionen (Attack, Magic, Limit) werden bei ATB-Bereitschaft selbst gewählt.

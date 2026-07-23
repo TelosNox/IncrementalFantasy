@@ -131,9 +131,30 @@ def pick_target(targets):
     if drains: return min(drains, key=lambda e:e.hp)
     return min(targets, key=lambda e: e.hp)
 
-def choose_and_act(actor, party, enemies):
+def dumb_attack_act(actor, party, enemies):
+    """Die einzige Auto-Regel vor der 1. Reunion (Playtest-Korrektur nach M7,
+    feinspec-kapitel1.md §4.7): immer Attack, nie Special/Heal/Suppress/Limit.
+    Diese bleiben bis zur 1. Reunion exklusiv der manuellen Steuerung
+    vorbehalten - s. smart_act()."""
     targets = [e for e in enemies if e.alive]
     if not targets: return
+    tgt = pick_target(targets)
+    deal(actor, tgt, actor.atk, label="Angriff")
+    actor.mp = min(actor.max_mp, actor.mp + 2)
+
+def smart_act(actor, party, enemies):
+    """Referenz fuer 'aufmerksames manuelles Spiel' (Special/Heal/Suppress/
+    Limit klug eingesetzt) - das, was der Spieler ueber das Aktions-Popup
+    erreichen kann, und die Vorlage fuer das ab-Werk-Preset des
+    programmierbaren Gambit-Editors (1. Reunion, gambits.md §5). Wird von
+    run_realistic() nur an Gate-Zonen aufgerufen (simuliert "an Gates auf
+    Manuell gehen")."""
+    targets = [e for e in enemies if e.alive]
+    if not targets: return
+    if actor.limit >= 100:
+        strongest = max(targets, key=lambda e: e.hp)
+        d = phys_dmg(round(actor.atk*4.5), strongest.deff, ignore_def=True)
+        strongest.hp -= d; actor.limit = 0; return
     can_sp = getattr(actor, "can_special", True)
     if not can_sp:
         tgt = pick_target(targets)
@@ -153,9 +174,10 @@ def choose_and_act(actor, party, enemies):
             deal(actor, tgt, actor.atk, shock_add=45, label="Shock-Schlag"); return
     if actor.name == "Barrel":
         fast = [e for e in targets if e.spd >= 140]
-        if fast and actor.mp >= SPECIAL_MP["Barrel"]:
-            actor.mp -= SPECIAL_MP["Barrel"]; fast[0].suppress=4.0
-            deal(actor, fast[0], round(actor.atk*0.8), label="Suppress"); return
+        target = fast[0] if fast else max(targets, key=lambda e: e.hp)
+        if actor.mp >= SPECIAL_MP["Barrel"]:
+            actor.mp -= SPECIAL_MP["Barrel"]; target.suppress=4.0
+            deal(actor, target, round(actor.atk*0.8), label="Suppress"); return
     if actor.name == "Claude":
         tgt = max(targets, key=lambda e: e.hp)
         if actor.mp >= SPECIAL_MP["Claude"]:
@@ -194,9 +216,14 @@ def enemy_act(actor, party):
         actor.actions_done += 1
         if actor.actions_done >= 4: actor.fled = True
 
-def simulate_battle(party, enemies, use_limit_on_gate=False, max_t=600):
+def simulate_battle(party, enemies, manual=False, max_t=600):
+    """manual=False: Auto vor der 1. Reunion, greift nur an (dumb_attack_act).
+    manual=True: simuliert aufmerksames manuelles Spiel (smart_act) - fuer
+    run_realistic() an den drei Gate-Zonen (Blandzilla/Fort Knoxious/Vaultron),
+    s. feinspec-kapitel1.md §4.7."""
+    act_fn = smart_act if manual else dumb_attack_act
     for f in party+enemies: f.atb = 0.0
-    t = 0.0; poison_acc = 0.0; post_mp={}
+    t = 0.0; poison_acc = 0.0
     while t < max_t:
         if not any(e.alive for e in enemies): return dict(win=True, time=t)
         if not any(p.alive for p in party):   return dict(win=False, time=t)
@@ -214,13 +241,7 @@ def simulate_battle(party, enemies, use_limit_on_gate=False, max_t=600):
             if f.atb >= 1.0:
                 f.atb = 0.0
                 if f.side=="party":
-                    if use_limit_on_gate and f.limit>=100:
-                        alive_e=[e for e in enemies if e.alive]
-                        if alive_e:
-                            strongest=max(alive_e, key=lambda e:e.hp)
-                            d=phys_dmg(round(f.atk*4.5), strongest.deff, ignore_def=True)
-                            strongest.hp-=d; f.limit=0; continue
-                    choose_and_act(f, party, enemies)
+                    act_fn(f, party, enemies)
                 else:
                     enemy_act(f, party)
         t += DT
@@ -278,10 +299,15 @@ def award(levels, exp_pool, names, eg):
         while exp_pool[nm]>=exp_to_next(levels[nm]):
             exp_pool[nm]-=exp_to_next(levels[nm]); levels[nm]+=1
 
-def run_realistic(verbose=True):
+def run_realistic(verbose=True, manual_at_gates=True, max_grind=2000):
     """Realistischer Durchlauf: bei Niederlage grindet die Party die letzte
     geschaffte Zone (deterministisch -> Level muss steigen), bis die aktuelle
-    Zone faellt. Misst Gesamt-Kampfzeit inkl. Grind + Zeitstrafen."""
+    Zone faellt. Misst Gesamt-Kampfzeit inkl. Grind + Zeitstrafen.
+
+    manual_at_gates=True (Playtest-Korrektur nach M7, empfohlene Spielweise):
+    Auto in der Flaeche, an den drei Gates (Blandzilla/Fort Knoxious/Vaultron)
+    manuelles Spiel (smart_act). manual_at_gates=False: reines Idle, nie
+    manuell - validiert "mit genug Grind auch idle machbar" (gambits.md §4)."""
     Z = zone_encounters()
     levels = {"Claude":1,"Barrel":1,"Tofa":1,"Arris":1}
     exp_pool = {"Claude":0,"Barrel":0,"Tofa":0,"Arris":0}
@@ -295,7 +321,7 @@ def run_realistic(verbose=True):
             party = party_for_zone(z, levels)
             enemies=[make_monster(nm,z,s) for nm,s in Z[z]]
             is_gate=any(e.name in GATE_BASE for e in enemies)
-            res=simulate_battle(party, enemies, use_limit_on_gate=is_gate)
+            res=simulate_battle(party, enemies, manual=manual_at_gates and is_gate)
             total+=res["time"]; region_time[region]+=res["time"]
             if res["win"]:
                 eg=sum(make_monster(nm,z,s).exp for nm,s in Z[z])
@@ -308,14 +334,15 @@ def run_realistic(verbose=True):
             gz = last_clear if last_clear else z
             gparty=party_for_zone(gz, levels)
             genem=[make_monster(nm,gz,s) for nm,s in Z[gz]]
-            gres=simulate_battle(gparty, genem, use_limit_on_gate=any(e.name in GATE_BASE for e in genem))
+            g_is_gate=any(e.name in GATE_BASE for e in genem)
+            gres=simulate_battle(gparty, genem, manual=manual_at_gates and g_is_gate)
             total+=gres["time"]; region_time[region]+=gres["time"]
             if gres["win"]:
                 eg=sum(make_monster(nm,gz,s).exp for nm,s in Z[gz])
                 gg=sum(make_monster(nm,gz,s).gil for nm,s in Z[gz])
                 award(levels, exp_pool, [p.name for p in gparty], eg); gil+=gg
             grind_battles+=1; grind_here+=1
-            if grind_here>400:
+            if grind_here>max_grind:
                 print(f"!!! Zone {z} nicht schaffbar (Balance-Problem)"); break
         rows.append(dict(zone=z, gate=is_gate, retries=retries, grind=grind_here,
                          clvl=levels["Claude"], cum_min=round(total/60,1)))
@@ -343,7 +370,7 @@ def run_chapter(verbose=True):
         party = party_for_zone(z, levels)
         enemies = [make_monster(nm, z, size) for nm,size in Z[z]]
         is_gate = any(e.name in GATE_BASE for e in enemies)
-        res = simulate_battle(party, enemies, use_limit_on_gate=is_gate)
+        res = simulate_battle(party, enemies, manual=is_gate)
         eg = sum(make_monster(nm,z,size).exp for nm,size in Z[z])
         gg = sum(make_monster(nm,z,size).gil for nm,size in Z[z])
         for nm in [p.name for p in party]:
@@ -364,5 +391,7 @@ def run_chapter(verbose=True):
 if __name__ == "__main__":
     print("="*70); print("A) PERFEKTER DURCHLAUF (obere Schranke, kein Grind)"); print("="*70)
     run_chapter()
-    print("\n"+"="*70); print("B) REALISTISCHER DURCHLAUF (mit Grind-Retries)"); print("="*70)
-    run_realistic()
+    print("\n"+"="*70); print("B) REALISTISCHER DURCHLAUF - Auto in der Flaeche, Manuell an Gates"); print("="*70)
+    run_realistic(manual_at_gates=True)
+    print("\n"+"="*70); print("C) REALISTISCHER DURCHLAUF - reines Idle, nie manuell"); print("="*70)
+    run_realistic(manual_at_gates=False, max_grind=5000)

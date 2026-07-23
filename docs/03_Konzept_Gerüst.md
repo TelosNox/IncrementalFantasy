@@ -51,7 +51,9 @@ Diese Zwei-Achsigkeit ist bewusst gewählt: horizontale Tiefe (Kampf) und vertik
 
 ## 5. Automatisierung: Gambits (der vertikale Rampup, A5)
 
-Über der stumpfen Auto-Attack liegt die **strategische** Automatik nach FF12-Vorbild:
+Über der stumpfen Auto-Attack liegt die **strategische** Automatik nach FF12-Vorbild.
+
+**Präzisierung (Playtest-Korrektur nach M7, `feinspec-kapitel1.md` §4.7):** „Stumpfe Auto-Attack" ist wörtlich gemeint – vor der 1. Reunion greift Auto **ausschließlich** an, nie Special/Heal/Suppress/Limit. Diese bleiben bis dahin exklusiv über die manuelle Steuerung erreichbar. Das war in einer früheren Implementierung aufgeweicht (Auto führte bereits eine volle, nur nicht editierbare Prioritätsliste inkl. Specials aus) und fühlte sich im Playtest wie Zuschauen statt Spielen an – die Korrektur macht aktives Spiel über das ganze Kapitel lohnend, nicht nur an den seltenen manuellen Prüfsteinen (`spec/gambits.md` §4).
 
 - **Prioritäten & Konditionen** („WENN Gegner feueranfällig DANN Feuer-Materia", „WENN HP < Schwelle DANN heilen"). Weakness-basierte Bedingungen werden erst nutzbar, wenn der Gegner analysiert ist – schließt den Synergie-Loop (§2).
 - **Umschaltbare Sets** (offensiv/defensiv), die sich auch **automatisch nach Gegner-Art** wechseln lassen – kein ständiges Herumschalten.

@@ -24,6 +24,8 @@
         Defeat – retry in {Math.ceil(game.retryRemaining)}s
       {:else if game.awaitingUnit}
         {game.awaitingUnit.name} is ready – choose an action
+      {:else if game.isCurrentZoneGate}
+        ⚠ Gate – Auto only attacks here, switch to Manual for Specials/Limit!
       {:else}
         {regionLabel} – Zone {game.save.currentZone} / {REGION2_MAX_ZONE}
       {/if}

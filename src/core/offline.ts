@@ -8,7 +8,7 @@
 // auch kein Crash, niederlage-offline.md §3), ohne Sonderfall-Code.
 
 import Decimal from 'break_eternity.js'
-import { GATE_MONSTER_IDS, MONSTERS } from '../content/monsters'
+import { MONSTERS } from '../content/monsters'
 import { ZONES } from '../content/zones'
 import { createEnemyUnit, createPartyUnit } from './battle'
 import type { Character, Zone } from './entities'
@@ -23,10 +23,6 @@ function findZone(zoneIndex: number): Zone {
   const zone = ZONES.find((z) => z.zone === zoneIndex)
   if (!zone) throw new Error(`Zone ${zoneIndex} nicht gefunden`)
   return zone
-}
-
-function isGateZone(zone: Zone): boolean {
-  return zone.waves[0].some((ref) => GATE_MONSTER_IDS.has(ref.monster))
 }
 
 export interface OfflineProjection {
@@ -47,7 +43,10 @@ export function projectOffline(party: Character[], zoneIndex: number, elapsedSec
 
   const battleUnits = party.map((c) => createPartyUnit(c, zoneIndex))
   const enemyUnits = zone.waves[0].map((ref) => createEnemyUnit(MONSTERS[ref.monster], zoneIndex, ref.size))
-  const state = createBattleState(battleUnits, enemyUnits, isGateZone(zone))
+  // Offline laeuft immer im dumben Auto-Modus (niemand ist da, um manuell
+  // einzugreifen) - an einem Gate ist das gewollt oft ein "kein Fortschritt"-
+  // Ergebnis (niederlage-offline.md §3), kein Sonderfall noetig.
+  const state = createBattleState(battleUnits, enemyUnits)
   const battleResult = simulateBattle(state)
 
   const wasClearing = battleResult.win

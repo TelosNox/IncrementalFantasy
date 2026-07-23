@@ -18,7 +18,7 @@
 
 import Decimal from 'break_eternity.js'
 import { CHARACTERS, CLAUDE } from '../content/characters'
-import { GATE_MONSTER_IDS, MONSTERS } from '../content/monsters'
+import { MONSTERS } from '../content/monsters'
 import { ZONES } from '../content/zones'
 import { createEnemyUnit, createPartyUnit, dealDamage, isAlive } from '../core/battle'
 import type { BattleUnit } from '../core/battle'
@@ -90,8 +90,7 @@ function freshSaveState(): SaveState {
 function spawnBattle(zone: Zone, party: Character[]): BattleState {
   const partyUnits = party.map((c) => createPartyUnit(c, zone.zone))
   const enemyUnits = zone.waves[0].map((ref) => createEnemyUnit(MONSTERS[ref.monster], zone.zone, ref.size))
-  const isGate = zone.waves[0].some((ref) => GATE_MONSTER_IDS.has(ref.monster))
-  return createBattleState(partyUnits, enemyUnits, isGate)
+  return createBattleState(partyUnits, enemyUnits)
 }
 
 /** kampf-analyse-shock.md §5 - Bestiarium-Eintrag beim ersten Sieg über eine Art, Rest bleibt Teaser in Kap. 1. */
@@ -133,6 +132,11 @@ export class GameStore {
 
   get awaitingUnit(): BattleUnit | null {
     return this.battle.awaitingPlayerChoice
+  }
+
+  /** gambits.md §4 "manuelle Prüfsteine" - Auto greift an Gates nur stumpf an; Hinweis, dass Manuell hier lohnt. */
+  get isCurrentZoneGate(): boolean {
+    return findZone(this.save.currentZone).isGate
   }
 
   #character(id: string): Character {

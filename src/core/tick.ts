@@ -3,9 +3,9 @@
 // (docs/spec/assets/sim/sim_chapter1.py: simulate_battle/enemy_act).
 
 import type { BattleUnit } from './battle'
-import { aoeParty, dealDamage, isAlive } from './battle'
+import { aoeParty, isAlive } from './battle'
 import { resolvePartyAction } from './gambits'
-import { LIMIT_MAX, atbFillPerTick, limitFireDamage, limitGainOnTaken, physicalDamage } from './formulas'
+import { LIMIT_MAX, atbFillPerTick, limitGainOnTaken, physicalDamage } from './formulas'
 
 /** feinspec §2 - Tick-Auflösung des Simulations-/Loop-Takts. */
 export const DT = 0.1
@@ -17,16 +17,10 @@ export interface BattleState {
   enemies: BattleUnit[]
   awaitingPlayerChoice: BattleUnit | null
   poisonAccumulator: number
-  /** Headless-Gate-Verhalten (sim_chapter1.py: use_limit_on_gate) - feuert Limit automatisch, sobald voll. */
-  useLimitOnGate: boolean
 }
 
-export function createBattleState(
-  party: BattleUnit[],
-  enemies: BattleUnit[],
-  useLimitOnGate = false,
-): BattleState {
-  return { party, enemies, awaitingPlayerChoice: null, poisonAccumulator: 0, useLimitOnGate }
+export function createBattleState(party: BattleUnit[], enemies: BattleUnit[]): BattleState {
+  return { party, enemies, awaitingPlayerChoice: null, poisonAccumulator: 0 }
 }
 
 function tickPoison(state: BattleState, dt: number): void {
@@ -102,15 +96,6 @@ export function battleTick(state: BattleState, dt: number): BattleResult {
       }
       f.atb = 0
       if (f.side === 'party') {
-        if (state.useLimitOnGate && f.limit >= LIMIT_MAX) {
-          const aliveEnemies = state.enemies.filter(isAlive)
-          if (aliveEnemies.length) {
-            const target = aliveEnemies.reduce((s, e) => (e.hp > s.hp ? e : s))
-            target.hp -= limitFireDamage(f.atk, target.def)
-            f.limit = 0
-            continue
-          }
-        }
         resolvePartyAction(f, state.party, state.enemies)
       } else {
         resolveEnemyAction(f, state)
