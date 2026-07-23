@@ -33,10 +33,10 @@ export const REGION1_MAX_ZONE = 8
 const WEAPON_UNLOCK_ZONE = 3
 
 /**
- * Playtest-provisorischer Gil-Preis (ausruestung-gil.md: Kosten sind noch
- * offene Detailfrage) - exakt der Gil-Stand, den die Baseline-Progression bis
- * Zone 3 abwirft (feinspec §7.1: "der erste Gil-Kauf"), damit der erste
- * Gil-Sink ohne Wartezeit, aber spürbar greift.
+ * Playtest-Baseline-Gil-Preis (feinspec §6.4/§11 - erster konkreter Ansatz,
+ * nicht final) - exakt der Gil-Stand, den die Baseline-Progression bis Zone 3
+ * abwirft (feinspec §7.1: "der erste Gil-Kauf"), damit der erste Gil-Sink
+ * ohne Wartezeit, aber spürbar greift.
  */
 const WEAPON_COST_GIL = 8
 

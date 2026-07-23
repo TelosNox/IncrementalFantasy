@@ -348,11 +348,14 @@ Die **globale Pause** (bestätigt): Solange `awaitingPlayerChoice` gesetzt ist, 
 
 ```
 actions = [ Attack ]                                       # immer
-if figur.special.unlockedFromZone <= currentZone: + Special(mpCost)
+if figur.special.unlockedFromZone <= currentZone
+   and figur.weaponTier >= 1:                        + Special(mpCost)  # s.u.
 if flags.defenseUnlocked:                          + Defend
 if figur.limit >= 100:                             + Limit         # bunt dargestellt
 if flags.materiaUnlocked and figur.materiaActions: + "Magic ▸"     # Unterliste (scroll)
 ```
+
+**Ergänzung `weaponTier >= 1` (M6-Präzisierung):** Die reine Zonen-Bedingung wäre in der Praxis fast immer erfüllt (Gil ist ab Zone 3 bereits vorhanden), verlangt aber keinen echten Kauf. Die Implementierung prüft zusätzlich `weaponTier >= 1`, damit „Special" tatsächlich erst **nach** dem Gil-Kauf erscheint (§6.4, §7.1 Schritt 2) statt rein zonenbasiert – konsequenter zur Gil-Sink-Erzählung, ohne das Grundmodell zu ändern.
 
 **Ausführbarkeit:** Eine Aktion ist *disabled*, wenn die Ressource fehlt (`Special` bei `mp < mpCost`) – sie wird **angezeigt, aber ausgegraut** (nie entfernt). `Limit` erscheint nur bei voller Leiste.
 
@@ -414,7 +417,13 @@ if flags.materiaUnlocked and figur.materiaActions: + "Magic ▸"     # Unterlist
 
 ### 6.4 Waffen-Tiers (Gil-Sink, Kap. 1)
 
-Ein Item je Figur, Tier 0–4, gekoppelt an den Fortschritt (Faustregel `tier = level // 4`, max 4). Effekt: `atk ×(1+0,10·tier)`, `hp ×(1+0,05·tier)`, `mag ×(1+0,10·tier)`. Tier 1 schaltet den Special frei. Slots/A-B-Layout bleiben leer bis Kap. 2. Reset bei Reunion (Gil neu erspielt), der **gelernte Special bleibt**.
+Ein Item je Figur, Tier 0–4. Effekt: `atk ×(1+0,10·tier)`, `hp ×(1+0,05·tier)`, `mag ×(1+0,10·tier)`. Tier 1 schaltet den Special frei. Slots/A-B-Layout bleiben leer bis Kap. 2. Reset bei Reunion (Gil neu erspielt), der **gelernte Special bleibt**.
+
+**Zwei Modelle, bewusst unterschieden (M6-Umsetzung):**
+
+- **Headless-Pacing-Simulation** (`sim_chapter1.py`, M3-Referenzsimulation, `tests/chapter-playthrough.test.ts`): Faustregel `tier = level // 4` (max 4) – reine Vereinfachung, um Balance/Pacing ohne modellierten Shop-Flow durchzurechnen.
+- **Live-Spiel (M6, `ui/gameStore.svelte.ts`):** Tier wird **ausschließlich über einen echten Gil-Kauf** gesetzt (`buyWeapon()`), **nicht** automatisch aus dem Level abgeleitet – deckungsgleich mit §7.1 Schritt 2 ("der erste Gil-Kauf gibt Claude die Waffe"). In Kapitel 1/Region 1 ist damit nur der eine Kauf Tier 0→1 modelliert (weitere Tiers folgen mit Barrel/Region 2 in M7+).
+- **Gil-Preis (Playtest-Baseline, M6):** **8 Gil**, kaufbar ab Zone 3 – exakt der Gil-Stand, den die Baseline-Progression bis dahin abwirft (kein Warten, aber spürbarer erster Sink). War in §11 als offene Stellschraube markiert; dieser Wert ist der erste konkrete Ansatz, keine endgültige Balance.
 
 ---
 
@@ -515,4 +524,4 @@ Diese Baseline ist bewusst tunbar. Die sensibelsten Hebel:
 - **Shock-Aufbaurate** (0,5·Schaden) und **Tofa-Bonus** (+45) – wie relevant Shock schon in Kap. 1 ist.
 - **Limit-Laderaten** (0,35 / 0,50) und Payoff (4,5·ATK) – Wucht des Wand-Brechers.
 - **Offline-Rate/Deckel** (60 % / 8 h) und **Zeitstrafe** (5 s).
-- Waffen-Tier-Kurve und Gil-Preise (hier nur als Stat-Modell angerissen).
+- Waffen-Tier-Kurve über Tier 1 hinaus (Region 2+); der erste Gil-Preis (Tier 0→1, Zone 3) ist mit 8 Gil seit M6 ein erster konkreter Ansatz (§6.4), nicht final.
