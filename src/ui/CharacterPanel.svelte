@@ -1,5 +1,6 @@
 <script lang="ts">
   import { game } from './gameStore.svelte'
+  import ActionPopup from './ActionPopup.svelte'
 
   const claude = $derived(game.claude)
   const hpPct = $derived((Math.max(0, claude.hp) / claude.maxHp) * 100)
@@ -47,25 +48,7 @@
     <div class="bar limit"><div class="fill" style:width="{limitPct}%"></div></div>
   </div>
 
-  <!-- ui-layout.md "Charakter-Steuerung": vor atb>=1.0 ist NICHTS von der Aktionswahl sichtbar,
-       auch kein ausgegrauter Button - das Popup existiert erst im Moment der ATB-Bereitschaft. -->
-  {#if game.awaitingAttack}
-    <div class="actions">
-      <button class="action attack" onclick={() => game.attack()}>Attack</button>
-      {#if game.canUseSpecial}
-        <button
-          class="action special"
-          disabled={claude.mp < (claude.specialMpCost ?? Infinity)}
-          onclick={() => game.useSpecial()}
-        >
-          Special ({claude.specialMpCost} MP)
-        </button>
-      {/if}
-      {#if game.canFireLimit}
-        <button class="action limit" onclick={() => game.fireLimit()}>Limit</button>
-      {/if}
-    </div>
-  {/if}
+  <ActionPopup />
 
   {#if game.canBuyWeapon}
     <button class="buy-weapon" disabled={!game.canAffordWeapon} onclick={() => game.buyWeapon()}>
@@ -76,6 +59,7 @@
 
 <style>
   .panel {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -165,38 +149,6 @@
     font-size: 12px;
     min-width: 52px;
     text-align: right;
-  }
-
-  .actions {
-    display: flex;
-    gap: 6px;
-    margin-top: 6px;
-  }
-
-  .action {
-    flex: 1;
-    padding: 10px 6px;
-    background: var(--game-gold);
-    color: #1a1400;
-    border: none;
-    font-weight: 700;
-    font-size: 13px;
-    letter-spacing: 0.03em;
-    cursor: pointer;
-  }
-
-  .action:disabled {
-    background: var(--game-border);
-    color: var(--game-text);
-    cursor: default;
-  }
-
-  .action.special {
-    background: var(--game-mp);
-  }
-
-  .action.limit {
-    background: var(--game-limit);
   }
 
   .buy-weapon {
