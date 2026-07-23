@@ -1,46 +1,56 @@
 <script lang="ts">
   import claudeSprite from '../assets/characters/claude_64.png'
   import blandoSprite from '../assets/monsters/blando_64.png'
+  import blandzillaSprite from '../assets/bosses/blandzilla_base.png'
   import backdrop from '../assets/regions/reactor_row_480.png'
-  import { M5_MAX_ZONE, game } from './gameStore.svelte'
+  import { REGION1_MAX_ZONE, game } from './gameStore.svelte'
+
+  const ENEMY_SPRITES: Record<string, string> = {
+    blando: blandoSprite,
+    blandzilla: blandzillaSprite,
+  }
 
   const claude = $derived(game.claude)
-  const enemy = $derived(game.enemy)
   const claudeHpPct = $derived((Math.max(0, claude.hp) / claude.maxHp) * 100)
   const claudeAtbPct = $derived(Math.min(1, claude.atb) * 100)
-  const enemyHpPct = $derived(enemy ? (Math.max(0, enemy.hp) / enemy.maxHp) * 100 : 0)
-  const enemyAtbPct = $derived(enemy ? Math.min(1, enemy.atb) * 100 : 0)
 </script>
 
 <div class="stage" style:background-image={`url(${backdrop})`}>
   <div class="banner">
     {#if game.phase === 'region1-paused'}
-      Victory! Region 1 continues in M6 (weapon, auto-attack, limit, miniboss).
+      Victory! Region 1 complete – Region 2 continues in M7 (Barrel, Analysis/Bestiary).
     {:else if game.phase === 'retry'}
       Defeat – retry in {Math.ceil(game.retryRemaining)}s
     {:else if game.awaitingAttack}
-      Clicker intro: tap "Attack" to trigger Claude's ATB action
+      Claude is ready – choose an action
     {:else}
-      Zone {game.save.currentZone} / {M5_MAX_ZONE} – Reactor Row
+      Zone {game.save.currentZone} / {REGION1_MAX_ZONE} – Reactor Row
     {/if}
   </div>
 
   <div class="floor">
-    <div class="unit party">
-      <div class="unit-label">{claude.name}</div>
-      <div class="mini-bar hp"><div class="fill" style:width="{claudeHpPct}%"></div></div>
-      <div class="mini-bar atb"><div class="fill" style:width="{claudeAtbPct}%"></div></div>
-      <img src={claudeSprite} alt={claude.name} />
+    <div class="party-side">
+      <div class="unit party">
+        <div class="unit-label">{claude.name}</div>
+        <div class="mini-bar hp"><div class="fill" style:width="{claudeHpPct}%"></div></div>
+        <div class="mini-bar atb"><div class="fill" style:width="{claudeAtbPct}%"></div></div>
+        <img src={claudeSprite} alt={claude.name} />
+      </div>
     </div>
 
-    {#if enemy}
-      <div class="unit enemy">
-        <div class="unit-label">{enemy.name}</div>
-        <div class="mini-bar hp"><div class="fill" style:width="{enemyHpPct}%"></div></div>
-        <div class="mini-bar atb"><div class="fill" style:width="{enemyAtbPct}%"></div></div>
-        <img src={blandoSprite} alt={enemy.name} />
-      </div>
-    {/if}
+    <div class="enemy-side">
+      {#each game.enemies as enemy, i (i)}
+        {@const hpPct = (Math.max(0, enemy.hp) / enemy.maxHp) * 100}
+        {@const atbPct = Math.min(1, enemy.atb) * 100}
+        {@const isBoss = enemy.id === 'blandzilla'}
+        <div class="unit enemy" class:boss={isBoss}>
+          <div class="unit-label">{enemy.name}</div>
+          <div class="mini-bar hp"><div class="fill" style:width="{hpPct}%"></div></div>
+          <div class="mini-bar atb"><div class="fill" style:width="{atbPct}%"></div></div>
+          <img src={ENEMY_SPRITES[enemy.id]} alt={enemy.name} class:boss={isBoss} />
+        </div>
+      {/each}
+    </div>
   </div>
 </div>
 
@@ -75,10 +85,17 @@
     left: 0;
     right: 0;
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     align-items: flex-end;
     padding: 0 10%;
     box-sizing: border-box;
+  }
+
+  .party-side,
+  .enemy-side {
+    display: flex;
+    gap: 24px;
+    align-items: flex-end;
   }
 
   .unit {
@@ -92,6 +109,11 @@
     width: 64px;
     height: 64px;
     image-rendering: pixelated;
+  }
+
+  .unit img.boss {
+    width: 96px;
+    height: 96px;
   }
 
   .unit-label {

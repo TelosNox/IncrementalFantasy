@@ -1,31 +1,47 @@
-// M5-Scope (Implementierungsplan): Region 1a, reiner Klicker-Auftakt (feinspec
-// §7.1 Schritt 1) - Claude solo, manuell, Zone 1-2. Verbindet den bereits
-// getesteten headless Kern (/core, /content, /save) mit einem Svelte-5-Runen-Store;
-// die UI liest ausschließlich über diese Klasse und schreibt nie direkt in
+// M5/M6-Scope (Implementierungsplan): Region 1 komplett (feinspec §7.1
+// Schritte 1-5) - Claude solo, Zone 1-8. Verbindet den bereits getesteten
+// headless Kern (/core, /content, /save) mit einem Svelte-5-Runen-Store; die
+// UI liest ausschließlich über diese Klasse und schreibt nie direkt in
 // BattleUnit/Character (Architektur §3 - "/core kennt keine Svelte-Stores").
 //
 // Jede Zone startet als frischer Kampf (volle HP/MP, Limit 0) - deckungsgleich
 // mit der validierten Referenzsimulation (sim_chapter1.py, s. tests/chapter-
 // playthrough.test.ts: `runOneBattle` baut pro Zone neue Party-Units aus dem
-// aktuellen Level). Ab Zone 3 bräuchte es Waffenkauf/Special-UI (M6) - deshalb
-// endet M5 bewusst nach Zone 2 in der Phase "region1-paused".
+// aktuellen Level). Der Waffen-Tier ist davon bewusst ausgenommen: er wird
+// NICHT automatisch aus dem Level abgeleitet (das ist nur eine Vereinfachung
+// der headless-Pacing-Simulation), sondern ausschließlich über `buyWeapon()`
+// gesetzt - deckungsgleich mit feinspec §7.1 Schritt 2 ("der erste Gil-Kauf
+// gibt Claude die Waffe").
 
 import Decimal from 'break_eternity.js'
 import { CLAUDE } from '../content/characters'
 import { GATE_MONSTER_IDS, MONSTERS } from '../content/monsters'
-import { weaponTierForLevel } from '../content/weapons'
 import { ZONES } from '../content/zones'
 import { createEnemyUnit, createPartyUnit, dealDamage, isAlive } from '../core/battle'
-import type { Character, Zone } from '../core/entities'
-import { pickTarget } from '../core/gambits'
-import { MP_REFUND_PER_ATTACK, RETRY_PENALTY } from '../core/formulas'
+import type { Character, ControlMode, Zone } from '../core/entities'
+import { pickTarget, resolvePartyAction, strongest } from '../core/gambits'
+import { LIMIT_MAX, MP_REFUND_PER_ATTACK, RETRY_PENALTY, limitFireDamage } from '../core/formulas'
 import { applyVictoryExp, zoneReward } from '../core/progression'
 import { battleTick, createBattleState, DT, type BattleState } from '../core/tick'
 import type { SaveState } from '../save/schema'
 import { loadSave, startAutosave, writeSave, type AutosaveHandle } from '../save/storage'
 
-/** feinspec §7.1 Schritt 1 - M5 deckt nur Zone 1-2 ab (Klicker ohne Waffe/Special). */
-export const M5_MAX_ZONE = 2
+/** feinspec §7.1 - M5+M6 decken Region 1 komplett ab (Zone 1-8, Blandzilla-Miniboss). */
+export const REGION1_MAX_ZONE = 8
+
+/** feinspec §7.1 Schritt 2 - ab Zone 3 kann die Waffe gekauft werden (Special/MP werden sichtbar). */
+const WEAPON_UNLOCK_ZONE = 3
+
+/**
+ * Playtest-provisorischer Gil-Preis (ausruestung-gil.md: Kosten sind noch
+ * offene Detailfrage) - exakt der Gil-Stand, den die Baseline-Progression bis
+ * Zone 3 abwirft (feinspec §7.1: "der erste Gil-Kauf"), damit der erste
+ * Gil-Sink ohne Wartezeit, aber spürbar greift.
+ */
+const WEAPON_COST_GIL = 8
+
+/** feinspec §7.1 Schritt 3/gambits.md §6 - ab Zone 5 schaltet die Auto-Attack-Regel + der Auto/Manual-Schalter frei. */
+const AUTO_ATTACK_UNLOCK_ZONE = 5
 
 export type Phase = 'battle' | 'retry' | 'region1-paused'
 
@@ -83,15 +99,35 @@ export class GameStore {
     return this.battle.party[0]
   }
 
-  get enemy() {
-    return this.battle.enemies.find(isAlive) ?? this.battle.enemies[0]
+  get enemies() {
+    return this.battle.enemies
   }
 
   get awaitingAttack(): boolean {
     return this.battle.awaitingPlayerChoice === this.claude
   }
 
-  /** feinspec §5.1 Schritt 3/4 - Spieler wählt "Angriff", die Uhr läuft danach weiter. */
+  get canBuyWeapon(): boolean {
+    return this.save.currentZone >= WEAPON_UNLOCK_ZONE && this.save.party[0].weaponTier < 1
+  }
+
+  get canAffordWeapon(): boolean {
+    return this.save.currencies.gil.gte(WEAPON_COST_GIL)
+  }
+
+  get weaponCostGil(): number {
+    return WEAPON_COST_GIL
+  }
+
+  get canUseSpecial(): boolean {
+    return this.awaitingAttack && this.claude.canSpecial === true && this.save.party[0].weaponTier >= 1
+  }
+
+  get canFireLimit(): boolean {
+    return this.awaitingAttack && this.claude.limit >= LIMIT_MAX
+  }
+
+  /** feinspec §5.1 Schritt 3/4 - Spieler wählt "Attack", die Uhr läuft danach weiter. */
   attack(): void {
     if (!this.awaitingAttack) return
     const actor = this.claude
@@ -101,6 +137,63 @@ export class GameStore {
     actor.mp = Math.min(actor.maxMp, actor.mp + MP_REFUND_PER_ATTACK)
     actor.atb = 0
     this.battle.awaitingPlayerChoice = null
+  }
+
+  /** feinspec §4.7 Regel 4 - Claudes Special (×3 ATK) aufs stärkste Ziel, kostet MP. */
+  useSpecial(): void {
+    if (!this.canUseSpecial) return
+    const actor = this.claude
+    if (actor.mp < (actor.specialMpCost ?? Infinity)) return
+    const targets = this.battle.enemies.filter(isAlive)
+    if (!targets.length) return
+    actor.mp -= actor.specialMpCost!
+    dealDamage(actor, strongest(targets), Math.round(actor.atk * 3.0))
+    actor.atb = 0
+    this.battle.awaitingPlayerChoice = null
+  }
+
+  /** feinspec §3.4 - Limit-Zünden: schaden(4,5·ATK, DEF) mit DEF-Ignore aufs stärkste Ziel. */
+  fireLimit(): void {
+    if (!this.canFireLimit) return
+    const actor = this.claude
+    const targets = this.battle.enemies.filter(isAlive)
+    if (!targets.length) return
+    const target = strongest(targets)
+    target.hp -= limitFireDamage(actor.atk, target.def)
+    actor.limit = 0
+    actor.atb = 0
+    this.battle.awaitingPlayerChoice = null
+  }
+
+  /** feinspec §7.1 Schritt 2 - der erste Gil-Kauf: Special + MP-Leiste werden sichtbar. */
+  buyWeapon(): void {
+    if (!this.canBuyWeapon || !this.canAffordWeapon) return
+    const gil = this.save.currencies.gil.sub(WEAPON_COST_GIL)
+    const claudeId = this.claude.id
+    const party = this.save.party.map((c) => (c.id === claudeId ? { ...c, weaponTier: 1 } : c))
+    this.save = {
+      ...this.save,
+      party,
+      currencies: { ...this.save.currencies, gil },
+      flags: { ...this.save.flags, mpVisible: true },
+    }
+  }
+
+  /** gambits.md §3/§6 - Auto/Manual-Umschalter je Figur, erst ab `manualToggleUnlocked` sichtbar. */
+  setControlMode(mode: ControlMode): void {
+    if (!this.save.flags.manualToggleUnlocked) return
+    const unit = this.claude
+    unit.controlMode = mode
+    // Wechselt eine Figur waehrend ihrer eigenen Bedenkzeit-Pause auf Auto,
+    // muss die offene Wahl sofort ueber die Default-Regeln aufgeloest werden,
+    // sonst bleibt die Kampfuhr fuer immer angehalten (§5-Guard).
+    if (mode === 'auto' && this.battle.awaitingPlayerChoice === unit) {
+      unit.atb = 0
+      resolvePartyAction(unit, this.battle.party, this.battle.enemies)
+      this.battle.awaitingPlayerChoice = null
+    }
+    const party = this.save.party.map((c) => (c.id === unit.id ? { ...c, controlMode: mode } : c))
+    this.save = { ...this.save, party }
   }
 
   start(): void {
@@ -148,20 +241,24 @@ export class GameStore {
     const zone = findZone(this.save.currentZone)
     const reward = zoneReward(zone)
     const gil = this.save.currencies.gil.add(reward.gil)
-    const party = this.save.party.map((c) => {
-      const leveled = applyVictoryExp(c, reward.exp)
-      return { ...leveled, weaponTier: weaponTierForLevel(leveled.level) }
-    })
+    const leveled = this.save.party.map((c) => applyVictoryExp(c, reward.exp))
 
-    if (this.save.currentZone >= M5_MAX_ZONE) {
-      this.save = { ...this.save, party, currencies: { ...this.save.currencies, gil } }
+    if (this.save.currentZone >= REGION1_MAX_ZONE) {
+      this.save = { ...this.save, party: leveled, currencies: { ...this.save.currencies, gil } }
       this.phase = 'region1-paused'
       writeSave(this.save)
       return
     }
 
     const nextZone = this.save.currentZone + 1
-    this.save = { ...this.save, party, currentZone: nextZone, currencies: { ...this.save.currencies, gil } }
+    let flags = this.save.flags
+    let party = leveled
+    if (!flags.manualToggleUnlocked && nextZone >= AUTO_ATTACK_UNLOCK_ZONE) {
+      flags = { ...flags, autoAttackUnlocked: true, manualToggleUnlocked: true }
+      party = party.map((c) => ({ ...c, controlMode: 'auto' }))
+    }
+
+    this.save = { ...this.save, party, currentZone: nextZone, flags, currencies: { ...this.save.currencies, gil } }
     this.battle = spawnBattle(findZone(nextZone), party)
   }
 

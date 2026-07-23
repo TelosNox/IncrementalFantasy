@@ -26,7 +26,8 @@ function weakest(units: BattleUnit[]): BattleUnit {
   return units.reduce((weakest, u) => (u.hp < weakest.hp ? u : weakest))
 }
 
-function strongest(units: BattleUnit[]): BattleUnit {
+/** feinspec §3.4 - Limit-Zünden zielt auf das stärkste (meiste HP) Ziel. */
+export function strongest(units: BattleUnit[]): BattleUnit {
   return units.reduce((strongest, u) => (u.hp > strongest.hp ? u : strongest))
 }
 
