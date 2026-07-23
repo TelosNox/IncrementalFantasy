@@ -27,6 +27,7 @@ Weicht ein Vorschlag bewusst vom Leitfaden ab, ist das **explizit zu kennzeichne
 - `docs/03_Konzept_Gerüst.md` – Konzept-Rahmengerüst (verbindliche Richtung für alle Systeme, ohne Zahlen).
 - `docs/04_Status_und_Roadmap.md` – Status: entschieden vs. Playtest-Balance vs. noch nicht spezifiziert; nächster Schritt.
 - `docs/05_Architektur.md` – Technische Architektur (Stack, Projektstruktur, Save-/Offline-System, Hosting/CI).
+- `docs/06_Implementierungsplan_Kapitel1.md` – Meilenstein-Plan für die Umsetzung (Claude Code): M0 Scaffold bis M10 Politur.
 - `docs/spec/` – Detail-Spezifikationen je System (mit Zahlen/Details).
 
 ## Doku-Struktur & Kontext-Ladehinweis

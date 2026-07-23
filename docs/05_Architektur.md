@@ -163,7 +163,6 @@ vite.config.ts
 
 ## 12. Offene Punkte / nächste Schritte
 
-- **Repo anlegen:** Aktuell existiert noch kein Git-Repository in diesem Ordner. GitHub-Repo erstellen, Pages aktivieren, Actions-Workflow einrichten.
-- **GitHub-Org/Username & Repo-Name** für den Pages-URL-Pfad (bestimmt den `base`-Wert in `vite.config.ts`) – noch offen.
+- ~~**Repo anlegen**~~ **Erledigt:** [`github.com/TelosNox/IncrementalFantasy`](https://github.com/TelosNox/IncrementalFantasy), Branch `main`. Damit ist auch der Pages-URL-Pfad fix: `https://telosnox.github.io/IncrementalFantasy/` → `base: '/IncrementalFantasy/'` in `vite.config.ts`. Offen bleiben: GitHub Pages im Repo aktivieren (Settings → Pages → Source „GitHub Actions") und der Deploy-Workflow (`.github/workflows/deploy.yml`, §9).
 - **Save-Slot-Anzahl:** v1 bewusst ein einzelner Speicherstand (Einfachheit); mehrere Slots/Challenge-Läufe (`charaktere-party.md` §Challenges) sind über das versionierte Schema später erweiterbar, ohne Breaking Change.
 - **Erste Implementierungsschritte (Vorschlag für Claude Code):** 1) Vite/Svelte-Grundgerüst + Ordnerstruktur, 2) `core/formulas.ts` + Tests gegen `sim_chapter1.py`-Referenzwerte, 3) Content-Tabellen aus feinspec §6, 4) Tick-Loop + Save-Layer, 5) UI-Screens entlang des Rollouts aus feinspec §1 (Klicker → Auto-Attack → Analyse → Shock → volle Party).
