@@ -113,6 +113,12 @@ vite.config.ts
 - **Export/Import als Sicherheitsnetz (Zusatzvorschlag):** Ein „Speicherstand exportieren"-Button (Download als JSON) und ein Import-Dialog schützen gegen versehentliches Löschen der Browserdaten. Kostet wenig, widerspricht nicht der Vorgabe „gleicher Browser reicht" – ist reine Zusatzabsicherung, kein Cloud-Sync.
 - **Bewusst kein Server/Account in v1** – konsistent mit der CLAUDE.md-Rahmenentscheidung und der expliziten Vorgabe des Nutzers.
 
+### 6a. Playtest-Debugwerkzeug (kein Spielfeature)
+
+Ein kleiner, unauffälliger **„⟳ Reset save"-Button** unten rechts (`ui/DebugResetButton.svelte`) löscht den Save-Slot (`clearSave()`) und lädt die Seite neu, damit ein Testlauf jederzeit wieder bei Zone 1 beginnen kann – mit Bestätigungsdialog gegen Versehen. Reload statt In-Place-Reset, damit Loop/Autosave/Timer garantiert sauber neu aufgesetzt werden.
+
+**Nur in Dev-Builds sichtbar** (`import.meta.env.DEV`, Vite-Standardflag) – `npm run build` setzt das Flag auf `false`, der Button landet nie im veröffentlichten GitHub-Pages-Build. Kein Ersatz für die „echte" Reunion (die ist ein verdientes Spielfeature mit Persistenz-Regeln, s. `prestige-reunion.md`) und keine Vorstufe davon – reines Test-Werkzeug, das vor Kapitel-1-Release (spätestens M10) noch einmal bewusst gegengeprüft werden sollte (behalten als Dev-Tool vs. entfernen).
+
 ---
 
 ## 7. Content-Layer (Balance-Daten)

@@ -24,7 +24,7 @@ import { LIMIT_MAX, MP_REFUND_PER_ATTACK, RETRY_PENALTY, limitFireDamage } from 
 import { applyVictoryExp, zoneReward } from '../core/progression'
 import { battleTick, createBattleState, DT, type BattleState } from '../core/tick'
 import type { SaveState } from '../save/schema'
-import { loadSave, startAutosave, writeSave, type AutosaveHandle } from '../save/storage'
+import { clearSave, loadSave, startAutosave, writeSave, type AutosaveHandle } from '../save/storage'
 
 /** feinspec §7.1 - M5+M6 decken Region 1 komplett ab (Zone 1-8, Blandzilla-Miniboss). */
 export const REGION1_MAX_ZONE = 8
@@ -217,6 +217,17 @@ export class GameStore {
     }
     const party = this.save.party.map((c) => (c.id === unit.id ? { ...c, controlMode: mode } : c))
     this.save = { ...this.save, party }
+  }
+
+  /**
+   * Playtest-Debugwerkzeug (Architektur §6a) - kein Spielfeature. Löscht den
+   * Save-Slot und lädt neu, damit ein Testlauf jederzeit bei Zone 1 neu
+   * beginnen kann. Reload statt In-Place-Reset, damit Loop/Autosave/Timer
+   * garantiert sauber neu aufgesetzt werden statt nur den State zu ersetzen.
+   */
+  resetSave(): void {
+    clearSave()
+    location.reload()
   }
 
   start(): void {

@@ -4,6 +4,7 @@
   import Stage from './Stage.svelte'
   import BottomBar from './BottomBar.svelte'
   import Sidebar from './Sidebar.svelte'
+  import DebugResetButton from './DebugResetButton.svelte'
 
   onMount(() => {
     game.start()
@@ -16,6 +17,8 @@
   <div class="bottom-area"><BottomBar /></div>
   <div class="sidebar-area"><Sidebar /></div>
 </div>
+
+<DebugResetButton />
 
 <style>
   /* ui-layout.md: Stage ~78%, Bottom-Leiste ~20% Höhe, Seitenleiste ~22% Breite. */
