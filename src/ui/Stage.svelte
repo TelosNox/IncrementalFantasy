@@ -3,7 +3,7 @@
   import bargainBazaar from '../assets/regions/bargain_bazaar_480.png'
   import megacorpTower from '../assets/regions/megacorp_tower_480.png'
   import { GATE_MONSTER_IDS } from '../content/monsters'
-  import { SHOCK_MAX, SHOCK_WINDOW } from '../core/formulas'
+  import { INN_DEAD_TIME, SHOCK_MAX, SHOCK_WINDOW } from '../core/formulas'
   import { CHARACTER_SPRITES, ENEMY_SPRITES } from './sprites'
   import { CHAPTER1_MAX_ZONE, REGION3_JOIN_ZONE, game } from './gameStore.svelte'
 
@@ -35,6 +35,20 @@
     if (GATE_MONSTER_IDS.has(enemyId)) return 192
     return 128
   }
+
+  // gegner-encounter.md §6a - Gegner greifen die Figur mit den hoechsten aktuellen HP an;
+  // diese Markierung ist die Informationsgrundlage, die Defend erst zu einer Entscheidung
+  // macht (feinspec §3.9 "Anzeige"), statt einer Rate-Aktion.
+  const nextEnemyTargetId = $derived.by(() => {
+    const alive = game.party.filter((p) => p.hp > 0)
+    if (!alive.length) return null
+    return alive.reduce((highest, p) => (p.hp > highest.hp ? p : highest)).id
+  })
+
+  function formatInnRemaining(): string {
+    if (game.innElapsed < INN_DEAD_TIME) return `Dead time: ${Math.ceil(INN_DEAD_TIME - game.innElapsed)}s`
+    return 'Healing…'
+  }
 </script>
 
 <div class="stage" class:region3-backdrop={isMegacorpBackdrop} style:background-image={`url(${backdrop})`}>
@@ -47,7 +61,12 @@
       {#if game.phase === 'chapter-complete'}
         Victory! Chapter 1 complete – Vaultron defeated. Reunion awaits in the sidebar.
       {:else if game.phase === 'retry'}
-        Defeat – retry in {Math.ceil(game.retryRemaining)}s
+        Defeat – no healing, retry penalty {Math.ceil(game.retryRemaining)}s
+      {:else if game.phase === 'inn'}
+        🛏 At the inn – {formatInnRemaining()}
+        {#if !game.innForced}
+          <button class="leave-inn" onclick={() => game.leaveInn()}>Leave now</button>
+        {/if}
       {:else if game.awaitingUnit}
         {game.awaitingUnit.name} is ready – choose an action
       {:else if game.isCurrentZoneGate}
@@ -63,11 +82,16 @@
       {#each game.party as unit (unit.id)}
         {@const hpPct = (Math.max(0, unit.hp) / unit.maxHp) * 100}
         {@const atbPct = Math.min(1, unit.atb) * 100}
+        {@const isNextTarget = unit.id === nextEnemyTargetId && unit.hp > 0}
         <div class="unit party">
-          <div class="unit-label">{unit.name}</div>
+          <div class="unit-label">
+            {unit.name}
+            {#if isNextTarget}<span class="next-target-mark" title="Enemies attack the highest-HP ally">▲</span
+              >{/if}
+          </div>
           <div class="mini-bar hp"><div class="fill" style:width="{hpPct}%"></div></div>
           <div class="mini-bar atb"><div class="fill" style:width="{atbPct}%"></div></div>
-          <img src={CHARACTER_SPRITES[unit.id]} alt={unit.name} />
+          <img src={CHARACTER_SPRITES[unit.id]} alt={unit.name} class:next-target={isNextTarget} />
         </div>
       {/each}
     </div>
@@ -81,8 +105,20 @@
         {@const inWindow = enemy.shockTimer > 0}
         {@const ringPct = inWindow ? enemy.shockTimer / SHOCK_WINDOW : Math.min(1, enemy.shock / SHOCK_MAX)}
         {@const ringColor = inWindow ? '#ffcc33' : '#e0a52e'}
-        <div class="unit enemy">
-          <div class="unit-label">{enemy.name}</div>
+        {@const isFocused = game.focusTargetIndex === i && enemy.hp > 0}
+        <!-- feinspec §3.9 (M11) - Partei-Fokusziel per Klick setzen; wirkt auch fuer Auto-Figuren. -->
+        <div
+          class="unit enemy"
+          class:focused={isFocused}
+          role="button"
+          tabindex="0"
+          onclick={() => game.setFocusTarget(i)}
+          onkeydown={(e) => e.key === 'Enter' && game.setFocusTarget(i)}
+        >
+          <div class="unit-label">
+            {enemy.name}
+            {#if isFocused}<span class="focus-mark" title="Party focus target">◆</span>{/if}
+          </div>
           <div class="mini-bar hp"><div class="fill" style:width="{hpPct}%"></div></div>
           <div class="mini-bar atb"><div class="fill" style:width="{atbPct}%"></div></div>
 
@@ -136,6 +172,9 @@
     top: 16px;
     left: 50%;
     transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 12px;
     background: var(--game-panel-bg);
     border: 1px solid var(--game-gold);
     color: var(--game-gold);
@@ -148,6 +187,20 @@
   .banner.callout {
     border-color: var(--game-hp);
     color: var(--game-hp);
+  }
+
+  .leave-inn {
+    padding: 4px 10px;
+    background: transparent;
+    color: var(--game-mp);
+    border: 1px solid var(--game-mp);
+    border-radius: 3px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+
+  .leave-inn:hover {
+    background: rgba(93, 200, 255, 0.12);
   }
 
   .floor {
@@ -174,6 +227,35 @@
     flex-direction: column;
     align-items: center;
     gap: 4px;
+  }
+
+  /* feinspec §3.9 (M11) "Anzeige" - Fokusziel der Partei anklickbar auf der Gegner-Seite. */
+  .unit.enemy {
+    cursor: pointer;
+    border-radius: 6px;
+    padding: 4px;
+  }
+
+  .unit.enemy:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .unit.enemy.focused {
+    background: rgba(224, 165, 46, 0.14);
+    box-shadow: 0 0 0 2px var(--game-gold);
+  }
+
+  .focus-mark {
+    color: var(--game-gold);
+  }
+
+  /* gegner-encounter.md §6a - naechstes Gegner-Ziel (hoechste aktuelle HP); Informationsgrundlage fuer Defend. */
+  .next-target-mark {
+    color: #ff5c5c;
+  }
+
+  .unit img.next-target {
+    filter: drop-shadow(0 0 6px #ff5c5c) drop-shadow(0 0 2px #ff5c5c);
   }
 
   /* ui-layout.md "Display-Zoom": 2x Nearest-Neighbor-Zoom auf allen Sprite-Klassen gemeinsam -

@@ -67,3 +67,18 @@ Zusätzlich zeigte sich Anti-Pattern **#5** invertiert: Ein Spieler mit *geschlo
 **Nächster Schritt: M11** (Ventil-Kette & Ressourcen-Ökonomie) – Blocker für alles Weitere. Die Kapitel-2-Feinspec (Materia/Slots/AP/Magie, programmierbarer Gambit-Editor) folgt erst danach.
 
 Ladehinweis (CLAUDE.md): `03_Konzept_Gerüst.md` + betroffene `spec/*.md`, `02_Leitfaden_Kernmechaniken.md` als Prüfinstanz; für technische Umsetzung zusätzlich `05_Architektur.md`.
+
+---
+
+## ⚠️ Stand M11-Umsetzung (25.07.2026)
+
+**M11 ist implementiert und alle 88 automatisierten Tests sind grün** (`npm test`), inkl. eines neu aufgesetzten `tests/chapter-playthrough.test.ts` gegen die drei Spielertypen aus feinspec §12 (M/T/V). Umgesetzt: Zonen-Rückkehr (freie Zonen-Auswahl in der Sidebar), HP/MP-Übertrag zwischen Kämpfen, Sieg-Erholung (+25 % HP/MP) getrennt von Level-Up (heilt nicht mehr automatisch), MP-Refund-Kanal gestrichen, Gasthaus als zeitbasierter Heilkanal (Sidebar-Anmeldung + Stage-Banner), Niederlage ohne Heilung, Limit als Esper-Modell (nur an den drei Gates), Gegner-Zielwahl (höchste HP) + Partei-Fokusziel (Klick auf Gegner, Markierungen für Fokus- und nächstes Gegnerziel), Offline-Progress aus dem Live-Pfad entfernt (`core/offline.ts` bleibt als Balance-Werkzeug), Save-Migration v1→v2.
+
+**Zwei Befunde beim Balancieren gegen die TS-Engine, dokumentiert statt stillschweigend übergangen** (Details: `06_Implementierungsplan_Kapitel1.md` M11-Umsetzungsentscheidungen):
+
+1. Die Zonen-Größenmodifikatoren (§3.7) mussten für mehrere Zonen (u. a. 6/7/8/18/30) neu justiert werden – die alten, aus dem inzwischen nicht mehr gültigen `sim_chapter1.py` stammenden Werte reproduzierten exakt den „Zone-6-Fehler", den M11 eigentlich beheben sollte.
+2. Der in feinspec §12 B2 angenommene Korridor zwischen den Spielertypen T und V (T ≈1,3–2,0×, V ≈2,5–4,0× von M) ließ sich mit T strikt als „nur Fokusziel" (§3.9) nicht erreichen – an der Kapitel-Wand bringt reine Zielwahl ohne Limit/Specials/Heal/Suppress nur einen kleinen Vorteil gegenüber V. Korridor vorläufig angepasst (feinspec §12 B2 trägt einen entsprechenden Vermerk); offene Frage für die nächste Konzept-Session.
+
+**Was die automatisierten Tests nicht ersetzen (feinspec §12 E1-E3):** Ein Mensch muss Zone 1 → 30 → Reunion tatsächlich durchspielen. Das steht noch aus – bis dahin gilt M11 als *technisch*, nicht als *menschlich* validiert.
+
+Ladehinweis (CLAUDE.md): `03_Konzept_Gerüst.md` + betroffene `spec/*.md`, `02_Leitfaden_Kernmechaniken.md` als Prüfinstanz; für technische Umsetzung zusätzlich `05_Architektur.md`.

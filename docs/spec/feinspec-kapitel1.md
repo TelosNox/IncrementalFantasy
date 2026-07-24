@@ -661,7 +661,7 @@ Die sensibelsten Hebel:
 - **Erholung nach Sieg (25 %)** – gebunden an die Signalregel in §3.8d, nicht frei wählbar: komfortable Zone netto neutral, harte Zone netto negativ. Diese Regel bestimmt den Wert, nicht umgekehrt.
 - **Gasthaus: Totzeit (10 s) und Rate (5 %/s).** Die Totzeit ist der eigentliche Design-Hebel (sie macht Heil-Spam unwirtschaftlich); die Rate steuert nur, wie teuer ein voller Heilgang ist. Ursprünglich als Band 5–10 s diskutiert – 10 s ist der Startwert, weil er nach einer Niederlage auf runde 30 s Gesamtwartezeit führt. **Wichtig:** Ohne Offline-Progress ist diese Zeit jetzt echte Wartezeit am Bildschirm; sie muss sich *gespielt* vertretbar anfühlen, nicht nur gerechnet.
 - **MP-Ökonomie:** Refill 25 % + **neu herzuleitende** Special-Kosten (§6.1 war gegen den gestrichenen Refund balanciert). Bestimmt, wie oft Specials fallen – und wie hart die Heilungs-Obergrenze in Bosskämpfen greift.
-- **Limit-Laderaten** (0,35 / 0,50) und Payoff (4,5·ATK) – neu zu justieren gegen das Ziel „die Leiste wird in einem Gate-Kampf ein- bis zweimal voll" (§3.4). Die alten Raten waren gegen eine über den Run persistierende Leiste gedacht und sind damit vermutlich zu niedrig.
+- ~~Limit-Laderaten (0,35 / 0,50) und Payoff (4,5·ATK)~~ → **M11 justiert:** 0,20 (dealt) / 0,30 (taken, Einzelziel) / 0,22 (taken, AoE), Payoff unverändert bei 4,5·ATK. Entgegen der ursprünglichen Vermutung waren die alten Raten nicht zu niedrig, sondern (gemessen an "1-2× pro Figur", nicht pro Party-Kampf) zu hoch. Weiterhin Startwerte, s. `06_Implementierungsplan_Kapitel1.md` M11-Umsetzungsentscheidung 4.
 - **Shock-Aufbaurate** (0,5·Schaden) und **Tofa-Bonus** (+45) – wie relevant Shock schon in Kap. 1 ist (nur bei manuellem Spiel nutzbar, s. §4.7).
 - **Zeitstrafe bei Niederlage** (5 s) – wirkt jetzt zusammen mit der Gasthaus-Totzeit; beide Zeitkosten sind gemeinsam zu betrachten, nicht einzeln.
 - **Zonen-Rückkehr:** ob die freie Auswahl ausreicht oder ob es eine Empfehlung/Markierung braucht („hier kommst du gerade sicher durch"). Reine Ventil-Funktion steht, die **Lesbarkeit** ist offen.
@@ -697,7 +697,7 @@ Alle Kriterien werden gegen drei klar getrennte Spielweisen geprüft. Sie sind d
 Der Abstand muss **existieren** (sonst lohnt aktives Spiel nicht, Anti-Pattern #5) und **begrenzt** sein (sonst ist Idle bestraft, Leitplanke „Idle-Versprechen respektieren").
 
 - **B1** Reihenfolge der Gesamtdauer strikt: **M < T < V**. Kein Gleichstand.
-- **B2** Zielkorridor, gemessen an M = 1,0: **T ≈ 1,3–2,0×**, **V ≈ 2,5–4,0×**. (Die frühere Baseline maß 3,25× für reines Idle und galt als vertretbar – der Korridor ist daran kalibriert.)
+- **B2** Zielkorridor, gemessen an M = 1,0: **T ≈ 1,3–2,0×**, **V ≈ 2,5–4,0×**. (Die frühere Baseline maß 3,25× für reines Idle und galt als vertretbar – der Korridor ist daran kalibriert.) **Umsetzungsbefund (M11, `06_Implementierungsplan_Kapitel1.md`):** Mit T strikt als „nur Fokusziel, sonst Auto" (§3.9) gemessen, liegt T näher an V als hier angenommen (≈3,2× statt ≤2,0×) – an der Kapitel-Wand (reines Schadensrennen gegen eine periodische AoE) bringt die Zielwahl allein wenig, der große Hebel (Limit/Specials/Heal/Suppress) bleibt Typ M vorbehalten. Offen für die nächste Konzept-Session: Korridor anpassen oder Typ T zusätzliche Fähigkeiten (z. B. Defend) zugestehen.
 - **B3** Der Sprung **M → T** muss kleiner sein als **T → V**. Ein einziges Fokusziel pro Kampf soll spürbar viel bringen; die volle manuelle Steuerung obendrauf soll sich lohnen, aber nicht Pflicht sein.
 
 ### C – Wo die Wände sitzen

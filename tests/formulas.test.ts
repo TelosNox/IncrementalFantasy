@@ -7,6 +7,8 @@ import {
   deriveMaxMp,
   deriveStat,
   expToNext,
+  hpGainPostVictory,
+  innGain,
   limitFireDamage,
   limitGainOnDealt,
   limitGainOnTaken,
@@ -85,17 +87,17 @@ describe('§3.3 Shock-Aufbau', () => {
   })
 })
 
-describe('§3.4 Limit-Ladung', () => {
-  it('zugefügter Schaden lädt mit Faktor 0,35', () => {
-    expect(limitGainOnDealt(12)).toBeCloseTo(4.2, 10)
+describe('§3.4 Limit-Ladung (Esper-Modell, M11)', () => {
+  it('zugefügter Schaden lädt mit Faktor 0,2', () => {
+    expect(limitGainOnDealt(12)).toBeCloseTo(2.4, 10)
   })
 
-  it('erlittener Schaden lädt mit Faktor 0,50 (Einzelziel)', () => {
-    expect(limitGainOnTaken(12)).toBe(6)
+  it('erlittener Schaden lädt mit Faktor 0,3 (Einzelziel)', () => {
+    expect(limitGainOnTaken(12)).toBeCloseTo(3.6, 10)
   })
 
-  it('erlittener AoE-Schaden lädt mit Faktor 0,40', () => {
-    expect(limitGainOnTaken(12, true)).toBeCloseTo(4.8, 10)
+  it('erlittener AoE-Schaden lädt mit Faktor 0,22 (niedriger als Einzelziel)', () => {
+    expect(limitGainOnTaken(12, true)).toBeCloseTo(2.64, 10)
   })
 
   it('Zünden: schaden(4,5·ATK, DEF) mit DEF-Ignore auf das stärkste Ziel', () => {
@@ -104,9 +106,18 @@ describe('§3.4 Limit-Ladung', () => {
   })
 })
 
-describe('§3.5 MP', () => {
+describe('§3.5/§3.8 Sieg-Erholung (Kanal 1) und Gasthaus (Kanal 2)', () => {
   it('Kanal 1: +25% max. MP nach Sieg (Claude max. MP 20 -> +5)', () => {
     expect(mpGainPostVictory(20)).toBe(5)
+  })
+
+  it('Kanal 1: +25% max. HP nach Sieg (Claude max. HP 110 -> +27,5)', () => {
+    expect(hpGainPostVictory(110)).toBeCloseTo(27.5, 10)
+  })
+
+  it('Kanal 2 (Gasthaus): 5%/s des Maximums über die verstrichene Zeit', () => {
+    expect(innGain(110, 1)).toBeCloseTo(5.5, 10)
+    expect(innGain(110, 20)).toBeCloseTo(110, 10) // 20s reichen fuer eine volle Erholung
   })
 })
 

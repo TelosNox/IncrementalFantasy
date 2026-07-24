@@ -42,6 +42,8 @@ export interface BattleUnit {
   fled: boolean
   /** kampf-analyse-shock.md §2/feinspec §5.1 - Defend-Stance, haelt bis zur naechsten eigenen Aktion (M8-Baseline: -50% erlittener Schaden, TBD s. §11 offene Playtest-Stellschrauben). */
   defending: boolean
+  /** feinspec §3.4 - Esper-Modell: nur in Gate-/Boss-Encountern (Zone.limitAllowed) laedt/zuendet Limit ueberhaupt. */
+  limitAllowed: boolean
   trait?: MonsterTrait
   controlMode?: ControlMode
   canSpecial?: boolean
@@ -68,8 +70,21 @@ export function deriveCharacterMaxMp(character: Character, boostMult = 1): numbe
   return Math.round(deriveMaxMp(character.base.mp, character.level) * boostMult)
 }
 
-/** feinspec §4.1/§6.4 - Party-Kampfeinheit aus Level + Waffen-Tier ableiten. Reunion-Boost s. oben. */
-export function createPartyUnit(character: Character, zoneIndex: number, boostMult = 1): BattleUnit {
+/**
+ * feinspec §4.1/§6.4 - Party-Kampfeinheit aus Level + Waffen-Tier ableiten. Reunion-Boost s. oben.
+ * `limitAllowed` = Zone.limitAllowed (§3.4/§4.3) - in Kap. 1 nur an den drei Gates true.
+ *
+ * Verbindlich (Playtest-Fund, §4.1): HP/MP sind Übertragswerte, keine abgeleiteten Maxima.
+ * `character.hp`/`character.mp` (aus dem Save) werden übernommen, nur auf das aktuelle
+ * Maximum gedeckelt (Level-Up/Boost kann das Maximum seit dem letzten Speichern erhöht
+ * haben) - NICHT durch das Maximum ersetzt. `atb`/`limit` starten dagegen immer bei 0.
+ */
+export function createPartyUnit(
+  character: Character,
+  zoneIndex: number,
+  boostMult = 1,
+  limitAllowed = false,
+): BattleUnit {
   const level = character.level
   const atkAfterLevel = deriveStat(character.base.atk, character.growth.atk, level)
   const magAfterLevel = deriveStat(character.base.mag, character.growth.mag, level)
@@ -78,16 +93,16 @@ export function createPartyUnit(character: Character, zoneIndex: number, boostMu
 
   const mod = weaponStatMod(character.weaponTier)
   const maxHp = deriveCharacterMaxHp(character, boostMult)
-  const mpAfterLevel = deriveCharacterMaxMp(character, boostMult)
+  const maxMp = deriveCharacterMaxMp(character, boostMult)
 
   return {
     id: character.id,
     name: character.name,
     side: 'party',
     maxHp,
-    hp: maxHp,
-    maxMp: mpAfterLevel,
-    mp: mpAfterLevel,
+    hp: Math.min(maxHp, Math.max(0, character.hp)),
+    maxMp,
+    mp: Math.min(maxMp, Math.max(0, character.mp)),
     atk: Math.round(atkAfterLevel * mod.atk * boostMult),
     mag: Math.round(magAfterLevel * mod.mag * boostMult),
     def: defAfterLevel,
@@ -103,6 +118,7 @@ export function createPartyUnit(character: Character, zoneIndex: number, boostMu
     hitsTaken: 0,
     fled: false,
     defending: false,
+    limitAllowed,
     controlMode: character.controlMode,
     canSpecial: zoneIndex >= character.special.unlockedFromZone,
     specialId: character.special.id,
@@ -136,6 +152,7 @@ export function createEnemyUnit(monster: Monster, zoneIndex: number, sizeMod = 1
     hitsTaken: 0,
     fled: false,
     defending: false,
+    limitAllowed: false, // Gegner zuenden kein Limit - irrelevantes Feld, konsistent gesetzt.
     trait: monster.trait,
   }
 }
@@ -151,7 +168,7 @@ export function dealDamage(attacker: BattleUnit, target: BattleUnit, rawAtk: num
     target.shock = buildup.shock
     if (buildup.windowTriggered) target.shockTimer = SHOCK_WINDOW
   }
-  if (attacker.side === 'party') {
+  if (attacker.side === 'party' && attacker.limitAllowed) {
     attacker.limit = Math.min(LIMIT_MAX, attacker.limit + limitGainOnDealt(dmg))
   }
   return dmg
@@ -163,6 +180,6 @@ export function aoeParty(party: BattleUnit[], damage: number): void {
     if (!isAlive(p)) continue
     const dmg = p.defending ? Math.round(damage * 0.5) : damage
     p.hp -= dmg
-    p.limit = Math.min(LIMIT_MAX, p.limit + limitGainOnTaken(dmg, true))
+    if (p.limitAllowed) p.limit = Math.min(LIMIT_MAX, p.limit + limitGainOnTaken(dmg, true))
   }
 }

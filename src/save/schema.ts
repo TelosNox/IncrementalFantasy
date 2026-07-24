@@ -4,7 +4,7 @@
 import type Decimal from 'break_eternity.js'
 import type { BestiaryEntry, Character } from '../core/entities'
 
-export const SAVE_VERSION = 1
+export const SAVE_VERSION = 2
 
 export interface SaveFlags {
   autoAttackUnlocked: boolean
@@ -31,8 +31,9 @@ export interface SaveCurrencies {
   reunionEssence: Decimal
 }
 
-export interface SaveOfflineState {
-  lastSeen: number // Unix-Timestamp in Sekunden
+/** feinspec §3.8b - "nach diesem Kampf ins Gasthaus", greift erst nach Kampfende. */
+export interface SaveInnState {
+  queued: boolean
 }
 
 /** feinspec §4.6 - SaveState (Kapitel-1-Umfang). */
@@ -40,11 +41,14 @@ export interface SaveState {
   version: number
   chapter: number
   currentZone: number
+  /** feinspec §3.8a/§4.6 - höchste je erreichte Zone; Obergrenze der freien Zonen-Auswahl (Ventil). */
+  maxZoneReached: number
   party: Character[]
   roster: string[]
   currencies: SaveCurrencies
   bestiary: Record<string, BestiaryEntry>
   reunionCount: number
   flags: SaveFlags
-  offline: SaveOfflineState
+  inn: SaveInnState
+  // "offline" entfaellt - Offline-Progress stillgelegt (feinspec §3.8e, M11)
 }

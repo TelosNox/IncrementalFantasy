@@ -1,32 +1,33 @@
-// M7-Scope (Implementierungsplan): Region 2 komplett (feinspec §7.1-Fortsetzung,
-// §6.3 Zone 9-18) - Barrel stößt dazu, Analyse/Bestiarium wird live, Fort
-// Knoxious-Gate. Baut auf dem M5/M6-Fundament (Region 1, Claude solo) auf und
-// verallgemeinert es auf eine variable Party statt fest auf Claude verdrahtet
-// zu sein. Verbindet den bereits getesteten headless Kern (/core, /content,
-// /save) mit einem Svelte-5-Runen-Store; die UI liest ausschließlich über
-// diese Klasse und schreibt nie direkt in BattleUnit/Character (Architektur
-// §3 - "/core kennt keine Svelte-Stores").
+// M11-Scope (Implementierungsplan): Ventil-Kette & Ressourcen-Ökonomie (feinspec
+// §3.4/§3.5/§3.8/§3.9). Ersetzt das M5-M9-Modell "jede Zone startet als
+// frischer Kampf" durch HP/MP-Übertrag zwischen Kämpfen, freie Zonen-Rückkehr
+// (das eigentliche Fortschritts-Ventil) und ein zeitbasiertes Gasthaus als
+// einzigen weiteren Heilkanal. Offline-Progress ist stillgelegt (§3.8e) - der
+// Projektionsrechner (`core/offline.ts`) bleibt als Balance-Werkzeug bestehen,
+// wird aber nicht mehr vom Live-Store aufgerufen.
 //
-// Jede Zone startet als frischer Kampf (volle HP/MP, Limit 0) - deckungsgleich
-// mit der validierten Referenzsimulation (sim_chapter1.py, s. tests/chapter-
-// playthrough.test.ts: `runOneBattle` baut pro Zone neue Party-Units aus dem
-// aktuellen Level). Der Waffen-Tier ist davon bewusst ausgenommen: er wird
-// NICHT automatisch aus dem Level abgeleitet (das ist nur eine Vereinfachung
-// der headless-Pacing-Simulation), sondern ausschließlich über `buyWeapon()`
-// gesetzt - deckungsgleich mit feinspec §7.1 Schritt 2 ("der erste Gil-Kauf
-// gibt Claude die Waffe").
+// Verbindet den bereits getesteten headless Kern (/core, /content, /save) mit
+// einem Svelte-5-Runen-Store; die UI liest ausschließlich über diese Klasse
+// und schreibt nie direkt in BattleUnit/Character (Architektur §3 - "/core
+// kennt keine Svelte-Stores").
 
 import Decimal from 'break_eternity.js'
 import { CHARACTERS, CLAUDE } from '../content/characters'
 import { MONSTERS } from '../content/monsters'
 import { ZONES } from '../content/zones'
-import { createEnemyUnit, createPartyUnit, dealDamage, isAlive } from '../core/battle'
+import {
+  createEnemyUnit,
+  createPartyUnit,
+  dealDamage,
+  deriveCharacterMaxHp,
+  deriveCharacterMaxMp,
+  isAlive,
+} from '../core/battle'
 import type { BattleUnit } from '../core/battle'
 import type { BestiaryEntry, Character, ControlMode, Zone } from '../core/entities'
-import { pickTarget, resolvePartyAction, strongest } from '../core/gambits'
-import { LIMIT_MAX, MP_REFUND_PER_ATTACK, RETRY_PENALTY, limitFireDamage } from '../core/formulas'
-import { applyVictoryExp, zoneReward } from '../core/progression'
-import { projectOffline } from '../core/offline'
+import { resolvePartyAction, resolvePartyTarget, strongest } from '../core/gambits'
+import { INN_DEAD_TIME, LIMIT_MAX, RETRY_PENALTY, limitFireDamage } from '../core/formulas'
+import { applyInnRecovery, applyVictoryExp, applyVictoryRecovery, zoneReward } from '../core/progression'
 import { battleTick, createBattleState, DT, type BattleState } from '../core/tick'
 import type { SaveState } from '../save/schema'
 import { serializeToJson } from '../save/serialize'
@@ -82,23 +83,7 @@ const REUNION_BOOST_PER_CYCLE = 0.05
 /** prestige-reunion.md - Reunion-Essenz-Ertrag je Reunion (M9-Baseline; noch kein Sink/Shop in Kap. 1). */
 export const REUNION_ESSENCE_GAIN = 5
 
-/**
- * niederlage-offline.md §3/Architektur §5 - erst ab dieser Abwesenheit lohnt sich der
- * "Willkommen zurück"-Screen; darunter (Seiten-Reload waehrend des Spielens) bleibt die
- * Offline-Projektion unsichtbar, damit sie nicht bei jedem Reload aufploppt (M9-Baseline).
- */
-const WELCOME_BACK_THRESHOLD_SECONDS = 60
-
-export type Phase = 'battle' | 'retry' | 'chapter-complete'
-
-/** M9 - "Willkommen zurück"-Zusammenfassung (Architektur §5 `projectOffline`, jetzt live verdrahtet). */
-export interface WelcomeBackSummary {
-  elapsedSeconds: number
-  zone: number
-  repeats: number
-  wasClearing: boolean
-  gilGained: string
-}
+export type Phase = 'battle' | 'retry' | 'inn' | 'chapter-complete'
 
 function findZone(zoneIndex: number): Zone {
   const zone = ZONES.find((z) => z.zone === zoneIndex)
@@ -113,9 +98,10 @@ function freshCharacter(id: string, controlMode: ControlMode): Character {
 
 function freshSaveState(): SaveState {
   return {
-    version: 1,
+    version: 2,
     chapter: 1,
     currentZone: 1,
+    maxZoneReached: 1,
     party: [freshCharacter(CLAUDE.id, 'manual')],
     roster: ['claude'],
     currencies: { gil: new Decimal(0), reunionEssence: new Decimal(0) },
@@ -129,14 +115,29 @@ function freshSaveState(): SaveState {
       materiaUnlocked: false,
       gambitsUnlocked: false,
     },
-    offline: { lastSeen: Math.floor(Date.now() / 1000) },
+    inn: { queued: false },
   }
 }
 
 function spawnBattle(zone: Zone, party: Character[], boostMult = 1): BattleState {
-  const partyUnits = party.map((c) => createPartyUnit(c, zone.zone, boostMult))
+  const partyUnits = party.map((c) => createPartyUnit(c, zone.zone, boostMult, zone.limitAllowed))
   const enemyUnits = zone.waves[0].map((ref) => createEnemyUnit(MONSTERS[ref.monster], zone.zone, ref.size))
   return createBattleState(partyUnits, enemyUnits)
+}
+
+/**
+ * feinspec §4.1 (Playtest-Fund, M11) - HP/MP sind Übertragswerte: den nach Kampfende
+ * tatsächlich erreichten Stand (inkl. erlittenem Schaden, ggf. 0 bei KO) aus der
+ * Kampfeinheit in die gespeicherte Figur übernehmen. `this.battle` ist ephemer (wird bei
+ * jedem neuen Kampf frisch aus `this.save.party` gebaut) - ohne diese Synchronisation an
+ * jedem Kampfende ginge der tatsächliche HP/MP-Stand beim nächsten `spawnBattle` verloren.
+ */
+function syncPartyFromBattle(party: Character[], battleUnits: BattleUnit[]): Character[] {
+  return party.map((c) => {
+    const unit = battleUnits.find((u) => u.id === c.id)
+    if (!unit) return c
+    return { ...c, hp: Math.max(0, Math.round(unit.hp)), mp: Math.max(0, Math.round(unit.mp)) }
+  })
 }
 
 /** kampf-analyse-shock.md §5 - Bestiarium-Eintrag beim ersten Sieg über eine Art, Rest bleibt Teaser in Kap. 1. */
@@ -177,13 +178,15 @@ export class GameStore {
   battle = $state<BattleState>(spawnBattle(findZone(this.save.currentZone), this.save.party, this.reunionBoostMult))
   phase = $state<Phase>('battle')
   retryRemaining = $state(0)
+  /** feinspec §3.8b (M11) - seit dem Ende der Totzeit verstrichene Gasthaus-Zeit (fuer die Fortschrittsanzeige). */
+  innElapsed = $state(0)
+  /** feinspec §3.8c (M11) - true = Niederlage-Pflichtaufenthalt (kein "Leave now"); false = freiwillig angemeldet. */
+  innForced = $state(false)
   /** ui-layout.md "Freischaltungs-Hinweis" - kurzer, nicht-blockierender Toast bei Rollout-Flag-Wechseln. */
   calloutMessage = $state<string | null>(null)
   /** M7 - Bestiarium-Modal (Sidebar-Button öffnet, s. `BestiaryModal.svelte`). */
   bestiaryOpen = $state(false)
   selectedMonsterId = $state<string | null>(null)
-  /** M9 - "Willkommen zurück"-Zusammenfassung, gesetzt von `#catchUpOffline()` in `start()`. */
-  welcomeBack = $state<WelcomeBackSummary | null>(null)
   /** M9 - Reunion-Modal (Sidebar-Button öffnet, s. `ReunionModal.svelte`). */
   reunionModalOpen = $state(false)
 
@@ -192,6 +195,8 @@ export class GameStore {
   #accumulator = 0
   #calloutRemaining = 0
   #autosave: AutosaveHandle | null = null
+  /** feinspec §3.8b (M11) - welche Zone nach Abschluss des Gasthaus-Aufenthalts gespielt wird. */
+  #innNextZone: number | null = null
 
   get party(): BattleUnit[] {
     return this.battle.party
@@ -208,6 +213,21 @@ export class GameStore {
   /** gambits.md §4 "manuelle Prüfsteine" - Auto greift an Gates nur stumpf an; Hinweis, dass Manuell hier lohnt. */
   get isCurrentZoneGate(): boolean {
     return findZone(this.save.currentZone).isGate
+  }
+
+  /** feinspec §3.8a (M11) - höchste je erreichte Zone; Obergrenze der freien Zonen-Auswahl. */
+  get maxZoneReached(): number {
+    return this.save.maxZoneReached
+  }
+
+  /** feinspec §3.8b (M11) - "nach diesem Kampf ins Gasthaus" angemeldet? */
+  get innQueued(): boolean {
+    return this.save.inn.queued
+  }
+
+  /** feinspec §3.9 (M11) - aktuell gesetztes Partei-Fokusziel (Index in `enemies`), falls vorhanden. */
+  get focusTargetIndex(): number | null {
+    return this.battle.focusTargetIndex
   }
 
   /** prestige-reunion.md - permanenter, wiederholbarer Boost (s. `REUNION_BOOST_PER_CYCLE`); 1 = kein Boost vor der 1. Reunion. */
@@ -257,7 +277,7 @@ export class GameStore {
   }
 
   canFireLimit(unit: BattleUnit): boolean {
-    return this.battle.awaitingPlayerChoice === unit && unit.limit >= LIMIT_MAX
+    return this.battle.awaitingPlayerChoice === unit && unit.limitAllowed && unit.limit >= LIMIT_MAX
   }
 
   /** feinspec §5.1 - Defend erscheint erst ab der ersten telegrafierten Boss-Aufladung (s. `#onBossAoeTriggered`). */
@@ -281,10 +301,9 @@ export class GameStore {
     if (this.battle.awaitingPlayerChoice !== unit) return
     this.#dismissCallout()
     unit.defending = false // eine neue Aktion beendet eine vorige Defend-Haltung (M8)
-    const targets = this.battle.enemies.filter(isAlive)
-    if (!targets.length) return
-    dealDamage(unit, pickTarget(targets), unit.atk)
-    unit.mp = Math.min(unit.maxMp, unit.mp + MP_REFUND_PER_ATTACK)
+    const target = resolvePartyTarget(this.battle)
+    if (!target) return
+    dealDamage(unit, target, unit.atk)
     unit.atb = 0
     this.battle.awaitingPlayerChoice = null
   }
@@ -303,7 +322,7 @@ export class GameStore {
       for (const p of this.battle.party) {
         if (isAlive(p)) p.hp = Math.min(p.maxHp, p.hp + heal)
       }
-      unit.limit = Math.min(LIMIT_MAX, unit.limit + 4)
+      if (unit.limitAllowed) unit.limit = Math.min(LIMIT_MAX, unit.limit + 4)
       unit.atb = 0
       this.battle.awaitingPlayerChoice = null
       return
@@ -321,8 +340,9 @@ export class GameStore {
       target.suppress = 4.0
       dealDamage(unit, target, Math.round(unit.atk * 0.8))
     } else if (unit.name === 'Tofa') {
-      // feinspec §6.1/§3.3 - Shock Strike: normaler Treffer + 45 Shock-Bonus obendrauf.
-      dealDamage(unit, pickTarget(targets), unit.atk, 45)
+      // feinspec §3.9/§6.1/§3.3 - Shock Strike: normaler Treffer (Fokusziel-Regel) + 45 Shock-Bonus obendrauf.
+      const target = resolvePartyTarget(this.battle)!
+      dealDamage(unit, target, unit.atk, 45)
     } else {
       dealDamage(unit, strongest(targets), Math.round(unit.atk * 3.0))
     }
@@ -358,6 +378,34 @@ export class GameStore {
     this.battle.awaitingPlayerChoice = null
   }
 
+  /** feinspec §3.9 (M11) - Partei-Fokusziel per Klick setzen (auch fuer Auto-Figuren wirksam). */
+  setFocusTarget(index: number): void {
+    if (index < 0 || index >= this.battle.enemies.length) return
+    if (!isAlive(this.battle.enemies[index])) return
+    this.battle.focusTargetIndex = index
+  }
+
+  /** feinspec §3.8a (M11) - freie Zonen-Rückkehr: das eigentliche Ventil. Nur zwischen Kämpfen. */
+  selectZone(zoneIndex: number): void {
+    if (this.phase !== 'battle') return
+    if (zoneIndex < 1 || zoneIndex > this.save.maxZoneReached) return
+    if (zoneIndex === this.save.currentZone) return
+    this.#dismissCallout()
+    this.save = { ...this.save, currentZone: zoneIndex }
+    this.battle = spawnBattle(findZone(zoneIndex), this.save.party, this.reunionBoostMult)
+  }
+
+  /** feinspec §3.8b (M11) - "nach diesem Kampf ins Gasthaus" umschalten; greift erst nach Kampfende. */
+  toggleInnQueued(): void {
+    this.save = { ...this.save, inn: { queued: !this.save.inn.queued } }
+  }
+
+  /** feinspec §3.8b (M11) - freiwilligen Gasthaus-Aufenthalt vorzeitig beenden (bei Niederlage gesperrt). */
+  leaveInn(): void {
+    if (this.innForced) return
+    this.#leaveInn()
+  }
+
   /**
    * prestige-reunion.md (M9) - Reset: Zonen-Fortschritt/Level/Gil/Ausrüstung (Waffentier); Erhalt:
    * Roster, Bestiarium, Rollout-Flags (reine UI-Lesbarkeit, kein Grund sie erneut zu verstecken).
@@ -385,6 +433,7 @@ export class GameStore {
     this.save = {
       ...this.save,
       currentZone: 1,
+      maxZoneReached: 1,
       party,
       currencies: {
         gil: new Decimal(0),
@@ -392,6 +441,7 @@ export class GameStore {
       },
       reunionCount,
       flags: { ...this.save.flags, gambitsUnlocked: true },
+      inn: { queued: false },
     }
     this.phase = 'battle'
     this.battle = spawnBattle(findZone(1), party, this.reunionBoostMult)
@@ -401,11 +451,6 @@ export class GameStore {
         : `Reunion #${reunionCount} complete - permanent boost increased!`,
     )
     writeSave(this.save)
-  }
-
-  /** M9 - "Willkommen zurück"-Karte schließen (`ui/WelcomeBackModal.svelte`). */
-  dismissWelcomeBack(): void {
-    this.welcomeBack = null
   }
 
   /** Architektur §6 "Export/Import als Sicherheitsnetz" (M10) - Speicherstand als JSON-Datei herunterladen. */
@@ -476,7 +521,7 @@ export class GameStore {
     // sonst bleibt die Kampfuhr fuer immer angehalten (§5-Guard).
     if (mode === 'auto' && this.battle.awaitingPlayerChoice === unit) {
       unit.atb = 0
-      resolvePartyAction(unit, this.battle.party, this.battle.enemies)
+      resolvePartyAction(unit, this.battle)
       this.battle.awaitingPlayerChoice = null
     }
     const party = this.save.party.map((c) => (c.id === unit.id ? { ...c, controlMode: mode } : c))
@@ -517,7 +562,6 @@ export class GameStore {
   }
 
   start(): void {
-    this.#catchUpOffline()
     this.#lastTimestamp = performance.now()
     const loop = (timestamp: number) => {
       const deltaSeconds = Math.min(0.25, (timestamp - this.#lastTimestamp) / 1000)
@@ -530,39 +574,6 @@ export class GameStore {
     this.#autosave = startAutosave(() => this.save)
   }
 
-  /**
-   * Architektur §5/niederlage-offline.md §3 (M9) - der in M4 gebaute Offline-Projektionsrechner
-   * (`core/offline.ts` `projectOffline`) war bis M9 nie an den Live-Store angebunden; `lastSeen`
-   * wurde nur einmal bei Save-Erstellung gesetzt und nie wieder aktualisiert. Läuft nur simuliert
-   * an der AKTUELLEN Zone weiter (kein Zonen-Sprung, s. `projectOffline`) und nur außerhalb von
-   * `chapter-complete` (dort gibt es nichts mehr zu grinden, nur noch die Reunion).
-   */
-  #catchUpOffline(): void {
-    const now = Math.floor(Date.now() / 1000)
-    const elapsed = now - this.save.offline.lastSeen
-    let party = this.save.party
-    let currencies = this.save.currencies
-
-    if (this.phase !== 'chapter-complete' && elapsed >= WELCOME_BACK_THRESHOLD_SECONDS) {
-      const projection = projectOffline(this.save.party, this.save.currentZone, elapsed, this.reunionBoostMult)
-      const advanced = projection.wasClearing && projection.repeats > 0
-      if (advanced) {
-        party = projection.party
-        currencies = { ...currencies, gil: currencies.gil.add(projection.gilGained) }
-      }
-      this.welcomeBack = {
-        elapsedSeconds: elapsed,
-        zone: this.save.currentZone,
-        repeats: projection.repeats,
-        wasClearing: projection.wasClearing,
-        gilGained: projection.gilGained.toString(),
-      }
-      if (advanced) this.battle = spawnBattle(findZone(this.save.currentZone), party, this.reunionBoostMult)
-    }
-
-    this.save = { ...this.save, party, currencies, offline: { lastSeen: now } }
-  }
-
   stop(): void {
     cancelAnimationFrame(this.#frameHandle)
     this.#autosave?.stop()
@@ -570,10 +581,6 @@ export class GameStore {
 
   /** Ein Zeitschritt der Kampfuhr (feinspec §5/§5.1) - von `start()`s rAF-Loop getrieben, öffentlich für Tests. */
   advance(deltaSeconds: number): void {
-    // niederlage-offline.md §3/Architektur §5 - haelt "zuletzt aktiv gesehen" laufend aktuell,
-    // damit ein spaeterer Reload den Offline-Zeitraum ab hier (nicht ab Save-Erstellung) misst.
-    this.save.offline.lastSeen = Math.floor(Date.now() / 1000)
-
     if (this.calloutMessage) {
       this.#calloutRemaining -= deltaSeconds
       if (this.#calloutRemaining <= 0) this.#dismissCallout()
@@ -581,10 +588,12 @@ export class GameStore {
 
     if (this.phase === 'retry') {
       this.retryRemaining -= deltaSeconds
-      if (this.retryRemaining <= 0) {
-        this.phase = 'battle'
-        this.battle = spawnBattle(findZone(this.save.currentZone), this.save.party, this.reunionBoostMult)
-      }
+      // feinspec §3.8c - nach der Zeitstrafe automatisch ins Gasthaus, DANACH Retry derselben Zone.
+      if (this.retryRemaining <= 0) this.#enterInn(true, this.save.currentZone)
+      return
+    }
+    if (this.phase === 'inn') {
+      this.#advanceInn(deltaSeconds)
       return
     }
     if (this.phase !== 'battle') return
@@ -615,55 +624,129 @@ export class GameStore {
     return bestiary
   }
 
-  /** feinspec §3.6/§3.8 - Sieg: EXP/Gil gutschreiben, Bestiarium fortschreiben, kein Fortschrittsverlust möglich. */
+  /**
+   * feinspec §3.6/§3.8 (M11) - Sieg: HP/MP-Stand aus dem Kampf übernehmen, EXP/Gil gutschreiben,
+   * Sieg-Erholung (+25% HP/MP, §3.5) anwenden, Bestiarium fortschreiben. Zonen-Rückkehr (§3.8a):
+   * nur das Erreichen der bisherigen Wand (`maxZoneReached`) schiebt die Wand weiter (inkl.
+   * Roster-/Flag-Freischaltungen); ein Sieg beim Farmen einer bereits geschafften Zone wiederholt
+   * dieselbe Zone unbegrenzt, ohne etwas zu verlieren.
+   */
   #onWin(): void {
+    const boostMult = this.reunionBoostMult
     const zone = findZone(this.save.currentZone)
     const reward = zoneReward(zone)
     const gil = this.save.currencies.gil.add(reward.gil)
-    const leveled = this.save.party.map((c) => applyVictoryExp(c, reward.exp, this.reunionBoostMult))
+
+    let party = syncPartyFromBattle(this.save.party, this.battle.party).map((c) => {
+      const leveled = applyVictoryExp(c, reward.exp, boostMult)
+      return applyVictoryRecovery(leveled, boostMult)
+    })
     const bestiary = this.#recordBestiary()
 
-    if (this.save.currentZone >= CHAPTER1_MAX_ZONE) {
-      this.save = { ...this.save, party: leveled, currencies: { ...this.save.currencies, gil }, bestiary }
+    const isFrontierClear = this.save.currentZone >= this.save.maxZoneReached
+
+    if (isFrontierClear && this.save.currentZone >= CHAPTER1_MAX_ZONE) {
+      this.save = { ...this.save, party, currencies: { ...this.save.currencies, gil }, bestiary }
       this.phase = 'chapter-complete'
       writeSave(this.save)
       return
     }
 
-    const nextZone = this.save.currentZone + 1
     let flags = this.save.flags
-    let party = leveled
     let roster = this.save.roster
+    let maxZoneReached = this.save.maxZoneReached
+    let nextZone: number
 
-    if (!flags.manualToggleUnlocked && nextZone >= AUTO_ATTACK_UNLOCK_ZONE) {
-      flags = { ...flags, autoAttackUnlocked: true, manualToggleUnlocked: true }
-      party = party.map((c) => ({ ...c, controlMode: 'auto' }))
-      this.#triggerCallout('Auto-Attack online – the party fights on its own now.')
+    if (isFrontierClear) {
+      nextZone = this.save.maxZoneReached + 1
+      maxZoneReached = nextZone
+
+      if (!flags.manualToggleUnlocked && nextZone >= AUTO_ATTACK_UNLOCK_ZONE) {
+        flags = { ...flags, autoAttackUnlocked: true, manualToggleUnlocked: true }
+        party = party.map((c) => ({ ...c, controlMode: 'auto' }))
+        this.#triggerCallout('Auto-Attack online – the party fights on its own now.')
+      }
+
+      // feinspec §6.3 Z9-10 - Barrel stößt zu Beginn der Region 2 zur Party.
+      if (!roster.includes('barrel') && nextZone >= BARREL_JOIN_ZONE) {
+        roster = [...roster, 'barrel']
+        party = [...party, freshCharacter('barrel', flags.manualToggleUnlocked ? 'auto' : 'manual')]
+        this.#triggerCallout('Barrel joins the party – suppressing fire incoming!')
+      }
+
+      // feinspec §6.3 Z19-20 - Tofa+Air is... stoßen zu Beginn der Region 3 zur Party (volle 4er-Party).
+      if (!roster.includes('tofa') && nextZone >= REGION3_JOIN_ZONE) {
+        roster = [...roster, 'tofa', 'airis']
+        const mode = flags.manualToggleUnlocked ? 'auto' : 'manual'
+        party = [...party, freshCharacter('tofa', mode), freshCharacter('airis', mode)]
+        this.#triggerCallout('Tofa and Air is... join the party – full roster online!')
+      }
+    } else {
+      // feinspec §3.8a - Zonen-Rückkehr: eine bereits geschaffte Zone farmen wiederholt sie.
+      nextZone = this.save.currentZone
     }
 
-    // feinspec §6.3 Z9-10 - Barrel stößt zu Beginn der Region 2 zur Party.
-    if (!roster.includes('barrel') && nextZone >= BARREL_JOIN_ZONE) {
-      roster = [...roster, 'barrel']
-      party = [...party, freshCharacter('barrel', flags.manualToggleUnlocked ? 'auto' : 'manual')]
-      this.#triggerCallout('Barrel joins the party – suppressing fire incoming!')
+    this.save = {
+      ...this.save,
+      party,
+      roster,
+      currentZone: nextZone,
+      maxZoneReached,
+      flags,
+      currencies: { ...this.save.currencies, gil },
+      bestiary,
     }
 
-    // feinspec §6.3 Z19-20 - Tofa+Air is... stoßen zu Beginn der Region 3 zur Party (volle 4er-Party).
-    if (!roster.includes('tofa') && nextZone >= REGION3_JOIN_ZONE) {
-      roster = [...roster, 'tofa', 'airis']
-      const mode = flags.manualToggleUnlocked ? 'auto' : 'manual'
-      party = [...party, freshCharacter('tofa', mode), freshCharacter('airis', mode)]
-      this.#triggerCallout('Tofa and Air is... join the party – full roster online!')
+    if (this.save.inn.queued) {
+      this.save = { ...this.save, inn: { queued: false } }
+      this.#enterInn(false, nextZone)
+    } else {
+      this.battle = spawnBattle(findZone(nextZone), party, boostMult)
     }
-
-    this.save = { ...this.save, party, roster, currentZone: nextZone, flags, currencies: { ...this.save.currencies, gil }, bestiary }
-    this.battle = spawnBattle(findZone(nextZone), party, this.reunionBoostMult)
   }
 
-  /** feinspec §3.8 - Niederlage: milde Zeitstrafe, danach Auto-Retry, kein Verlust. */
+  /** feinspec §3.8c (M11) - Niederlage: HP/MP-Stand bleibt wie er war (KEINE Heilung), danach Zeitstrafe + Gasthaus. */
   #onLoss(): void {
+    const party = syncPartyFromBattle(this.save.party, this.battle.party)
+    this.save = { ...this.save, party }
     this.phase = 'retry'
     this.retryRemaining = RETRY_PENALTY
+  }
+
+  /** feinspec §3.8b (M11) - Gasthaus-Aufenthalt beginnen. `forced` = Niederlage-Pflichtaufenthalt (kein "Leave now"). */
+  #enterInn(forced: boolean, nextZone: number): void {
+    this.#dismissCallout()
+    this.phase = 'inn'
+    this.innForced = forced
+    this.innElapsed = 0
+    this.#innNextZone = nextZone
+  }
+
+  /** feinspec §3.8b (M11) - 10s Totzeit, danach 5%/s auf HP+MP gleichzeitig; endet automatisch bei voller Heilung. */
+  #advanceInn(deltaSeconds: number): void {
+    this.innElapsed += deltaSeconds
+    const boostMult = this.reunionBoostMult
+
+    if (this.innElapsed > INN_DEAD_TIME) {
+      const healSeconds = Math.min(deltaSeconds, this.innElapsed - INN_DEAD_TIME)
+      const party = this.save.party.map((c) => applyInnRecovery(c, healSeconds, boostMult))
+      this.save = { ...this.save, party }
+    }
+
+    const fullyHealed = this.save.party.every((c) => {
+      const maxHp = deriveCharacterMaxHp(c, boostMult)
+      const maxMp = deriveCharacterMaxMp(c, boostMult)
+      return c.hp >= maxHp && c.mp >= maxMp
+    })
+    if (fullyHealed) this.#leaveInn()
+  }
+
+  #leaveInn(): void {
+    const zone = findZone(this.#innNextZone ?? this.save.currentZone)
+    this.#innNextZone = null
+    this.phase = 'battle'
+    this.battle = spawnBattle(zone, this.save.party, this.reunionBoostMult)
+    writeSave(this.save)
   }
 }
 

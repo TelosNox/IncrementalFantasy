@@ -92,6 +92,8 @@ export interface Zone {
   region: 1 | 2 | 3
   waves: EncounterMonsterRef[][]
   isGate: boolean
+  /** feinspec §3.4 - Esper-Modell: Limit existiert NUR in Encountern mit true (in Kap. 1 die drei Gates). */
+  limitAllowed: boolean
 }
 
 export interface WeaponStatMod {

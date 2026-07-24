@@ -11,22 +11,41 @@
 
 import type { BattleUnit } from './battle'
 import { dealDamage, isAlive } from './battle'
-import { LIMIT_MAX, MP_REFUND_PER_ATTACK, SHOCK_MAX, limitFireDamage } from './formulas'
+import type { BattleState } from './tick'
+import { LIMIT_MAX, SHOCK_MAX, limitFireDamage } from './formulas'
 
-/** Zielwahl-Fallback: zuerst `bomb` entschärfen, dann `drain`, sonst schwächstes Ziel. */
-export function pickTarget(targets: BattleUnit[]): BattleUnit {
-  const bombs = targets.filter((t) => t.trait === 'bomb')
-  if (bombs.length) return weakest(bombs)
-  const drains = targets.filter((t) => t.trait === 'drain')
-  if (drains.length) return weakest(drains)
-  return weakest(targets)
+/**
+ * feinspec §3.9 - Partei-Zielwahl fuer normale Angriffe (gilt auch fuer Auto-Figuren).
+ * EIN Fokusziel fuer die ganze Gruppe, pro Kampf gesetzt (`state.focusTargetIndex`, ein
+ * Index statt einer Monster-ID, weil mehrere Gegner derselben Art dieselbe ID teilen).
+ * - Ist ein Fokus gesetzt und lebt das Ziel noch: dieses Ziel.
+ * - Stirbt das fokussierte Ziel und lebt nur noch einer: automatisch fokussiert.
+ * - Stirbt es und leben mehrere: Ruecksturz auf die Standardregel (naechststehend =
+ *   erster lebender Gegner in Array-Reihenfolge), Fokus bleibt bewusst leer, bis der
+ *   Spieler neu waehlt oder nur noch ein Gegner lebt - kein Kleben an einem toten Ziel.
+ * Gibt `null` zurueck, wenn kein Gegner mehr lebt.
+ */
+export function resolvePartyTarget(state: BattleState): BattleUnit | null {
+  const aliveIndices = state.enemies.reduce<number[]>((acc, e, i) => {
+    if (isAlive(e)) acc.push(i)
+    return acc
+  }, [])
+  if (!aliveIndices.length) return null
+
+  if (state.focusTargetIndex !== null && aliveIndices.includes(state.focusTargetIndex)) {
+    return state.enemies[state.focusTargetIndex]
+  }
+
+  if (aliveIndices.length === 1) {
+    state.focusTargetIndex = aliveIndices[0]
+    return state.enemies[aliveIndices[0]]
+  }
+
+  state.focusTargetIndex = null
+  return state.enemies[aliveIndices[0]]
 }
 
-function weakest(units: BattleUnit[]): BattleUnit {
-  return units.reduce((weakest, u) => (u.hp < weakest.hp ? u : weakest))
-}
-
-/** feinspec §3.4 - Limit-Zünden zielt auf das stärkste (meiste HP) Ziel. */
+/** feinspec §3.4 - Limit-Zünden/Claudes Special zielen auf das stärkste (meiste HP) Ziel. */
 export function strongest(units: BattleUnit[]): BattleUnit {
   return units.reduce((strongest, u) => (u.hp > strongest.hp ? u : strongest))
 }
@@ -37,14 +56,15 @@ export function strongest(units: BattleUnit[]): BattleUnit {
  * Reunion nur über die manuelle Steuerung erreichbar). Trägt idle-fähig durch
  * die Mehrheit der Zonen (Ventil-Prinzip), macht aber bewusst keine der drei
  * Gates/Bosse (Blandzilla/Fort Knoxious/Vaultron) idle-trivial - dort lohnt
- * sich manuelles Eingreifen (s. `resolveOptimalAction` unten).
+ * sich manuelles Eingreifen (s. `resolveOptimalAction` unten). Zielwahl: das
+ * gesetzte Fokusziel, sonst der nächststehende Gegner (§3.9) - gilt auch hier,
+ * das Fokusziel wirkt ausdrücklich auch für Auto-Figuren.
  */
-export function resolvePartyAction(actor: BattleUnit, _party: BattleUnit[], enemies: BattleUnit[]): void {
+export function resolvePartyAction(actor: BattleUnit, state: BattleState): void {
   actor.defending = false // Defend (M8) haelt nur bis zur naechsten eigenen Aktion, auch beim Wechsel auf Auto
-  const targets = enemies.filter(isAlive)
-  if (!targets.length) return
-  dealDamage(actor, pickTarget(targets), actor.atk)
-  actor.mp = Math.min(actor.maxMp, actor.mp + MP_REFUND_PER_ATTACK)
+  const target = resolvePartyTarget(state)
+  if (!target) return
+  dealDamage(actor, target, actor.atk)
 }
 
 /**
@@ -54,16 +74,19 @@ export function resolvePartyAction(actor: BattleUnit, _party: BattleUnit[], enem
  * Gambit-Editors (1. Reunion, `gambits.md` §5). Wird NICHT vom Live-Spiel für
  * Auto-Figuren aufgerufen (dafür ist `resolvePartyAction` da) - dient der
  * Pacing-Simulation (`tests/chapter-playthrough.test.ts`), um zu validieren,
- * dass manuelles Spiel an Gates einen echten Unterschied macht.
+ * dass manuelles Spiel (Spielertyp "M", feinspec §12) einen echten Unterschied
+ * macht. Normale Angriffe/Tofas Shock Strike nutzen dieselbe Fokusziel-Regel
+ * wie Auto (§3.9); Claude/Barrel/Limit wählen ihr Ziel weiterhin pro Einsatz
+ * unabhängig vom Fokus (eigener Zweck: schwächen/unterdrücken/finishen).
  */
-export function resolveOptimalAction(actor: BattleUnit, party: BattleUnit[], enemies: BattleUnit[]): void {
-  const targets = enemies.filter(isAlive)
+export function resolveOptimalAction(actor: BattleUnit, state: BattleState): void {
+  const targets = state.enemies.filter(isAlive)
   if (!targets.length) return
 
   // Limit hat Vorrang, sobald voll (feinspec §3.4: Aufsparen ist eine
   // Entscheidung, aber an einem Gate ohne Shock-Fenster gibt es keinen Grund,
   // ein volles Limit weiter zu banken).
-  if (actor.limit >= LIMIT_MAX) {
+  if (actor.limitAllowed && actor.limit >= LIMIT_MAX) {
     const target = strongest(targets)
     target.hp -= limitFireDamage(actor.atk, target.def)
     actor.limit = 0
@@ -71,12 +94,13 @@ export function resolveOptimalAction(actor: BattleUnit, party: BattleUnit[], ene
   }
 
   if (!actor.canSpecial) {
-    dealDamage(actor, pickTarget(targets), actor.atk)
-    actor.mp = Math.min(actor.maxMp, actor.mp + MP_REFUND_PER_ATTACK)
+    const target = resolvePartyTarget(state)
+    if (target) dealDamage(actor, target, actor.atk)
     return
   }
 
   if (actor.name === 'Air is...') {
+    const party = state.party
     const hurt = party.filter((p) => isAlive(p) && p.hp < 0.45 * p.maxHp)
     if (hurt.length && actor.mp >= actor.specialMpCost!) {
       actor.mp -= actor.specialMpCost!
@@ -90,8 +114,8 @@ export function resolveOptimalAction(actor: BattleUnit, party: BattleUnit[], ene
   }
 
   if (actor.name === 'Tofa') {
-    const tgt = pickTarget(targets)
-    if (actor.mp >= actor.specialMpCost! && tgt.shockTimer <= 0 && tgt.shock < SHOCK_MAX) {
+    const tgt = resolvePartyTarget(state)
+    if (tgt && actor.mp >= actor.specialMpCost! && tgt.shockTimer <= 0 && tgt.shock < SHOCK_MAX) {
       actor.mp -= actor.specialMpCost!
       dealDamage(actor, tgt, actor.atk, 45)
       return
@@ -118,6 +142,6 @@ export function resolveOptimalAction(actor: BattleUnit, party: BattleUnit[], ene
     }
   }
 
-  dealDamage(actor, pickTarget(targets), actor.atk)
-  actor.mp = Math.min(actor.maxMp, actor.mp + MP_REFUND_PER_ATTACK)
+  const target = resolvePartyTarget(state)
+  if (target) dealDamage(actor, target, actor.atk)
 }

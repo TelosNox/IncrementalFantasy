@@ -21,10 +21,26 @@ export interface BattleState {
    * telegrafierter Boss-AoE ausloest (nicht durch Shock ausgesetzt); die UI-Schicht liest das,
    * um `defenseUnlocked` beim ersten Vorkommen freizuschalten (M8). Wird jeden Tick zurueckgesetzt. */
   bossAoeTriggered: boolean
+  /**
+   * feinspec §3.9 - EIN Ziel fuer die ganze Gruppe (normale Angriffe, gilt auch fuer Auto-Figuren).
+   * Index in `enemies` statt Monster-ID: mehrere Gegner derselben Art teilen sich eine ID
+   * (z.B. 3x "blando" in Zone 6), nur die Position ist eindeutig. Reset pro Kampf (hier: null bei
+   * `createBattleState`), kein Uebertrag zwischen Kaempfen (§3.9). Faellt automatisch zurueck auf
+   * die Standardregel (naechststehend), sobald das Ziel stirbt und mehrere Gegner leben -
+   * s. `gambits.ts` `resolvePartyTarget`.
+   */
+  focusTargetIndex: number | null
 }
 
 export function createBattleState(party: BattleUnit[], enemies: BattleUnit[]): BattleState {
-  return { party, enemies, awaitingPlayerChoice: null, poisonAccumulator: 0, bossAoeTriggered: false }
+  return {
+    party,
+    enemies,
+    awaitingPlayerChoice: null,
+    poisonAccumulator: 0,
+    bossAoeTriggered: false,
+    focusTargetIndex: null,
+  }
 }
 
 function tickPoison(state: BattleState, dt: number): void {
@@ -60,11 +76,15 @@ function resolveEnemyAction(actor: BattleUnit, state: BattleState): void {
     }
   }
 
-  const tgt = alive.reduce((weakest, p) => (p.hp < weakest.hp ? p : weakest))
+  // gegner-encounter.md §6a - Gegner greifen die Figur mit den hoechsten aktuellen HP an
+  // (Playtest-Korrektur: die alte "niedrigste HP"-Regel haette mit dem neuen HP-Uebertrag
+  // zu einer Todesspirale gefuehrt - wer angeschlagen in den naechsten Kampf geht, waere
+  // sofort wieder Ziel gewesen). Schaden verteilt sich so von selbst; robuste Figuren tanken.
+  const tgt = alive.reduce((highest, p) => (p.hp > highest.hp ? p : highest))
   const rawDmg = physicalDamage(actor.atk, tgt.def)
   const dmg = tgt.defending ? Math.round(rawDmg * 0.5) : rawDmg
   tgt.hp -= dmg
-  tgt.limit = Math.min(LIMIT_MAX, tgt.limit + limitGainOnTaken(dmg))
+  if (tgt.limitAllowed) tgt.limit = Math.min(LIMIT_MAX, tgt.limit + limitGainOnTaken(dmg))
 
   if (actor.trait === 'poison') {
     tgt.poisonTicks = 4
@@ -103,7 +123,7 @@ export function battleTick(state: BattleState, dt: number): BattleResult {
       }
       f.atb = 0
       if (f.side === 'party') {
-        resolvePartyAction(f, state.party, state.enemies)
+        resolvePartyAction(f, state)
       } else {
         resolveEnemyAction(f, state)
       }

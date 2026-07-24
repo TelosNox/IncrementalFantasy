@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { CLAUDE } from '../src/content/characters'
 import { createPartyUnit, deriveCharacterMaxHp, deriveCharacterMaxMp } from '../src/core/battle'
-import { applyVictoryExp } from '../src/core/progression'
+import { applyVictoryExp, applyVictoryRecovery } from '../src/core/progression'
 import { projectOffline } from '../src/core/offline'
 
 // M9 - prestige-reunion.md "schwacher, aber wiederholbarer permanenter Boost": deckt ab, dass der
@@ -34,12 +34,31 @@ describe('M9 Reunion-Boost - createPartyUnit/deriveCharacterMax*', () => {
   })
 })
 
-describe('M9 Reunion-Boost - applyVictoryExp Level-Up-Heilung', () => {
-  it('heilt bei Levelaufstieg auf den geboosteten Max-Wert, nicht den ungeboosteten', () => {
-    const leveled = applyVictoryExp(CLAUDE, 999999, 1.05)
+describe('M11 - applyVictoryExp heilt NICHT mehr bei Levelaufstieg', () => {
+  it('lässt hp/mp durch einen Levelaufstieg unverändert (HP/MP sind Übertragswerte, §4.1/§11)', () => {
+    const wounded: typeof CLAUDE = { ...CLAUDE, hp: 40, mp: 5 }
+    const leveled = applyVictoryExp(wounded, 999999, 1.05)
     expect(leveled.level).toBeGreaterThan(CLAUDE.level)
-    expect(leveled.hp).toBe(deriveCharacterMaxHp(leveled, 1.05))
-    expect(leveled.mp).toBe(deriveCharacterMaxMp(leveled, 1.05))
+    expect(leveled.hp).toBe(40)
+    expect(leveled.mp).toBe(5)
+  })
+})
+
+describe('M9 Reunion-Boost - applyVictoryRecovery (Kanal 1, §3.5/§3.8d) nutzt den geboosteten Max-Wert', () => {
+  it('erholt 25% des geboosteten (nicht des ungeboosteten) Maximums, gedeckelt am Maximum', () => {
+    const wounded: typeof CLAUDE = { ...CLAUDE, hp: 1, mp: 0 }
+    const recovered = applyVictoryRecovery(wounded, 1.05)
+    const maxHp = deriveCharacterMaxHp(wounded, 1.05)
+    const maxMp = deriveCharacterMaxMp(wounded, 1.05)
+    expect(recovered.hp).toBe(Math.min(maxHp, 1 + 0.25 * maxHp))
+    expect(recovered.mp).toBe(Math.min(maxMp, 0 + 0.25 * maxMp))
+  })
+
+  it('deckelt am Maximum, auch wenn die Erholung sonst darüber hinausschösse', () => {
+    const nearFull: typeof CLAUDE = { ...CLAUDE, hp: deriveCharacterMaxHp(CLAUDE), mp: deriveCharacterMaxMp(CLAUDE) }
+    const recovered = applyVictoryRecovery(nearFull)
+    expect(recovered.hp).toBe(deriveCharacterMaxHp(CLAUDE))
+    expect(recovered.mp).toBe(deriveCharacterMaxMp(CLAUDE))
   })
 })
 

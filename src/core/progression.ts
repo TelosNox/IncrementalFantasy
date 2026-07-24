@@ -5,19 +5,43 @@
 import { MONSTERS } from '../content/monsters'
 import { deriveCharacterMaxHp, deriveCharacterMaxMp } from './battle'
 import type { Character, Zone } from './entities'
-import { applyExpGain, scaleEnemyStat } from './formulas'
+import { applyExpGain, hpGainPostVictory, innGain, mpGainPostVictory, scaleEnemyStat } from './formulas'
 
 /**
- * feinspec §3.6 - EXP anwenden; bei Levelaufstieg volle Heilung (HP/MP), wie in der Referenzsimulation.
- * `boostMult` = prestige-reunion.md permanenter Reunion-Boost (M9, default 1 = kein Boost).
+ * feinspec §3.6 - EXP anwenden; Level-Up ändert nur Level/Maximalwerte, KEINE Heilung mehr
+ * (M11-Revision, §3.5/§3.8d/§11: HP/MP sind jetzt Übertragswerte mit genau zwei Kanälen -
+ * Sieg-Erholung (§3.5) und Gasthaus (§3.8b). Ein impliziter dritter "Level-Up heilt voll"-Kanal
+ * würde die HP-Signalregel §3.8d unterlaufen, die genau auf diesen beiden Kanälen beruht - vor
+ * M11 war das folgenlos, weil jede Zone ohnehin komplett frisch aufgebaut wurde. `hp`/`mp`
+ * bleiben unverändert und sind nach einem Level-Up automatisch gültig, da das Maximum bei
+ * einem Level-Up nie sinkt. `boostMult` = prestige-reunion.md permanenter Reunion-Boost.
  */
-export function applyVictoryExp(character: Character, gainedExp: number, boostMult = 1): Character {
+export function applyVictoryExp(character: Character, gainedExp: number, _boostMult = 1): Character {
   const gained = applyExpGain(character.level, character.exp, gainedExp)
-  if (gained.level === character.level) {
-    return { ...character, exp: gained.exp }
+  return { ...character, level: gained.level, exp: gained.exp }
+}
+
+/** feinspec §3.5/§3.8d - Kanal 1: +25% des Maximums auf HP UND MP nach jedem Sieg, gedeckelt am Maximum. */
+export function applyVictoryRecovery(character: Character, boostMult = 1): Character {
+  const maxHp = deriveCharacterMaxHp(character, boostMult)
+  const maxMp = deriveCharacterMaxMp(character, boostMult)
+  return {
+    ...character,
+    hp: Math.min(maxHp, character.hp + hpGainPostVictory(maxHp)),
+    mp: Math.min(maxMp, character.mp + mpGainPostVictory(maxMp)),
   }
-  const leveled: Character = { ...character, level: gained.level, exp: gained.exp }
-  return { ...leveled, hp: deriveCharacterMaxHp(leveled, boostMult), mp: deriveCharacterMaxMp(leveled, boostMult) }
+}
+
+/** feinspec §3.8b - Kanal 2: Gasthaus-Erholung über `seconds` (nur der Anteil NACH der Totzeit darf hier ankommen). */
+export function applyInnRecovery(character: Character, seconds: number, boostMult = 1): Character {
+  if (seconds <= 0) return character
+  const maxHp = deriveCharacterMaxHp(character, boostMult)
+  const maxMp = deriveCharacterMaxMp(character, boostMult)
+  return {
+    ...character,
+    hp: Math.min(maxHp, character.hp + innGain(maxHp, seconds)),
+    mp: Math.min(maxMp, character.mp + innGain(maxMp, seconds)),
+  }
 }
 
 export interface ZoneReward {

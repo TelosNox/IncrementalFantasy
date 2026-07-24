@@ -11,6 +11,12 @@
   const bestiaryCount = $derived(Object.keys(game.save.bestiary).length)
   const catalogSize = $derived(Object.keys(MONSTERS).length)
 
+  // feinspec §3.8a (M11) - Zonen-Rückkehr: das eigentliche Ventil. Nur zwischen Kämpfen bedienbar.
+  const zoneNavEnabled = $derived(game.phase === 'battle')
+  const canGoBack = $derived(zoneNavEnabled && game.save.currentZone > 1)
+  const canGoForward = $derived(zoneNavEnabled && game.save.currentZone < game.maxZoneReached)
+  const atWall = $derived(game.save.currentZone >= game.maxZoneReached)
+
   // Architektur §6 "Export/Import als Sicherheitsnetz" (M10) - reines Datei-Handling, kein
   // eigener State noetig; game.importSave() macht die eigentliche Validierung/Uebernahme.
   let fileInput: HTMLInputElement | undefined = $state()
@@ -37,6 +43,27 @@
   <div class="title">IncrementalFantasy</div>
   <div class="subtitle">Chapter 1 – The Grid</div>
   <div class="zone">R{regionIndex} · {regionName} · Zone {game.save.currentZone}</div>
+
+  <!-- feinspec §3.8a (M11) - Zonen-Rückkehr: jede geschaffte Zone frei anwählbar, vor und zurück. -->
+  <div class="zone-nav">
+    <button disabled={!canGoBack} onclick={() => game.selectZone(game.save.currentZone - 1)}>◀</button>
+    <span class="zone-nav-label">Zone {game.save.currentZone} / {game.maxZoneReached}</span>
+    <button disabled={!canGoForward} onclick={() => game.selectZone(game.save.currentZone + 1)}>▶</button>
+  </div>
+  {#if !atWall}
+    <button
+      class="zone-nav-wall"
+      disabled={!zoneNavEnabled}
+      onclick={() => game.selectZone(game.maxZoneReached)}
+    >
+      ↦ Back to the wall (Zone {game.maxZoneReached})
+    </button>
+  {/if}
+
+  <!-- feinspec §3.8b (M11) - Gasthaus: Anmeldung jederzeit, greift erst nach Kampfende. -->
+  <button class="inn-toggle" class:active={game.innQueued} onclick={() => game.toggleInnQueued()}>
+    🛏 {game.innQueued ? 'Inn queued – after this fight' : 'Queue Inn after this fight'}
+  </button>
 
   <div class="currency">
     <span class="currency-label">Gil</span>
@@ -105,6 +132,73 @@
     color: var(--game-text-bright);
     font-size: 13px;
     margin-top: 4px;
+  }
+
+  .zone-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .zone-nav button {
+    padding: 4px 10px;
+    background: transparent;
+    color: var(--game-text-bright);
+    border: 1px solid var(--game-border);
+    border-radius: 3px;
+    cursor: pointer;
+  }
+
+  .zone-nav button:disabled {
+    color: var(--game-text);
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  .zone-nav-label {
+    flex: 1;
+    text-align: center;
+    color: var(--game-text-bright);
+    font-size: 12px;
+  }
+
+  .zone-nav-wall {
+    margin-top: 4px;
+    padding: 6px;
+    background: transparent;
+    color: var(--game-text);
+    border: 1px dashed var(--game-border);
+    border-radius: 3px;
+    font-size: 11px;
+    cursor: pointer;
+  }
+
+  .zone-nav-wall:hover:not(:disabled) {
+    color: var(--game-gold);
+    border-color: var(--game-gold);
+  }
+
+  .zone-nav-wall:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  .inn-toggle {
+    margin-top: 8px;
+    padding: 8px;
+    background: transparent;
+    color: var(--game-text-bright);
+    border: 1px solid var(--game-border);
+    border-radius: 3px;
+    font-size: 12px;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .inn-toggle.active {
+    color: var(--game-mp);
+    border-color: var(--game-mp);
   }
 
   .currency {

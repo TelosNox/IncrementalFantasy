@@ -14,8 +14,11 @@ export const SHOCK_ENEMY_ATB_MULT = 0.3
 export const SUPPRESS_ATB_MULT = 0.5
 export const LIMIT_MAX = 100
 export const RETRY_PENALTY = 5.0
-export const MP_REFILL_ON_VICTORY = 0.25
-export const MP_REFUND_PER_ATTACK = 2
+/** feinspec §3.5/§3.8d - Kanal 1: +25% des Maximums, HP UND MP gleich (Signalregel §3.8d). */
+export const VICTORY_RECOVERY_RATE = 0.25
+/** feinspec §3.8b - Gasthaus: 10s Totzeit (Fixkosten gegen Heil-Spam), danach 5%/s auf HP+MP gleichzeitig. */
+export const INN_DEAD_TIME = 10.0
+export const INN_RATE = 0.05
 export const EXP_BASE = 20
 export const EXP_GROWTH = 1.22
 
@@ -88,14 +91,20 @@ export function applyShockBuildup(currentShock: number, damage: number, bonus = 
   return { shock: next, windowTriggered: false }
 }
 
-/** §3.4 Limit-Ladung bei zugefügtem Schaden. */
+/**
+ * §3.4 Limit-Ladung bei zugefügtem Schaden. Esper-Modell-Revision: die alten Raten
+ * (0,35/0,50/0,40) waren gegen eine über den ganzen Run persistierende Leiste
+ * kalibriert und damit faktisch bedeutungslos (Leiste war ohnehin meist voll).
+ * Jetzt startet Limit pro Gate-Kampf bei 0 und soll dort 1-2x volllaufen (§3.4) -
+ * deutlich höhere Rate nötig. Startwert, s. §11 offene Playtest-Stellschraube.
+ */
 export function limitGainOnDealt(damage: number): number {
-  return damage * 0.35
+  return damage * 0.2
 }
 
-/** §3.4 Limit-Ladung bei erlittenem Schaden (AoE: 0,40 statt 0,50 je Figur). */
+/** §3.4 Limit-Ladung bei erlittenem Schaden (AoE: niedriger als Einzelziel, je Figur). */
 export function limitGainOnTaken(damage: number, isAoe = false): number {
-  return damage * (isAoe ? 0.4 : 0.5)
+  return damage * (isAoe ? 0.22 : 0.3)
 }
 
 /** §3.4 Limit-Zünden: schaden(4,5·ATK, DEF) mit DEF-Ignore auf das stärkste Ziel. */
@@ -103,9 +112,19 @@ export function limitFireDamage(atk: number, def: number): number {
   return physicalDamage(Math.round(atk * 4.5), def, { ignoreDef: true })
 }
 
-/** §3.5 MP-Kanal 1: +25% max. MP nach Sieg. */
+/** §3.5/§3.8d Kanal 1: +25% des Maximums nach Sieg (MP-Seite). */
 export function mpGainPostVictory(maxMp: number): number {
-  return MP_REFILL_ON_VICTORY * maxMp
+  return VICTORY_RECOVERY_RATE * maxMp
+}
+
+/** §3.5/§3.8d Kanal 1: +25% des Maximums nach Sieg (HP-Seite, Signalregel §3.8d). */
+export function hpGainPostVictory(maxHp: number): number {
+  return VICTORY_RECOVERY_RATE * maxHp
+}
+
+/** §3.8b Gasthaus-Kanal 2: 5%/s des Maximums, erst nach Ablauf der Totzeit (in der aufrufenden Stelle geprüft). */
+export function innGain(max: number, seconds: number): number {
+  return INN_RATE * max * seconds
 }
 
 /** feinspec §2 - EXP für den nächsten Levelaufstieg. */

@@ -94,15 +94,16 @@ describe('§6.3 Zonen-Encounter Z1-Z30', () => {
 
   it('Zone 8: Blandzilla-Miniboss ist Gate', () => {
     const z8 = ZONES.find((z) => z.zone === 8)!
-    expect(z8.waves).toEqual([[{ monster: 'blandzilla', size: 1.0 }]])
+    expect(z8.waves).toEqual([[{ monster: 'blandzilla', size: 1.6 }]])
     expect(z8.isGate).toBe(true)
+    expect(z8.limitAllowed).toBe(true)
   })
 
   it('Zone 18: Fort-Knoxious-Gate + Caffiend', () => {
     const z18 = ZONES.find((z) => z.zone === 18)!
     expect(z18.waves).toEqual([
       [
-        { monster: 'fort_knoxious', size: 1.0 },
+        { monster: 'fort_knoxious', size: 1.15 },
         { monster: 'caffiend', size: 1.0 },
       ],
     ])
@@ -113,12 +114,18 @@ describe('§6.3 Zonen-Encounter Z1-Z30', () => {
     const z30 = ZONES.find((z) => z.zone === 30)!
     expect(z30.waves).toEqual([
       [
-        { monster: 'vaultron', size: 1.0 },
-        { monster: 'blando', size: 1.0 },
-        { monster: 'blando', size: 1.0 },
+        { monster: 'vaultron', size: 0.8 },
+        { monster: 'blando', size: 0.85 },
+        { monster: 'blando', size: 0.85 },
       ],
     ])
     expect(z30.isGate).toBe(true)
+  })
+
+  it('limitAllowed ist genau an den drei Gates gesetzt (feinspec §3.4/§4.3, M11)', () => {
+    for (const z of ZONES) {
+      expect(z.limitAllowed).toBe(z.isGate)
+    }
   })
 })
 

@@ -10,6 +10,7 @@ function sampleSaveState(): SaveState {
     version: SAVE_VERSION,
     chapter: 1,
     currentZone: 9,
+    maxZoneReached: 12,
     party: [
       { ...CLAUDE, level: 6, exp: 12 },
       { ...BARREL, level: 6, exp: 0 },
@@ -37,7 +38,7 @@ function sampleSaveState(): SaveState {
       materiaUnlocked: false,
       gambitsUnlocked: false,
     },
-    offline: { lastSeen: 1732300000 },
+    inn: { queued: false },
   }
 }
 
@@ -49,12 +50,13 @@ describe('Architektur §6 - Save-Round-Trip (serialize -> deserialize)', () => {
     expect(restored.version).toBe(original.version)
     expect(restored.chapter).toBe(original.chapter)
     expect(restored.currentZone).toBe(original.currentZone)
+    expect(restored.maxZoneReached).toBe(original.maxZoneReached)
     expect(restored.party).toEqual(original.party)
     expect(restored.roster).toEqual(original.roster)
     expect(restored.bestiary).toEqual(original.bestiary)
     expect(restored.reunionCount).toBe(original.reunionCount)
     expect(restored.flags).toEqual(original.flags)
-    expect(restored.offline).toEqual(original.offline)
+    expect(restored.inn).toEqual(original.inn)
     expect(restored.currencies.gil.eq(original.currencies.gil)).toBe(true)
     expect(restored.currencies.reunionEssence.eq(original.currencies.reunionEssence)).toBe(true)
   })
@@ -82,5 +84,36 @@ describe('Architektur §6 - Migrations-Grundgerüst', () => {
   it('wirft bei unbekannter/fremder Save-Version statt still zu überschreiben', () => {
     const data = { version: 99 } as unknown as SerializedSaveState
     expect(() => migrate(data)).toThrow()
+  })
+
+  it('migriert v1 (M0-M10, vor der Ventil-Kette) nach v2: offline entfällt, maxZoneReached/inn kommen dazu', () => {
+    const v1 = {
+      version: 1,
+      chapter: 1,
+      currentZone: 14,
+      party: [],
+      roster: ['claude'],
+      currencies: { gil: '100', reunionEssence: '0' },
+      bestiary: {},
+      reunionCount: 0,
+      flags: {
+        autoAttackUnlocked: true,
+        mpVisible: true,
+        manualToggleUnlocked: true,
+        defenseUnlocked: false,
+        materiaUnlocked: false,
+        gambitsUnlocked: false,
+      },
+      offline: { lastSeen: 1732300000 },
+    } as unknown as SerializedSaveState
+
+    const migrated = migrate(v1)
+
+    expect(migrated.version).toBe(SAVE_VERSION)
+    // Bestehender Fortschritt bleibt vollstaendig selektierbar - die zuletzt bespielte
+    // Zone gilt als hoechste erreichte, statt den Spieler auf Zone 1 zurueckzuwerfen.
+    expect(migrated.maxZoneReached).toBe(14)
+    expect(migrated.inn).toEqual({ queued: false })
+    expect((migrated as unknown as { offline?: unknown }).offline).toBeUndefined()
   })
 })

@@ -14,6 +14,9 @@
   const limitPct = $derived(Math.min(100, unit.limit))
   const mpVisible = $derived(game.save.flags.mpVisible)
   const toggleVisible = $derived(game.save.flags.manualToggleUnlocked)
+  // feinspec §3.4 (M11 Esper-Modell) - Limit existiert nur in Gate-/Boss-Kämpfen; außerhalb
+  // gibt es keine Leiste zu zeigen ("In regulären Zonen erscheint die Limit-Zeile gar nicht").
+  const limitVisible = $derived(unit.limitAllowed)
 </script>
 
 <div class="panel">
@@ -50,10 +53,12 @@
     <div class="bar atb"><div class="fill" style:width="{atbPct}%"></div></div>
   </div>
 
-  <div class="row">
-    <span class="label">Limit</span>
-    <div class="bar limit"><div class="fill" style:width="{limitPct}%"></div></div>
-  </div>
+  {#if limitVisible}
+    <div class="row">
+      <span class="label">Limit</span>
+      <div class="bar limit"><div class="fill" style:width="{limitPct}%"></div></div>
+    </div>
+  {/if}
 
   <ActionPopup {unit} />
 

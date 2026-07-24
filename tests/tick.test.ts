@@ -28,6 +28,7 @@ function dummyPartyTank(): BattleUnit {
     hitsTaken: 0,
     fled: false,
     defending: false,
+    limitAllowed: false,
     controlMode: 'auto',
     canSpecial: false,
     specialId: 'none',
@@ -48,6 +49,26 @@ describe('feinspec §5 battleTick - Referenzbeispiel §3.1/§7.1', () => {
     expect(result.timeSeconds).toBeCloseTo(8.0, 5)
     expect(blando.hp).toBeLessThanOrEqual(0)
     expect(claude.hp).toBeGreaterThan(0) // Blando (ATK8 vs DEF4) ist keine ernste Bedrohung
+  })
+})
+
+describe('gegner-encounter.md §6a Zielwahl (M11) - Gegner greifen die höchsten aktuellen HP an', () => {
+  it('trifft die gesündeste Figur, nicht die verwundetste (verhindert Todesspirale bei HP-Übertrag)', () => {
+    const healthy = dummyPartyTank()
+    healthy.id = 'healthy'
+    healthy.hp = 999
+    const wounded = dummyPartyTank()
+    wounded.id = 'wounded'
+    wounded.hp = 10
+
+    const blando = createEnemyUnit(BLANDO, 1)
+    blando.atb = 1.0
+    const state = createBattleState([wounded, healthy], [blando])
+
+    battleTick(state, 0)
+
+    expect(wounded.hp).toBe(10) // unangetastet
+    expect(healthy.hp).toBeLessThan(999) // getroffen, obwohl deutlich gesuender
   })
 })
 

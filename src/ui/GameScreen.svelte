@@ -5,7 +5,6 @@
   import BottomBar from './BottomBar.svelte'
   import Sidebar from './Sidebar.svelte'
   import DebugResetButton from './DebugResetButton.svelte'
-  import WelcomeBackModal from './WelcomeBackModal.svelte'
   import CorruptSaveModal from './CorruptSaveModal.svelte'
 
   onMount(() => {
@@ -27,7 +26,6 @@
      NICHT wieder hinter DEV verstecken oder entfernen, ohne den Nutzer explizit zu fragen
      (erst wenn es ein echtes Publikum gibt, s. Architektur §6a). -->
 <DebugResetButton />
-<WelcomeBackModal />
 <CorruptSaveModal />
 
 <style>
