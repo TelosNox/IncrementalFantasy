@@ -344,7 +344,13 @@ export class GameStore {
       const target = resolvePartyTarget(this.battle)!
       dealDamage(unit, target, unit.atk, 45)
     } else {
-      dealDamage(unit, strongest(targets), Math.round(unit.atk * 3.0))
+      // feinspec §3.9/§6.1 - Cross Slash: "großer Einzelziel-Treffer" hat keinen eigenen
+      // taktischen Zweck (anders als Suppress/Shock Strike/Heal) und folgt daher wie ein
+      // normaler Angriff der Fokusziel-Regel (Playtest-Fund M11: Special traf bislang immer
+      // das ranghöchste Ziel, ignorierte ein gesetztes Fokusziel - fühlte sich wie ein Bug an,
+      // war einer).
+      const target = resolvePartyTarget(this.battle)!
+      dealDamage(unit, target, Math.round(unit.atk * 3.0))
     }
     unit.atb = 0
     this.battle.awaitingPlayerChoice = null

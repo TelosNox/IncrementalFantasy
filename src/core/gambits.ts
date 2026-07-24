@@ -75,9 +75,12 @@ export function resolvePartyAction(actor: BattleUnit, state: BattleState): void 
  * Auto-Figuren aufgerufen (dafür ist `resolvePartyAction` da) - dient der
  * Pacing-Simulation (`tests/chapter-playthrough.test.ts`), um zu validieren,
  * dass manuelles Spiel (Spielertyp "M", feinspec §12) einen echten Unterschied
- * macht. Normale Angriffe/Tofas Shock Strike nutzen dieselbe Fokusziel-Regel
- * wie Auto (§3.9); Claude/Barrel/Limit wählen ihr Ziel weiterhin pro Einsatz
- * unabhängig vom Fokus (eigener Zweck: schwächen/unterdrücken/finishen).
+ * macht. Normale Angriffe/Claudes Cross Slash/Tofas Shock Strike nutzen dieselbe
+ * Fokusziel-Regel wie Auto (§3.9) - sie haben keinen eigenen taktischen Zweck, der
+ * eine Abweichung rechtfertigt. Nur Barrel (Suppress: schnellstes, sonst stärkstes
+ * Ziel, §4.7) und Limit (§3.4: explizit "stärkstes Ziel") wählen ihr Ziel weiterhin
+ * pro Einsatz unabhängig vom Fokus - beide haben einen im Spec benannten eigenen
+ * Zweck (unterdrücken/finishen), der die Abweichung begründet.
  */
 export function resolveOptimalAction(actor: BattleUnit, state: BattleState): void {
   const targets = state.enemies.filter(isAlive)
@@ -134,8 +137,10 @@ export function resolveOptimalAction(actor: BattleUnit, state: BattleState): voi
   }
 
   if (actor.name === 'Claude') {
-    const tgt = strongest(targets)
-    if (actor.mp >= actor.specialMpCost!) {
+    // feinspec §3.9/§6.1 - Cross Slash hat keinen eigenen taktischen Zweck (anders als
+    // Suppress/Shock Strike/Heal) und folgt daher wie ein normaler Angriff der Fokusziel-Regel.
+    const tgt = resolvePartyTarget(state)
+    if (tgt && actor.mp >= actor.specialMpCost!) {
       actor.mp -= actor.specialMpCost!
       dealDamage(actor, tgt, Math.round(actor.atk * 3.0))
       return
