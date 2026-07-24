@@ -21,6 +21,7 @@
 - **Reunion ab Kapitelende, wiederholbar** (s. §5) → Re-Traversal beschleunigt, und wer eine Wand nicht manuell schafft, **grindet sich per Reunion einen Vorteil** (Skill↔Zeit).
 - **Optionale Seitenzweige = Nebenquests** (Vorbild Increlution/Journey to Ascension): gesperrte Köder → später Boost/Shortcut. Überwiegend über die Zyklen alles machbar; wenige **bedeutende exklusive Entscheidungen** möglich (TBD).
 - **Manuelle Prüfsteine** nur **selten** an ausgewählten Bossen (telegrafiert, überlegt-nicht-twitch, s. `gambits.md` §4). Die *frühen* Kapitel-Wände sind bewusst **grindbare Idle-Wände**, kein Pflicht-Manuell.
+- **„Grindbar" setzt einen Ort zum Grinden voraus** – die **Zonen-Rückkehr** (§2). Der erste Playtest hat gezeigt, dass diese Selbstverständlichkeit fehlte: Ohne sie ist in einer deterministischen Engine jede Wand entweder sofort schaffbar oder für immer verschlossen, und der ganze Absatz oben eine leere Behauptung (`niederlage-offline.md` §3).
 
 ---
 
@@ -67,6 +68,10 @@ Grobe Gesamtstruktur, parodistisch an FF7 angelehnt: **~15 Regionen** in **5 Kap
 
 **Analyse (ab Region 2):**
 - Gegner analysieren → zeigt **Grundstats (ATK/DEF/HP)**; eine **Schwäche** kann sichtbar werden, ist aber **noch nicht nutzbar** (Skill/Shock fehlt) → Köder auf Region 3.
+
+**Zwischen den Kämpfen (revidiert nach dem ersten Playtest):**
+- **Zonen-Rückkehr:** jede bereits geschaffte Zone ist jederzeit frei anwählbar. Dort farmt man EXP/Gil unbegrenzt weiter. **Das ist das Ventil des ganzen Spiels** – ohne es ist eine verlorene Zone in einer deterministischen Engine ein permanenter Stopp (`niederlage-offline.md` §3).
+- **Gasthaus:** vorab anmeldbarer Heil-Aufenthalt zwischen zwei Kämpfen, kostet Zeit statt Gil. HP und MP tragen sonst über alle Kämpfe hinweg über.
 
 **Build & Meta:**
 - **Ausrüstung** (Waffen/Rüstung) kaufen/verbessern mit **Gil** – Waffen schalten/verbessern die Spezialfähigkeit.

@@ -8,6 +8,7 @@
 
 - **Mikro-Ebene – Materia-Cap-Reset** (`materia.md`): erzeugt Materia-Prestige-Währung; Voraussetzung für Evolution.
 - **Makro-Ebene – Reunion**: **resettet** Zonen, Charakter-Level, Materia-Level/-Slots, Ausrüstung; **erhält** Materia-Typen/-Evolutionen, kristallisierte Boni, Charaktere, Bestiarium, Gambit-Fähigkeiten, **gelernte Waffen-Spezialfähigkeiten**.
+  **Präzisierung „Zonen":** Mit der Zonen-Rückkehr (`niederlage-offline.md` §3) gibt es zwei Zonen-Werte – die aktuell bespielte und die höchste je erreichte (`maxZoneReached`, `feinspec-kapitel1.md` §4.6). **Beide** werden zurückgesetzt; der neue Zyklus beginnt wieder bei Zone 1 und muss sich seinen Rückkehr-Spielraum neu erarbeiten. Andernfalls startete jeder Zyklus mit sofortigem Zugriff auf beliebig hohe Farm-Zonen und die Reunion würde sich selbst entwerten. HP/MP werden mit den frischen Charakteren ohnehin neu abgeleitet.
 - **Waffen-Spezialfähigkeiten:** die *gelernte Fähigkeit* bleibt (permanenter Skill); die *Waffe als Ausrüstung* wird zurückgesetzt, ihre Kraft/Skalierung neu erspielt.
 - **Reunion-Essenz** (`oekonomie-waehrungen.md`): **die 1. Reunion schaltet die programmierbaren Gambits frei** (`gambits.md`); danach kauft Essenz permanente Boni, Materia-Typen, Roster.
 - **Ausrüstung/Gil** (`ausruestung-gil.md`): Reset macht Gil je Zyklus neu relevant.

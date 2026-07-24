@@ -26,6 +26,7 @@ Jeder Meilenstein ist als eigenständige Arbeitseinheit gedacht (in etwa PR-Grö
 | M8 | Region 3 – Volle Party, Shock, manuelle Steuerung | Region 3 komplett spielbar (Zone 19–30, Kapitel-Boss) | feinspec §5.1, §7.2/§7.3, Mockup 02/05 |
 | M9 | Niederlage-Loop, Offline-UI, 1. Reunion | Kompletter Kapitel-1-Loop inkl. Reunion spielbar & speicherbar | feinspec §7.3, Mockup 04, `prestige-reunion.md` |
 | M10 | Härtung & Politur | Release-reifer Kapitel-1-Build | siehe M10 unten |
+| **M11** | **Ventil-Kette & Ressourcen-Ökonomie** | **Kapitel 1 erstmals von einem Menschen durchspielbar** | feinspec §3.4/§3.5/§3.8, `niederlage-offline.md` |
 
 ---
 
@@ -223,6 +224,35 @@ Jeder Meilenstein ist als eigenständige Arbeitseinheit gedacht (in etwa PR-Grö
 
 ---
 
+## M11 – Ventil-Kette & Ressourcen-Ökonomie (aus dem ersten Playtest)
+
+**Ziel:** Kapitel 1 von „durchgespielt laut Simulation" auf „von einem Menschen durchspielbar" bringen. **Dieser Meilenstein ist ein Blocker für alles Weitere** – der erste Playtest kam über Zone 14 nicht hinaus, Region 3 war unerreichbar.
+
+**Kern-Referenz:** `spec/feinspec-kapitel1.md` §3.4/§3.5/§3.8 sowie `spec/niederlage-offline.md` (beide vollständig revidiert). Prüfinstanz wie immer `02_Leitfaden_Kernmechaniken.md` – hier besonders Anti-Pattern #1 und #5, die beide **verletzt waren**.
+
+**Der Befund in einem Satz:** In einer deterministischen Engine ohne Weg zurück in eine geschaffte Zone und ohne Ertrag bei Niederlage ist jede verlorene Zone ein permanenter Totalstopp – und die simulationsvalidierte Baseline hat das nicht gezeigt, weil der Test-Harness eine Grind-Mechanik unterstellt, die es im Spiel nie gab.
+
+Umzusetzen sind sechs zusammenhängende Änderungen:
+
+1. **Zonen-Rückkehr** (feinspec §3.8a): freie Anwahl jeder geschafften Zone, `maxZoneReached` im SaveState (§4.6), Auswahl-UI. Das ist das eigentliche Ventil.
+2. **HP/MP-Übertrag** (§3.5/§4.1): `createPartyUnit` darf die Kampfeinheit **nicht** mehr pro Zone frisch aus dem Charakter bauen – HP/MP kommen aus dem Save, nur `atb`/`limit` werden zurückgesetzt. Dieselbe Codezeile hat bisher HP, MP *und* Limit gleichzeitig entwertet.
+3. **MP-Kanal 3 streichen** (§3.5): kein `+2 MP pro Angriff` mehr; Special-Kosten in §6.1 neu herleiten.
+4. **Gasthaus** (§3.8b): vorab anmeldbar, greift nach Kampfende, bei Niederlage automatisch; Totzeit + Rate auf HP und MP gleichzeitig; Kosten ausschließlich Zeit.
+5. **Niederlage heilt nicht** (§3.8c) – sonst ist absichtliches Sterben die optimale Strategie.
+6. **Limit als Esper-Modell** (§3.4): `limitAllowed` als Datenfeld am Encounter, in Kapitel 1 an den drei Gates gesetzt; Leiste startet dort bei 0, kein Übertrag.
+
+**Zusätzlich abzuräumen:**
+
+- **Offline-Progress stilllegen** (§3.8e): `OFFLINE_RATE`/`OFFLINE_CAP` und der „Willkommen zurück"-Screen entfallen. `core/offline.ts` **nicht löschen** – der Projektionsrechner bleibt als Balance-Werkzeug wertvoll, er wird nur vom Spielerpfad abgehängt.
+- **Save-Migration** für `maxZoneReached`, `inn` und die entfallenen `offline`-Felder (`save/migrate.ts` existiert seit M4 genau dafür).
+- **`tests/chapter-playthrough.test.ts` neu aufsetzen:** Der Harness muss die Zonen-Rückkehr als *Spielerentscheidung* modellieren (welche Zone farmt ein vernünftiger Spieler wie lange?), nicht als impliziten Automatismus bei jeder Niederlage. Das war die Ursache dafür, dass die Baseline ein anderes Spiel gemessen hat als das ausgelieferte.
+
+**Abnahme:** Ein Mensch spielt Zone 1 → 30 → Reunion vollständig durch, ohne Debug-Eingriffe, mit einer Mischung aus Auto und manueller Übernahme – und **ohne dauerhaft festzustecken**. Erst danach wird die Pacing-Tabelle in feinspec §7.4 neu simuliert und ersetzt; bis dahin existiert bewusst **keine** gültige Baseline.
+
+**Warnung zum Gesamtpaket:** M11 stapelt drei Verknappungen übereinander (HP trägt über, MP wächst nicht mehr im Kampf, Heilung kostet Zeit). Jede für sich ist begründet, zusammen können sie deutlich härter ausfallen als geplant. Alle Zahlen sind als **Startwerte** zu behandeln; die Zeitkosten (Zeitstrafe + Gasthaus-Totzeit) müssen sich ohne Offline-Progress *gespielt* vertretbar anfühlen, nicht nur gerechnet.
+
+---
+
 ## Danach
 
-Kapitel-2-Feinspec (Materia/Slots/AP/Magie, programmierbarer Gambit-Editor) folgt erst, wenn M0–M10 stehen – bewusst sequenziell, kein Parallel-Design auf einem unbewiesenen Fundament (Leitplanke „Skelett zuerst", `02_Leitfaden_Kernmechaniken.md` §5).
+Kapitel-2-Feinspec (Materia/Slots/AP/Magie, programmierbarer Gambit-Editor) folgt erst, wenn **M11** steht und Kapitel 1 nachweislich durchspielbar ist – bewusst sequenziell, kein Parallel-Design auf einem unbewiesenen Fundament (Leitplanke „Skelett zuerst", `02_Leitfaden_Kernmechaniken.md` §5). Der erste Playtest hat genau diese Leitplanke bestätigt: Das Skelett war nicht bewiesen, sondern nur simuliert.

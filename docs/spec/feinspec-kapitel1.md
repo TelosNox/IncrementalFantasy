@@ -76,13 +76,14 @@ Die manuelle Steuerung als **FF7-Menübox** am Charakter-Panel: dunkle Blau/Lila
 | Shock-Fensterdauer | `SHOCK_WINDOW` | 6,0 s | im Spec-Band 5–8 s |
 | Shock-Schadensmultiplikator | – | ×2,0 | im Fenster |
 | Shock-Verlangsamung Gegner-ATB | – | ×0,3 | Gegner „stark verlangsamt" |
-| Limit-Cap | `LIMIT_MAX` | 100 | persistiert über den Run, Reset bei Reunion |
-| Zeitstrafe bei Niederlage | `RETRY_PENALTY` | 5,0 s | „milde Zeitstrafe" |
-| MP-Refill nach Sieg (Kanal 1) | – | +25 % max. MP | prozentual (skaliert sauber) |
-| MP-Refund pro Angriff (Kanal 3) | – | +2 MP flach | schließt den Attack-Refund-Loop |
+| Limit-Cap | `LIMIT_MAX` | 100 | **nur in Gate-/Boss-Kämpfen**; startet dort bei 0, kein Übertrag (§3.4) |
+| Zeitstrafe bei Niederlage | `RETRY_PENALTY` | 5,0 s | „milde Zeitstrafe"; heilt **nichts** (§3.8) |
+| HP/MP-Erholung nach Sieg | `VICTORY_RECOVERY` | +25 % Maximum | einziger kostenloser Kanal; HP **und** MP gleich (§3.5) |
+| ~~MP-Refund pro Angriff (Kanal 3)~~ | – | **gestrichen** | MP ist jetzt ein Kampf-Budget, kein Rotations-Kreisel (§3.5) |
 | MP-Trickle über Zeit (Kanal 2) | – | **inaktiv** in Kap. 1 | öffnet später |
-| Offline-Rate | – | 60 % der Aktiv-Rate | „etwas unter Aktiv", gedeckelt |
-| Offline-Deckel | – | 8 h Ernte | „Welcome-back"-Fenster |
+| Gasthaus-Totzeit | `INN_DEAD_TIME` | 10,0 s | Fixkosten gegen Heil-Spam (§3.8) |
+| Gasthaus-Erholungsrate | `INN_RATE` | 5 %/s vom Maximum | HP und MP **gleichzeitig** (§3.8) |
+| ~~Offline-Rate / Offline-Deckel~~ | – | **entfernt** | Offline-Progress stillgelegt (§3.8) |
 
 **Level-Wachstum pro Stufe** (multiplikativ auf den Basiswert): HP ×1,09 · ATK ×1,055 · MAG ×1,055 · DEF ×1,05 · SPD ×1,00 (SPD bleibt Build-Hebel). Dass ATK (5,5 %/Level) knapp unter `g` (7 %/Zone) liegt, ist Absicht: die Party fällt über eine Region minimal zurück → am Gate steht eine spürbare, grindbare Wand (Ventil-Prinzip bleibt: EXP fließt weiter).
 
@@ -125,25 +126,43 @@ Neutral (alle Kap.-1-Gegner) baut also nur über Schaden auf – langsam, aber r
 
 **Anzeige & Zeitkopplung:** Der Shock-Stand erscheint als **Ring um den Gegner** in **Gold/Bernstein** (Amber `#e0a52e` im Aufbau, Gold `#ffcc33` im aktiven Fenster) – nicht Lila. Der Ring **füllt sich von unten** (Nähe zum Schock), schließt sich bei 100 % mit einem **Bruch-/Funken-Symbol** und **leert sich im Fenster von oben** (verbleibende Zeit). Voller Detail-Steckbrief: `kampf-analyse-shock.md` §6. **Auf- und Abbau laufen ausschließlich bei laufender Kampfuhr** – die Bedenkzeit-Pause (§5) friert den Shock-Timer mit ein.
 
-### 3.4 Limit-Ladung
+### 3.4 Limit-Ladung (Esper-Modell, revidiert)
+
+**Revision:** Die Erstfassung ließ die Limit-Leiste über den ganzen Run persistieren („aufgeladen an der Wand ankommen"). Mit der Zonen-Rückkehr (§3.8) wird das zu einem **Vorab-Farm-Exploit**: Man lädt das Limit in einer trivialen Zone auf und betritt die Wand mit voller Leiste – der Wand-Brecher entwertet sich selbst. Ersetzt durch das Esper-Modell aus FF7 Remake:
 
 ```
-zugefügter Schaden:  limit += schaden · 0,35
-erlittener Schaden:  limit += schaden · 0,50   (AoE: · 0,40 je getroffener Figur)
-Cap 100, persistiert über den Run; Reset erst bei Reunion.
+Verfügbarkeit: NUR in Encountern mit `limitAllowed: true` (§4.3) – in Kap. 1
+               exakt die drei Gates (Blandzilla Z8, Fort Knoxious Z18, Vaultron Z30).
+Start:         limit = 0 zu Beginn jedes solchen Kampfes. Kein Übertrag, nirgends.
+Ladung:        zugefügter Schaden:  limit += schaden · 0,35
+               erlittener Schaden:  limit += schaden · 0,50  (AoE: · 0,40 je Figur)
 Zünden (Kap. 1, generisch): schaden(4,5·ATK, DEF) mit DEF-Ignore auf das stärkste Ziel.
 ```
 
-Aufsparen ist eine Entscheidung: an einer Wand aufgeladen ankommen. Aktives Timing ins Shock-Fenster holt spürbar mehr heraus.
+Damit ist Limit kein Dauer-Knopf mehr, sondern ein **Ereignis, das ausschließlich an Wänden existiert** und sich dort vor den Augen des Spielers aufbaut. Die Laderaten sind so zu justieren, dass die Leiste in einem Gate-Kampf **ein- bis zweimal** voll wird – sie wird damit zum Taktgeber innerhalb des Kampfes statt zu einer vorab mitgebrachten Ressource.
 
-### 3.5 MP (zwei aktive Kanäle in Kap. 1)
+Das schärft zugleich den Wert manuellen Spiels genau dort, wo er hingehört: Limit lebt künftig nur noch in den Kämpfen, die `gambits.md` §4 ohnehin als **manuelle Prüfsteine** vorsieht. Aktives Timing ins Shock-Fenster holt weiterhin spürbar mehr heraus.
+
+*Playtest-Befund, der zu dieser Revision führte:* Limit fühlte sich „wie die Spezialattacke an, nichts Besonderes" – genau weil es überall verfügbar war. Der in der Vorfassung unter §11 vermerkte Implementierungsfehler (Leiste fiel bei jedem Zonenstart auf 0) **entfällt damit ersatzlos**; das Esper-Modell macht das frühere Soll-Verhalten überflüssig, statt es nachzurüsten.
+
+### 3.5 MP – ein Kampf-Budget (revidiert, nur noch ein Kanal)
+
+**Revision:** Kanal 3 (`+2 MP pro Angriff`) ist **gestrichen**. Mit ihm war MP eine *rotierende* Ressource, die sich innerhalb eines Kampfes selbst repariert („leer → angreifen → wieder da"); der Special war damit faktisch die Standardaktion statt eines taktischen Werkzeugs. Ohne ihn ist MP ein **Budget pro Kampf mit hartem Deckel**.
 
 ```
-Kanal 1 – nach jedem Sieg:  mp += 0,25 · max_mp
-Kanal 3 – pro Angriff:      mp += 2   (flach)
-Special-Kosten: siehe §6.1. Reicht MP nicht, fällt die Regel auf Angriff zurück
-(→ füllt MP wieder auf → „MP leer → Angriff → MP zurück → wieder Special").
+Kanal 1 – nach jedem Sieg:  mp += 0,25 · max_mp   (einziger kostenloser Kanal)
+Kanal 2 – Gasthaus:         mp += 0,05 · max_mp je Sekunde (§3.8)
+Special-Kosten: siehe §6.1. Reicht MP nicht, ist der Special schlicht nicht
+verfügbar (im Popup sichtbar, aber ausgegraut – `gambits.md` §3).
 ```
+
+**MP trägt zwischen den Kämpfen über** (§4.1) – das ist die eigentliche Änderung. Vier gewonnene Kämpfe füllen die Leiste von leer auf voll; die Entscheidung, MP in einer leichten Zone **nicht** auszugeben, wird damit selbst zum Zug: Man bankt Ressourcen in sicheren Zonen und gibt sie an der Wand aus. Genau dieser Vorbereitungs-Loop ist der Sinn der Zonen-Rückkehr (§3.8).
+
+**Konsequenzen, die mitzuvalidieren sind:**
+- Alle Special-Kosten in §6.1 wurden gegen den gestrichenen Refund balanciert und sind **neu herzuleiten**.
+- Air is…' Heilung bekommt damit eine **harte Obergrenze pro Kampf** – Bosskämpfe werden zusätzlich zu einem Ausdauer-Rätsel. Bei Vaultron (AoE alle 3 Aktionen) gewollt, aber simulationspflichtig.
+- Der frühere Selbstheilungs-Satz „MP leer → Angriff → MP zurück" entfällt. Für Kapitel 1 folgenlos (Auto greift ohnehin nur an, §4.7), für den **Gambit-Editor in Kapitel 2** relevant: Eine Regel „nutze Special" kann dauerhaft ins Leere laufen, statt sich selbst zu reparieren. Gehört in die Kapitel-2-Spec.
+- MP-Regen-Materia (`materia.md` §7) wird dadurch von „wirkungslos" zu einer der attraktivsten Kapitel-2-Belohnungen – die Rolle, die ihr `materia.md` §2 zuweist. **Deshalb darf Sustain in Kapitel 1 bewusst nicht gut gelöst sein.**
 
 ### 3.6 EXP / Gil / Level
 
@@ -165,15 +184,73 @@ letzten regulären Zone der Region.
 Größen-/Farbvarianten streuen ±15 % (kleiner = schwächer/schneller).
 ```
 
-### 3.8 Niederlage & Offline
+### 3.8 Die Ventil-Kette: Zonen-Rückkehr, Gasthaus, Niederlage (revidiert)
+
+**Der schwerste Fund des ersten Playtests.** Die Vorfassung dieses Abschnitts beschrieb einen Retry auf *derselben* Zone bei „frischer Party" – und behauptete, wiederholte Niederlagen seien „das Signal grinden/verbessern". Beides zusammen ergibt in einer **deterministischen** Engine (kein RNG, §3.1/§10) einen **permanenten Totalstopp**: Wer eine Zone einmal verliert, verliert sie bitgenau identisch, unendlich oft. Es gab keinen Ort, an dem man hätte grinden können – `currentZone` wurde ausschließlich hochgezählt –, und EXP/Gil flossen nur bei Sieg. Damit war ausgerechnet **Anti-Pattern #1 („Fortschritts-Wände ohne Ventil", `02_Leitfaden_Kernmechaniken.md` §4)** verletzt, der häufigste Kritikpunkt am ganzen Genre.
+
+Die simulationsvalidierte Baseline (§7.4) hat das nicht gezeigt, weil der Test-Harness bei jeder Niederlage **an der zuletzt geschafften Zone farmt** – eine Mechanik, die es im Spiel nie gab. Die Simulation maß ein anderes Spiel als das ausgelieferte.
+
+Ersetzt durch drei ineinandergreifende Regeln:
+
+#### (a) Zonen-Rückkehr – das Ventil
 
 ```
-Niederlage: +5 s Zeitstrafe, dann Auto-Retry derselben Zone (Gegner voll,
-Party frisch), KEIN Währungs-/Zonen-Verlust. Da deterministisch, ist ein
-zweiter Verlust ohne Stärkezuwachs sicher → das Signal „grinden/verbessern".
-Offline: Party kämpft die aktuelle Zone weiter, Ertrag = 60 % Aktiv, Deckel 8 h;
-an einer unschaffbaren Wand stockt Offline in der Retry-Schleife (keine Progression).
+Jede bereits geschaffte Zone ist jederzeit frei anwählbar (vor und zurück).
+Dort gewonnene Kämpfe zahlen EXP/Gil regulär aus – unbegrenzt wiederholbar.
+Die höchste je erreichte Zone bleibt gespeichert; Rückkehr verliert nichts.
 ```
+
+Das ist das Genre-Standardmuster („push bis zur Wand, dann farmen", Vorbild Trimps, `02_Leitfaden_Kernmechaniken.md` §1 D2) und macht den Skill↔Zeit-Tausch aus `gambits.md` §4 überhaupt erst einlösbar: **manuell gut spielen** *oder* **eine Zone zurück und stärker werden**. Beide Wege führen durch die Wand.
+
+Bewusst **kein** Automatismus: Der Spieler wählt die Zone selbst. Ein automatischer Rückfall bei Niederlage ist als spätere Komfortstufe denkbar, aber nicht Teil dieser Fassung – erst muss die Handlung existieren, dann darf man sie automatisieren (`02_Leitfaden_Kernmechaniken.md` §4 #2).
+
+#### (b) Gasthaus – der Heilkanal
+
+```
+Anmeldung:  jederzeit umschaltbar („nach diesem Kampf ins Gasthaus").
+            Greift erst nach Ende des laufenden Kampfes, nie mittendrin.
+            Bei Niederlage automatisch aktiv.
+Ablauf:     INN_DEAD_TIME = 10 s, in denen NICHTS geheilt wird (Fixkosten),
+            danach INN_RATE = 5 %/s auf HP UND MP gleichzeitig.
+Kosten:     ausschließlich Zeit. Kein Gil.
+Limit:      unberührt – existiert außerhalb von Gate-Kämpfen ohnehin nicht (§3.4).
+```
+
+Voll heilen aus dem Nichts dauert damit **30 s** (10 s Totzeit + 20 s Erholung). Die Totzeit ist der eigentliche Design-Kern: Sie macht häufiges kleines Nachheilen unwirtschaftlich und belohnt „weiterkämpfen, bis man es wirklich braucht" – eine Optimierungsfrage mit echter Antwort statt einer Selbstverständlichkeit.
+
+**Warum Zeit statt Gil:** Ein Gil-Preis kann in einen Deadlock laufen (wenig HP + kein Gil = kein Ausweg). Zeit kann das nie. Zudem ist die gesamte Ökonomie ohnehin in Zeit denominiert. *Nebenwirkung:* Gil hat damit weiterhin nur **einen** Sink (Waffen) – ein zweiter bleibt offen (`oekonomie-waehrungen.md`).
+
+Dass der Gasthaus-Besuch **vorab angemeldet** wird und erst nach dem laufenden Kampf greift, ist kein Bedienkompromiss, sondern konsistent zum Steuerungsprinzip aus `gambits.md` §3: Spontanes Eingreifen gibt es nicht, man stellt vorher ein.
+
+#### (c) Niederlage – kostet Zeit, heilt nicht
+
+```
+Niederlage: +5 s Zeitstrafe, KEIN Währungs-/Zonen-Verlust, KEINE Heilung.
+            Der HP/MP-Stand der Party bleibt, wie er war.
+            Danach automatisch Gasthaus (siehe b), dann Retry derselben Zone.
+```
+
+Entscheidend ist das **„heilt nicht"**: Träfe die Niederlage die Party frisch auf volle Werte, während normales Weiterspielen nur 25 % pro Sieg zurückgibt, wäre **absichtliches Sterben die optimale Strategie** und die Zeitstrafe faktisch eine Belohnung. Der Heilweg ist das Gasthaus, nicht der Tod.
+
+#### (d) HP/MP-Übertrag – die Signalregel
+
+HP und MP tragen zwischen allen Kämpfen über (§4.1); pro Sieg kommen 25 % des Maximums zurück (§3.5). Die Höhe dieses Werts ist **nicht frei zu wählen**, sondern folgt einer Regel:
+
+> Die Erholung pro Sieg ist so zu bemessen, dass eine Zone, die man **komfortabel schlägt, netto HP-neutral oder leicht positiv** ist – und eine Zone, an der man sich **hochkämpft, netto negativ**.
+
+Damit sagt der HP-Verlauf dem Spieler ohne eine Zeile Text, wo er steht: Sinkt die Leiste über mehrere Kämpfe, drückt er zu hart und sollte eine Zone zurück – **das ist die eingebaute Einladung zu (a)**. Bleibt sie stabil, farmt er sicher und kann es laufen lassen.
+
+#### (e) Offline-Progress – stillgelegt
+
+**Entfernt, nicht getunt.** Die Offline-Projektion erzwang intern `controlMode: "auto"` und rechnete *wiederholte Durchläufe derselben Zone* hoch – sie war damit unbeabsichtigt die **einzige funktionierende Implementierung des Ventils (a)**, nur unsichtbar, unverdient und exklusiv für Spieler, die den Tab schließen. Im Playtest kam ein Spieler dadurch an einem Gate vorbei, an dem ein aktiv spielender scheiterte: eine glatte Umkehrung von `02_Leitfaden_Kernmechaniken.md` §4 #5 („Aktiv *oder* Idle gewinnt klar").
+
+Sobald (a) existiert, hat Offline diese Rolle nicht mehr und wird bewusst **erst nach der Neu-Balancierung** wieder betrachtet – man justiert nicht zwei gekoppelte Ökonomien gleichzeitig (§1 A6 im Leitfaden nennt genau das als Schwäche).
+
+**Wichtige Abgrenzung: „idle" bleibt, „offline" geht.** Das Spiel bleibt bei geöffnetem Tab vollständig selbstlaufend (Auto-Kampf, §4.7). Entfernt wird ausschließlich der Fortschritt bei **geschlossener** Anwendung. Der Charakter des Spiels als Idle-Titel ist davon nicht berührt.
+
+**Richtung für die Wiedereinführung** (noch nicht spezifiziert): statt passivem Ertrag ein **Boost, der sich in der Abwesenheit auflädt und nach der Rückkehr eine Zeit lang aktiv bleibt**. Das wandelt Abwesenheit in *aktiven* Spielwert um, statt Anwesenheit zu entwerten – die vom Leitfaden §3 empfohlene Auflösung der Spannung A2 ⟷ A6. Leitplanke dafür: Der Boost darf nie so stark werden, dass „vor einer Wand erst mal offline gehen" die optimale Strategie wird.
+
+**Folgeänderungen:** `OFFLINE_RATE`/`OFFLINE_CAP` entfallen; der „Willkommen zurück"-Screen entfällt mit ihnen (samt seines irreführenden Hinweises, man möge „an der letzten geschafften Zone grinden" – eine Handlung, die es erst ab (a) gibt). Der Projektionsrechner selbst bleibt als **Balance-Werkzeug** wertvoll und sollte nicht gelöscht, sondern nur vom Spielerpfad abgehängt werden.
 
 ---
 
@@ -194,12 +271,16 @@ Sprache-agnostisch (JSON-nah). Feldnamen sind Implementierungsvorschläge; **Cod
   "weaponTier": 0,          // 0..4, Gil-gekauft; wirkt auf Stats (§6.4)
   "controlMode": "auto",    // "auto" | "manual" – je Figur, ab Schalter-Freischaltung (§5.1)
   // Laufzeit:
-  "hp":110, "mp":20, "atb":0.0, "limit":0.0,
+  "hp":110, "mp":20,        // TRAGEN ÜBER (§3.5/§3.8d) – gehören in den Save
+  "atb":0.0,                // pro Kampf zurückgesetzt
+  "limit":0.0,              // pro Gate-Kampf bei 0 startend, NICHT persistiert (§3.4)
   "exp":0
 }
 ```
 
 Abgeleitete Stats: `stat = round(base.stat · growth.stat^(level-1)) · weaponMod`. `weaponMod` s. §6.4.
+
+**Verbindlich (Playtest-Fund):** `hp` und `mp` sind **Übertragswerte**, keine abgeleiteten Maxima. Eine Kampfeinheit darf **nicht** bei jedem Zonenstart aus dem Charakter neu aufgebaut werden – genau das hat in der Erstumsetzung HP, MP *und* Limit gleichzeitig entwertet und §3.5 zu totem Text gemacht. Zu Kampfbeginn gilt: HP/MP aus dem Save übernehmen, `atb` und `limit` zurücksetzen.
 
 ### 4.2 Monster (Katalog-Eintrag)
 
@@ -229,11 +310,14 @@ Abgeleitete Stats: `stat = round(base.stat · growth.stat^(level-1)) · weaponMo
       {"monster":"blando","size":1.0},
       {"monster":"blando","size":1.0} ]
   ],
-  "isGate": false
+  "isGate": false,
+  "limitAllowed": false     // §3.4 – nur an Gates/Bossen true
 }
 ```
 
 `size` moduliert Stats (±15 %) und wird auf `g^(zone-1)` aufgeschlagen. Vollständige Zonen-Tabelle in §6.3.
+
+**`limitAllowed` ist bewusst ein Datenfeld am Encounter, keine Heuristik** (nicht „ist Boss-Trait" oder „Stats über Schwelle X"). So bleibt jede einzelne Begegnung autorierbar, und spätere Kapitel können Limit gezielt auch außerhalb von Gates freigeben, ohne die Regel umzubauen. In Kapitel 1 ist es exakt an den drei Gates gesetzt: Z8 Blandzilla, Z18 Fort Knoxious, Z30 Vaultron – alle drei, damit der Lehrmoment aus §7.1 (Limit als Wand-Brecher an Blandzilla) erhalten bleibt.
 
 ### 4.4 Weapon / Item (Kap. 1: Stats + Special, keine Slots)
 
@@ -259,19 +343,24 @@ Abgeleitete Stats: `stat = round(base.stat · growth.stat^(level-1)) · weaponMo
 ```jsonc
 {
   "chapter": 1,
-  "currentZone": 21,
-  "party": [ /* Character-Instanzen */ ],
+  "currentZone": 21,                      // gerade bespielte Zone (frei wählbar, §3.8a)
+  "maxZoneReached": 24,                   // höchste je geschaffte Zone – Obergrenze der Auswahl
+  "party": [ /* Character-Instanzen inkl. übertragener hp/mp, §4.1 */ ],
   "roster": ["claude","barrel"],          // freigeschaltet bis hier
   "currencies": { "exp": {...}, "gil": 3140, "reunionEssence": 0 },
   "bestiary": { /* Monster-ID -> Eintrag */ },
   "reunionCount": 0,
+  "inn": { "queued": false },             // §3.8b – „nach diesem Kampf ins Gasthaus"
   "flags": { "autoAttackUnlocked":true, "mpVisible":true,
-             "manualToggleUnlocked":true, "defenseUnlocked":false, "materiaUnlocked":false },
-  "offline": { "lastSeen": 1732300000 }
+             "manualToggleUnlocked":true, "defenseUnlocked":false, "materiaUnlocked":false,
+             "zoneSelectUnlocked":true }
+  // "offline" entfällt – Offline-Progress stillgelegt (§3.8e)
 }
 ```
 
 Zahlen laufen über eine **BigNumber-/eigene Notation ab Tag 1** (`oekonomie-waehrungen.md` §3), auch wenn Kap.-1-Werte klein sind.
+
+`maxZoneReached` ist neu und trägt die Zonen-Rückkehr: `currentZone` darf frei zwischen 1 und `maxZoneReached` wechseln, `maxZoneReached` selbst nur steigen. Bei der Reunion werden beide auf 1 zurückgesetzt (`prestige-reunion.md`).
 
 ### 4.7 Auto-Regel vor der 1. Reunion (überarbeitet, Playtest-Fund nach M7)
 
@@ -428,6 +517,10 @@ Ein Item je Figur, Tier 0–4. Effekt: `atk ×(1+0,10·tier)`, `hp ×(1+0,05·ti
 
 ## 7. So spielt sich Kapitel 1 – drei durchgespielte Beispiele
 
+> ⚠️ **Dieser gesamte Abschnitt ist durch die Revisionen in §3.4/§3.5/§3.8 überholt und beschreibt ein Spiel, das es so nicht mehr gibt.** Er bleibt als Referenz stehen, weil die *Beats* (welcher Moment lehrt was) weiter gelten – die *Zahlen und Abläufe* nicht. Konkret ungültig geworden: der Attack-MP-Refund in §7.1, volle HP/MP zu Kampfbeginn in allen drei Beispielen, Limit außerhalb der Gates, und die komplette Pacing-Tabelle in §7.4.
+>
+> Der Abschnitt ist **nach der Umsetzung neu zu simulieren, nicht zu flicken.** Eine punktuell korrigierte Tabelle wäre schlimmer als eine offen als ungültig markierte – die Erstfassung war genau deshalb irreführend, weil sie glaubwürdig aussah (s. §3.8).
+
 ### 7.1 Region 1, die ersten Minuten (Claude solo)
 
 1. **Zone 1–2, Klicker:** Ein Blando erscheint. Claude hat noch keinen Special; der Spieler tippt „Attack". Alle 2 s ein Treffer à 12 → Blando fällt nach **8 s**. Nach dem Sieg +25 % MP (unsichtbar, bis der Special da ist).
@@ -449,9 +542,17 @@ Welle: Funkus + Shortfuse + Blando, volle Party. **Playtest-Korrektur (§4.7):**
 
 **Vaultron** (Z30), der Konzern-Mecha-Tresor, telegrafiert alle drei Aktionen eine **Gruppen-AoE** (sichtbar ladender Mako-Kern). **Playtest-Korrektur (§4.7):** Ohne Air-is...-Heilung und Limit-Timing ist dieses Gate in reinem Auto (nur Attack) **die härteste Wand des Kapitels** – simulationsvalidiert **~27 Retries**. Geht die Party auf **Manuell** (Heilung, Limit sofort bei voller Leiste), fällt Vaultron dagegen praktisch beim ersten Versuch (**0 Retries** in der Simulation) – der klarste Beleg im ganzen Kapitel, dass sich manuelles Spiel lohnt. Zwei Wege durch: **manuell spielen** (schnell) **oder** in Auto weitergrinden, bis der Levelvorsprung reicht (langsam, aber möglich – Ventil bleibt). Am Kapitelende steht die **Reunion** bereit (Screen 1.4): Reset von Zonen/Level/Ausrüstung, Erhalt von Charakteren/Bestiarium/Specials, Ertrag **Reunion-Essenz** → **programmierbare Gambits + erster Boost**.
 
-### 7.4 Pacing (simulationsvalidiert, nach der §4.7-Korrektur neu simuliert)
+### 7.4 Pacing – ⚠️ UNGÜLTIG, Neu-Simulation ausstehend
 
-**Playtest-Korrektur:** Die Zahlen unten ersetzen die Erstfassung (die von einem durchgehend smarten Auto ausging). Neu validiert über die TS-Engine (`tests/chapter-playthrough.test.ts`, deckungsgleich mit `sim_chapter1.py`s Logik) für die empfohlene Spielweise **„Auto in der Fläche, Manuell an den drei Gates"** (gambits.md §4). „Kampfzeit" = echte ATB-Zeit am Bildschirm; Menü-/Kauf-/Idle-Zeit kommt obendrauf.
+> **Diese Tabelle misst ein anderes Spiel als das ausgelieferte und ist ersatzlos zu verwerfen.**
+>
+> Der Test-Harness, der sie erzeugt hat, farmt bei jeder Niederlage an der zuletzt geschafften Zone (`tests/chapter-playthrough.test.ts`) – eine Mechanik, die es im Spiel bis zur Einführung der Zonen-Rückkehr (§3.8a) **nicht gab**. Jede „Retries"-Zahl unten setzt also Farm-Kämpfe voraus, die real nicht stattfinden konnten; jede Level-Spanne enthält deren EXP. Reale Spieler kamen mit **exakt einem Clear pro Zone** an den Gates an und blieben dort dauerhaft stecken.
+>
+> Zusätzlich entwertet durch: gestrichenen MP-Refund (§3.5), HP/MP-Übertrag statt Vollheilung (§3.8d), Limit nur noch an Gates (§3.4), Gasthaus-Zeitkosten (§3.8b) und die Stilllegung des Offline-Progress (§3.8e).
+>
+> **Vorgehen:** erst umsetzen, dann komplett neu simulieren, dann diese Tabelle ersetzen. Bis dahin existiert **keine** validierte Pacing-Baseline für Kapitel 1 – das ist ehrlicher als eine reparierte Zahlenreihe. Beim Neu-Aufsetzen muss der Harness die Zonen-Rückkehr als *Spielerentscheidung* modellieren (welche Zone farmt ein vernünftiger Spieler wie lange?), nicht als impliziten Automatismus.
+
+**Historische Fassung (nicht mehr gültig, nur zur Nachvollziehbarkeit):** Die Zahlen unten ersetzen die Erstfassung (die von einem durchgehend smarten Auto ausging). Neu validiert über die TS-Engine (`tests/chapter-playthrough.test.ts`, deckungsgleich mit `sim_chapter1.py`s Logik) für die empfohlene Spielweise **„Auto in der Fläche, Manuell an den drei Gates"** (gambits.md §4). „Kampfzeit" = echte ATB-Zeit am Bildschirm; Menü-/Kauf-/Idle-Zeit kommt obendrauf.
 
 | Region | Zonen | Kampfzeit (aktiv) | Level-Spanne (Claude) | Wände (Retries) |
 |--------|:-----:|:-----------------:|:---------------------:|-----------------|
@@ -501,11 +602,11 @@ Die drei Kapitel-1-Bosse (maßstabsgetreu, Minibosse 1,5× / Kapitel-Boss 2×) �
 
 | Leitplanke / Anti-Pattern | Status in dieser Feinspec |
 |---------------------------|---------------------------|
-| #1 Wände ohne Ventil | ✓ EXP/Gil fließen auch an Wänden; Grind-Kämpfe leveln weiter |
+| #1 Wände ohne Ventil | ⚠️ **Dieser Haken war falsch.** „Grind-Kämpfe leveln weiter" beschrieb den Test-Harness, nicht das Spiel: An einer Wand floss real **gar nichts** (EXP/Gil nur bei Sieg, kein Weg zurück in eine geschaffte Zone, Determinismus ⇒ identische Wiederholung). Erst die Zonen-Rückkehr (§3.8a) stellt das Ventil her. Der Haken darf erst nach der Neu-Simulation wieder gesetzt werden. **Lehre:** Ein Leitplanken-Haken ist erst gültig, wenn die zugehörige Mechanik im *Spiel* geprüft wurde – nicht in der Simulation, die sie voraussetzt. |
 | #2 Zu früh automatisieren | ✓ Klicker → **stumpfe** Auto-Attack (früh, Zone 5) → **jede** klügere Aktion (Special/Heal/Suppress/Limit) bleibt manuell bis zur 1. Reunion, die erst die **programmierbaren** Gambits bringt (Playtest-Korrektur nach M7) |
 | #3 Nur Zahlenwachstum | ✓ Feature-Rampup: Klicker→Limit→Analyse→Shock→volle Party |
 | #4 Komplexität ohne Onboarding | ✓ genau eine neue Mechanik je Region; Materia bewusst vertagt |
-| #5 Dominante Einseitigkeit | ✓ Boss-AoE/Gift machen Heilung+Defense nötig; Niederlage möglich; Auto=nur-Attack sorgt zusätzlich dafür, dass aktives Spiel über das **ganze** Kapitel lohnt, nicht nur an 3 Checkpoints (Playtest-Korrektur nach M7) |
+| #5 Dominante Einseitigkeit | ⚠️ **Im Playtest invertiert:** Ein Spieler mit geschlossenem Tab kam per Offline-Projektion an einem Gate vorbei, an dem ein aktiv spielender feststeckte – Offline war *strikt besser* als Aktiv. Ursache war dieselbe wie bei #1 (Offline war das einzige Ventil, §3.8e). Nach Stilllegung des Offline-Progress und Einführung der Zonen-Rückkehr neu zu bewerten. |
 | #6 Sinnlose Resets | ✓ Reunion behält Charaktere/Specials/Bestiarium, gibt Gambits+Boost |
 | #8 Triviale Klick-Upgrades | ✓ Waffe = Trade-off-Stats, keine Flut belangloser Käufe |
 | #10 Zahlen-Fehler | ✓ BigNumber ab Tag 1; kontinuierliche Zähler |
@@ -519,14 +620,19 @@ Die drei Kapitel-1-Bosse (maßstabsgetreu, Minibosse 1,5× / Kapitel-Boss 2×) �
 
 ## 11. Offene Playtest-Stellschrauben
 
-Diese Baseline ist bewusst tunbar. Die sensibelsten Hebel:
+**Vorbemerkung nach dem ersten Playtest:** Die Werte dieses Kapitels sind aktuell **sämtlich unvalidiert**. Die Revisionen in §3.4/§3.5/§3.8 stapeln drei Verknappungen übereinander – HP trägt über, MP hat kein In-Kampf-Nachfüllen mehr, Heilung kostet Zeit. Jede für sich ist begründet; zusammen können sie ein deutlich härteres Spiel ergeben, als jede Einzelentscheidung vermuten lässt. Alle Zahlen unten sind deshalb **Startwerte mit Begründung**, keine gesetzten Größen.
+
+Die sensibelsten Hebel:
 
 - **`g` + Level-Wachstum + EXP-Kurve** hängen zusammen (steuern Kampfdauer-Konstanz und Wandhärte) – nur gemeinsam justieren.
-- **Zone-6-Grindwand (neu, nach §4.7-Korrektur):** ~8 Retries in reinem Auto ist mehr, als die Erstfassung für diese "kleine Wand" vorsah (§7.1 Punkt 4 nannte "ein, zwei Retries"). Kein Spec-Bruch (Ventil bleibt, manuell geht's schneller), aber ein Kandidat für spätere Feinjustage, falls sich das im echten Playtest zu hart anfühlt (z. B. Blando-Anzahl/-Size in Z6 leicht senken).
-- **Gate-Retry-Zahl bei rein idle** (ohne manuelle Übernahme; simulationsvalidiert: Miniboss Z8 0, Gate Z18 ~8, Kapitel-Wand Z30 ~27) – Feintuning über Gate-Spike-Höhe und Boss-AoE-Schaden (aktuell 1,8·ATK), falls der reine Idle-Pfad an Z30 zu zäh wirkt.
-- **MP-Ökonomie:** Refill 25 % / Refund +2 / Special-Kosten – bestimmt, wie oft Specials im manuellen Spiel fallen.
+- **Erholung nach Sieg (25 %)** – gebunden an die Signalregel in §3.8d, nicht frei wählbar: komfortable Zone netto neutral, harte Zone netto negativ. Diese Regel bestimmt den Wert, nicht umgekehrt.
+- **Gasthaus: Totzeit (10 s) und Rate (5 %/s).** Die Totzeit ist der eigentliche Design-Hebel (sie macht Heil-Spam unwirtschaftlich); die Rate steuert nur, wie teuer ein voller Heilgang ist. Ursprünglich als Band 5–10 s diskutiert – 10 s ist der Startwert, weil er nach einer Niederlage auf runde 30 s Gesamtwartezeit führt. **Wichtig:** Ohne Offline-Progress ist diese Zeit jetzt echte Wartezeit am Bildschirm; sie muss sich *gespielt* vertretbar anfühlen, nicht nur gerechnet.
+- **MP-Ökonomie:** Refill 25 % + **neu herzuleitende** Special-Kosten (§6.1 war gegen den gestrichenen Refund balanciert). Bestimmt, wie oft Specials fallen – und wie hart die Heilungs-Obergrenze in Bosskämpfen greift.
+- **Limit-Laderaten** (0,35 / 0,50) und Payoff (4,5·ATK) – neu zu justieren gegen das Ziel „die Leiste wird in einem Gate-Kampf ein- bis zweimal voll" (§3.4). Die alten Raten waren gegen eine über den Run persistierende Leiste gedacht und sind damit vermutlich zu niedrig.
 - **Shock-Aufbaurate** (0,5·Schaden) und **Tofa-Bonus** (+45) – wie relevant Shock schon in Kap. 1 ist (nur bei manuellem Spiel nutzbar, s. §4.7).
-- **Limit-Laderaten** (0,35 / 0,50) und Payoff (4,5·ATK) – Wucht des Wand-Brechers (jetzt ausschließlich manuell auslösbar).
-- **Offline-Rate/Deckel** (60 % / 8 h) und **Zeitstrafe** (5 s).
+- **Zeitstrafe bei Niederlage** (5 s) – wirkt jetzt zusammen mit der Gasthaus-Totzeit; beide Zeitkosten sind gemeinsam zu betrachten, nicht einzeln.
+- **Zonen-Rückkehr:** ob die freie Auswahl ausreicht oder ob es eine Empfehlung/Markierung braucht („hier kommst du gerade sicher durch"). Reine Ventil-Funktion steht, die **Lesbarkeit** ist offen.
 - Waffen-Tier-Kurve über Tier 1 hinaus (Region 2+); der erste Gil-Preis (Tier 0→1, Zone 3) ist mit 8 Gil seit M6 ein erster konkreter Ansatz (§6.4), nicht final.
-- **Nebenbefund beim Live-Verifizieren der §4.7-Korrektur (nicht behoben, außerhalb des Auftrags):** `createPartyUnit()` setzt `limit: 0` bei **jedem** Zonen-/Kampfstart – das widerspricht §3.4 ("Cap 100, persistiert über den ganzen Run; Reset erst bei Reunion") und existierte bereits vor dieser Korrektur (auch `sim_chapter1.py`s `make_char()` baut pro Zone ein frisches Fighter-Objekt). Die §7.4-Zahlen dieser Session sind davon **nicht verfälscht** (Limit baut sich auch innerhalb eines einzelnen Gate-Kampfs schnell genug neu auf, alle drei Gates bleiben bei manuellem Spiel bei 0 Retries), aber das in §3.4/§7.3 beschriebene "an einer Wand aufgeladen ankommen" ist damit aktuell nicht möglich. Braucht einen eigenen Fix (Limit im SaveState persistieren, `spawnBattle` übernehmen lassen), bewusst nicht Teil dieser Korrektur.
+- **Zweiter Gil-Sink fehlt weiterhin.** Das Gasthaus wäre der naheliegende gewesen, kostet aber bewusst Zeit statt Gil (Deadlock-Risiko, §3.8b). Offen, s. `oekonomie-waehrungen.md`.
+
+**Erledigt durch diese Revision** (vormals hier offen): der Limit-Reset-Fehler bei jedem Zonenstart – das Esper-Modell (§3.4) macht die frühere Persistenz-Anforderung gegenstandslos, statt sie nachzurüsten.

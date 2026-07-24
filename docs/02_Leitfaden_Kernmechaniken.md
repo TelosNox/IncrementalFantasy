@@ -244,6 +244,14 @@ Kompakte Ableitung aus dem Obigen – als Prüfliste für kommende Design-Entsch
 - **Idle-Versprechen respektieren:** Falls wir Zeit-Druck (E3) nutzen, klar von Ruhe-Phasen trennen; Offline-Progress nie das aktive Spiel entwerten lassen.
 - **Von Tag 1 an: saubere Zahldarstellung** und eine bewusste Aktiv/Idle-Effizienzkurve.
 
+### Nachträge aus dem eigenen Playtest (nicht aus der Recherche abgeleitet)
+
+Diese Leitplanken sind am Projekt selbst gelernt und stehen gleichberechtigt neben den obigen.
+
+- **Ein Leitplanken-Haken ist erst gültig, wenn die Mechanik im *Spiel* geprüft wurde – nicht in der Simulation, die sie voraussetzt.** Der Kapitel-1-Leitplanken-Check meldete „✓ #1 Wände ohne Ventil: Grind-Kämpfe leveln weiter", während im Spiel an einer Wand *gar nichts* floss. Der Test-Harness farmte bei jeder Niederlage an der Vorzone – eine Mechanik, die es im Spiel nie gab. Die Simulation maß ein anderes Spiel als das ausgelieferte und bestätigte genau die Annahme, die sie hätte prüfen sollen.
+- **Determinismus und „einfach nochmal probieren" schließen einander aus.** Ohne Zufall wiederholt sich ein verlorener Kampf bitgenau, beliebig oft. Wer auf RNG verzichtet (gut für Lesbarkeit und Fairness), **muss** das Ventil aus #1 als eigene Mechanik bauen – ein Ort zum Stärkerwerden oder ein Ertrag aus der Niederlage. Sonst ist jede Wand kein Hindernis, sondern ein Endpunkt.
+- **Ein Ventil, das der Spieler nicht sieht, ist keins.** „Es fließt weiter Fortschritt" wirkt nur, wenn das Fließen ablesbar ist. Unsichtbarer Fortschritt an einer Wand fühlt sich exakt wie Anti-Pattern #1 an, selbst wenn die Mechanik sauber arbeitet.
+
 ---
 
 ## 6. Quellen (Design-Theorie & Mechanik-Belege)

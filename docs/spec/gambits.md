@@ -54,7 +54,7 @@ Der Auto/Manual-Schalter sitzt **pro Figur**. Spontanes Eingreifen im laufenden 
 
 **Aktions-Gruppen im Popup (skaliert mit dem Fortschritt):**
 
-- **Grundaktionen (immer):** Attack; **Special** (Waffen-Signature, MP-Kosten); **Limit** (nur wenn geladen – dann in **bunten Buchstaben**, FF7-Signatur).
+- **Grundaktionen (immer):** Attack; **Special** (Waffen-Signature, MP-Kosten); **Limit** (nur in Gate-/Boss-Kämpfen und nur wenn geladen – dann in **bunten Buchstaben**, FF7-Signatur; s. `feinspec-kapitel1.md` §3.4 Esper-Modell). In regulären Zonen erscheint die Limit-Zeile gar nicht, weil dort keine Leiste existiert.
 - **Defend:** erscheint als **kontextuelles Event**, sobald der **erste Boss sichtbar eine Groß-Attacke auflädt** (Onboarding genau bei Bedarf; in Kapitel 1 spätestens an Vaultron).
 - **Magic ▸ (Materia-Kategorie):** erscheint **erst, wenn Materia-Aktionen vorhanden sind** (ab Kap. 2); öffnet als **scroll-/blätterbare Unterliste** → beliebig viele Zauber, ohne dass das Popup wächst.
 - **Nicht ausführbare Aktionen** (z. B. Special ohne MP) bleiben **sichtbar, aber ausgegraut** (gedämpft + dünne Schrift) – nie verstecken, damit die Optionen lernbar bleiben.
@@ -66,6 +66,7 @@ Wir bauen ein **Incremental, kein Pflicht-Idle.** Wie bei Increlution (siehe `..
 Wir unterscheiden bewusst **zwei Wand-Typen** als Design-Werkzeug:
 
 - **Idle-Wände (Mehrheit):** über Builds/Grind überwindbar; manuell schneller. Hier gilt der **Skill↔Zeit-Tausch**: Idle schafft es auch, braucht aber spürbar länger. Manuell ersetzt Zeit durch Können, Idle Können durch Zeit.
+  **Voraussetzung (Playtest-Korrektur):** Dieser Tausch funktioniert nur, wenn „Zeit investieren" überhaupt möglich ist – über die **Zonen-Rückkehr** (`niederlage-offline.md` §3). In der Erstumsetzung fehlte sie; damit war jede Wand ausschließlich über Können passierbar, und der hier beschriebene Tausch existierte nicht. Wer nicht manuell spielte, stand endgültig – Manuell war nicht *schneller*, sondern **das Einzige, was überhaupt funktionierte**.
 - **Manuelle Prüfsteine (selten, an Schlüsselmomenten):** bewusst gesetzte Gates, die überlegtes manuelles Spiel *verlangen* (z. B. große Regions-/Kapitel-Bosse). Sie markieren echte Fortschrittssprünge und geben dem aktiven Können einen garantierten Sinn.
 
 **Der entscheidende Schutz der Zugänglichkeit:** „Manual" heißt bei uns **überlegt, nicht reflexschnell.** Dank ATB-Pause (Wait-Modus) ist die Herausforderung, *Wissen anzuwenden* (Schwäche/Shock/Limit/MP klug einsetzen) – keine Reaktionszeit. So bleibt es on-genre und auch für entspannte/mobile Spieler machbar.

@@ -54,9 +54,10 @@ MP ist der **Limiter**, der die Gambit-Tiefe überhaupt erst erzeugt: Ohne Koste
 ## 4. Limit-Leiste – der aktive „Durchbruch"
 
 - **Rolle:** Das Limit ist der aktive **Wand-Brecher**, nicht bloß eine Kampfaktion. Zünden löst einen kräftigen Party-weiten Schub / eine Wucht-Attacke aus – gedacht, um an Bossen/Wänden **durchzubrechen** (thematisch: Limit *Break* = Grenze brechen). Das ist die „Push durch die Wand"-Handlung, die ein Incremental dem aktiven Spieler geben will.
-- **Ladung & Persistenz:** Leiste lädt über aus-/eingesteckten Schaden und **persistiert über den ganzen Run** – Reset erst bei **Reunion**. So kommt man an einer Wand aufgeladen an; Aufsparen ist eine bewusste Entscheidung. (Cap gegen Über-Banking – Wert TBD.)
-- **Idle-fähig:** per Gambit automatisierbar (z. B. „WENN Boss UND Limit voll DANN Limit") als Sicherheitsnetz.
-- **Aktiv-Skill-Decke:** **manuelles Timing** (ins Shock-Fenster legen, für den richtigen Boss aufsparen) holt spürbar mehr heraus → beide Spielweisen tragfähig (§3): Idle kommt durch, Aktiv kommt *schneller* durch.
+- **Verfügbarkeit & Ladung (revidiert nach dem ersten Playtest – Esper-Modell):** Die Leiste existiert **nur in Gate-/Boss-Kämpfen**, startet dort bei 0 und lädt sich innerhalb des Kampfes über aus-/eingesteckten Schaden auf. **Kein Übertrag zwischen Kämpfen.**
+  *Warum die frühere Persistenz („über den ganzen Run, Reset erst bei Reunion") gestrichen wurde:* Mit der Zonen-Rückkehr (`niederlage-offline.md` §3) wäre sie ein Vorab-Farm-Exploit – man lädt das Limit in einer trivialen Zone auf und betritt die Wand mit voller Leiste. Zudem war Limit als überall verfügbarer Knopf im Playtest schlicht „wie die Spezialattacke, nichts Besonderes". Etwas, das **ausschließlich an Wänden existiert** und sich dort vor den Augen des Spielers aufbaut, ist ein Ereignis. Vorbild: Esper-Beschwörungen in FF7 Remake. Zahlen: `feinspec-kapitel1.md` §3.4.
+- **Idle-fähig:** per Gambit automatisierbar (z. B. „WENN Boss UND Limit voll DANN Limit") als Sicherheitsnetz – ab Kapitel 2, mit dem programmierbaren Editor.
+- **Aktiv-Skill-Decke:** **manuelles Timing** (ins Shock-Fenster legen, den richtigen Moment im Bosskampf abpassen) holt spürbar mehr heraus → beide Spielweisen tragfähig (§3): Idle kommt durch, Aktiv kommt *schneller* durch. Dass Limit jetzt nur noch dort lebt, wo `gambits.md` §4 ohnehin **manuelle Prüfsteine** vorsieht, schärft diese Kopplung zusätzlich.
 - **Kein MP** (eigene Leiste, unabhängig vom ATB).
 - **Humor-Spotlight (F2):** Zünden löst einen kurzen Parodie-Moment je Figur aus (Spruch/Effekt) → wiederkehrender Charakter-Moment statt bloßer Zahl.
 
@@ -105,18 +106,20 @@ Ein einziges Element (der Ring) trägt beide Phasen: **nach oben füllen = Aufba
 ## 7. Wellen / Zonen-Rahmen
 
 - Party gegen **Gegnerwelle**; alles besiegt → nächste Zone; **Boss = Gate** (C2).
-- **Niederlage** → milde Zeitstrafe, Neustart an gleicher Stelle, Kampf resettet, kein Fortschrittsverlust (Details in `niederlage-offline.md`).
+- **Niederlage** → milde Zeitstrafe, automatischer Gasthaus-Aufenthalt, Neustart an gleicher Stelle, kein Fortschrittsverlust. **HP/MP tragen über und werden durch die Niederlage nicht aufgefüllt**; wer stärker werden will, geht per Zonen-Rückkehr farmen (Details in `niederlage-offline.md`).
 
 ## 8. Rollout-Reihenfolge (grob; exakte Zuordnung in `progression-regionen.md`)
 
-Attack + Limit → Analyse/Bestiarium → Shock → MP-Regen-Ausbau (Trickle/Refund) → Schockanfälligkeit/Resistenzen.
+Attack + Limit (nur an Gates) → Analyse/Bestiarium → Shock → MP-Regen-Ausbau → Schockanfälligkeit/Resistenzen.
+
+**Hinweis zum MP-Regen-Ausbau:** Der frühere Attack-Refund ist gestrichen (`feinspec-kapitel1.md` §3.5) – MP wächst in Kapitel 1 gar nicht mehr im Kampf. Genau das macht MP-Regen-Materia in Kapitel 2 zu einer spürbaren Belohnung statt zu einer Fußnote; der Ausbau-Schritt oben gewinnt dadurch an Gewicht.
 
 ---
 
 ## Offene Detailfragen (nächste Iteration, dann mit Zahlen)
 
 - ATB-Füllformel und Gewichtung der Speed-Stat.
-- MP-Werte: %-Refill je Kampf, Trickle-Rate, Attack-Refund-Höhe.
+- MP-Werte: %-Erholung je Sieg, Gasthaus-Rate, Special-Kosten (~~Attack-Refund~~ gestrichen).
 - Shock: Aufbau-Rate, Schwelle, Fenster-Dauer und -Bonus.
 - Gegner-Aktionstakt und Telegraf-Vorlauf.
-- Limit: Laderaten, Payoff-Höhe (Schub-Dauer bzw. Wucht) und Cap gegen Über-Banking.
+- Limit: Laderaten und Payoff-Höhe – neu zu justieren gegen das Ziel „die Leiste wird in einem Gate-Kampf ein- bis zweimal voll". (Ein Cap gegen Über-Banking wird durch das Esper-Modell gegenstandslos: Es gibt nichts mehr zu banken.)
