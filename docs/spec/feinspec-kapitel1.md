@@ -290,6 +290,8 @@ Wichtiger als die Metrik ist aber der Design-Grund: **Zu erkennen, dass der Schn
 
 **Wo die Bedrohungs-Metrik hingehört** (nicht in die Vorauswahl): als autorierbare Bedingung in den **Gambit-Editor ab Kapitel 2** („ziele auf den gefährlichsten Gegner") – und dort dann über den Durchsatz, nicht über rohe SPD.
 
+**Wozu das Fokusziel da ist – und wozu nicht:** Es ist ein **Komfort- und Ablesbarkeits-Feature, keine Machtstufe.** Der Tempogewinn gegenüber reinem Zuschauen ist klein (M11-Messung: ≈4,1× → ≈3,2× gegenüber manuellem Spiel, s. §12 B) und soll es auch sein – ein kleiner Input verdient einen kleinen Ertrag; der große Hebel bleibt die manuelle Steuerung. Seine Berechtigung zieht das Fokusziel aus drei anderen Dingen: Zielwahl wird überhaupt sichtbar, Defend bekommt eine Informationsgrundlage, und der Spieler kann seine Absicht ausdrücken. Wer es also stärker machen will, um „T lohnender" zu machen, arbeitet gegen §4.7.
+
 **Warum der Fokus auch für Auto-Figuren gilt:** Der Spieler trifft die Wahl in *jedem* Kampf neu – das ist selbst ein manueller Akt, kein Einstellungs-Häkchen. Genau deshalb ist der **Reset pro Kampf verbindlich**: Würde der Fokus über Kämpfe hinweg bestehen, wäre er einmal gesetzt und danach vergessen, und der manuelle Charakter der Entscheidung fiele weg. Das Fokusziel gehört damit in den **Kampfzustand, nicht in den SaveState** (§4.6).
 
 **Warum „nächststehender Gegner" als Standardregel:** Sie ist der bewusste Mittelweg. „Schwächstes Ziel" (die alte Regel) ist versehentlich *optimal* – es tötet Gegner am schnellsten und senkt den eingehenden Schaden am stärksten, ein Auto also, das besser zielt als es handelt. „Stärkstes Ziel" wäre das andere Extrem: Nichts stirbt bis kurz vor Schluss, alle Gegner schlagen weiter zu, rund 1,5× mehr erlittener Schaden. „Nächststehender" ist ehrlich dumm, positionell in einem Blick ablesbar und bestraft nicht systematisch. Falls sich der Abstand zwischen den Spielertypen (§12) als zu klein erweist, ist „stärkstes Ziel" der vorgesehene Härtegrad-Regler.
@@ -714,8 +716,18 @@ Alle Kriterien werden gegen drei klar getrennte Spielweisen geprüft. Sie sind d
 Der Abstand muss **existieren** (sonst lohnt aktives Spiel nicht, Anti-Pattern #5) und **begrenzt** sein (sonst ist Idle bestraft, Leitplanke „Idle-Versprechen respektieren").
 
 - **B1** Reihenfolge der Gesamtdauer strikt: **M < T < V**. Kein Gleichstand.
-- **B2** Zielkorridor, gemessen an M = 1,0: **T ≈ 1,3–2,0×**, **V ≈ 2,5–4,0×**. (Die frühere Baseline maß 3,25× für reines Idle und galt als vertretbar – der Korridor ist daran kalibriert.) **Umsetzungsbefund (M11, `06_Implementierungsplan_Kapitel1.md`):** Mit T strikt als „nur Fokusziel, sonst Auto" (§3.9) gemessen, liegt T näher an V als hier angenommen (≈3,2× statt ≤2,0×) – an der Kapitel-Wand (reines Schadensrennen gegen eine periodische AoE) bringt die Zielwahl allein wenig, der große Hebel (Limit/Specials/Heal/Suppress) bleibt Typ M vorbehalten. Offen für die nächste Konzept-Session: Korridor anpassen oder Typ T zusätzliche Fähigkeiten (z. B. Defend) zugestehen.
-- **B3** Der Sprung **M → T** muss kleiner sein als **T → V**. Ein einziges Fokusziel pro Kampf soll spürbar viel bringen; die volle manuelle Steuerung obendrauf soll sich lohnen, aber nicht Pflicht sein.
+- **B2** Zielkorridor, gemessen an M = 1,0: **T ∈ [1,3; 3,5]**, **V ∈ [2,5; 4,5]**. Gemessen in M11: T ≈3,2×, V ≈4,1×.
+- **B3** Beide Abstände müssen **existieren** – M < T und T < V. Eine Aussage über ihr Größenverhältnis wird bewusst **nicht** mehr getroffen (s. u.).
+
+**Aufgelöst (war offen nach M11): Typ T liegt viel näher an V als an M – und das ist richtig so.**
+
+Die Erstfassung von B3 verlangte, der Sprung M→T müsse der *kleinere* sein: Ein Fokusziel pro Kampf sollte den Großteil des Vorteils einfangen. Die Messung sagt das Gegenteil (M→T ≈2,2 Einheiten, T→V ≈0,9). Das ist kein Balance-Fehler, sondern die Natur der Sache: **Ein kleiner Input verdient einen kleinen Ertrag.** Der große Hebel sind Limit, Specials, Heilung und Suppress – und die sind vor der 1. Reunion **absichtlich** manuell (§4.7, Playtest-Korrektur nach M7). Dass die Zahlen das zeigen, bestätigt jene Entscheidung, statt sie zu widerlegen.
+
+**Konsequenz für die Einordnung:** Typ T ist **keine Machtstufe, sondern ein Komfort- und Ablesbarkeits-Feature.** Seine Rechtfertigung hängt nicht am Zeitgewinn, sondern an drei anderen Dingen: Zielwahl wird überhaupt sichtbar (E3), Defend bekommt eine Informationsgrundlage (§3.9), und der Spieler kann seine Absicht ausdrücken. Das trägt auch bei geringem Tempovorteil.
+
+**Ausdrücklich verworfen:** Typ T zusätzliche Fähigkeiten zu geben (z. B. Defend ohne volle manuelle Steuerung), um den Abstand künstlich zu vergrößern. Das würde die Typgrenzen verwischen und genau den M-Vorsprung abtragen, auf dem die M7-Korrektur beruht („Auto bleibt stumpf, damit aktives Spiel über das *ganze* Kapitel lohnt").
+
+**Was stattdessen zu beobachten ist:** nicht der Abstand T↔V, sondern der **Absolutwert von V**. Mit ≈4,1× liegt reines Idle über der früher als vertretbar geltenden Baseline (3,25×) – und ohne Offline-Progress ist das echte Zeit am Bildschirm. Der eigentliche Prüfstein dafür ist **E2** (gespielt beurteilen), nicht die Rechnung.
 
 ### C – Wo die Wände sitzen
 
