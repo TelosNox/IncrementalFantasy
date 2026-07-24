@@ -29,7 +29,16 @@ import { applyVictoryExp, zoneReward } from '../core/progression'
 import { projectOffline } from '../core/offline'
 import { battleTick, createBattleState, DT, type BattleState } from '../core/tick'
 import type { SaveState } from '../save/schema'
-import { clearSave, loadSave, startAutosave, writeSave, type AutosaveHandle } from '../save/storage'
+import { serializeToJson } from '../save/serialize'
+import {
+  clearSave,
+  loadSave,
+  parseSaveJson,
+  readCorruptBackup,
+  startAutosave,
+  writeSave,
+  type AutosaveHandle,
+} from '../save/storage'
 
 /** feinspec §6.3/§0 - M8 deckt Kapitel 1 komplett ab (Zone 1-30, Vaultron-Kapitel-Boss). Reunion (M9) folgt danach. */
 export const CHAPTER1_MAX_ZONE = 30
@@ -142,8 +151,29 @@ function bestiaryEntryFor(monsterId: string): BestiaryEntry {
   }
 }
 
+/** Architektur §6 "Export/Import als Sicherheitsnetz" (M10) - loest einen Browser-Download aus. */
+function downloadJson(json: string, filename: string): void {
+  const blob = new Blob([json], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+// Architektur §6 - ein korrupter/fremder Save darf den Hauptslot nie
+// stillschweigend ueberschreiben lassen; `loadSave()` wird deshalb genau
+// einmal beim Modul-Start ausgewertet und das Ergebnis fuer sowohl das
+// initiale `save`-Feld als auch die Warnmeldung wiederverwendet.
+const initialLoad = loadSave()
+
 export class GameStore {
-  save = $state<SaveState>(loadSave() ?? freshSaveState())
+  save = $state<SaveState>(initialLoad.kind === 'ok' ? initialLoad.state : freshSaveState())
+  /** Architektur §6 (M10) - gesetzt, wenn der geladene Save korrupt/fremd war (Rohdaten-Backup s. `readCorruptBackup()`). */
+  corruptSaveNotice = $state<{ message: string } | null>(
+    initialLoad.kind === 'corrupt' ? { message: initialLoad.message } : null,
+  )
   battle = $state<BattleState>(spawnBattle(findZone(this.save.currentZone), this.save.party, this.reunionBoostMult))
   phase = $state<Phase>('battle')
   retryRemaining = $state(0)
@@ -376,6 +406,46 @@ export class GameStore {
   /** M9 - "Willkommen zurück"-Karte schließen (`ui/WelcomeBackModal.svelte`). */
   dismissWelcomeBack(): void {
     this.welcomeBack = null
+  }
+
+  /** Architektur §6 "Export/Import als Sicherheitsnetz" (M10) - Speicherstand als JSON-Datei herunterladen. */
+  exportSave(): void {
+    downloadJson(serializeToJson(this.save), `incrementalfantasy-zone${this.save.currentZone}.json`)
+  }
+
+  /** M10 - falls `corruptSaveNotice` gesetzt ist: die gesicherten Rohdaten des korrupten Saves herunterladen. */
+  exportCorruptBackup(): void {
+    const raw = readCorruptBackup()
+    if (raw) downloadJson(raw, `incrementalfantasy-corrupt-backup-${Date.now()}.json`)
+  }
+
+  dismissCorruptSaveNotice(): void {
+    this.corruptSaveNotice = null
+  }
+
+  /**
+   * Architektur §6 (M10) - Speicherstand aus einer importierten JSON-Datei übernehmen. Nutzt
+   * dieselbe Validierung wie `loadSave()` (`parseSaveJson`), damit Import und normales Laden nie
+   * auseinanderdriften. Bei ungültigen Daten/Zone bleibt der aktuelle Spielstand unverändert.
+   */
+  importSave(raw: string): { ok: true } | { ok: false; message: string } {
+    const result = parseSaveJson(raw)
+    if (result.kind !== 'ok') {
+      return { ok: false, message: result.kind === 'corrupt' ? result.message : 'File is empty.' }
+    }
+    let zone: Zone
+    try {
+      zone = findZone(result.state.currentZone)
+    } catch {
+      return { ok: false, message: `Invalid zone ${result.state.currentZone} in imported save.` }
+    }
+    this.save = result.state
+    this.corruptSaveNotice = null
+    this.phase = 'battle'
+    this.battle = spawnBattle(zone, this.save.party, this.reunionBoostMult)
+    writeSave(this.save)
+    this.#triggerCallout(`Save imported – Zone ${this.save.currentZone}.`)
+    return { ok: true }
   }
 
   /** feinspec §7.1 Schritt 2 - der erste Gil-Kauf einer Figur: Special + MP-Leiste werden sichtbar. */

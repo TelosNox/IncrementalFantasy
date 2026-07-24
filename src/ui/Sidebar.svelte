@@ -10,6 +10,27 @@
   const regionIndex = $derived(game.save.currentZone <= 8 ? 1 : game.save.currentZone <= 18 ? 2 : 3)
   const bestiaryCount = $derived(Object.keys(game.save.bestiary).length)
   const catalogSize = $derived(Object.keys(MONSTERS).length)
+
+  // Architektur §6 "Export/Import als Sicherheitsnetz" (M10) - reines Datei-Handling, kein
+  // eigener State noetig; game.importSave() macht die eigentliche Validierung/Uebernahme.
+  let fileInput: HTMLInputElement | undefined = $state()
+
+  function triggerImport(): void {
+    fileInput?.click()
+  }
+
+  function handleFileSelected(event: Event): void {
+    const input = event.currentTarget as HTMLInputElement
+    const file = input.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      const result = game.importSave(String(reader.result))
+      if (!result.ok) alert(`Import failed: ${result.message}`)
+    }
+    reader.readAsText(file)
+    input.value = '' // erlaubt erneuten Import derselben Datei
+  }
 </script>
 
 <div class="sidebar">
@@ -41,6 +62,18 @@
 
   <!-- ui-layout.md: Menü-Bereich bleibt reservierter Platz, Inhalt folgt ab M8+. -->
   <div class="reserved">Team / Equipment / Stats coming in later milestones.</div>
+
+  <div class="save-tools">
+    <button class="save-tool" onclick={() => game.exportSave()}>⇩ Export save</button>
+    <button class="save-tool" onclick={triggerImport}>⇧ Import save</button>
+    <input
+      bind:this={fileInput}
+      type="file"
+      accept="application/json,.json"
+      class="file-input"
+      onchange={handleFileSelected}
+    />
+  </div>
 </div>
 
 <BestiaryModal />
@@ -141,5 +174,32 @@
     color: var(--game-text);
     font-size: 12px;
     opacity: 0.6;
+  }
+
+  .save-tools {
+    display: flex;
+    gap: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--game-border);
+  }
+
+  .save-tool {
+    flex: 1;
+    padding: 6px;
+    background: transparent;
+    color: var(--game-text);
+    border: 1px solid var(--game-border);
+    border-radius: 3px;
+    font-size: 11px;
+    cursor: pointer;
+  }
+
+  .save-tool:hover {
+    color: var(--game-text-bright);
+    border-color: var(--game-text);
+  }
+
+  .file-input {
+    display: none;
   }
 </style>

@@ -19,6 +19,12 @@
         : 'R3 · MegaCorp Tower',
   )
 
+  // feinspec §8 (bekannte Warnung, M10-Fix) - das fokale Reaktor-/Aufzug-Motiv der MegaCorp-Kulisse
+  // sitzt nah am rechten Bildrand; bei "cover"+"center" wird es an der Stage-Grenze zur Seitenleiste
+  // abgeschnitten/eng. Backdrop hier nach links ausgerichtet, damit das Motiv mehr Luft zur
+  // Stage-Kante hat statt direkt an ihr zu kleben.
+  const isMegacorpBackdrop = $derived(game.save.currentZone > 18)
+
   // kampf-analyse-shock.md §6 - Shock-Ring erst ab Region 3 sichtbar ("gebündelt mit Tofa").
   const shockVisible = $derived(game.save.currentZone >= REGION3_JOIN_ZONE)
 
@@ -31,7 +37,7 @@
   }
 </script>
 
-<div class="stage" style:background-image={`url(${backdrop})`}>
+<div class="stage" class:region3-backdrop={isMegacorpBackdrop} style:background-image={`url(${backdrop})`}>
   <!-- ui-layout.md "Freischaltungs-Hinweis": ueberdeckt kurzzeitig die normale Statuszeile,
        pausiert aber nichts - reines Lesbarkeits-Add-on bei Rollout-Flag-Wechseln. -->
   {#if game.calloutMessage}
@@ -117,6 +123,12 @@
     background-position: center;
     background-color: var(--game-bg-deep);
     overflow: hidden;
+  }
+
+  /* feinspec §8 (M10-Fix) - MegaCorp-Kulisse links ausrichten, damit das rechts sitzende
+     Reaktor-/Aufzug-Motiv nicht an der Stage-Kante zur Seitenleiste klebt. */
+  .stage.region3-backdrop {
+    background-position: left center;
   }
 
   .banner {

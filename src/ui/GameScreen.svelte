@@ -6,6 +6,7 @@
   import Sidebar from './Sidebar.svelte'
   import DebugResetButton from './DebugResetButton.svelte'
   import WelcomeBackModal from './WelcomeBackModal.svelte'
+  import CorruptSaveModal from './CorruptSaveModal.svelte'
 
   onMount(() => {
     game.start()
@@ -19,8 +20,13 @@
   <div class="sidebar-area"><Sidebar /></div>
 </div>
 
-<DebugResetButton />
+<!-- Architektur §6a - Playtest-Debugwerkzeug, ab M10 nur noch im Dev-Build sichtbar
+     (nicht mehr im veroeffentlichten GitHub-Pages-Build, s. 06_Implementierungsplan M10). -->
+{#if import.meta.env.DEV}
+  <DebugResetButton />
+{/if}
 <WelcomeBackModal />
+<CorruptSaveModal />
 
 <style>
   /* ui-layout.md: Stage ~78%, Bottom-Leiste ~20% Höhe, Seitenleiste ~22% Breite. */
