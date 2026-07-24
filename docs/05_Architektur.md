@@ -117,7 +117,11 @@ vite.config.ts
 
 Ein kleiner, unauffälliger **„⟳ Reset save"-Button** unten rechts (`ui/DebugResetButton.svelte`) löscht den Save-Slot (`clearSave()`) und lädt die Seite neu, damit ein Testlauf jederzeit wieder bei Zone 1 beginnen kann – mit Bestätigungsdialog gegen Versehen. Reload statt In-Place-Reset, damit Loop/Autosave/Timer garantiert sauber neu aufgesetzt werden.
 
-**Bewusst auch im veröffentlichten Build sichtbar** (nicht hinter `import.meta.env.DEV` versteckt) – der Nutzer testet aktiv auf `telosnox.github.io/IncrementalFantasy/`, und in der aktuellen Playtest-Phase ohne Publikum ist ein sichtbarer Debug-Button unkritisch. Kein Ersatz für die „echte" Reunion (die ist ein verdientes Spielfeature mit Persistenz-Regeln, s. `prestige-reunion.md`) und keine Vorstufe davon – reines Test-Werkzeug. **Vor dem ersten echten Release (spätestens M10) zwingend erneut gegenprüfen:** entweder wieder hinter `import.meta.env.DEV` verstecken oder bewusst entfernen, sobald es ein Publikum gibt, das ihn versehentlich treffen könnte.
+**Bewusst auch im veröffentlichten Build sichtbar** (nicht hinter `import.meta.env.DEV` versteckt) – der Nutzer testet aktiv auf `telosnox.github.io/IncrementalFantasy/`, und in der aktuellen Playtest-Phase ohne Publikum ist ein sichtbarer Debug-Button unkritisch. Kein Ersatz für die „echte" Reunion (die ist ein verdientes Spielfeature mit Persistenz-Regeln, s. `prestige-reunion.md`) und keine Vorstufe davon – reines Test-Werkzeug.
+
+**Vorfall (M10):** M10s Härtungs-Checkliste sah eine Gegenprüfung vor „echtem Release" vor; das wurde zunächst so umgesetzt, dass der Button hinter `import.meta.env.DEV` verschwand und damit aus dem Produktions-/GitHub-Pages-Build – der Nutzer verlor dadurch seine aktive Testmöglichkeit auf der deployten Seite und musste den Button erneut anfordern. Seither zurückgesetzt: der Button ist wieder unbedingt sichtbar, ohne `DEV`-Guard (`GameScreen.svelte`).
+
+**Verbindliche Regel ab jetzt:** Diesen Button **nicht** wieder hinter `import.meta.env.DEV` verstecken oder entfernen, ohne den Nutzer vorher explizit zu fragen und eine Bestätigung zu bekommen – auch nicht im Rahmen einer allgemeinen „Härtung/Politur"-Aufgabe. Erst wenn es ein echtes Publikum gibt, das ihn versehentlich treffen könnte, ist eine erneute Einschränkung überhaupt zu erwägen, und dann nur nach Rücksprache.
 
 ---
 

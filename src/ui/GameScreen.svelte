@@ -20,11 +20,13 @@
   <div class="sidebar-area"><Sidebar /></div>
 </div>
 
-<!-- Architektur §6a - Playtest-Debugwerkzeug, ab M10 nur noch im Dev-Build sichtbar
-     (nicht mehr im veroeffentlichten GitHub-Pages-Build, s. 06_Implementierungsplan M10). -->
-{#if import.meta.env.DEV}
-  <DebugResetButton />
-{/if}
+<!-- Architektur §6a - Playtest-Debugwerkzeug, ABSICHTLICH auch im veroeffentlichten
+     GitHub-Pages-Build sichtbar (nicht hinter import.meta.env.DEV), weil der Nutzer aktiv
+     auf der deployten Seite testet. M10 hatte das kurzzeitig hinter DEV versteckt und damit
+     genau diesen Testweg kaputtgemacht - seither per Nutzer-Bestaetigung zurueckgesetzt.
+     NICHT wieder hinter DEV verstecken oder entfernen, ohne den Nutzer explizit zu fragen
+     (erst wenn es ein echtes Publikum gibt, s. Architektur §6a). -->
+<DebugResetButton />
 <WelcomeBackModal />
 <CorruptSaveModal />
 

@@ -1,7 +1,9 @@
 <script lang="ts">
   // Architektur §6a - reines Playtest-Debugwerkzeug, kein Spielfeature.
   // Bewusst auch im veroeffentlichten Build sichtbar (Playtest-Phase ohne
-  // Publikum, s. Architektur §6a) - vor echtem Release/M10 gegenzupruefen.
+  // Publikum, s. Architektur §6a). NICHT hinter import.meta.env.DEV verstecken
+  // oder entfernen ohne Ruecksprache mit dem Nutzer - M10 hat das einmal getan
+  // und ihm damit die Testmoeglichkeit auf der deployten Seite genommen.
   import { game } from './gameStore.svelte'
 
   function handleClick() {
