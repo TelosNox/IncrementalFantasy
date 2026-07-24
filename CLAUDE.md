@@ -7,10 +7,30 @@ Projektkontext und Arbeitsanweisungen für IncrementalFantasy – ein parodistis
 - **Antworten/Kommunikation:** immer auf Deutsch.
 - **Code:** immer auf Englisch (Bezeichner, Kommentare, Commit-Messages) – bestehende Projektregel, siehe z. B. `docs/spec/feinspec-kapitel1.md` §4.
 
-## Rollen
+## Arbeitsmodi (verbindlich)
 
-- **Claude Cowork:** professioneller Architekt und Produktmanager.
-- **Claude Code:** Experte in der Softwareentwicklung.
+Gearbeitet wird durchgehend in **Claude Code**, aber in zwei klar getrennten Modi – je Session **genau einer**. Nicht die Rollenbezeichnung steuert das Verhalten, sondern die folgenden Regeln.
+
+**Der Nutzer nennt den Modus zu Session-Beginn.** Ist er nicht erkennbar, wird **nachgefragt**, bevor gearbeitet wird – nicht geraten.
+
+### Konzept-Modus (Produktmanagement & Architektur)
+
+- **Ergebnis:** Änderungen in `docs/`. **Kein** Produktivcode.
+- **Kontext:** `docs/03_Konzept_Gerüst.md` + genau die betroffene `docs/spec/*.md` (Ladehinweis unten); bei technischen Fragen zusätzlich `docs/05_Architektur.md`.
+- **Haltung:** divergent. Optionen aufmachen, Alternativen abwägen, gegen den Design-Leitfaden prüfen und Vorschläge auch begründet **verwerfen**.
+- **Übergang zur Umsetzung:** Fragen, die sich nur am Code beantworten lassen (Machbarkeit, Aufwand, bestehende Struktur), werden als **explizite Annahme markiert** statt geraten – erkennbar für die spätere Umsetzungs-Session.
+
+### Umsetzungs-Modus (Softwareentwicklung)
+
+- **Ergebnis:** Code + Tests; Doku-Änderungen nur als Rückkanal (s. u.).
+- **Kontext:** `docs/06_Implementierungsplan_Kapitel1.md` (bzw. der aktuelle Meilenstein-Plan), `docs/spec/feinspec-*.md`, `docs/05_Architektur.md` + der betroffene Quellcode.
+- **Haltung:** konvergent. Der Spec folgen; das Design **nicht** mitten im Meilenstein neu verhandeln.
+- **Rückkanal (wichtigste Regel):** Spec-Lücken und -Widersprüche fallen erfahrungsgemäß erst hier auf (siehe die Umsetzungsentscheidungen zu M7/M8/M9). Sie werden **nie still improvisiert**, sondern:
+  1. Entscheidung treffen und umsetzen (Fortschritt hat Vorrang vor Rückfragen),
+  2. als nummerierte **„Umsetzungsentscheidung"** im Meilenstein-Plan festhalten – mit Begründung und Spec-Bezug,
+  3. bei **design-relevanten** Funden zusätzlich die betroffene `docs/spec/*.md` korrigieren, damit die nächste Konzept-Session den Stand sieht.
+
+Beides bleibt der verbindlichen Prüfinstanz `docs/02_Leitfaden_Kernmechaniken.md` unterworfen – auch im Umsetzungs-Modus.
 
 ## Design-Leitfaden (verbindlich)
 
@@ -32,7 +52,7 @@ Weicht ein Vorschlag bewusst vom Leitfaden ab, ist das **explizit zu kennzeichne
 - `docs/03_Konzept_Gerüst.md` – Konzept-Rahmengerüst (verbindliche Richtung für alle Systeme, ohne Zahlen).
 - `docs/04_Status_und_Roadmap.md` – Status: entschieden vs. Playtest-Balance vs. noch nicht spezifiziert; nächster Schritt.
 - `docs/05_Architektur.md` – Technische Architektur (Stack, Projektstruktur, Save-/Offline-System, Hosting/CI).
-- `docs/06_Implementierungsplan_Kapitel1.md` – Meilenstein-Plan für die Umsetzung (Claude Code): M0 Scaffold bis M10 Politur.
+- `docs/06_Implementierungsplan_Kapitel1.md` – Meilenstein-Plan für den Umsetzungs-Modus: M0 Scaffold bis M10 Politur, inkl. der „Umsetzungsentscheidungen" je Meilenstein (Rückkanal).
 - `docs/spec/` – Detail-Spezifikationen je System (mit Zahlen/Details).
 
 ## Doku-Struktur & Kontext-Ladehinweis
