@@ -270,10 +270,25 @@ Fokusziel:  EIN Ziel für die GANZE Gruppe, gilt für alle normalen Angriffe.
 
 Standardregel (kein Fokus gesetzt): der NÄCHSTSTEHENDE Gegner.
 
-Specials (und ab Kap. 2 Materia): Ziel wird PRO EINSATZ gewählt,
-            unabhängig vom Fokusziel – sie haben eigene Zwecke
-            (unterdrücken, schocken, heilen).
+Specials (und ab Kap. 2 Materia): der SPIELER wählt das Ziel pro Einsatz.
+            Vorausgewählt ist das Fokusziel; Antippen ändert es.
+            Fähigkeiten ohne Gegnerziel (Heilung) treffen die Gruppe.
+            Die Special-Zielwahl verschiebt das Fokusziel NICHT.
 ```
+
+#### Vorauswahl im Aktions-Popup
+
+> **Vorausgewählt ist immer das Fokusziel – für jede Fähigkeit, die einen Gegner anvisiert.** Fähigkeiten ohne Gegnerziel (Air is…' Heilung) treffen die Gruppe.
+
+Eine Regel, **keine Ausnahmen**. Das ersetzt die vier gewachsenen Heuristiken, die bis hierher im Code lebten (Claude → stärkstes, Tofa → schwächstes, Barrel → schnellstes, Limit → stärkstes) und die nie jemand entschieden hat.
+
+**Unterschied zum Auto-Angriff, und warum eine Vorauswahl hier trotzdem richtig ist:** Beim Auto-Angriff *feuerte* die verborgene Regel ohne den Spieler – das war das Problem. Im Popup ist die Vorauswahl **sichtbar und überschreibbar**; der Spieler sieht, worauf gezielt wird, und tippt gegebenenfalls woanders hin. Sichtbare Vorauswahl ≠ verborgene Regel.
+
+**Warum auch Barrels Suppress keine Ausnahme bekommt** (naheliegend wäre „schnellster Gegner"): Der Wert einer Unterdrückung ist der Schaden, den der Gegner im Wirkzeitraum *nicht* anrichtet – also sein **Durchsatz (≈ ATK · SPD)**, nicht seine Geschwindigkeit allein. In Kapitel 1 funktioniert „SPD ≥ 140" nur zufällig, weil ATK kaum streut (6–10) und SPD das Produkt dominiert; die Regel bricht genau dort, wo es zählt: **Alle drei Bosse sind langsame Schwerschläger.** Vaultron (ATK 14, SPD 70) hat den zweithöchsten Durchsatz des Kapitels und würde von einer SPD-Schwelle nie erfasst.
+
+Wichtiger als die Metrik ist aber der Design-Grund: **Zu erkennen, dass der Schnelle das Problem ist und nicht der, den man gerade killt, ist genau die Einsicht, die manuelles Spiel belohnen soll.** Löst die Vorauswahl das vorweg, nimmt sie dem Spieler eine Entscheidung, die er besitzen soll. Eine Vorauswahl muss nicht optimal sein – sie muss **vorhersagbar** sein.
+
+**Wo die Bedrohungs-Metrik hingehört** (nicht in die Vorauswahl): als autorierbare Bedingung in den **Gambit-Editor ab Kapitel 2** („ziele auf den gefährlichsten Gegner") – und dort dann über den Durchsatz, nicht über rohe SPD.
 
 **Warum der Fokus auch für Auto-Figuren gilt:** Der Spieler trifft die Wahl in *jedem* Kampf neu – das ist selbst ein manueller Akt, kein Einstellungs-Häkchen. Genau deshalb ist der **Reset pro Kampf verbindlich**: Würde der Fokus über Kämpfe hinweg bestehen, wäre er einmal gesetzt und danach vergessen, und der manuelle Charakter der Entscheidung fiele weg. Das Fokusziel gehört damit in den **Kampfzustand, nicht in den SaveState** (§4.6).
 
@@ -408,6 +423,8 @@ Das ist die **einzige** Auto-Regel. Kein Special, kein Heal, kein Suppress, kein
 **Konsequenz (gewollt):** Auto trägt idle-fähig durch die **Mehrheit** der Zonen (Ventil-Prinzip bleibt), macht aber bewusst **keine** der drei Gates/Bosse (Blandzilla Z8, Fort Knoxious Z18, Vaultron Z30) idle-trivial – dort lohnt sich manuelles Eingreifen spürbar (s. §7.4, simulationsvalidiert). Aktives Spiel lohnt sich damit über das **gesamte** Kapitel, nicht nur an drei Checkpoints, und die 1. Reunion fühlt sich als echte Erlösung an: von stumpfem Auto-Attack zu einer klugen, **programmierbaren** Prioritätsliste (der bisherige 6-Regel-Satz aus der Erstfassung wird die Vorlage für deren Ab-Werk-Preset, `gambits.md` §5).
 
 **Referenz für "aufmerksames manuelles Spiel"** (was der Spieler über Special/Heal/Suppress/Limit erreichen kann, und was die Pacing-Simulation für Gates ansetzt): Limit hat Vorrang, sobald voll; sonst je Figur ihr Special, sofern MP reicht (Air is... heilt bei Verbündeten-HP < 45 %, Tofa schlägt vor, wenn das Ziel noch nicht geschockt ist, Barrel unterdrückt bevorzugt SPD ≥ 140, sonst das stärkste Ziel); sonst Attack. Implementiert in `core/gambits.ts` als `resolveOptimalAction` (nur für die Pacing-Simulation aufgerufen, nicht vom Live-Spiel – dort wählt der Spieler selbst im Popup). **Korrektur (Playtest-Fund nach M11, s. `06_Implementierungsplan_Kapitel1.md`):** Claudes Cross Slash hat keinen eigenen taktischen Zweck (anders als Suppress/Limit) und folgt daher wie ein normaler Angriff der Fokusziel-Regel (§3.9) statt immer das stärkste Ziel zu treffen – die Vorfassung hatte das versehentlich 1:1 von der alten "stärkstes Ziel"-Heuristik übernommen und ignorierte damit ein vom Spieler gesetztes Fokusziel.
+
+**Diese Referenz-Policy darf klug sein – die Vorauswahl im Popup (§3.9) nicht.** Sie definiert die Obergrenze für Spielertyp **M** (§12) und modelliert einen aufmerksamen Menschen, der Bedrohungen erkennt. **Zu korrigieren ist dabei Barrels Kriterium:** „SPD ≥ 140" erfasst **keinen** der drei Bosse (alle SPD 70–90), obwohl Vaultron mit ATK 14 der zweitstärkste Schadensträger des Kapitels ist – der Wert einer Unterdrückung bemisst sich am **Durchsatz (≈ ATK · SPD)**, nicht an der Geschwindigkeit allein. In der Fläche fällt das nicht auf (dort streut ATK kaum und SPD dominiert das Produkt), an den Gates spielt die Policy Barrel damit aber systematisch schlecht – und verzerrt so ausgerechnet die M/T/V-Korridore aus §12 B2, weil M künstlich geschwächt wäre. Kriterium auf Durchsatz umstellen.
 
 ---
 
