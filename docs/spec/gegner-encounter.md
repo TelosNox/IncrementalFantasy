@@ -54,6 +54,26 @@ Konkrete Beispiel-Monster (10, mit Merkmal + Visual-Richtung) und vier ergänzen
 
 Gegner handeln über ihr eigenes vereinfachtes ATB. Grundgegner hauen normal drauf; **Nuker/Bosse haben eine telegrafierte Groß-Attacke** (Vorwarnung). Der Telegraf ist der Grund, warum Verteidigen/Heilen/Unterdrücken überhaupt Sinn haben – man oder ein defensives Gambit-Set kann reagieren.
 
+### 6a. Zielwahl der Gegner (neu spezifiziert nach dem ersten Playtest)
+
+**Regel: Ein Gegner greift immer die Figur mit den *höchsten aktuellen HP* an.** Eine Regel für alle Grundgegner, keine Ausnahmen außer den unten genannten Trait-Sonderfällen.
+
+Das war zuvor **nirgends spezifiziert** – die Implementierung griff die Figur mit den *niedrigsten* HP an. Das ist die für den Spieler härteste denkbare Regel: Gegner fokussieren den Verwundetsten und finishen ihn, dann den nächsten. Mit dem neuen HP-Übertrag zwischen Kämpfen (`niederlage-offline.md` §2) wäre daraus eine Spirale mit Zinseszins geworden – wer angeschlagen in den nächsten Kampf geht, wird sofort wieder fokussiert.
+
+Warum „höchste HP" die bessere Regel ist:
+- **Schaden verteilt sich von selbst** – kein Fokus-Feuer, keine Todesspirale, verträglich mit dem HP-Übertrag.
+- Es entsteht **Tanken ohne Aggro-System**: Wer am gesündesten dasteht, fängt die Schläge. Robuste Figuren bekommen dadurch erstmals eine passive Rolle.
+- Sie ist in einem Satz erklärbar und damit vom Spieler **ableitbar** – der entscheidende Punkt (s. „Nachvollziehbarkeit" unten).
+- Sie bleibt vollständig deterministisch.
+
+**Trait-Sonderfälle** (bleiben erhalten, weil sie thematisch lesbar sind):
+- `drain` zieht MP von der Figur mit den **meisten MP**.
+- `boss`/`bomb`-Groß-Attacken treffen die **ganze Gruppe**; Zielwahl entfällt.
+
+**Nachvollziehbarkeit ist Teil der Anforderung, nicht Kosmetik.** Determinismus allein genügt nicht: Eine feste Regel, die der Spieler nicht ableiten kann, ist von Zufall nicht unterscheidbar (`../02_Leitfaden_Kernmechaniken.md` §5, Playtest-Nachträge). Deshalb gehört zur Regel die **Markierung des nächsten Ziels** in der Anzeige. Erst dadurch bekommt **Defend** überhaupt eine Informationsgrundlage – bislang halbierte es Schaden, ohne dass der Spieler wissen konnte, wen es trifft, war also eine Rate-Aktion.
+
+**Zielverhalten ist eine autorierbare Gegner-Eigenschaft.** Für Kapitel 1 gilt durchgehend die Standardregel; spätere Kapitel können abweichende Zielregeln als Gegner-Merkmal vergeben (z. B. „geht immer auf die Heilerin"), sofern sie ebenso in einem Satz erklärbar bleiben.
+
 ## 7. Miniboss, Regions-Boss & Kapitel-Wand
 
 - **Region-1-Miniboss:** einfacher, mit einer Groß-Attacke → **lehrt das Limit als Wand-Brecher**.

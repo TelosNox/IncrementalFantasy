@@ -49,7 +49,7 @@ Der Auto/Manual-Schalter sitzt **pro Figur**. Spontanes Eingreifen im laufenden 
 
 1. Manual-Figur wird **bereit** (ATB voll) → die **gesamte Kampfuhr pausiert** (globale Wait-Pause).
 2. Am Panel der Figur öffnet ein **Aktions-Popup** (FF7-Menübox; Darstellung/Position: `ui-layout.md`).
-3. Der Spieler wählt Aktion + bei Bedarf **Ziel** (sinnvolles Standardziel vorgewählt, Gegner-Antippen ändert es).
+3. Der Spieler wählt Aktion + bei Bedarf **Ziel**. **Präzisiert nach dem ersten Playtest** (die Zielwahl war nie umgesetzt, obwohl dieser Punkt sie schon versprach): Normale **Angriffe** folgen einem **gruppenweiten Fokusziel**, das pro Kampf einmal gesetzt wird und bis zum Tod des Gegners gilt – auch für Figuren im Auto-Modus. **Specials** (und ab Kap. 2 Materia) wählen ihr Ziel dagegen **pro Einsatz**, weil sie eigene Zwecke haben (unterdrücken, schocken, heilen). Vollständige Regeln inkl. Reset pro Kampf und Standardregel ohne Fokus: `feinspec-kapitel1.md` §3.9.
 4. Aktion feuert → Uhr läuft weiter. **Mehrere gleichzeitig bereite** Manual-Figuren werden als **Warteschlange** nacheinander abgefragt.
 
 **Aktions-Gruppen im Popup (skaliert mit dem Fortschritt):**

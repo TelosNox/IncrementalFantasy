@@ -240,6 +240,7 @@ Umzusetzen sind sechs zusammenhängende Änderungen:
 4. **Gasthaus** (§3.8b): vorab anmeldbar, greift nach Kampfende, bei Niederlage automatisch; Totzeit + Rate auf HP und MP gleichzeitig; Kosten ausschließlich Zeit.
 5. **Niederlage heilt nicht** (§3.8c) – sonst ist absichtliches Sterben die optimale Strategie.
 6. **Limit als Esper-Modell** (§3.4): `limitAllowed` als Datenfeld am Encounter, in Kapitel 1 an den drei Gates gesetzt; Leiste startet dort bei 0, kein Übertrag.
+7. **Zielwahl als System** (§3.9 + `gegner-encounter.md` §6a): Gegner greifen die Figur mit den höchsten aktuellen HP an; die Party bekommt ein **gruppenweites Fokusziel** (gilt auch für Auto-Figuren, **Reset zu Beginn jedes Kampfes**, gehört in den Kampf- und *nicht* in den Save-Zustand). Ohne Fokus zielt Auto auf den **nächststehenden** Gegner; die alte `bomb`/`drain`-Priorität entfällt – **Shortfuse detoniert im reinen Auto-Betrieb künftig immer**, das ist beabsichtigt. Specials wählen ihr Ziel pro Einsatz. Fokusziel **und** das nächste Ziel jedes Gegners werden markiert – ohne die Markierung bleibt Defend eine Rate-Aktion.
 
 **Zusätzlich abzuräumen:**
 
@@ -247,7 +248,16 @@ Umzusetzen sind sechs zusammenhängende Änderungen:
 - **Save-Migration** für `maxZoneReached`, `inn` und die entfallenen `offline`-Felder (`save/migrate.ts` existiert seit M4 genau dafür).
 - **`tests/chapter-playthrough.test.ts` neu aufsetzen:** Der Harness muss die Zonen-Rückkehr als *Spielerentscheidung* modellieren (welche Zone farmt ein vernünftiger Spieler wie lange?), nicht als impliziten Automatismus bei jeder Niederlage. Das war die Ursache dafür, dass die Baseline ein anderes Spiel gemessen hat als das ausgelieferte.
 
-**Abnahme:** Ein Mensch spielt Zone 1 → 30 → Reunion vollständig durch, ohne Debug-Eingriffe, mit einer Mischung aus Auto und manueller Übernahme – und **ohne dauerhaft festzustecken**. Erst danach wird die Pacing-Tabelle in feinspec §7.4 neu simuliert und ersetzt; bis dahin existiert bewusst **keine** gültige Baseline.
+**Abnahme:** Die vollständige Kriterienliste steht in **feinspec §12** und ist gegen drei Spielertypen zu prüfen – **M** (manuell), **T** (nur Fokusziel pro Kampf), **V** (gar kein Eingriff). Die wichtigsten Gates daraus:
+
+- **A2 – das Ventil, formal:** Für jede Zone Z gibt es eine Zahl N ≤ 20 wiederholter Siege in Z−1, nach der Z auch für Typ **V** gewinnbar ist. Dieser Test ersetzt die frühere Behauptung „Grind-Kämpfe leveln weiter".
+- **B1/B2 – Abstand:** Gesamtdauer strikt **M < T < V**, im Korridor T ≈ 1,3–2,0× und V ≈ 2,5–4,0× von M.
+- **C4 – Wände sitzen an Gates:** Keine reguläre Zone darf mehr Retries kosten als das nächstfolgende Gate (der Zone-6-Fehler).
+- **E1 – der Mensch:** Eine Person spielt Zone 1 → 30 → Reunion ohne Debug-Eingriffe durch, ohne dauerhaft festzustecken.
+
+**Zur Balancierung selbst:** Sie findet **in der Umsetzung gegen die TypeScript-Engine** statt, nicht vorab in einer zweiten Simulation. `sim_chapter1.py` verliert seinen Status als Balance-Referenz (feinspec §9) – die Doppelung „Python-Modell + TS-Engine" war die strukturelle Ursache dafür, dass die alte Baseline unbemerkt ein anderes Spiel maß. Eine Engine, eine Wahrheit. Die Kriterien **F1–F3** sichern genau das ab.
+
+Erst nach bestandener Liste wird die Pacing-Tabelle in feinspec §7.4 ersetzt; bis dahin existiert bewusst **keine** gültige Baseline.
 
 **Warnung zum Gesamtpaket:** M11 stapelt drei Verknappungen übereinander (HP trägt über, MP wächst nicht mehr im Kampf, Heilung kostet Zeit). Jede für sich ist begründet, zusammen können sie deutlich härter ausfallen als geplant. Alle Zahlen sind als **Startwerte** zu behandeln; die Zeitkosten (Zeitstrafe + Gasthaus-Totzeit) müssen sich ohne Offline-Progress *gespielt* vertretbar anfühlen, nicht nur gerechnet.
 

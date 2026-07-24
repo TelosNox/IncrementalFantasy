@@ -252,6 +252,39 @@ Sobald (a) existiert, hat Offline diese Rolle nicht mehr und wird bewusst **erst
 
 **Folgeänderungen:** `OFFLINE_RATE`/`OFFLINE_CAP` entfallen; der „Willkommen zurück"-Screen entfällt mit ihnen (samt seines irreführenden Hinweises, man möge „an der letzten geschafften Zone grinden" – eine Handlung, die es erst ab (a) gibt). Der Projektionsrechner selbst bleibt als **Balance-Werkzeug** wertvoll und sollte nicht gelöscht, sondern nur vom Spielerpfad abgehängt werden.
 
+### 3.9 Zielwahl (neu spezifiziert nach dem ersten Playtest)
+
+Zuvor existierte **ein einziger Satz** zur Zielwahl (§4.7, Auto-Angriff) – darunter waren fünf Aktionen mit vier verschiedenen, nie entschiedenen Regeln gewachsen: Angriff auf das schwächste Ziel, Claudes Special und Limit auf das stärkste, Barrels Suppress auf den schnellsten. Alles deterministisch, aber für den Spieler nicht ableitbar. **Determinismus ≠ Nachvollziehbarkeit:** Eine feste Regel, die niemand herleiten kann, ist von Zufall nicht unterscheidbar.
+
+Gegner-Seite: siehe `gegner-encounter.md` §6a (Regel: höchste aktuelle HP).
+
+#### Fokusziel – die Party-Seite
+
+```
+Fokusziel:  EIN Ziel für die GANZE Gruppe, gilt für alle normalen Angriffe.
+            Gilt auch für Figuren im Auto-Modus.
+            Reset zu Beginn JEDES Kampfes (kein Übertrag zwischen Kämpfen).
+            Bei nur einem lebenden Gegner automatisch gesetzt.
+            Stirbt das Ziel und leben mehrere: Rückfall auf die Standardregel,
+            Spieler kann jederzeit neu wählen. Nie ein Zustand ohne Ziel.
+
+Standardregel (kein Fokus gesetzt): der NÄCHSTSTEHENDE Gegner.
+
+Specials (und ab Kap. 2 Materia): Ziel wird PRO EINSATZ gewählt,
+            unabhängig vom Fokusziel – sie haben eigene Zwecke
+            (unterdrücken, schocken, heilen).
+```
+
+**Warum der Fokus auch für Auto-Figuren gilt:** Der Spieler trifft die Wahl in *jedem* Kampf neu – das ist selbst ein manueller Akt, kein Einstellungs-Häkchen. Genau deshalb ist der **Reset pro Kampf verbindlich**: Würde der Fokus über Kämpfe hinweg bestehen, wäre er einmal gesetzt und danach vergessen, und der manuelle Charakter der Entscheidung fiele weg. Das Fokusziel gehört damit in den **Kampfzustand, nicht in den SaveState** (§4.6).
+
+**Warum „nächststehender Gegner" als Standardregel:** Sie ist der bewusste Mittelweg. „Schwächstes Ziel" (die alte Regel) ist versehentlich *optimal* – es tötet Gegner am schnellsten und senkt den eingehenden Schaden am stärksten, ein Auto also, das besser zielt als es handelt. „Stärkstes Ziel" wäre das andere Extrem: Nichts stirbt bis kurz vor Schluss, alle Gegner schlagen weiter zu, rund 1,5× mehr erlittener Schaden. „Nächststehender" ist ehrlich dumm, positionell in einem Blick ablesbar und bestraft nicht systematisch. Falls sich der Abstand zwischen den Spielertypen (§12) als zu klein erweist, ist „stärkstes Ziel" der vorgesehene Härtegrad-Regler.
+
+**Bombe und Drain werden nicht mehr entschärft** (bewusste Entscheidung): Die alte Priorität `bomb` → `drain` → schwächstes entfällt ersatzlos. Konsequenz: **Shortfuse detoniert im reinen Auto-Betrieb zuverlässig**, und Pilferret zieht ungehindert MP ab, was mit der neuen MP-Knappheit (§3.5) spürbarer wiegt. Das ist der gewünschte, telegrafierte und lernbare Anlass, selbst einzugreifen – kein Versehen.
+
+#### Anzeige
+
+Sowohl das **Fokusziel der Party** als auch das **nächste Ziel jedes Gegners** sind zu markieren. Letzteres ist keine Kosmetik: **Defend** halbiert erlittenen Schaden bis zur nächsten eigenen Aktion, war bisher aber eine Rate-Aktion, weil niemand wissen konnte, wen es trifft. Erst mit einer ableitbaren Gegner-Zielregel *und* sichtbarer Markierung wird Defend zu einer Entscheidung.
+
 ---
 
 ## 4. Datenmodelle / Schemas
@@ -370,7 +403,7 @@ Zahlen laufen über eine **BigNumber-/eigene Notation ab Tag 1** (`oekonomie-wae
 Auto (vor der 1. Reunion, ab Zone 5): IMMER Attack (Fallback, +MP). Sonst nichts.
 ```
 
-Das ist die **einzige** Auto-Regel. Kein Special, kein Heal, kein Suppress, kein Limit – diese vier bleiben bis zur 1. Reunion **exklusiv der manuellen Steuerung** vorbehalten (Aktions-Popup, §5.1). Zielwahl-Fallback fürs Auto-Attack: entschärfe zuerst `bomb`, dann `drain`, sonst schwächstes Ziel.
+Das ist die **einzige** Auto-Regel. Kein Special, kein Heal, kein Suppress, kein Limit – diese vier bleiben bis zur 1. Reunion **exklusiv der manuellen Steuerung** vorbehalten (Aktions-Popup, §5.1). **Zielwahl: das gesetzte Fokusziel, sonst der nächststehende Gegner** (§3.9) – die frühere Priorität „`bomb` → `drain` → schwächstes Ziel" ist gestrichen; sie machte das Auto beim *Zielen* raffinierter, als es beim *Handeln* sein soll.
 
 **Konsequenz (gewollt):** Auto trägt idle-fähig durch die **Mehrheit** der Zonen (Ventil-Prinzip bleibt), macht aber bewusst **keine** der drei Gates/Bosse (Blandzilla Z8, Fort Knoxious Z18, Vaultron Z30) idle-trivial – dort lohnt sich manuelles Eingreifen spürbar (s. §7.4, simulationsvalidiert). Aktives Spiel lohnt sich damit über das **gesamte** Kapitel, nicht nur an drei Checkpoints, und die 1. Reunion fühlt sich als echte Erlösung an: von stumpfem Auto-Attack zu einer klugen, **programmierbaren** Prioritätsliste (der bisherige 6-Regel-Satz aus der Erstfassung wird die Vorlage für deren Ab-Werk-Preset, `gambits.md` §5).
 
@@ -593,7 +626,7 @@ Die drei Kapitel-1-Bosse (maßstabsgetreu, Minibosse 1,5× / Kapitel-Boss 2×) �
 
 ## 9. Reproduzierbarkeit / Werkzeuge
 
-- `assets/sim/sim_chapter1.py` – Kampf- & Pacing-Simulator (deterministisch). Liefert die Zahlen aus §7.4; dient als lebende Balance-Referenz für den Playtest.
+- `assets/sim/sim_chapter1.py` – Kampf- & Pacing-Simulator (deterministisch). **Verliert mit dieser Revision seinen Status als Balance-Referenz.** Er war eine *zweite Implementierung derselben Regeln* – und genau diese Doppelung hat den Fehler aus §3.8 ermöglicht: Python und TypeScript sind auseinandergedriftet (beide bauten pro Zone eine frische Figur, der Harness farmte in einer Schleife, die es im Spiel nicht gab), ohne dass es auffiel, weil die Simulation grün blieb. **Eine Engine, eine Wahrheit:** Balance wird ab jetzt ausschließlich gegen die TypeScript-Engine gemessen, die auch das Spiel ausführt. Das Python-Skript bleibt als Wegwerf-Werkzeug für schnelle Einzelrechnungen brauchbar, aber nichts darf sich mehr darauf berufen.
 - `assets/sim/make_mockups.py` – rendert die vier Screens aus §1 aus den echten Assets.
 
 ---
@@ -636,3 +669,60 @@ Die sensibelsten Hebel:
 - **Zweiter Gil-Sink fehlt weiterhin.** Das Gasthaus wäre der naheliegende gewesen, kostet aber bewusst Zeit statt Gil (Deadlock-Risiko, §3.8b). Offen, s. `oekonomie-waehrungen.md`.
 
 **Erledigt durch diese Revision** (vormals hier offen): der Limit-Reset-Fehler bei jedem Zonenstart – das Esper-Modell (§3.4) macht die frühere Persistenz-Anforderung gegenstandslos, statt sie nachzurüsten.
+
+---
+
+## 12. Abnahmekriterien der Neu-Balancierung
+
+**Zweck:** Die Konzeptphase liefert bewusst **keine neuen Zahlen** – sie liefert die Eigenschaften, die die Zahlen erfüllen müssen. Die Umsetzung findet die Werte und prüft sie gegen diese Liste. Grund: Die alte Baseline war nicht falsch berechnet, sondern gegen das falsche Modell gemessen (§9). Ein Kriterium ist deshalb nur dann eins, wenn es **falsifizierbar** ist und sagt, **wo** es geprüft wird.
+
+### Die drei Spielertypen
+
+Alle Kriterien werden gegen drei klar getrennte Spielweisen geprüft. Sie sind die neue Messgrundlage und ersetzen das frühere Begriffspaar „Auto vs. manuell an Gates":
+
+| Typ | Verhalten | Rolle |
+|-----|-----------|-------|
+| **M – Manuell** | wählt Aktionen *und* Ziele selbst, nutzt Specials/Heal/Suppress/Limit/Defend | Referenz (schnellster Pfad) |
+| **T – Teilautomatisch** | setzt pro Kampf nur das **Fokusziel**, sonst Auto | der erwartete Normalfall |
+| **V – Vollautomatisch** | greift **gar nicht** ein, kein Fokusziel | Idle-Versprechen |
+
+### A – Durchspielbarkeit (harte Gates, nicht verhandelbar)
+
+- **A1** Alle drei Typen erreichen Zone 30. **V darf langsamer sein, aber nie blockiert.**
+- **A2 (Ventil, formal):** Für **jede** Zone Z gilt: Es existiert eine Anzahl N wiederholter Siege in Zone Z−1, nach der Z für Typ V gewinnbar ist – mit **N ≤ 20**. Braucht eine Zone mehr, ist sie keine Wand mehr, sondern ein Stau. *Dies ist die formale Fassung von Anti-Pattern #1 und der wichtigste Test der ganzen Liste.*
+- **A3** Kein Spielzustand ist erreichbar, aus dem heraus kein Fortschritt mehr möglich ist – insbesondere nicht bei sehr wenig HP und 0 Gil (das Gasthaus kostet deshalb Zeit statt Gil, §3.8b).
+
+### B – Abstand zwischen den Spielertypen
+
+Der Abstand muss **existieren** (sonst lohnt aktives Spiel nicht, Anti-Pattern #5) und **begrenzt** sein (sonst ist Idle bestraft, Leitplanke „Idle-Versprechen respektieren").
+
+- **B1** Reihenfolge der Gesamtdauer strikt: **M < T < V**. Kein Gleichstand.
+- **B2** Zielkorridor, gemessen an M = 1,0: **T ≈ 1,3–2,0×**, **V ≈ 2,5–4,0×**. (Die frühere Baseline maß 3,25× für reines Idle und galt als vertretbar – der Korridor ist daran kalibriert.)
+- **B3** Der Sprung **M → T** muss kleiner sein als **T → V**. Ein einziges Fokusziel pro Kampf soll spürbar viel bringen; die volle manuelle Steuerung obendrauf soll sich lohnen, aber nicht Pflicht sein.
+
+### C – Wo die Wände sitzen
+
+- **C1** An jedem der drei Gates gilt für die Retry-Zahl: **M ≤ T ≤ V**.
+- **C2** Für M liegt die Retry-Zahl an allen drei Gates bei **0–1**. Können zahlt sich aus.
+- **C3** Für V ist die Retry-Zahl an jedem Gate **≤ 15** (in Kombination mit A2 – Grinden muss die Zahl senken).
+- **C4** **Keine reguläre Zone darf für irgendeinen Typ mehr Retries erfordern als das nächstfolgende Gate.** Wände gehören an Gates. Genau das war in der Vorfassung verletzt: Zone 6 wurde zur härtesten Stelle der Region.
+
+### D – Ressourcen-Ökonomie
+
+- **D1 (HP-Signalregel, §3.8d):** Farmt Typ T eine Zone auf dem Level, auf dem er sie erstmals geschafft hat, ist die HP-Bilanz pro Kampf **≥ 0**. Drückt er auf die nächste Zone, ist sie **< 0**. Diese Regel *bestimmt* den Erholungswert; sie wird nicht gegen ihn geprüft.
+- **D2** MP ist an Gates ein echter Riegel: Typ M geht in **jedem** Gate-Kampf vor Kampfende die MP aus. Andernfalls ist MP kein Limiter, sondern Dekoration.
+- **D3** MP ist in der Fläche kein Dauerärgernis: Typ M kann beim Farmen einer komfortablen Zone im Schnitt **mindestens einen Special pro Kampf** einsetzen, ohne ins Gasthaus zu müssen.
+- **D4** Gasthaus-Anteil: Für Typ T liegt die im Gasthaus verbrachte Zeit bei **≤ 15 %** der Gesamt-Kapitelzeit. Darüber dominiert Warten das Spiel.
+- **D5** Die Limit-Leiste füllt sich für Typ M in jedem Gate-Kampf **ein- bis zweimal** – und in regulären Zonen **nie** (strukturell durch §3.4, trotzdem als Regression abzusichern).
+
+### E – Prüfung am Menschen (nicht ersetzbar)
+
+- **E1** Eine Person spielt Zone 1 → 30 → Reunion **ohne Debug-Eingriffe** durch, ohne dauerhaft festzustecken. Das ist die Abnahme von M11.
+- **E2** Die Wartezeiten (Zeitstrafe + Gasthaus-Totzeit) werden **gespielt** beurteilt, nicht gerechnet. Ohne Offline-Progress ist das echte Zeit am Bildschirm.
+- **E3** Ein Spieler kann nach dem Durchgang die Zielregeln **in eigenen Worten benennen** – Gegner wie Party. Wird das nicht erreicht, ist die Regel zwar deterministisch, aber nicht nachvollziehbar (§3.9), und die Anzeige ist nachzubessern.
+
+### F – Schutz gegen die Wiederholung des Ursprungsfehlers
+
+- **F1** Der Pacing-Harness ruft **dieselben Codepfade** auf wie das Spiel. Insbesondere durchläuft ein Zonenwechsel dieselbe Funktion, die auch der Spieler auslöst – kein harness-eigener Weg in eine andere Zone.
+- **F2** Der Harness **modelliert keine Mechanik, die das Spiel nicht hat.** Die Zonen-Rückkehr wird als *Spielerentscheidung* abgebildet (welche Zone farmt wer wie lange), nicht als impliziter Automatismus bei jeder Niederlage. Das war die exakte Ursache dafür, dass die alte Baseline ein anderes Spiel maß.
+- **F3** Kein Leitplanken-Haken in §10 wird gesetzt, bevor die zugehörige Eigenschaft **im Spiel** geprüft wurde – nicht in der Simulation, die sie voraussetzt (`../02_Leitfaden_Kernmechaniken.md` §5, Playtest-Nachträge).
