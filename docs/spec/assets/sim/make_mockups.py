@@ -205,7 +205,7 @@ def screen_region3():
     base.alpha_composite(backdrop("megacorp_tower", align=0.30),(0,0))
     d = ImageDraw.Draw(base)
     gy = STAGE_H-20
-    party=[("claude","Claude",1.0),("barrel","Barrel",0.85),("tofa","Tofa",0.7),("arris","Arris",0.9)]
+    party=[("claude","Claude",1.0),("barrel","Barrel",0.85),("tofa","Tofa",0.7),("airis","Air is...",0.9)]
     xs=[100,190,280,370]
     for (key,nm,hpf),x in zip(party,xs):
         sprite(base,f"{ROOT}/characters/{key}_64.png", x, gy, scale=1)
@@ -236,8 +236,8 @@ def screen_region3():
         dict(name="Claude",hp=1.0,mp=0.5,atb=0.9,limit=0.4,mode="auto"),
         dict(name="Barrel",hp=0.85,mp=0.7,atb=0.3,limit=0.5,mode="auto"),
         dict(name="Tofa",hp=0.7,mp=0.6,atb=1.0,limit=1.0,mode="auto"),
-        dict(name="Arris",hp=0.9,mp=0.4,atb=0.6,limit=0.3,mode="auto")],
-        note="Tofa's Limit is full → trigger it into the Shock window now for max damage · Arris heals at HP<45%")
+        dict(name="Air is...",hp=0.9,mp=0.4,atb=0.6,limit=0.3,mode="auto")],
+        note="Tofa's Limit is full → trigger it into the Shock window now for max damage · Air is... heals at HP<45%")
     base.convert("RGB").save(f"{OUT}/02_region3_shock.png")
     print("02 ok")
 
@@ -333,12 +333,12 @@ def screen_popup():
     base=Image.new("RGBA",(W,H),INK)
     base.alpha_composite(backdrop("megacorp_tower", align=0.30),(0,0))
     gy=STAGE_H-20
-    for key,x in [("claude",100),("barrel",190),("tofa",280),("arris",370)]:
+    for key,x in [("claude",100),("barrel",190),("tofa",280),("airis",370)]:
         sprite(base,f"{ROOT}/characters/{key}_64.png", x, gy, scale=1)
     for key,x in [("kindlebale",560),("caffiend",660)]:
         sprite(base,f"{ROOT}/monsters/{key}_64.png", x, gy, scale=1, flip=True)
     d=ImageDraw.Draw(base)
-    d.text((370-20,gy-92),"Arris",font=F9B,fill=CYAN)
+    d.text((370-36,gy-92),"Air is...",font=F9B,fill=CYAN)
     d.text((370-26,gy-106),"ready",font=F9B,fill=CYAN)
     # Submenu (Magic opened) left of the main menu
     sx0,sy0,sx1,sy1=316,300,508,470
@@ -352,11 +352,11 @@ def screen_popup():
     poprow(d,sx0+16,sry+78,sx1-14,"Feuga",  right="18 MP", active=False)
     d.text((sx0+16,sry+104),"scroll for more",font=F9,fill=POP_DIM)
     d.text((sx0+14,sy1-20),"grey = not enough MP",font=F9,fill=POP_DIM)
-    # Main menu above Arris' panel
+    # Main menu above Air is...' panel
     px0,py0,px1,py1=520,286,720,470
     ff7box(base,px0,py0,px1,py1)
     d=ImageDraw.Draw(base)
-    d.text((px0+14,py0+9),"Arris  -  ready",font=F9B,fill=POP_TITLE)
+    d.text((px0+14,py0+9),"Air is...  -  ready",font=F9B,fill=POP_TITLE)
     ry=py0+32
     poprow(d,px0+16,ry,    px1-14,"Attack",     active=True)
     poprow(d,px0+16,ry+26, px1-14,"Defend", active=True)
@@ -364,15 +364,15 @@ def screen_popup():
     poprow(d,px0+16,ry+78, px1-14,"Heal Wind", right="10 MP", active=True)
     poprow(d,px0+16,ry+104,px1-14,"Limit", rainbow=True)
     d.text((px1-70,ry+104),"charged",font=F9,fill=POP_DIM)
-    # Popup -> Arris panel connector line
+    # Popup -> Air is... panel connector line
     d.line([(px0+40,py1),(px0+40,H-BOTTOM_H)], fill=(150,180,255), width=2)
-    panel_note="Arris = Manual: once ready, the ENTIRE clock pauses (incl. Shock/telegraphs), popup opens. Team keeps fighting on Auto."
+    panel_note="Air is... = Manual: once ready, the ENTIRE clock pauses (incl. Shock/telegraphs), popup opens. Team keeps fighting on Auto."
     sidebar(base,"R3 · MegaCorp Tower",24,318,0.62,15)
     bottombar(base,[
         dict(name="Claude",hp=1.0,mp=0.5,atb=0.6,limit=0.3,mode="auto"),
         dict(name="Barrel",hp=0.9,mp=0.7,atb=0.4,limit=0.4,mode="auto"),
         dict(name="Tofa",hp=0.8,mp=0.6,atb=0.5,limit=0.6,mode="auto"),
-        dict(name="Arris",hp=0.95,mp=0.9,atb=1.0,limit=0.2,mode="manual")],
+        dict(name="Air is...",hp=0.95,mp=0.9,atb=1.0,limit=0.2,mode="manual")],
         note=panel_note)
     base.convert("RGB").save(f"{OUT}/05_aktions_popup.png")
     print("05 ok")

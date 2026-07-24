@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { ARRIS, BARREL, CHARACTERS, CLAUDE, TOFA } from '../src/content/characters'
+import { AIRIS, BARREL, CHARACTERS, CLAUDE, TOFA } from '../src/content/characters'
 import {
   BLANDO,
   BLANDZILLA,
@@ -29,13 +29,13 @@ describe('§6.1 Charakter-Startwerte & Specials', () => {
     expect(TOFA.special.mpCost).toBe(7)
   })
 
-  it('Arris L1', () => {
-    expect(ARRIS.base).toEqual({ hp: 80, mp: 30, atk: 7, mag: 14, def: 3, spd: 95 })
-    expect(ARRIS.special.mpCost).toBe(10)
+  it('Air is... L1', () => {
+    expect(AIRIS.base).toEqual({ hp: 80, mp: 30, atk: 7, mag: 14, def: 3, spd: 95 })
+    expect(AIRIS.special.mpCost).toBe(10)
   })
 
   it('alle vier Figuren sind im Roster registriert', () => {
-    expect(Object.keys(CHARACTERS).sort()).toEqual(['arris', 'barrel', 'claude', 'tofa'])
+    expect(Object.keys(CHARACTERS).sort()).toEqual(['airis', 'barrel', 'claude', 'tofa'])
   })
 })
 

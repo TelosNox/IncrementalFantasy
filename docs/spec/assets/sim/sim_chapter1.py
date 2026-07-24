@@ -54,7 +54,7 @@ CHAR_BASE = {
     "Claude": dict(hp=110, mp=20, atk=14, mag=6,  deff=4, spd=100),
     "Barrel": dict(hp=140, mp=20, atk=11, mag=5,  deff=8, spd=80),
     "Tofa":   dict(hp=95,  mp=20, atk=12, mag=5,  deff=3, spd=130),
-    "Arris":  dict(hp=80,  mp=30, atk=7,  mag=14, deff=3, spd=95),
+    "Airis":  dict(hp=80,  mp=30, atk=7,  mag=14, deff=3, spd=95),
 }
 GROW = dict(hp=1.09, atk=1.055, mag=1.055, deff=1.05, spd=1.00)
 
@@ -104,9 +104,9 @@ def make_monster(name, zone_index, size=1.0):
     f.gil = round(base["gil"]*scale)
     return f
 
-SPECIAL_MP = {"Claude":8, "Barrel":6, "Tofa":7, "Arris":10}
+SPECIAL_MP = {"Claude":8, "Barrel":6, "Tofa":7, "Airis":10}
 # Ab welcher Zone die Waffen-Spezial jeder Figur verfuegbar ist (Waffenkauf).
-SPECIAL_FROM = {"Claude":3, "Barrel":10, "Tofa":19, "Arris":19}
+SPECIAL_FROM = {"Claude":3, "Barrel":10, "Tofa":19, "Airis":19}
 
 def deal(attacker, target, raw_atk, shock_add=0, label="Angriff"):
     ignore = target.shock_timer > 0
@@ -160,10 +160,10 @@ def smart_act(actor, party, enemies):
         tgt = pick_target(targets)
         deal(actor, tgt, actor.atk, label="Angriff")
         actor.mp = min(actor.max_mp, actor.mp + 2); return
-    if actor.name == "Arris":
+    if actor.name == "Airis":
         hurt = [p for p in party if p.alive and p.hp < 0.45*p.max_hp]
-        if hurt and actor.mp >= SPECIAL_MP["Arris"]:
-            actor.mp -= SPECIAL_MP["Arris"]; heal = round(actor.mag*2.2)
+        if hurt and actor.mp >= SPECIAL_MP["Airis"]:
+            actor.mp -= SPECIAL_MP["Airis"]; heal = round(actor.mag*2.2)
             for p in party:
                 if p.alive: p.hp = min(p.max_hp, p.hp+heal)
             actor.limit = min(100, actor.limit+4); return
@@ -276,7 +276,7 @@ def zone_encounters():
 def party_for_zone(z, levels):
     roster = ["Claude"]
     if z>=9: roster.append("Barrel")
-    if z>=19: roster += ["Tofa","Arris"]
+    if z>=19: roster += ["Tofa","Airis"]
     party=[]
     for nm in roster:
         c = make_char(nm, levels[nm])
@@ -309,8 +309,8 @@ def run_realistic(verbose=True, manual_at_gates=True, max_grind=2000):
     manuelles Spiel (smart_act). manual_at_gates=False: reines Idle, nie
     manuell - validiert "mit genug Grind auch idle machbar" (gambits.md §4)."""
     Z = zone_encounters()
-    levels = {"Claude":1,"Barrel":1,"Tofa":1,"Arris":1}
-    exp_pool = {"Claude":0,"Barrel":0,"Tofa":0,"Arris":0}
+    levels = {"Claude":1,"Barrel":1,"Tofa":1,"Airis":1}
+    exp_pool = {"Claude":0,"Barrel":0,"Tofa":0,"Airis":0}
     gil=0.0; total=0.0; region_time={1:0.0,2:0.0,3:0.0}
     grind_battles=0; last_clear=None
     rows=[]
@@ -361,8 +361,8 @@ def run_realistic(verbose=True, manual_at_gates=True, max_grind=2000):
 
 def run_chapter(verbose=True):
     Z = zone_encounters()
-    levels = {"Claude":1,"Barrel":1,"Tofa":1,"Arris":1}
-    exp_pool = {"Claude":0,"Barrel":0,"Tofa":0,"Arris":0}
+    levels = {"Claude":1,"Barrel":1,"Tofa":1,"Airis":1}
+    exp_pool = {"Claude":0,"Barrel":0,"Tofa":0,"Airis":0}
     gil = 0; total_time = 0.0; rows = []
     region_time = {1:0.0,2:0.0,3:0.0}
     for z in range(1,31):

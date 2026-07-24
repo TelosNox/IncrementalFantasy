@@ -9,7 +9,7 @@
 - **Stats** (`stats-kampfwerte.md`): Gegner nutzen das Kern-Set; Analyse enthüllt ATK/DEF/HP.
 - **Kampf** (`kampf-analyse-shock.md`): getaktete/telegrafierte Aktionen; Schwächen → Shock.
 - **Progression** (`progression-regionen.md`): Zonen/Regionen/Boss-Gates; Archetypen-Rollout.
-- **Charaktere** (`charaktere-party.md`): Archetypen geben den Rollen (Barrel-Suppress, Arris-Heal) ihren Daseinsgrund.
+- **Charaktere** (`charaktere-party.md`): Archetypen geben den Rollen (Barrel-Suppress, Air-is...-Heal) ihren Daseinsgrund.
 - **Materia** (`materia.md`): Erst-Clear → garantierte Freischaltungen; AoE („Alle") auf Wellen.
 
 ---
@@ -44,7 +44,7 @@
 - **Standard** — Grundgegner, trägt den Kern-Loop.
 - **Panzer** (hohe DEF/HP) — stumpfes Draufhauen ist zäh → motiviert Schwäche/Shock.
 - **Flitzer** (hoher SPD) — handelt oft → macht **Barrels Unterdrückung** wertvoll.
-- **Nuker** (telegrafierter Groß-Treffer) — macht **Arris' Heilung / Verteidigen / defensive Gambits** nötig.
+- **Nuker** (telegrafierter Groß-Treffer) — macht **Air is...' Heilung / Verteidigen / defensive Gambits** nötig.
 - **Schwäche-Gegner** — klar sichtbare Element-Schwäche → belohnt Element-Wahl + Shock.
 - **(später) Heiler-Gegner** — heilt Verbündete → lehrt Ziel-Priorität („erst den Heiler"), eine Gambit-/Targeting-Entscheidung.
 

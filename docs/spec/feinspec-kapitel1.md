@@ -61,7 +61,7 @@ Am Kapitelende: die klaren **Reset-** vs. **Persistenz-Listen** und der Ertrag i
 
 ![Aktions-Popup](assets/mockups/05_aktions_popup.png)
 
-Die manuelle Steuerung als **FF7-Menübox** am Charakter-Panel: dunkle Blau/Lila-Box, helle Schrift. **Arris** steht auf **Manual** (cyan Chip), das übrige Team auf **Auto** – wird Arris bereit, pausiert die gesamte Uhr und ihr Popup öffnet. **Grundaktionen** (Attack, Defend, Special „Heal Wind") stehen fix; **Limit** erscheint in **bunten Buchstaben**, wenn geladen; **nicht nutzbare Aktionen** bleiben sichtbar, aber **ausgegraut + dünn** (hier „Feuga – not enough MP"). Materia lebt unter der Kategorie **„Magic ▸"** als scroll-/blätterbare Unterliste – das Popup bleibt gleich groß, egal wie viele Zauber. Verhalten & Rollout: §5.1 sowie `gambits.md` / `ui-layout.md`. *(Hier im ausgebauten Zustand gezeigt; Defend und die Magic-Kategorie erscheinen erst ab ihren Freischaltungen – in Kapitel 1 zunächst nur Attack/Special/Limit.)* **UI-Sprache (verbindlich):** alle Aktions-/Modus-Labels, die tatsächlich im Spiel zu sehen sind (Buttons, Chips, Kategorien, Telegrafs), sind **Englisch** – konsistent mit der Namenskonvention für Code/Identifiers (CLAUDE.md). Nur die Spezifikations-**Prosa** bleibt Deutsch.
+Die manuelle Steuerung als **FF7-Menübox** am Charakter-Panel: dunkle Blau/Lila-Box, helle Schrift. **Air is...** steht auf **Manual** (cyan Chip), das übrige Team auf **Auto** – wird Air is... bereit, pausiert die gesamte Uhr und ihr Popup öffnet. **Grundaktionen** (Attack, Defend, Special „Heal Wind") stehen fix; **Limit** erscheint in **bunten Buchstaben**, wenn geladen; **nicht nutzbare Aktionen** bleiben sichtbar, aber **ausgegraut + dünn** (hier „Feuga – not enough MP"). Materia lebt unter der Kategorie **„Magic ▸"** als scroll-/blätterbare Unterliste – das Popup bleibt gleich groß, egal wie viele Zauber. Verhalten & Rollout: §5.1 sowie `gambits.md` / `ui-layout.md`. *(Hier im ausgebauten Zustand gezeigt; Defend und die Magic-Kategorie erscheinen erst ab ihren Freischaltungen – in Kapitel 1 zunächst nur Attack/Special/Limit.)* **UI-Sprache (verbindlich):** alle Aktions-/Modus-Labels, die tatsächlich im Spiel zu sehen sind (Buttons, Chips, Kategorien, Telegrafs), sind **Englisch** – konsistent mit der Namenskonvention für Code/Identifiers (CLAUDE.md). Nur die Spezifikations-**Prosa** bleibt Deutsch.
 
 ---
 
@@ -285,7 +285,7 @@ Das ist die **einzige** Auto-Regel. Kein Special, kein Heal, kein Suppress, kein
 
 **Konsequenz (gewollt):** Auto trägt idle-fähig durch die **Mehrheit** der Zonen (Ventil-Prinzip bleibt), macht aber bewusst **keine** der drei Gates/Bosse (Blandzilla Z8, Fort Knoxious Z18, Vaultron Z30) idle-trivial – dort lohnt sich manuelles Eingreifen spürbar (s. §7.4, simulationsvalidiert). Aktives Spiel lohnt sich damit über das **gesamte** Kapitel, nicht nur an drei Checkpoints, und die 1. Reunion fühlt sich als echte Erlösung an: von stumpfem Auto-Attack zu einer klugen, **programmierbaren** Prioritätsliste (der bisherige 6-Regel-Satz aus der Erstfassung wird die Vorlage für deren Ab-Werk-Preset, `gambits.md` §5).
 
-**Referenz für "aufmerksames manuelles Spiel"** (was der Spieler über Special/Heal/Suppress/Limit erreichen kann, und was die Pacing-Simulation für Gates ansetzt): Limit hat Vorrang, sobald voll; sonst je Figur ihr Special, sofern MP reicht (Arris heilt bei Verbündeten-HP < 45 %, Tofa schlägt vor, wenn das Ziel noch nicht geschockt ist, Barrel unterdrückt bevorzugt SPD ≥ 140, sonst das stärkste Ziel, Claude trifft das stärkste Ziel); sonst Attack. Implementiert in `core/gambits.ts` als `resolveOptimalAction` (nur für die Pacing-Simulation aufgerufen, nicht vom Live-Spiel – dort wählt der Spieler selbst im Popup).
+**Referenz für "aufmerksames manuelles Spiel"** (was der Spieler über Special/Heal/Suppress/Limit erreichen kann, und was die Pacing-Simulation für Gates ansetzt): Limit hat Vorrang, sobald voll; sonst je Figur ihr Special, sofern MP reicht (Air is... heilt bei Verbündeten-HP < 45 %, Tofa schlägt vor, wenn das Ziel noch nicht geschockt ist, Barrel unterdrückt bevorzugt SPD ≥ 140, sonst das stärkste Ziel, Claude trifft das stärkste Ziel); sonst Attack. Implementiert in `core/gambits.ts` als `resolveOptimalAction` (nur für die Pacing-Simulation aufgerufen, nicht vom Live-Spiel – dort wählt der Spieler selbst im Popup).
 
 ---
 
@@ -371,7 +371,7 @@ if flags.materiaUnlocked and figur.materiaActions: + "Magic ▸"     # Unterlist
 | **Claude** | 1 | 110 | 20 | 14 | 6 | 4 | 100 | Big single-target hit ×3 ATK (8) | Damage |
 | **Barrel** | 2 | 140 | 20 | 11 | 5 | 8 | 80 | Suppress: enemy ATB ×0.5 / 4s (6) | Control/Tank |
 | **Tofa** | 3 | 95 | 20 | 12 | 5 | 3 | 130 | Shock Strike: +45 Shock (7) | Shock-Enabler |
-| **Arris** | 3 | 80 | 30 | 7 | 14 | 3 | 95 | Heal Wind: party heal 2.2·MAG (10) | Healing |
+| **Air is...** | 3 | 80 | 30 | 7 | 14 | 3 | 95 | Heal Wind: party heal 2.2·MAG (10) | Healing |
 
 ### 6.2 Monster- & Gate-Basiswerte (bei Einführung, vor `g`-Skalierung)
 
@@ -405,7 +405,7 @@ if flags.materiaUnlocked and figur.materiaActions: + "Magic ▸"     # Unterlist
 | 14–15 | 2 | 2× Caffiend + Blando | Speed-Druck |
 | 16–17 | 2 | Safeguard + Caffiend | zäh + flink; ohne Shock ~30 s (bewusst) |
 | **18** | 2 | **Fort Knoxious** + Caffiend | **R2-Gate** |
-| 19–20 | 3 | Funkus + Blando | Tofa+Arris dazu; Gift → Heilung nötig |
+| 19–20 | 3 | Funkus + Blando | Tofa+Air is... dazu; Gift → Heilung nötig |
 | 21–22 | 3 | Shortfuse + 2× Blando | Bombe wegbursten vor Zündung |
 | 23–24 | 3 | Pilferret + Caffiend | MP-Druck + Flucht → Burst/Suppress |
 | 25–26 | 3 | Safeguard + Funkus | zäh + Gift; jetzt Shock als Konter |
@@ -439,7 +439,7 @@ Ein Item je Figur, Tier 0–4. Effekt: `atk ×(1+0,10·tier)`, `hp ×(1+0,05·ti
 ### 7.2 Region 3, ein Shock-Kampf Schritt für Schritt (vgl. Screen 1.2)
 
 Welle: Funkus + Shortfuse + Blando, volle Party. **Playtest-Korrektur (§4.7):** Diese Sequenz beschreibt **manuelles** Spiel – vor der 1. Reunion tut Auto ausschließlich Attack, keines der folgenden Schritte läuft von selbst.
-1. Der Spieler stellt **Arris** auf Manuell und heilt, sobald Funkus-Gift beißt.
+1. Der Spieler stellt **Air is...** auf Manuell und heilt, sobald Funkus-Gift beißt.
 2. **Barrel** (manuell) unterdrückt den schnellsten Gegner; **Claude** (manuell) bearbeitet das zäheste Ziel mit dem Special.
 3. **Tofa** (manuell) schlägt Shock auf (+45) – zwei Schläge, dann kippt der Blando ins **Shock-Fenster**: DEF 0, ×2 Schaden, verlangsamt.
 4. Der Spieler zündet **Tofas Limit ins Fenster** → maximaler Burst. Parallel muss **Shortfuse** vor seiner Selbstzerstörung fallen (Fokus-Regel).
@@ -447,7 +447,7 @@ Welle: Funkus + Shortfuse + Blando, volle Party. **Playtest-Korrektur (§4.7):**
 
 ### 7.3 Kapitel-Wand & 1. Reunion
 
-**Vaultron** (Z30), der Konzern-Mecha-Tresor, telegrafiert alle drei Aktionen eine **Gruppen-AoE** (sichtbar ladender Mako-Kern). **Playtest-Korrektur (§4.7):** Ohne Arris-Heilung und Limit-Timing ist dieses Gate in reinem Auto (nur Attack) **die härteste Wand des Kapitels** – simulationsvalidiert **~27 Retries**. Geht die Party auf **Manuell** (Heilung, Limit sofort bei voller Leiste), fällt Vaultron dagegen praktisch beim ersten Versuch (**0 Retries** in der Simulation) – der klarste Beleg im ganzen Kapitel, dass sich manuelles Spiel lohnt. Zwei Wege durch: **manuell spielen** (schnell) **oder** in Auto weitergrinden, bis der Levelvorsprung reicht (langsam, aber möglich – Ventil bleibt). Am Kapitelende steht die **Reunion** bereit (Screen 1.4): Reset von Zonen/Level/Ausrüstung, Erhalt von Charakteren/Bestiarium/Specials, Ertrag **Reunion-Essenz** → **programmierbare Gambits + erster Boost**.
+**Vaultron** (Z30), der Konzern-Mecha-Tresor, telegrafiert alle drei Aktionen eine **Gruppen-AoE** (sichtbar ladender Mako-Kern). **Playtest-Korrektur (§4.7):** Ohne Air-is...-Heilung und Limit-Timing ist dieses Gate in reinem Auto (nur Attack) **die härteste Wand des Kapitels** – simulationsvalidiert **~27 Retries**. Geht die Party auf **Manuell** (Heilung, Limit sofort bei voller Leiste), fällt Vaultron dagegen praktisch beim ersten Versuch (**0 Retries** in der Simulation) – der klarste Beleg im ganzen Kapitel, dass sich manuelles Spiel lohnt. Zwei Wege durch: **manuell spielen** (schnell) **oder** in Auto weitergrinden, bis der Levelvorsprung reicht (langsam, aber möglich – Ventil bleibt). Am Kapitelende steht die **Reunion** bereit (Screen 1.4): Reset von Zonen/Level/Ausrüstung, Erhalt von Charakteren/Bestiarium/Specials, Ertrag **Reunion-Essenz** → **programmierbare Gambits + erster Boost**.
 
 ### 7.4 Pacing (simulationsvalidiert, nach der §4.7-Korrektur neu simuliert)
 
@@ -474,7 +474,7 @@ Alle Assets liegen vor (64/256 px Sprites + Generatoren). Verbindliche Zuordnung
 
 | Entität | Asset (Stage: 64 px, UI/Karten: 256 px) |
 |---------|------------------------------------------|
-| Claude / Barrel / Tofa / Arris | `characters/{claude,barrel,tofa,arris}_64.png` |
+| Claude / Barrel / Tofa / Air is... | `characters/{claude,barrel,tofa,airis}_64.png` |
 | Blando / Caffiend / Safeguard / Kindlebale | `monsters/{blando,caffiend,safeguard,kindlebale}_64.png` |
 | Shortfuse / Funkus / Pilferret | `monsters/{shortfuse,funkus,pilferret}_64.png` |
 | *(Kap. 2:* Mitoslime / Boolinen / Jellyphase *)* | `monsters/{mitoslime,boolinen,jellyphase}_64.png` |

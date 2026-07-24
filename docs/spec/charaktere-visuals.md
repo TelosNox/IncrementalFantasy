@@ -6,7 +6,7 @@
 
 ## Assets
 
-- `assets/characters/{claude,barrel,tofa,arris}_64.png` – Original (64×64, transparent).
+- `assets/characters/{claude,barrel,tofa,airis}_64.png` – Original (64×64, transparent).
 - `assets/characters/{…}_256.png` – 4× Nearest-Neighbor-Upscale.
 - `assets/characters/_sheet_256.png` – Kontaktbogen (alle vier).
 - `assets/generate_characters.py` – **Generator (Python/Pillow)**: reproduziert die Sprites deterministisch und ist die Vorlage für neue Figuren/Gegner.
@@ -56,7 +56,7 @@ Die Stil-Regeln unten gelten identisch für Monster (64×64, Iso-Kippung, Bodens
 | Dunkel (Rock/Strumpf) | `#2b2f3a` / `#1f2229` |
 | Haar / Haut | `#26262f` / `#e7b48a` |
 | Rot (Handschuhe) | `#d24b4b` / `#e46a6a` |
-| Router (Arris) | `#3a4150` / hell `#525b6d` / dunkel `#2b303c` |
+| Fächerpapier (Air is...) | `#f6ead9` / Schatten `#e3d2b8` / Rippen `#8a6a3c` |
 | Pink (Jacke/Blume) | `#e0788f` / `#c15570` / `#f4b6cf` |
 | LED / Auge | `#64cf87` / `#20242e` |
 
@@ -65,7 +65,7 @@ Die Stil-Regeln unten gelten identisch für Monster (64×64, Iso-Kippung, Bodens
 - **Claude** – bläulich-graue Wolke, blonde Spikes oben, großes graues Schwert mit goldener Parierstange. Rolle: Damage.
 - **Barrel** – Holzfass-Zylinder (Längsplanken, metallische Reifen), Sonnenbrille, angedeutetes Haar/Bart, Vulcan-Mündung frontal zum Spieler. Rolle: Kontrolle.
 - **Tofa** – großer weißer Tofublock (weißes Top), kurze dunkle Stummelbeine (Rock → Strumpf), rote Boxhandschuhe, kurzes schwarzes Haar. Rolle: Brawler.
-- **Arris** – dunkler Router-Quader, zwei Antennen, grüne LEDs, pinke Jacke, Blume oben, Kabel nach hinten. Rolle: Heilung.
+- **Air is...** – nach oben geöffneter Papierfächer (Rippen/Griffstück in Holzoptik unten), zwei pinke Jacken-Schulterklappen, die seitlich über die äußeren Rippen fallen, eine deutliche Blume oben seitlich, Augen mittig auf dem Papier. Rolle: Heilung.
 
 ## Neue Figuren / Gegner erstellen
 

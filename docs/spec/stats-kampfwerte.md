@@ -22,7 +22,7 @@
 | Lebenspunkte | **HP** | Überleben | Niederlage-System | Barrel |
 | Magiepunkte | **MP** | Ressource für Specials & Magie | MP-Limiter/Regen | — |
 | Angriff | **ATK** | physischer Schaden (Waffen/Specials) | Kampf | Claude |
-| Magie | **MAG** | Magie-Schaden **und Heilkraft** | Kampf/Heilung | Arris |
+| Magie | **MAG** | Magie-Schaden **und Heilkraft** | Kampf/Heilung | Air is... |
 | Verteidigung | **DEF** | reduziert eingehenden Schaden (einheitlich) | Kampf | Barrel |
 | Tempo | **SPD** | ATB-Füllrate = Aktions-Frequenz | ATB | Tofa |
 
@@ -50,7 +50,7 @@ Jeder Stat bedient genau ein System; die vier Figuren bekommen dadurch natürlic
 - **Claude** – hoher ATK (physischer DPS).
 - **Barrel** – hohe HP/DEF (Tank) + Unterdrückungs-Spezial.
 - **Tofa** – hoher SPD/ATK (schneller Brawler, Shock-Enabler).
-- **Arris** – hoher MAG (Heilung/Magie).
+- **Air is...** – hoher MAG (Heilung/Magie).
 
 ## Charakter-Basiswerte (Level 1, grob)
 
@@ -59,7 +59,7 @@ Jeder Stat bedient genau ein System; die vier Figuren bekommen dadurch natürlic
 | **Claude** | 110 | 20 | 14 | 6 | 4 | 100 |
 | **Barrel** | 140 | 20 | 11 | 5 | 8 | 80 |
 | **Tofa** | 95 | 20 | 12 | 5 | 3 | 130 |
-| **Arris** | 80 | 30 | 7 | 14 | 3 | 95 |
+| **Air is...** | 80 | 30 | 7 | 14 | 3 | 95 |
 
 Level-Wachstum (grob, tunbar): ~+8 % HP, +6 % ATK/MAG, +5 % DEF pro Level; SPD wächst kaum (bleibt Build-Hebel). So bleibt die Kampfdauer trotz Gegner-Skalierung (g^Zone) ungefähr konstant.
 

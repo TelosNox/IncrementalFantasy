@@ -43,7 +43,7 @@ Ab da ist **Autoplay der Standard**; der Spieler kann **jede Figur einzeln auf M
 
 ### Steuerungsmodus je Figur (statt globalem Umschalten)
 
-Der Auto/Manual-Schalter sitzt **pro Figur**. Spontanes Eingreifen im laufenden Auto-Spiel ist unmöglich – der Gambit feuert sofort bei voller Leiste. Deshalb **stellt man eine Figur vorab auf Manual**: Das Team kämpft automatisch weiter, während **eine Figur gezielt manuell** spielt (z. B. Claude/Barrel/Tofa auf **Auto**, **Arris** auf **Manual** für den Zauber zur Schwäche). „Alle manuell" ist einfach der Zustand, in dem jede Figur auf Manual steht. Default nach Freischaltung: Auto.
+Der Auto/Manual-Schalter sitzt **pro Figur**. Spontanes Eingreifen im laufenden Auto-Spiel ist unmöglich – der Gambit feuert sofort bei voller Leiste. Deshalb **stellt man eine Figur vorab auf Manual**: Das Team kämpft automatisch weiter, während **eine Figur gezielt manuell** spielt (z. B. Claude/Barrel/Tofa auf **Auto**, **Air is...** auf **Manual** für den Zauber zur Schwäche). „Alle manuell" ist einfach der Zustand, in dem jede Figur auf Manual steht. Default nach Freischaltung: Auto.
 
 ### Bedien-Flow der manuellen Aktion
 

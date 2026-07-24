@@ -1,4 +1,4 @@
-import os
+import os, math
 from PIL import Image, ImageDraw
 
 C = {'cloudA':'#9fb0c6','cloudB':'#c4d2e2','cloudTop':'#dfe9f4','cloudHi':'#f0f5fb','cloudSh':'#7d90ab',
@@ -7,7 +7,8 @@ C = {'cloudA':'#9fb0c6','cloudB':'#c4d2e2','cloudTop':'#dfe9f4','cloudHi':'#f0f5
 'gun':'#525a68','gunD':'#2f343f','hairD':'#2a2622','shade':'#2b2f3a','shadeD':'#1f2229','skirt':'#3a3f4c',
 'white':'#f2f0e6','whiteT':'#fbf9ef','whiteSh':'#d3d1c4','hair':'#26262f','skin':'#e7b48a','red':'#d24b4b','redL':'#e46a6a',
 'router':'#3a4150','routerD':'#2b303c','routerL':'#525b6d','pink':'#e0788f','pinkD':'#c15570','led':'#64cf87','cable':'#2b303c',
-'flower':'#f4b6cf','flowerC':'#f4d35e','eye':'#20242e'}
+'flower':'#f4b6cf','flowerC':'#f4d35e','eye':'#20242e',
+'fanPaper':'#f6ead9','fanPaperSh':'#e3d2b8','rib':'#8a6a3c'}
 def K(k):
     x=C[k].lstrip('#'); return (int(x[0:2],16),int(x[2:4],16),int(x[4:6],16),255)
 
@@ -26,6 +27,10 @@ class P:
     def line(s,pts,c,w): s.d.line([(a,b) for a,b in pts],fill=K(c),width=w)
 
 def eyes(s,x1,x2,y): s.r(x1,y,3,4,'eye'); s.r(x2,y,3,4,'eye')
+def flower(s,cx,cy,r=3):
+    s.e(cx,cy,r,r,'flower'); s.e(cx-r*0.9,cy,r*0.66,r*0.66,'flower')
+    s.e(cx+r*0.9,cy,r*0.66,r*0.66,'flower'); s.e(cx,cy-r*0.9,r*0.66,r*0.66,'flower')
+    s.e(cx,cy,r*0.46,r*0.46,'flowerC')
 def sword(s): s.r(41,51,18,4,'gold'); s.p([(44,51),(58,51),(58,12),(51,5)],'blade'); s.r(47,13,2,38,'bladeH'); s.r(49,55,4,7,'handle')
 def vulcan(s,cx,cy):
     s.e(cx,cy,8,8,'gunD'); s.e(cx,cy,6,6,'gun')
@@ -66,20 +71,51 @@ def tofa():
     s.r(15,19,34,4,'hair'); s.r(14,23,4,9,'hair'); s.r(46,23,4,9,'hair'); s.p([(19,20),(16,15),(23,21)],'hair'); s.p([(41,20),(44,15),(37,21)],'hair')
     eyes(s,26,37,31)
     s.e(12,42,7,7,'red'); s.e(52,42,7,7,'red'); s.e(10,40,2.5,2.5,'redL'); s.e(50,40,2.5,2.5,'redL'); return s.img
-def arris():
-    s=P(); s.shadow(30)
-    s.line(bez((34,52),(28,58),(24,55),(18,57)),'cable',2); s.r(15,55,4,4,'gunD')
-    s.r(26,8,2,13,'routerD'); s.r(44,8,2,13,'routerD'); s.e(27,8,2,2,'routerD'); s.e(45,8,2,2,'routerD')
-    s.blk(18,20,28,28,'router','routerL','routerD',5)
-    s.p([(18,20),(26,20),(21,30),(18,28)],'pink'); s.r(15,26,4,19,'pink'); s.r(15,26,2,19,'pinkD')
-    s.p([(46,20),(39,20),(44,30),(46,28)],'pink'); s.r(45,26,4,19,'pink')
-    s.r(22,42,3,3,'led'); s.r(28,42,3,3,'led'); s.r(34,42,3,3,'led')
-    s.e(31,13,3,3,'flower'); s.e(28,13,2,2,'flower'); s.e(34,13,2,2,'flower'); s.e(31,10,2,2,'flower'); s.e(31,13,1.4,1.4,'flowerC')
-    eyes(s,26,36,30); return s.img
+def airis():
+    """Air is... -- a folding fan, opened upward, pivot/guard at the bottom (per reference photo).
+    Two pink jacket flaps overlap the outer ribs like shoulders (snapped to the real rib points,
+    with a drooping base corner so they hang down rather than just being wide), a single clear
+    flower sits upper-side on the paper, and the eyes sit centered on the dome."""
+    s=P(); s.shadow(32)
+    pivot=(32,50); r_wood,r_out=14,26; a0,a1=179,361; n=14
+    pts_out,pts_wood=[],[]
+    for i in range(n+1):
+        ang=math.radians(a0+(a1-a0)*i/n)
+        pts_out.append((pivot[0]+r_out*math.cos(ang), pivot[1]+r_out*math.sin(ang)))
+        pts_wood.append((pivot[0]+r_wood*math.cos(ang), pivot[1]+r_wood*math.sin(ang)))
+    s.p(pts_out+[pivot],'fanPaper')
+    s.p(pts_wood+[pivot],'wood')
+    for i in range(0,n+1,2):
+        s.line([pts_wood[i],pts_out[i]], 'fanPaperSh' if i%4 else 'woodD', 1)
+    s.line(pts_out,'rib',1); s.line(pts_wood,'woodD',1)
+    guard_tips={}
+    for i in (0,n):
+        ang=math.radians(a0+(a1-a0)*i/n)
+        tip=(pivot[0]+(r_out+3)*math.cos(ang), pivot[1]+(r_out+3)*math.sin(ang))
+        s.line([pivot,tip],'rib',2)
+        guard_tips[i]=(pivot[0]+(r_out+5)*math.cos(ang), pivot[1]+(r_out+5)*math.sin(ang))
+    flower(s,24,25,3.6)
+    s.e(pivot[0],pivot[1],2.4,2.4,'rib')
+    def shoulder(idx,droop_at):
+        outer=[guard_tips[i] if i in guard_tips else pts_out[i] for i in idx]
+        inner=[]
+        for i in idx:
+            dx,dy=pts_out[i][0]-pivot[0], pts_out[i][1]-pivot[1]
+            dist=math.hypot(dx,dy)
+            inner.append((pivot[0]+22*dx/dist, pivot[1]+22*dy/dist))
+        di=0 if droop_at=='start' else -1
+        ox,oy=outer[di]; ix,iy=inner[di]
+        outer[di]=(ox,oy+9); inner[di]=(ix,iy+9)
+        s.p(outer+list(reversed(inner)),'pink')
+        s.line(outer,'pinkD',1)
+    shoulder([0,1,2,3],droop_at='start')
+    shoulder([11,12,13,14],droop_at='end')
+    eyes(s,27,35,30)
+    return s.img
 
 OUT=os.path.join(os.path.dirname(__file__),'characters')
 os.makedirs(OUT,exist_ok=True)
-chars={'claude':claude(),'barrel':barrel(),'tofa':tofa(),'arris':arris()}
+chars={'claude':claude(),'barrel':barrel(),'tofa':tofa(),'airis':airis()}
 sheet=Image.new('RGBA',(256*4,256),(0,0,0,0))
 for i,(n,im) in enumerate(chars.items()):
     im.save(os.path.join(OUT,f'{n}_64.png'))

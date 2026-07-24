@@ -9,7 +9,7 @@
 - **Claude** (Cloud) – Wolke mit riesigem Schwert – ausgewogener Nahkampf-DPS.
 - **Barrel** (Barret) – Holzfass mit Maschinengewehr-Arm – Fernkampf / Tank.
 - **Tofa** (Tifa) – Tofublock mit Boxhandschuhen – Nahkampf-Brawler, schneller Shock-Aufbau.
-- **Arris** (Aerith) – Netzwerkrouter mit Blümchen-Aufdruck und Schirm – Heilung / Support / Magie.
+- **Air is...** (Aerith) – Papierfächer mit Blume und angedeuteter Jacke – Heilung / Support / Magie. *(Name bewusst ein unvollendeter Satz – Wortspiel aus „Air" (Luft) und „is" (sein).)*
 
 ## Waffen-Spezialfähigkeiten (Rollen-Signatur)
 
@@ -20,9 +20,9 @@ Jede Figur hat eine **über die Waffe freigeschaltete Spezialfähigkeit**, die i
 | **Claude** | großer Einzelschaden | Damage |
 | **Barrel** | Gegner unterdrücken (Gegner-ATB lädt langsamer / wird leicht reduziert) | Control |
 | **Tofa** | verstärkt den Shock-Zustand | Shock-Enabler |
-| **Arris** | heilt die Gruppe | Healing |
+| **Air is...** | heilt die Gruppe | Healing |
 
-Roster-Rhythmus: Region 1 Claude allein → Region 2 Barrel → Region 3 Tofa + Arris gleichzeitig (volle Gruppe).
+Roster-Rhythmus: Region 1 Claude allein → Region 2 Barrel → Region 3 Tofa + Air is... gleichzeitig (volle Gruppe).
 
 **Bei Reunion:** die gelernte Spezialfähigkeit **bleibt erhalten** (permanenter Skill); nur die Waffe als Ausrüstung wird zurückgesetzt (Kraft neu erspielt).
 

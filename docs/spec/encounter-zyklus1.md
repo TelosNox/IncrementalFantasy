@@ -62,11 +62,11 @@ Lehrziel: Analyse (Stats/Schwäche lesen), Kontrolle, Durability. Neu: **Caffien
 - Z16–17: 1× Safeguard + 1× Caffiend (zäh + flink zugleich)
 - **Z18 (Gate):** **Fort Knoxious** + 1× Caffiend-Add.
 
-## Region 3 – MegaCorp Tower (Tofa + Arris; Shock)
+## Region 3 – MegaCorp Tower (Tofa + Air is...; Shock)
 
 Lehrziel: Shock (generisch aufbauend + Tofa-Boost), Heilung/Defense, Ressourcen-Druck. Neu: **Funkus** (ab Z19), **Shortfuse** (ab Z21), **Pilferret** (ab Z23). Wellen 2–4.
 
-- Z19–20: 1× Funkus + 1× Blando (Gift → Arris-Heilung wird nötig)
+- Z19–20: 1× Funkus + 1× Blando (Gift → Air-is...-Heilung wird nötig)
 - Z21–22: 1× Shortfuse + 2× Blando (schnell wegbursten, bevor er hochgeht)
 - Z23–24: 1× Pilferret + 1× Caffiend (MP-Druck + Flucht → Burst/Suppress)
 - Z25–26: 1× Safeguard + 1× Funkus (zäh + Gift zugleich)

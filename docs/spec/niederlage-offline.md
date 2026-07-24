@@ -25,7 +25,7 @@
 
 ## 2. Heilung
 
-- Läuft über **Heil-/Defensiv-Materia + Arris' Spezial + defensive Gambit-Sets** – kein separates System.
+- Läuft über **Heil-/Defensiv-Materia + Air is...' Spezial + defensive Gambit-Sets** – kein separates System.
 - **MP-Kosten** koppeln Heilung an die MP-Ökonomie (Ressourcen-Tradeoff), macht defensives Spiel zur Entscheidung.
 
 ## 3. Offline-Modell

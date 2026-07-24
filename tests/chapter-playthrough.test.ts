@@ -23,7 +23,7 @@ import type { Character } from '../src/core/entities'
 // dass reines Idle (nie manuell, auch nicht an Gates) über Grind allein noch
 // durchkommt - nur mit spürbar mehr Retries.
 
-type CharacterId = 'claude' | 'barrel' | 'tofa' | 'arris'
+type CharacterId = 'claude' | 'barrel' | 'tofa' | 'airis'
 type Region = 1 | 2 | 3
 
 function regionOf(zoneIndex: number): Region {
@@ -35,7 +35,7 @@ function regionOf(zoneIndex: number): Region {
 function rosterForZone(zoneIndex: number): CharacterId[] {
   const roster: CharacterId[] = ['claude']
   if (zoneIndex >= 9) roster.push('barrel')
-  if (zoneIndex >= 19) roster.push('tofa', 'arris')
+  if (zoneIndex >= 19) roster.push('tofa', 'airis')
   return roster
 }
 
@@ -148,8 +148,8 @@ interface PlaythroughSummary {
  *   die Behauptung "mit genug Grind kommt man auch rein idle durch".
  */
 function runRealisticPlaythrough(manualAtGates: boolean, maxGrindPerZone = 2000): PlaythroughSummary {
-  const levels: Record<CharacterId, number> = { claude: 1, barrel: 1, tofa: 1, arris: 1 }
-  const expPool: Record<CharacterId, number> = { claude: 0, barrel: 0, tofa: 0, arris: 0 }
+  const levels: Record<CharacterId, number> = { claude: 1, barrel: 1, tofa: 1, airis: 1 }
+  const expPool: Record<CharacterId, number> = { claude: 0, barrel: 0, tofa: 0, airis: 0 }
   let gil = 0
   let totalSeconds = 0
   const regionSeconds: Record<Region, number> = { 1: 0, 2: 0, 3: 0 }

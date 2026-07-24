@@ -61,7 +61,7 @@ const AUTO_ATTACK_UNLOCK_ZONE = 5
 const BARREL_JOIN_ZONE = 9
 
 /**
- * feinspec §6.3 Z19-20 "Tofa+Arris dazu" - volle 4er-Party ab Region 3; auch die
+ * feinspec §6.3 Z19-20 "Tofa+Air is... dazu" - volle 4er-Party ab Region 3; auch die
  * Rollout-Schwelle fuer Shock-Ring/Kulisse in der UI (kampf-analyse-shock.md §6:
  * "gebündelt mit Tofa und der vollen Party").
  */
@@ -296,7 +296,7 @@ export class GameStore {
     if (unit.mp < (unit.specialMpCost ?? Infinity)) return
     unit.defending = false
 
-    if (unit.name === 'Arris') {
+    if (unit.name === 'Air is...') {
       // feinspec §6.1 - Heal Wind: Party-weite Heilung (2,2×MAG), kein Gegner-Ziel noetig.
       unit.mp -= unit.specialMpCost!
       const heal = Math.round(unit.mag * 2.2)
@@ -648,12 +648,12 @@ export class GameStore {
       this.#triggerCallout('Barrel joins the party – suppressing fire incoming!')
     }
 
-    // feinspec §6.3 Z19-20 - Tofa+Arris stoßen zu Beginn der Region 3 zur Party (volle 4er-Party).
+    // feinspec §6.3 Z19-20 - Tofa+Air is... stoßen zu Beginn der Region 3 zur Party (volle 4er-Party).
     if (!roster.includes('tofa') && nextZone >= REGION3_JOIN_ZONE) {
-      roster = [...roster, 'tofa', 'arris']
+      roster = [...roster, 'tofa', 'airis']
       const mode = flags.manualToggleUnlocked ? 'auto' : 'manual'
-      party = [...party, freshCharacter('tofa', mode), freshCharacter('arris', mode)]
-      this.#triggerCallout('Tofa and Arris join the party – full roster online!')
+      party = [...party, freshCharacter('tofa', mode), freshCharacter('airis', mode)]
+      this.#triggerCallout('Tofa and Air is... join the party – full roster online!')
     }
 
     this.save = { ...this.save, party, roster, currentZone: nextZone, flags, currencies: { ...this.save.currencies, gil }, bestiary }

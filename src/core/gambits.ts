@@ -76,7 +76,7 @@ export function resolveOptimalAction(actor: BattleUnit, party: BattleUnit[], ene
     return
   }
 
-  if (actor.name === 'Arris') {
+  if (actor.name === 'Air is...') {
     const hurt = party.filter((p) => isAlive(p) && p.hp < 0.45 * p.maxHp)
     if (hurt.length && actor.mp >= actor.specialMpCost!) {
       actor.mp -= actor.specialMpCost!

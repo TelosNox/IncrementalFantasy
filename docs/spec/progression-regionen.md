@@ -101,9 +101,9 @@ Die Spezialfähigkeit definiert jede Figur schon **vor** dem Materia-Build-Syste
 | **Claude** | 1 | großer Einzelschaden | Damage |
 | **Barrel** | 2 | Gegner unterdrücken (ATB des Gegners lädt langsamer / wird leicht reduziert) | Kontrolle |
 | **Tofa** | 3 | verstärkt den Shock-Zustand | Shock-Enabler |
-| **Arris** | 3 | heilt die Gruppe | Heilung |
+| **Air is...** | 3 | heilt die Gruppe | Heilung |
 
-Roster-Rhythmus: **Region 1 Claude allein → Region 2 Barrel** (man ist nicht allein) **→ Region 3 Tofa + Arris gleichzeitig** (volle Gruppe). Zieht sich nicht hin.
+Roster-Rhythmus: **Region 1 Claude allein → Region 2 Barrel** (man ist nicht allein) **→ Region 3 Tofa + Air is... gleichzeitig** (volle Gruppe). Zieht sich nicht hin.
 
 ---
 
@@ -130,8 +130,8 @@ Roster-Rhythmus: **Region 1 Claude allein → Region 2 Barrel** (man ist nicht a
 - **Analyse** zeigt Grundstats (ATK/DEF/HP); eine Schwäche wird sichtbar, ist aber **noch nicht nutzbar** (Köder).
 - **Gil** → erste Waffen-/Ausrüstungs-Verbesserungen.
 
-**Region 3 – MegaCorp Tower** – Tofa + Arris (volle Gruppe); neue Mechanik: Shock:
-- Tofa verstärkt **Shock**, Arris **heilt** – Verteidigung/Heilung werden relevant.
+**Region 3 – MegaCorp Tower** – Tofa + Air is... (volle Gruppe); neue Mechanik: Shock:
+- Tofa verstärkt **Shock**, Air is... **heilt** – Verteidigung/Heilung werden relevant.
 - Jetzt sind die in Region 2 gezeigten **Schwächen nutzbar** → Shock-Fenster manuell timen.
 
 **Kapitelende – die erste Wand & 1. Reunion:**

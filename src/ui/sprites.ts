@@ -5,7 +5,7 @@
 import claudeSprite from '../assets/characters/claude_64.png'
 import barrelSprite from '../assets/characters/barrel_64.png'
 import tofaSprite from '../assets/characters/tofa_64.png'
-import arrisSprite from '../assets/characters/arris_64.png'
+import airisSprite from '../assets/characters/airis_64.png'
 import blandoSprite from '../assets/monsters/blando_64.png'
 import caffiendSprite from '../assets/monsters/caffiend_64.png'
 import safeguardSprite from '../assets/monsters/safeguard_64.png'
@@ -21,7 +21,7 @@ export const CHARACTER_SPRITES: Record<string, string> = {
   claude: claudeSprite,
   barrel: barrelSprite,
   tofa: tofaSprite,
-  arris: arrisSprite,
+  airis: airisSprite,
 }
 
 export const ENEMY_SPRITES: Record<string, string> = {

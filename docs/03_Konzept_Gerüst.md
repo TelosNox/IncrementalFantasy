@@ -102,7 +102,7 @@ Diese Zwei-Achsigkeit ist bewusst gewählt: horizontale Tiefe (Kampf) und vertik
 | **Claude** | Cloud Strife | Wolke mit riesigem Schwert | Ausgewogener Nahkampf-DPS |
 | **Barrel** | Barret | Holzfass mit Maschinengewehr-Arm | Fernkampf / Tank |
 | **Tofa** | Tifa | Tofublock mit Boxhandschuhen | Nahkampf-Brawler, schneller Shock-Aufbau |
-| **Arris** | Aerith | Netzwerkrouter mit Blümchen-Aufdruck und Schirm | Heilung / Support / Magie |
+| **Air is...** | Aerith | Papierfächer mit Blume und angedeuteter Jacke | Heilung / Support / Magie |
 
 **Party-Modell:** Im Hauptmodus tritt die **volle Party** an. Start nur mit Claude, weitere Figuren stoßen **regionsweise** hinzu. Freigeschaltete Charaktere bleiben über Reunion erhalten (nur ihre Level werden zurückgesetzt).
 

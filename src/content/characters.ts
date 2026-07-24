@@ -55,9 +55,9 @@ export const TOFA: Character = {
   exp: 0,
 }
 
-export const ARRIS: Character = {
-  id: 'arris',
-  name: 'Arris',
+export const AIRIS: Character = {
+  id: 'airis',
+  name: 'Air is...',
   level: 1,
   base: { hp: 80, mp: 30, atk: 7, mag: 14, def: 3, spd: 95 },
   growth: { hp: 1.09, atk: 1.055, mag: 1.055, def: 1.05, spd: 1.0 },
@@ -75,5 +75,5 @@ export const CHARACTERS: Record<string, Character> = {
   claude: CLAUDE,
   barrel: BARREL,
   tofa: TOFA,
-  arris: ARRIS,
+  airis: AIRIS,
 }
