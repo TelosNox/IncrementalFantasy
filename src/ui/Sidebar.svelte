@@ -2,6 +2,7 @@
   import { game } from './gameStore.svelte'
   import { MONSTERS } from '../content/monsters'
   import BestiaryModal from './BestiaryModal.svelte'
+  import ReunionModal from './ReunionModal.svelte'
 
   const regionName = $derived(
     game.save.currentZone <= 8 ? 'Reactor Row' : game.save.currentZone <= 18 ? 'Bargain Bazaar' : 'MegaCorp Tower',
@@ -21,15 +22,29 @@
     <span class="currency-value">{game.save.currencies.gil.toString()}</span>
   </div>
 
+  {#if game.save.reunionCount > 0 || game.save.currencies.reunionEssence.gt(0)}
+    <div class="currency">
+      <span class="currency-label">Reunion Essence</span>
+      <span class="currency-value">{game.save.currencies.reunionEssence.toString()}</span>
+    </div>
+  {/if}
+
   <button class="bestiary-button" onclick={() => game.openBestiary()}>
     Bestiary <span class="count">({bestiaryCount}/{catalogSize})</span>
   </button>
+
+  {#if game.canReunion}
+    <button class="reunion-button" onclick={() => game.openReunionModal()}>
+      ✦ Reunion available
+    </button>
+  {/if}
 
   <!-- ui-layout.md: Menü-Bereich bleibt reservierter Platz, Inhalt folgt ab M8+. -->
   <div class="reserved">Team / Equipment / Stats coming in later milestones.</div>
 </div>
 
 <BestiaryModal />
+<ReunionModal />
 
 <style>
   .sidebar {
@@ -92,6 +107,33 @@
 
   .count {
     opacity: 0.7;
+  }
+
+  .reunion-button {
+    margin-top: 4px;
+    padding: 8px;
+    background: transparent;
+    color: var(--game-gold);
+    border: 1px solid var(--game-gold);
+    border-radius: 3px;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: left;
+    cursor: pointer;
+    animation: reunion-pulse 1.4s ease-in-out infinite alternate;
+  }
+
+  .reunion-button:hover {
+    background: rgba(224, 165, 46, 0.12);
+  }
+
+  @keyframes reunion-pulse {
+    from {
+      opacity: 0.75;
+    }
+    to {
+      opacity: 1;
+    }
   }
 
   .reserved {

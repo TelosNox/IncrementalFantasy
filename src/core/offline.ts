@@ -36,16 +36,29 @@ export interface OfflineProjection {
   gilGained: Decimal
 }
 
-/** Architektur §5, Schritt 1-5: Offline-/Resume-Projektion für die aktuelle Zone. */
-export function projectOffline(party: Character[], zoneIndex: number, elapsedSeconds: number): OfflineProjection {
+/**
+ * Architektur §5, Schritt 1-5: Offline-/Resume-Projektion für die aktuelle Zone.
+ * `boostMult` = prestige-reunion.md permanenter Reunion-Boost (M9, default 1 = kein Boost).
+ */
+export function projectOffline(
+  party: Character[],
+  zoneIndex: number,
+  elapsedSeconds: number,
+  boostMult = 1,
+): OfflineProjection {
   const zone = findZone(zoneIndex)
   const budgetSeconds = Math.min(elapsedSeconds, OFFLINE_CAP_SECONDS) * OFFLINE_RATE
 
-  const battleUnits = party.map((c) => createPartyUnit(c, zoneIndex))
-  const enemyUnits = zone.waves[0].map((ref) => createEnemyUnit(MONSTERS[ref.monster], zoneIndex, ref.size))
   // Offline laeuft immer im dumben Auto-Modus (niemand ist da, um manuell
   // einzugreifen) - an einem Gate ist das gewollt oft ein "kein Fortschritt"-
-  // Ergebnis (niederlage-offline.md §3), kein Sonderfall noetig.
+  // Ergebnis (niederlage-offline.md §3), kein Sonderfall noetig. Wichtig: vor
+  // `manualToggleUnlocked` (Zone < 5) ist jede Figur im Save faktisch "manual"
+  // (feinspec §5.1) - `simulateBattle` unterstuetzt aber keine Bedenkzeit-Pause
+  // (kein Spieler da, der waehlt), daher hier hart auf "auto" ueberschrieben,
+  // unabhaengig vom gespeicherten `controlMode` (der bleibt im zurueckgegebenen
+  // `party` unveraendert, nur die interne Simulation zwingt Auto).
+  const battleUnits = party.map((c) => createPartyUnit({ ...c, controlMode: 'auto' }, zoneIndex, boostMult))
+  const enemyUnits = zone.waves[0].map((ref) => createEnemyUnit(MONSTERS[ref.monster], zoneIndex, ref.size))
   const state = createBattleState(battleUnits, enemyUnits)
   const battleResult = simulateBattle(state)
 
@@ -69,7 +82,7 @@ export function projectOffline(party: Character[], zoneIndex: number, elapsedSec
   const totalExp = reward.exp * repeats
   const gilGained = new Decimal(reward.gil).mul(repeats)
 
-  const updatedParty = party.map((character) => applyVictoryExp(character, totalExp))
+  const updatedParty = party.map((character) => applyVictoryExp(character, totalExp, boostMult))
 
   return {
     elapsedSeconds,

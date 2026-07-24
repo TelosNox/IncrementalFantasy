@@ -5,6 +5,7 @@
   import BottomBar from './BottomBar.svelte'
   import Sidebar from './Sidebar.svelte'
   import DebugResetButton from './DebugResetButton.svelte'
+  import WelcomeBackModal from './WelcomeBackModal.svelte'
 
   onMount(() => {
     game.start()
@@ -19,6 +20,7 @@
 </div>
 
 <DebugResetButton />
+<WelcomeBackModal />
 
 <style>
   /* ui-layout.md: Stage ~78%, Bottom-Leiste ~20% Höhe, Seitenleiste ~22% Breite. */

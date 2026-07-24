@@ -35,6 +35,7 @@ function sampleSaveState(): SaveState {
       manualToggleUnlocked: true,
       defenseUnlocked: false,
       materiaUnlocked: false,
+      gambitsUnlocked: false,
     },
     offline: { lastSeen: 1732300000 },
   }

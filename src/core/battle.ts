@@ -53,19 +53,23 @@ export function isAlive(unit: BattleUnit): boolean {
   return unit.hp > 0 && !unit.fled
 }
 
-/** feinspec §4.1/§6.4 - maximale HP einer Figur aus Level + Waffen-Tier. */
-export function deriveCharacterMaxHp(character: Character): number {
+/**
+ * feinspec §4.1/§6.4 - maximale HP einer Figur aus Level + Waffen-Tier.
+ * `boostMult` = prestige-reunion.md permanenter Reunion-Boost (M9, default 1 = kein Boost,
+ * z.B. fuer Zonen-1-Erststart oder headless Tests ohne Reunion-Kontext).
+ */
+export function deriveCharacterMaxHp(character: Character, boostMult = 1): number {
   const hpAfterLevel = deriveStat(character.base.hp, character.growth.hp, character.level)
-  return Math.round(hpAfterLevel * weaponStatMod(character.weaponTier).hp)
+  return Math.round(hpAfterLevel * weaponStatMod(character.weaponTier).hp * boostMult)
 }
 
-/** feinspec §4.1 - maximale MP einer Figur aus Level (MP-Sonderfall, s. formulas.ts). */
-export function deriveCharacterMaxMp(character: Character): number {
-  return deriveMaxMp(character.base.mp, character.level)
+/** feinspec §4.1 - maximale MP einer Figur aus Level (MP-Sonderfall, s. formulas.ts). Reunion-Boost s. oben. */
+export function deriveCharacterMaxMp(character: Character, boostMult = 1): number {
+  return Math.round(deriveMaxMp(character.base.mp, character.level) * boostMult)
 }
 
-/** feinspec §4.1/§6.4 - Party-Kampfeinheit aus Level + Waffen-Tier ableiten. */
-export function createPartyUnit(character: Character, zoneIndex: number): BattleUnit {
+/** feinspec §4.1/§6.4 - Party-Kampfeinheit aus Level + Waffen-Tier ableiten. Reunion-Boost s. oben. */
+export function createPartyUnit(character: Character, zoneIndex: number, boostMult = 1): BattleUnit {
   const level = character.level
   const atkAfterLevel = deriveStat(character.base.atk, character.growth.atk, level)
   const magAfterLevel = deriveStat(character.base.mag, character.growth.mag, level)
@@ -73,8 +77,8 @@ export function createPartyUnit(character: Character, zoneIndex: number): Battle
   const spdAfterLevel = deriveStat(character.base.spd, character.growth.spd, level)
 
   const mod = weaponStatMod(character.weaponTier)
-  const maxHp = deriveCharacterMaxHp(character)
-  const mpAfterLevel = deriveCharacterMaxMp(character)
+  const maxHp = deriveCharacterMaxHp(character, boostMult)
+  const mpAfterLevel = deriveCharacterMaxMp(character, boostMult)
 
   return {
     id: character.id,
@@ -84,8 +88,8 @@ export function createPartyUnit(character: Character, zoneIndex: number): Battle
     hp: maxHp,
     maxMp: mpAfterLevel,
     mp: mpAfterLevel,
-    atk: Math.round(atkAfterLevel * mod.atk),
-    mag: Math.round(magAfterLevel * mod.mag),
+    atk: Math.round(atkAfterLevel * mod.atk * boostMult),
+    mag: Math.round(magAfterLevel * mod.mag * boostMult),
     def: defAfterLevel,
     spd: spdAfterLevel,
     atb: 0,

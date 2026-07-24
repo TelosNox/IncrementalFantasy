@@ -39,7 +39,7 @@
   {:else}
     <div class="banner">
       {#if game.phase === 'chapter-complete'}
-        Victory! Chapter 1 complete – Vaultron defeated. The 1st Reunion arrives in M9.
+        Victory! Chapter 1 complete – Vaultron defeated. Reunion awaits in the sidebar.
       {:else if game.phase === 'retry'}
         Defeat – retry in {Math.ceil(game.retryRemaining)}s
       {:else if game.awaitingUnit}

@@ -7,14 +7,17 @@ import { deriveCharacterMaxHp, deriveCharacterMaxMp } from './battle'
 import type { Character, Zone } from './entities'
 import { applyExpGain, scaleEnemyStat } from './formulas'
 
-/** feinspec §3.6 - EXP anwenden; bei Levelaufstieg volle Heilung (HP/MP), wie in der Referenzsimulation. */
-export function applyVictoryExp(character: Character, gainedExp: number): Character {
+/**
+ * feinspec §3.6 - EXP anwenden; bei Levelaufstieg volle Heilung (HP/MP), wie in der Referenzsimulation.
+ * `boostMult` = prestige-reunion.md permanenter Reunion-Boost (M9, default 1 = kein Boost).
+ */
+export function applyVictoryExp(character: Character, gainedExp: number, boostMult = 1): Character {
   const gained = applyExpGain(character.level, character.exp, gainedExp)
   if (gained.level === character.level) {
     return { ...character, exp: gained.exp }
   }
   const leveled: Character = { ...character, level: gained.level, exp: gained.exp }
-  return { ...leveled, hp: deriveCharacterMaxHp(leveled), mp: deriveCharacterMaxMp(leveled) }
+  return { ...leveled, hp: deriveCharacterMaxHp(leveled, boostMult), mp: deriveCharacterMaxMp(leveled, boostMult) }
 }
 
 export interface ZoneReward {

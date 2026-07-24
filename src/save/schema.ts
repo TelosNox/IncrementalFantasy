@@ -12,6 +12,10 @@ export interface SaveFlags {
   manualToggleUnlocked: boolean
   defenseUnlocked: boolean
   materiaUnlocked: boolean
+  /** prestige-reunion.md - "1. Reunion = Sonderfall: schaltet zusaetzlich die Gambits frei". Der
+   * programmierbare Gambit-Editor selbst ist Kapitel-2-Scope; dieser Flag haelt nur fest, dass die
+   * Graduierung stattgefunden hat (M9). */
+  gambitsUnlocked: boolean
 }
 
 /**
