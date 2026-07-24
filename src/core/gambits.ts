@@ -40,6 +40,7 @@ export function strongest(units: BattleUnit[]): BattleUnit {
  * sich manuelles Eingreifen (s. `resolveOptimalAction` unten).
  */
 export function resolvePartyAction(actor: BattleUnit, _party: BattleUnit[], enemies: BattleUnit[]): void {
+  actor.defending = false // Defend (M8) haelt nur bis zur naechsten eigenen Aktion, auch beim Wechsel auf Auto
   const targets = enemies.filter(isAlive)
   if (!targets.length) return
   dealDamage(actor, pickTarget(targets), actor.atk)

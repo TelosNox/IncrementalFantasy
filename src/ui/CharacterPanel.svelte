@@ -70,7 +70,12 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
-    width: 260px;
+    /* M8: bis zu 4 Panels muessen ohne overflow-x in die Bottom-Leiste passen
+       (ui-layout.md/M7-Playtest-Fund: overflow-x hat frueher das nach oben
+       wachsende Aktions-Popup abgeschnitten) - deshalb flexibel statt fest. */
+    flex: 1 1 220px;
+    min-width: 180px;
+    max-width: 260px;
     padding: 12px;
     background: var(--game-panel-bg);
     border: 1px solid var(--game-border);

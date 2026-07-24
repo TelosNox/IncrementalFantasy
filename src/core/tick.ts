@@ -17,10 +17,14 @@ export interface BattleState {
   enemies: BattleUnit[]
   awaitingPlayerChoice: BattleUnit | null
   poisonAccumulator: number
+  /** ui-layout.md "Freischaltungs-Hinweis"/feinspec §5.1 - true fuer den Tick, in dem ein
+   * telegrafierter Boss-AoE ausloest (nicht durch Shock ausgesetzt); die UI-Schicht liest das,
+   * um `defenseUnlocked` beim ersten Vorkommen freizuschalten (M8). Wird jeden Tick zurueckgesetzt. */
+  bossAoeTriggered: boolean
 }
 
 export function createBattleState(party: BattleUnit[], enemies: BattleUnit[]): BattleState {
-  return { party, enemies, awaitingPlayerChoice: null, poisonAccumulator: 0 }
+  return { party, enemies, awaitingPlayerChoice: null, poisonAccumulator: 0, bossAoeTriggered: false }
 }
 
 function tickPoison(state: BattleState, dt: number): void {
@@ -50,13 +54,15 @@ function resolveEnemyAction(actor: BattleUnit, state: BattleState): void {
   if (actor.trait === 'boss') {
     actor.actionsDone += 1
     if (actor.shockTimer <= 0 && actor.actionsDone % 3 === 0) {
+      state.bossAoeTriggered = true
       aoeParty(state.party, Math.round(actor.atk * 1.8))
       return
     }
   }
 
   const tgt = alive.reduce((weakest, p) => (p.hp < weakest.hp ? p : weakest))
-  const dmg = physicalDamage(actor.atk, tgt.def)
+  const rawDmg = physicalDamage(actor.atk, tgt.def)
+  const dmg = tgt.defending ? Math.round(rawDmg * 0.5) : rawDmg
   tgt.hp -= dmg
   tgt.limit = Math.min(LIMIT_MAX, tgt.limit + limitGainOnTaken(dmg))
 
@@ -78,6 +84,7 @@ export function battleTick(state: BattleState, dt: number): BattleResult {
   if (!state.enemies.some(isAlive)) return 'win'
   if (!state.party.some(isAlive)) return 'loss'
 
+  state.bossAoeTriggered = false
   tickPoison(state, dt)
 
   for (const f of [...state.party, ...state.enemies]) {

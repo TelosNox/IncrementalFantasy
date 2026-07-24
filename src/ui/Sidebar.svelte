@@ -3,8 +3,10 @@
   import { MONSTERS } from '../content/monsters'
   import BestiaryModal from './BestiaryModal.svelte'
 
-  const regionName = $derived(game.save.currentZone <= 8 ? 'Reactor Row' : 'Bargain Bazaar')
-  const regionIndex = $derived(game.save.currentZone <= 8 ? 1 : 2)
+  const regionName = $derived(
+    game.save.currentZone <= 8 ? 'Reactor Row' : game.save.currentZone <= 18 ? 'Bargain Bazaar' : 'MegaCorp Tower',
+  )
+  const regionIndex = $derived(game.save.currentZone <= 8 ? 1 : game.save.currentZone <= 18 ? 2 : 3)
   const bestiaryCount = $derived(Object.keys(game.save.bestiary).length)
   const catalogSize = $derived(Object.keys(MONSTERS).length)
 </script>

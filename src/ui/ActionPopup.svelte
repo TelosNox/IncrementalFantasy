@@ -31,6 +31,10 @@
       </button>
     {/if}
 
+    {#if game.canDefend(unit)}
+      <button class="row" onclick={() => game.defend(unit)}>Defend</button>
+    {/if}
+
     {#if game.canFireLimit(unit)}
       <button class="row limit" onclick={() => game.fireLimit(unit)}>
         {#each 'Limit'.split('') as letter, i (i)}

@@ -40,6 +40,8 @@ export interface BattleUnit {
   actionsDone: number
   hitsTaken: number
   fled: boolean
+  /** kampf-analyse-shock.md §2/feinspec §5.1 - Defend-Stance, haelt bis zur naechsten eigenen Aktion (M8-Baseline: -50% erlittener Schaden, TBD s. §11 offene Playtest-Stellschrauben). */
+  defending: boolean
   trait?: MonsterTrait
   controlMode?: ControlMode
   canSpecial?: boolean
@@ -96,6 +98,7 @@ export function createPartyUnit(character: Character, zoneIndex: number): Battle
     actionsDone: 0,
     hitsTaken: 0,
     fled: false,
+    defending: false,
     controlMode: character.controlMode,
     canSpecial: zoneIndex >= character.special.unlockedFromZone,
     specialId: character.special.id,
@@ -128,6 +131,7 @@ export function createEnemyUnit(monster: Monster, zoneIndex: number, sizeMod = 1
     actionsDone: 0,
     hitsTaken: 0,
     fled: false,
+    defending: false,
     trait: monster.trait,
   }
 }
@@ -149,11 +153,12 @@ export function dealDamage(attacker: BattleUnit, target: BattleUnit, rawAtk: num
   return dmg
 }
 
-/** §5 - Gruppen-AoE (Bomb-Selbstzerstörung, telegrafierte Boss-Attacke). */
+/** §5 - Gruppen-AoE (Bomb-Selbstzerstörung, telegrafierte Boss-Attacke). Defend halbiert den erlittenen Anteil (M8). */
 export function aoeParty(party: BattleUnit[], damage: number): void {
   for (const p of party) {
     if (!isAlive(p)) continue
-    p.hp -= damage
-    p.limit = Math.min(LIMIT_MAX, p.limit + limitGainOnTaken(damage, true))
+    const dmg = p.defending ? Math.round(damage * 0.5) : damage
+    p.hp -= dmg
+    p.limit = Math.min(LIMIT_MAX, p.limit + limitGainOnTaken(dmg, true))
   }
 }

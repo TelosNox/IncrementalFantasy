@@ -27,6 +27,7 @@ function dummyPartyTank(): BattleUnit {
     actionsDone: 0,
     hitsTaken: 0,
     fled: false,
+    defending: false,
     controlMode: 'auto',
     canSpecial: false,
     specialId: 'none',

@@ -30,8 +30,8 @@ import { battleTick, createBattleState, DT, type BattleState } from '../core/tic
 import type { SaveState } from '../save/schema'
 import { clearSave, loadSave, startAutosave, writeSave, type AutosaveHandle } from '../save/storage'
 
-/** feinspec §6.3 - M7 deckt Region 2 komplett ab (Zone 9-18, Fort-Knoxious-Gate). */
-export const REGION2_MAX_ZONE = 18
+/** feinspec §6.3/§0 - M8 deckt Kapitel 1 komplett ab (Zone 1-30, Vaultron-Kapitel-Boss). Reunion (M9) folgt danach. */
+export const CHAPTER1_MAX_ZONE = 30
 
 /** feinspec §7.1 Schritt 2 - ab Zone 3 kann Claudes Waffe gekauft werden (Special/MP werden sichtbar). */
 const WEAPON_UNLOCK_ZONE = 3
@@ -50,10 +50,17 @@ const AUTO_ATTACK_UNLOCK_ZONE = 5
 /** feinspec §6.3 Z9-10 "Barrel dazu" - Barrel stößt zu Beginn der Region 2 zur Party. */
 const BARREL_JOIN_ZONE = 9
 
+/**
+ * feinspec §6.3 Z19-20 "Tofa+Arris dazu" - volle 4er-Party ab Region 3; auch die
+ * Rollout-Schwelle fuer Shock-Ring/Kulisse in der UI (kampf-analyse-shock.md §6:
+ * "gebündelt mit Tofa und der vollen Party").
+ */
+export const REGION3_JOIN_ZONE = 19
+
 /** ui-layout.md "Freischaltungs-Hinweis" - 2-4s Anzeigedauer, hier die Mitte des Bands. */
 const CALLOUT_DURATION_SECONDS = 3.0
 
-export type Phase = 'battle' | 'retry' | 'region2-paused'
+export type Phase = 'battle' | 'retry' | 'chapter-complete'
 
 function findZone(zoneIndex: number): Zone {
   const zone = ZONES.find((z) => z.zone === zoneIndex)
@@ -174,6 +181,11 @@ export class GameStore {
     return this.battle.awaitingPlayerChoice === unit && unit.limit >= LIMIT_MAX
   }
 
+  /** feinspec §5.1 - Defend erscheint erst ab der ersten telegrafierten Boss-Aufladung (s. `#onBossAoeTriggered`). */
+  canDefend(unit: BattleUnit): boolean {
+    return this.battle.awaitingPlayerChoice === unit && this.save.flags.defenseUnlocked
+  }
+
   /** ui-layout.md "Freischaltungs-Hinweis" - Anzeigedauer ODER nächste Spieleraktion, je nachdem was zuerst eintritt. */
   #triggerCallout(message: string): void {
     this.calloutMessage = message
@@ -189,6 +201,7 @@ export class GameStore {
   attack(unit: BattleUnit): void {
     if (this.battle.awaitingPlayerChoice !== unit) return
     this.#dismissCallout()
+    unit.defending = false // eine neue Aktion beendet eine vorige Defend-Haltung (M8)
     const targets = this.battle.enemies.filter(isAlive)
     if (!targets.length) return
     dealDamage(unit, pickTarget(targets), unit.atk)
@@ -197,11 +210,26 @@ export class GameStore {
     this.battle.awaitingPlayerChoice = null
   }
 
-  /** feinspec §4.7 Regel 2-4 - Figuren-Special (kostet MP), Zielwahl je nach Rolle. */
+  /** feinspec §4.7 Regel 2-4/§6.1 - Figuren-Special (kostet MP), Effekt/Zielwahl je Rolle. */
   useSpecial(unit: BattleUnit): void {
     if (!this.canUseSpecial(unit)) return
     this.#dismissCallout()
     if (unit.mp < (unit.specialMpCost ?? Infinity)) return
+    unit.defending = false
+
+    if (unit.name === 'Arris') {
+      // feinspec §6.1 - Heal Wind: Party-weite Heilung (2,2×MAG), kein Gegner-Ziel noetig.
+      unit.mp -= unit.specialMpCost!
+      const heal = Math.round(unit.mag * 2.2)
+      for (const p of this.battle.party) {
+        if (isAlive(p)) p.hp = Math.min(p.maxHp, p.hp + heal)
+      }
+      unit.limit = Math.min(LIMIT_MAX, unit.limit + 4)
+      unit.atb = 0
+      this.battle.awaitingPlayerChoice = null
+      return
+    }
+
     const targets = this.battle.enemies.filter(isAlive)
     if (!targets.length) return
     unit.mp -= unit.specialMpCost!
@@ -213,6 +241,9 @@ export class GameStore {
       const target = fast.length ? fast[0] : strongest(targets)
       target.suppress = 4.0
       dealDamage(unit, target, Math.round(unit.atk * 0.8))
+    } else if (unit.name === 'Tofa') {
+      // feinspec §6.1/§3.3 - Shock Strike: normaler Treffer + 45 Shock-Bonus obendrauf.
+      dealDamage(unit, pickTarget(targets), unit.atk, 45)
     } else {
       dealDamage(unit, strongest(targets), Math.round(unit.atk * 3.0))
     }
@@ -224,11 +255,26 @@ export class GameStore {
   fireLimit(unit: BattleUnit): void {
     if (!this.canFireLimit(unit)) return
     this.#dismissCallout()
+    unit.defending = false
     const targets = this.battle.enemies.filter(isAlive)
     if (!targets.length) return
     const target = strongest(targets)
     target.hp -= limitFireDamage(unit.atk, target.def)
     unit.limit = 0
+    unit.atb = 0
+    this.battle.awaitingPlayerChoice = null
+  }
+
+  /**
+   * kampf-analyse-shock.md §2/feinspec §5.1 - Defend: haelt bis zur naechsten
+   * eigenen Aktion, halbiert in dieser Zeit erlittenen Schaden (M8-Baseline,
+   * s. `core/battle.ts` `defending`-Feld; offene Playtest-Stellschraube).
+   * Erscheint erst ab der ersten telegrafierten Boss-Aufladung (`canDefend`).
+   */
+  defend(unit: BattleUnit): void {
+    if (!this.canDefend(unit)) return
+    this.#dismissCallout()
+    unit.defending = true
     unit.atb = 0
     this.battle.awaitingPlayerChoice = null
   }
@@ -340,6 +386,12 @@ export class GameStore {
     while (this.#accumulator >= DT) {
       this.#accumulator -= DT
       const result = battleTick(this.battle, DT)
+      // feinspec §5.1/ui-layout.md "Freischaltungs-Hinweis" - Defend schaltet sich an der
+      // ersten telegrafierten Boss-Aufladung frei (M8), nicht zonenbasiert wie die anderen Flags.
+      if (this.battle.bossAoeTriggered && !this.save.flags.defenseUnlocked) {
+        this.save = { ...this.save, flags: { ...this.save.flags, defenseUnlocked: true } }
+        this.#triggerCallout('Defend online – brace for the next telegraphed hit!')
+      }
       if (result === 'win') return this.#onWin()
       if (result === 'loss') return this.#onLoss()
       if (result === 'paused') return
@@ -364,9 +416,9 @@ export class GameStore {
     const leveled = this.save.party.map((c) => applyVictoryExp(c, reward.exp))
     const bestiary = this.#recordBestiary()
 
-    if (this.save.currentZone >= REGION2_MAX_ZONE) {
+    if (this.save.currentZone >= CHAPTER1_MAX_ZONE) {
       this.save = { ...this.save, party: leveled, currencies: { ...this.save.currencies, gil }, bestiary }
-      this.phase = 'region2-paused'
+      this.phase = 'chapter-complete'
       writeSave(this.save)
       return
     }
@@ -387,6 +439,14 @@ export class GameStore {
       roster = [...roster, 'barrel']
       party = [...party, freshCharacter('barrel', flags.manualToggleUnlocked ? 'auto' : 'manual')]
       this.#triggerCallout('Barrel joins the party – suppressing fire incoming!')
+    }
+
+    // feinspec §6.3 Z19-20 - Tofa+Arris stoßen zu Beginn der Region 3 zur Party (volle 4er-Party).
+    if (!roster.includes('tofa') && nextZone >= REGION3_JOIN_ZONE) {
+      roster = [...roster, 'tofa', 'arris']
+      const mode = flags.manualToggleUnlocked ? 'auto' : 'manual'
+      party = [...party, freshCharacter('tofa', mode), freshCharacter('arris', mode)]
+      this.#triggerCallout('Tofa and Arris join the party – full roster online!')
     }
 
     this.save = { ...this.save, party, roster, currentZone: nextZone, flags, currencies: { ...this.save.currencies, gil }, bestiary }
