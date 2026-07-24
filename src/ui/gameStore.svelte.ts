@@ -25,7 +25,7 @@ import {
 } from '../core/battle'
 import type { BattleUnit } from '../core/battle'
 import type { BestiaryEntry, Character, ControlMode, Zone } from '../core/entities'
-import { resolvePartyAction, resolvePartyTarget, strongest } from '../core/gambits'
+import { resolvePartyAction, resolvePartyTarget } from '../core/gambits'
 import { INN_DEAD_TIME, LIMIT_MAX, RETRY_PENALTY, limitFireDamage } from '../core/formulas'
 import { applyInnRecovery, applyVictoryExp, applyVictoryRecovery, zoneReward } from '../core/progression'
 import { battleTick, createBattleState, DT, type BattleState } from '../core/tick'
@@ -328,42 +328,36 @@ export class GameStore {
       return
     }
 
-    const targets = this.battle.enemies.filter(isAlive)
-    if (!targets.length) return
+    // feinspec §3.9 - Vorauswahl im Popup folgt ohne Ausnahme dem Fokusziel, auch fuer
+    // Barrels Suppress (die durchsatzbasierte Zielwahl aus §4.7 gilt nur noch fuer die
+    // Referenz-Policy `resolveOptimalAction`, nicht fuer diese sichtbare, vom Spieler
+    // ueberschreibbare Vorauswahl).
+    const target = resolvePartyTarget(this.battle)
+    if (!target) return
     unit.mp -= unit.specialMpCost!
     if (unit.name === 'Barrel') {
-      // feinspec §4.7 Regel 3/§6.1 - Suppress: unterdrückt den schnellsten
-      // anwesenden Gegner (SPD >= 140 bevorzugt, sonst der insgesamt schnellste)
-      // und schlägt zusätzlich zu (0,8x ATK).
-      const fast = targets.filter((e) => e.spd >= 140)
-      const target = fast.length ? fast[0] : strongest(targets)
+      // feinspec §6.1 - Suppress: schlaegt zusaetzlich zu (0,8x ATK).
       target.suppress = 4.0
       dealDamage(unit, target, Math.round(unit.atk * 0.8))
     } else if (unit.name === 'Tofa') {
-      // feinspec §3.9/§6.1/§3.3 - Shock Strike: normaler Treffer (Fokusziel-Regel) + 45 Shock-Bonus obendrauf.
-      const target = resolvePartyTarget(this.battle)!
+      // feinspec §6.1/§3.3 - Shock Strike: normaler Treffer + 45 Shock-Bonus obendrauf.
       dealDamage(unit, target, unit.atk, 45)
     } else {
-      // feinspec §3.9/§6.1 - Cross Slash: "großer Einzelziel-Treffer" hat keinen eigenen
-      // taktischen Zweck (anders als Suppress/Shock Strike/Heal) und folgt daher wie ein
-      // normaler Angriff der Fokusziel-Regel (Playtest-Fund M11: Special traf bislang immer
-      // das ranghöchste Ziel, ignorierte ein gesetztes Fokusziel - fühlte sich wie ein Bug an,
-      // war einer).
-      const target = resolvePartyTarget(this.battle)!
+      // feinspec §6.1 - Cross Slash: großer Einzelziel-Treffer (kein eigener taktischer
+      // Zweck wie Suppress/Shock Strike/Heal, folgt daher wie ein normaler Angriff §3.9).
       dealDamage(unit, target, Math.round(unit.atk * 3.0))
     }
     unit.atb = 0
     this.battle.awaitingPlayerChoice = null
   }
 
-  /** feinspec §3.4 - Limit-Zünden: schaden(4,5·ATK, DEF) mit DEF-Ignore aufs stärkste Ziel. */
+  /** feinspec §3.4/§3.9 - Limit-Zünden: schaden(4,5·ATK, DEF) mit DEF-Ignore aufs Fokusziel (Vorauswahl im Popup, keine Ausnahme mehr). */
   fireLimit(unit: BattleUnit): void {
     if (!this.canFireLimit(unit)) return
     this.#dismissCallout()
     unit.defending = false
-    const targets = this.battle.enemies.filter(isAlive)
-    if (!targets.length) return
-    const target = strongest(targets)
+    const target = resolvePartyTarget(this.battle)
+    if (!target) return
     target.hp -= limitFireDamage(unit.atk, target.def)
     unit.limit = 0
     unit.atb = 0

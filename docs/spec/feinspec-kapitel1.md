@@ -290,7 +290,7 @@ Wichtiger als die Metrik ist aber der Design-Grund: **Zu erkennen, dass der Schn
 
 **Wo die Bedrohungs-Metrik hingehört** (nicht in die Vorauswahl): als autorierbare Bedingung in den **Gambit-Editor ab Kapitel 2** („ziele auf den gefährlichsten Gegner") – und dort dann über den Durchsatz, nicht über rohe SPD.
 
-**Wozu das Fokusziel da ist – und wozu nicht:** Es ist ein **Komfort- und Ablesbarkeits-Feature, keine Machtstufe.** Der Tempogewinn gegenüber reinem Zuschauen ist klein (M11-Messung: ≈4,1× → ≈3,2× gegenüber manuellem Spiel, s. §12 B) und soll es auch sein – ein kleiner Input verdient einen kleinen Ertrag; der große Hebel bleibt die manuelle Steuerung. Seine Berechtigung zieht das Fokusziel aus drei anderen Dingen: Zielwahl wird überhaupt sichtbar, Defend bekommt eine Informationsgrundlage, und der Spieler kann seine Absicht ausdrücken. Wer es also stärker machen will, um „T lohnender" zu machen, arbeitet gegen §4.7.
+**Wozu das Fokusziel da ist – und wozu nicht:** Es ist ein **Komfort- und Ablesbarkeits-Feature, keine Machtstufe.** Der Tempogewinn gegenüber reinem Zuschauen ist klein (M11-Messung nach dem §3.9/§4.7-Nachtrag: ≈3,4× → ≈2,8× gegenüber manuellem Spiel, s. §7.4/§12 B) und soll es auch sein – ein kleiner Input verdient einen kleinen Ertrag; der große Hebel bleibt die manuelle Steuerung. Seine Berechtigung zieht das Fokusziel aus drei anderen Dingen: Zielwahl wird überhaupt sichtbar, Defend bekommt eine Informationsgrundlage, und der Spieler kann seine Absicht ausdrücken. Wer es also stärker machen will, um „T lohnender" zu machen, arbeitet gegen §4.7.
 
 **Warum der Fokus auch für Auto-Figuren gilt:** Der Spieler trifft die Wahl in *jedem* Kampf neu – das ist selbst ein manueller Akt, kein Einstellungs-Häkchen. Genau deshalb ist der **Reset pro Kampf verbindlich**: Würde der Fokus über Kämpfe hinweg bestehen, wäre er einmal gesetzt und danach vergessen, und der manuelle Charakter der Entscheidung fiele weg. Das Fokusziel gehört damit in den **Kampfzustand, nicht in den SaveState** (§4.6).
 
@@ -569,9 +569,7 @@ Ein Item je Figur, Tier 0–4. Effekt: `atk ×(1+0,10·tier)`, `hp ×(1+0,05·ti
 
 ## 7. So spielt sich Kapitel 1 – drei durchgespielte Beispiele
 
-> ⚠️ **Dieser gesamte Abschnitt ist durch die Revisionen in §3.4/§3.5/§3.8 überholt und beschreibt ein Spiel, das es so nicht mehr gibt.** Er bleibt als Referenz stehen, weil die *Beats* (welcher Moment lehrt was) weiter gelten – die *Zahlen und Abläufe* nicht. Konkret ungültig geworden: der Attack-MP-Refund in §7.1, volle HP/MP zu Kampfbeginn in allen drei Beispielen, Limit außerhalb der Gates, und die komplette Pacing-Tabelle in §7.4.
->
-> Der Abschnitt ist **nach der Umsetzung neu zu simulieren, nicht zu flicken.** Eine punktuell korrigierte Tabelle wäre schlimmer als eine offen als ungültig markierte – die Erstfassung war genau deshalb irreführend, weil sie glaubwürdig aussah (s. §3.8).
+> ⚠️ **7.1–7.3 sind durch die Revisionen in §3.4/§3.5/§3.8 überholt und beschreiben ein Spiel, das es so nicht mehr gibt.** Sie bleiben als Referenz stehen, weil die *Beats* (welcher Moment lehrt was) weiter gelten – die *Zahlen und Abläufe* nicht. Konkret ungültig: der Attack-MP-Refund in §7.1, volle HP/MP zu Kampfbeginn in allen drei Beispielen, Limit außerhalb der Gates. **§7.4 (Pacing) ist davon ausgenommen** – dort steht seit dem M11-Nachtrag (feinspec §3.9/§4.7, `06_Implementierungsplan_Kapitel1.md` M11-Entscheidungen 11–13) eine neu simulierte, gültige Tabelle.
 
 ### 7.1 Region 1, die ersten Minuten (Claude solo)
 
@@ -594,30 +592,29 @@ Welle: Funkus + Shortfuse + Blando, volle Party. **Playtest-Korrektur (§4.7):**
 
 **Vaultron** (Z30), der Konzern-Mecha-Tresor, telegrafiert alle drei Aktionen eine **Gruppen-AoE** (sichtbar ladender Mako-Kern). **Playtest-Korrektur (§4.7):** Ohne Air-is...-Heilung und Limit-Timing ist dieses Gate in reinem Auto (nur Attack) **die härteste Wand des Kapitels** – simulationsvalidiert **~27 Retries**. Geht die Party auf **Manuell** (Heilung, Limit sofort bei voller Leiste), fällt Vaultron dagegen praktisch beim ersten Versuch (**0 Retries** in der Simulation) – der klarste Beleg im ganzen Kapitel, dass sich manuelles Spiel lohnt. Zwei Wege durch: **manuell spielen** (schnell) **oder** in Auto weitergrinden, bis der Levelvorsprung reicht (langsam, aber möglich – Ventil bleibt). Am Kapitelende steht die **Reunion** bereit (Screen 1.4): Reset von Zonen/Level/Ausrüstung, Erhalt von Charakteren/Bestiarium/Specials, Ertrag **Reunion-Essenz** → **programmierbare Gambits + erster Boost**.
 
-### 7.4 Pacing – ⚠️ UNGÜLTIG, Neu-Simulation ausstehend
+### 7.4 Pacing (neu simuliert, M11-Nachtrag)
 
-> **Diese Tabelle misst ein anderes Spiel als das ausgelieferte und ist ersatzlos zu verwerfen.**
->
-> Der Test-Harness, der sie erzeugt hat, farmt bei jeder Niederlage an der zuletzt geschafften Zone (`tests/chapter-playthrough.test.ts`) – eine Mechanik, die es im Spiel bis zur Einführung der Zonen-Rückkehr (§3.8a) **nicht gab**. Jede „Retries"-Zahl unten setzt also Farm-Kämpfe voraus, die real nicht stattfinden konnten; jede Level-Spanne enthält deren EXP. Reale Spieler kamen mit **exakt einem Clear pro Zone** an den Gates an und blieben dort dauerhaft stecken.
->
-> Zusätzlich entwertet durch: gestrichenen MP-Refund (§3.5), HP/MP-Übertrag statt Vollheilung (§3.8d), Limit nur noch an Gates (§3.4), Gasthaus-Zeitkosten (§3.8b) und die Stilllegung des Offline-Progress (§3.8e).
->
-> **Vorgehen:** erst umsetzen, dann komplett neu simulieren, dann diese Tabelle ersetzen. Bis dahin existiert **keine** validierte Pacing-Baseline für Kapitel 1 – das ist ehrlicher als eine reparierte Zahlenreihe. Beim Neu-Aufsetzen muss der Harness die Zonen-Rückkehr als *Spielerentscheidung* modellieren (welche Zone farmt ein vernünftiger Spieler wie lange?), nicht als impliziten Automatismus.
+Ersetzt sowohl die ursprüngliche Erstfassung (durchgehend smarter Auto) als auch die zwischenzeitlich als „⚠️ UNGÜLTIG" markierte Fassung (Harness farmte implizit bei jeder Niederlage, Verstoß gegen F2). Gemessen über die reale TS-Engine (`tests/chapter-playthrough.test.ts`), **nach** dem §3.9/§4.7-Nachtrag zur Zielvorauswahl (`06_Implementierungsplan_Kapitel1.md` M11-Entscheidungen 11/12) – Entscheidung 13 dokumentiert den Messvorgang. Gemessen gegen die drei Spielertypen aus §12, nicht mehr gegen eine einzelne „empfohlene Spielweise": Die Zonen-Rückkehr ist als Spielerentscheidung modelliert (Farmen der zuletzt geschafften Zone, F2), Retry-Strafe und Gasthaus-Totzeit sind in „Gesamtzeit" enthalten; „Kampfzeit aktiv" ist ausschließlich die echte ATB-Zeit der siegreichen Kämpfe (Menü-/Kauf-/Wartezeit kommt obendrauf, s. u.).
 
-**Historische Fassung (nicht mehr gültig, nur zur Nachvollziehbarkeit):** Die Zahlen unten ersetzen die Erstfassung (die von einem durchgehend smarten Auto ausging). Neu validiert über die TS-Engine (`tests/chapter-playthrough.test.ts`, deckungsgleich mit `sim_chapter1.py`s Logik) für die empfohlene Spielweise **„Auto in der Fläche, Manuell an den drei Gates"** (gambits.md §4). „Kampfzeit" = echte ATB-Zeit am Bildschirm; Menü-/Kauf-/Idle-Zeit kommt obendrauf.
+| Typ | Gesamtzeit (inkl. Retry-Strafe/Gasthaus) | Kampfzeit aktiv | Endlevel Claude | Verhältnis zu M |
+|-----|:-----------------------------------------:|:----------------:|:----------------:|:----------------:|
+| **M** – manuell | ~15,4 min | ~6,9 min | 18 | 1,0× (Referenz) |
+| **T** – teilautomatisch (nur Fokusziel) | ~43,0 min | ~8,2 min | 21 | ~2,8× |
+| **V** – vollautomatisch | ~52,9 min | ~7,9 min | 21 | ~3,4× |
 
-| Region | Zonen | Kampfzeit (aktiv) | Level-Spanne (Claude) | Wände (Retries) |
-|--------|:-----:|:-----------------:|:---------------------:|-----------------|
-| 1 – Reactor Row | 1–8 | ~7,4 min | 1 → 7 | Z6 (regulär!) **~8** Retries ohne manuelle Übernahme · Miniboss Z8: **0** (manuell) |
-| 2 – Bargain Bazaar | 9–18 | ~3,5 min | 7 → 12 | Gate Z18: **0** (manuell) |
-| 3 – MegaCorp Tower | 19–30 | ~4,7 min | 12 → 18 | Kapitel-Wand Z30: **0** (manuell) |
-| **Gesamt** | 30 | **~15,6 min** | **→ 18** | s. u. |
+Beide Verhältnisse liegen innerhalb des Korridors aus §12 B2 (T ∈ [1,3; 3,5], V ∈ [2,5; 4,5]) – niedriger als die zuvor im Dokument vermerkten ≈3,2×/≈4,1× (das war stiller Zahlendrift gegenüber dem tatsächlichen Code, kein Effekt dieses Nachtrags selbst, s. Umsetzungsentscheidung 13). Auffällig: **Kampfzeit aktiv unterscheidet sich zwischen den Typen kaum** (~7–8 min für alle drei) – der große Zeitunterschied entsteht fast vollständig durch Retries + Gasthaus-Wartezeit, nicht durch längere Kämpfe. Das ist die erwartete Konsequenz aus §4.7: Auto (T/V) verliert öfter, nicht langsamer.
 
-**Der Wände-Charakter hat sich verschoben:** Die drei Gates selbst sind bei manuellem Spiel (Heilung/Suppress/Special + Limit sofort bei voller Leiste) praktisch trivial – **manuell schlägt sogar die alte Auto-Heuristik** aus der Erstfassung (dort noch Z18 ~2 / Z30 ~6 Retries). Die eigentliche erste Wand ist jetzt **Zone 6** (eine reguläre Zone!), weil Auto dort nur noch angreift – genau der in §7.1 Punkt 4 beschriebene Grind-/Manuell-Moment.
+**Wände sitzen an den Gates, nicht mehr in der Fläche** (§12 C4, „Zone-6-Fehler" behoben durch die Zonen-Größenmodifikatoren aus Entscheidung 5):
 
-**Reines Idle (nie manuell, auch nicht an Gates) bleibt schaffbar, aber deutlich zäher:** dieselbe Engine, ausschließlich Auto, liefert Gesamt **~50,8 min**, Endlevel Claude **22**, Retries Gate Z18 **8**, Kapitel-Wand Z30 **27** – knapp 3,25× langsamer als der manuelle Pfad. Das ist die simulationsvalidierte Bestätigung von „mit genug Grind auch idle machbar" (gambits.md §4 „Idle-Wände... manuell schneller").
+| Typ | Retries Gate Z8 (Blandzilla) | Retries Gate Z18 (Fort Knoxious) | Retries Gate Z30 (Vaultron) | Härteste reguläre Zone |
+|-----|:-----------------------------:|:----------------------------------:|:-----------------------------:|-------------------------|
+| M | 1 | 1 | 1 | Z6/Z14 (je 1) |
+| T | 3 | 1 | 15 | Z7 (4) |
+| V | 4 | 10 | 11 | Z7/Z15 (je 3) |
 
-**Einordnung in Echtzeit:** Die ~15,6 min (manueller Pfad) sind reine Kampfzeit. Ein aktiver **Erstdurchlauf** inkl. Waffenkäufen, Menüs und Wände liegt realistisch bei **~30–45 min**; wer nie manuell eingreift, braucht entsprechend länger bzw. lässt es idle/offline über **mehrere Stunden** laufen. Kampfdauern bleiben über das Kapitel dank ~1 Level/Zone ungefähr konstant (kein Aufblähen), mit Ausnahme der Zone-6-Grindschleife.
+Typ M liegt an allen drei Gates bei 0–2 Retries (§12 C2) – Limit-Zündungen pro Figur dabei 1,0/1,0/1,5 an Z8/Z18/Z30, innerhalb des D5-Korridors (1–2×). Für T und V ist **Vaultron (Z30) weiterhin die mit Abstand härteste Stelle** des Kapitels (kein Special/Heal/Limit für Auto, §4.7) – erwartungsgemäß, das ist die Kapitel-Wand, die zur 1. Reunion hinführt (§7.3). Keine reguläre Zone verlangt für irgendeinen Typ spürbar mehr Retries als das nächstfolgende Gate (C4, mit der in Entscheidung 6 dokumentierten ±2-Toleranz).
+
+**Einordnung in Echtzeit:** Die Tabellenwerte sind reine Simulationszeit ohne Menüs/Käufe – ein aktiver **Erstdurchlauf** (Typ M) liegt inkl. Waffenkäufen und Entscheidungen realistisch bei **~25–35 min**; Typ T/V ohne Offline-Progress entsprechend länger, da die Gasthaus-/Retry-Wartezeit jetzt **echte Zeit am Bildschirm** ist (§3.8e). Das ist der eigentliche Prüfstein für E2 (gespielt beurteilen, nicht gerechnet) und für die in §10 noch offene Leitplanke #5 (F3: Prüfung am Menschen steht noch aus).
 
 ---
 
@@ -716,18 +713,18 @@ Alle Kriterien werden gegen drei klar getrennte Spielweisen geprüft. Sie sind d
 Der Abstand muss **existieren** (sonst lohnt aktives Spiel nicht, Anti-Pattern #5) und **begrenzt** sein (sonst ist Idle bestraft, Leitplanke „Idle-Versprechen respektieren").
 
 - **B1** Reihenfolge der Gesamtdauer strikt: **M < T < V**. Kein Gleichstand.
-- **B2** Zielkorridor, gemessen an M = 1,0: **T ∈ [1,3; 3,5]**, **V ∈ [2,5; 4,5]**. Gemessen in M11: T ≈3,2×, V ≈4,1×.
+- **B2** Zielkorridor, gemessen an M = 1,0: **T ∈ [1,3; 3,5]**, **V ∈ [2,5; 4,5]**. Gemessen in M11 (nach dem §3.9/§4.7-Nachtrag, s. §7.4): T ≈2,8×, V ≈3,4×.
 - **B3** Beide Abstände müssen **existieren** – M < T und T < V. Eine Aussage über ihr Größenverhältnis wird bewusst **nicht** mehr getroffen (s. u.).
 
 **Aufgelöst (war offen nach M11): Typ T liegt viel näher an V als an M – und das ist richtig so.**
 
-Die Erstfassung von B3 verlangte, der Sprung M→T müsse der *kleinere* sein: Ein Fokusziel pro Kampf sollte den Großteil des Vorteils einfangen. Die Messung sagt das Gegenteil (M→T ≈2,2 Einheiten, T→V ≈0,9). Das ist kein Balance-Fehler, sondern die Natur der Sache: **Ein kleiner Input verdient einen kleinen Ertrag.** Der große Hebel sind Limit, Specials, Heilung und Suppress – und die sind vor der 1. Reunion **absichtlich** manuell (§4.7, Playtest-Korrektur nach M7). Dass die Zahlen das zeigen, bestätigt jene Entscheidung, statt sie zu widerlegen.
+Die Erstfassung von B3 verlangte, der Sprung M→T müsse der *kleinere* sein: Ein Fokusziel pro Kampf sollte den Großteil des Vorteils einfangen. Die Messung sagt das Gegenteil (M→T ≈1,8 Einheiten, T→V ≈0,6). Das ist kein Balance-Fehler, sondern die Natur der Sache: **Ein kleiner Input verdient einen kleinen Ertrag.** Der große Hebel sind Limit, Specials, Heilung und Suppress – und die sind vor der 1. Reunion **absichtlich** manuell (§4.7, Playtest-Korrektur nach M7). Dass die Zahlen das zeigen, bestätigt jene Entscheidung, statt sie zu widerlegen.
 
 **Konsequenz für die Einordnung:** Typ T ist **keine Machtstufe, sondern ein Komfort- und Ablesbarkeits-Feature.** Seine Rechtfertigung hängt nicht am Zeitgewinn, sondern an drei anderen Dingen: Zielwahl wird überhaupt sichtbar (E3), Defend bekommt eine Informationsgrundlage (§3.9), und der Spieler kann seine Absicht ausdrücken. Das trägt auch bei geringem Tempovorteil.
 
 **Ausdrücklich verworfen:** Typ T zusätzliche Fähigkeiten zu geben (z. B. Defend ohne volle manuelle Steuerung), um den Abstand künstlich zu vergrößern. Das würde die Typgrenzen verwischen und genau den M-Vorsprung abtragen, auf dem die M7-Korrektur beruht („Auto bleibt stumpf, damit aktives Spiel über das *ganze* Kapitel lohnt").
 
-**Was stattdessen zu beobachten ist:** nicht der Abstand T↔V, sondern der **Absolutwert von V**. Mit ≈4,1× liegt reines Idle über der früher als vertretbar geltenden Baseline (3,25×) – und ohne Offline-Progress ist das echte Zeit am Bildschirm. Der eigentliche Prüfstein dafür ist **E2** (gespielt beurteilen), nicht die Rechnung.
+**Was stattdessen zu beobachten ist:** nicht der Abstand T↔V, sondern der **Absolutwert von V**. Mit ≈3,4× liegt reines Idle knapp über der früher als vertretbar geltenden Baseline (3,25×) – und ohne Offline-Progress ist das echte Zeit am Bildschirm. Der eigentliche Prüfstein dafür ist **E2** (gespielt beurteilen), nicht die Rechnung.
 
 ### C – Wo die Wände sitzen
 

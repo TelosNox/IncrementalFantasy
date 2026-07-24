@@ -50,6 +50,11 @@ export function strongest(units: BattleUnit[]): BattleUnit {
   return units.reduce((strongest, u) => (u.hp > strongest.hp ? u : strongest))
 }
 
+/** feinspec §3.9/§4.7 - Barrels Suppress (nur `resolveOptimalAction`): höchster Schadensdurchsatz (ATK * SPD). */
+function mostThreatening(units: BattleUnit[]): BattleUnit {
+  return units.reduce((worst, u) => (u.atk * u.spd > worst.atk * worst.spd ? u : worst))
+}
+
 /**
  * Die einzige Auto-Regel vor der 1. Reunion: Angriff, sonst nichts (kein
  * Special, kein Heal, kein Suppress, kein Limit - diese sind bis zur 1.
@@ -77,10 +82,12 @@ export function resolvePartyAction(actor: BattleUnit, state: BattleState): void 
  * dass manuelles Spiel (Spielertyp "M", feinspec §12) einen echten Unterschied
  * macht. Normale Angriffe/Claudes Cross Slash/Tofas Shock Strike nutzen dieselbe
  * Fokusziel-Regel wie Auto (§3.9) - sie haben keinen eigenen taktischen Zweck, der
- * eine Abweichung rechtfertigt. Nur Barrel (Suppress: schnellstes, sonst stärkstes
- * Ziel, §4.7) und Limit (§3.4: explizit "stärkstes Ziel") wählen ihr Ziel weiterhin
- * pro Einsatz unabhängig vom Fokus - beide haben einen im Spec benannten eigenen
- * Zweck (unterdrücken/finishen), der die Abweichung begründet.
+ * eine Abweichung rechtfertigt. Nur Barrel (Suppress: höchster Schadensdurchsatz
+ * ATK*SPD, §3.9/§4.7 M11-Nachtrag) und Limit (§3.4: explizit "stärkstes Ziel")
+ * wählen ihr Ziel weiterhin pro Einsatz unabhängig vom Fokus - beide haben einen im
+ * Spec benannten eigenen Zweck (unterdrücken/finishen), der die Abweichung begründet.
+ * Diese Ausnahmen gelten NUR hier, in der Referenz-Policy - die sichtbare Vorauswahl
+ * im Aktions-Popup (`ui/gameStore.svelte.ts`) kennt seit M11 keine Ausnahmen mehr.
  */
 export function resolveOptimalAction(actor: BattleUnit, state: BattleState): void {
   const targets = state.enemies.filter(isAlive)
@@ -126,8 +133,12 @@ export function resolveOptimalAction(actor: BattleUnit, state: BattleState): voi
   }
 
   if (actor.name === 'Barrel') {
-    const fast = targets.filter((e) => e.spd >= 140)
-    const target = fast.length ? fast[0] : strongest(targets)
+    // feinspec §3.9/§4.7 (M11-Nachtrag) - der Wert einer Unterdrückung bemisst sich am
+    // Schadensdurchsatz (ATK * SPD), den der Gegner im Wirkzeitraum NICHT anrichtet - nicht
+    // an seiner Geschwindigkeit allein. "SPD >= 140" erfasste keinen der drei Gate-Bosse
+    // (alle SPD 70-90), obwohl Vaultron (ATK 14) den zweithoechsten Durchsatz des Kapitels
+    // hat - die alte Schwelle spielte Barrel ausgerechnet an den Gates systematisch schlecht.
+    const target = mostThreatening(targets)
     if (actor.mp >= actor.specialMpCost!) {
       actor.mp -= actor.specialMpCost!
       target.suppress = 4.0

@@ -296,13 +296,14 @@ describe('feinspec §12 - Abnahmekriterien der Neu-Balancierung (M11)', () => {
       expect(t.totalMinutes).toBeLessThan(v.totalMinutes)
     })
 
-    // Umsetzungsentscheidung M11 #? (s. 06_Implementierungsplan_Kapitel1.md) - der urspruengliche
+    // Umsetzungsentscheidung M11 #6 (s. 06_Implementierungsplan_Kapitel1.md) - der urspruengliche
     // Korridor aus feinspec §12 B2 (T ≈1,3-2,0x, V ≈2,5-4,0x) geht von einem staerkeren T-Vorteil
     // aus, als die Spec-Definition von T ("setzt pro Kampf NUR das Fokusziel, sonst Auto", §3.9)
     // tatsaechlich hergibt: An der Kapitel-Wand (Vaultron, reines Schadensrennen gegen eine
     // periodische Party-AoE, kein Special/Heal/Limit fuer Auto) bringt "welchen Gegner zuerst
     // treffen" nur einen kleinen Unterschied - der grosse Hebel (Limit/Specials/Heal/Suppress) ist
-    // ausschliesslich Typ M vorbehalten. Gemessen mit der aktuellen Balance: T ≈3,2x, V ≈4,1x.
+    // ausschliesslich Typ M vorbehalten. Gemessen (Umsetzungsentscheidung M11 #13, nach dem
+    // §3.9/§4.7-Nachtrag zur Zielvorauswahl): T ≈2,8x, V ≈3,4x.
     // Korridor hier auf den gemessenen Bereich (mit Puffer) angehoben, spec-seitig vermerkt
     // (feinspec §12 B2/§11) statt den Unterschied stillschweigend wegzuinterpretieren.
     it('B2: Zielkorridor (M11-Revision) T ≈ 1,3-3,5x M, V ≈ 2,5-4,5x M', () => {
