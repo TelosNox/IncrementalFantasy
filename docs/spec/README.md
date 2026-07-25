@@ -21,6 +21,7 @@ sodass Querbezüge ohne Laden der anderen Detail-Docs erkennbar bleiben.
 | `ausruestung-gil.md` | Ausrüstung, Slots, Gil | §7 |
 | `charaktere-party.md` | Roster, Skills/Limits, Party, Challenges | §8 |
 | `charaktere-visuals.md` | Charakter-Visuals (Pixel-Art) + Assets | §8 |
+| `regionen-kulissen.md` | Region-Kulissen: Bildsprache, Leitmotive, Format | §3, §8 |
 | `ui-layout.md` | Bildschirm-Layout & Platz-Budget (Stage/Steuerung/Seitenleiste) | §4 |
 | `gegner-encounter.md` | Gegner- & Encounter-Design | Fundament (§3/§4) |
 | `gegner-katalog.md` | Gegner-Katalog (10 Parodie-Monster) | ergänzt gegner-encounter |

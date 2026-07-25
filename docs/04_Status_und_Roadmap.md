@@ -5,7 +5,7 @@
 ## Stand
 
 - **Fundament:** `01_Recherche_Incremental_Games.md`, `02_Leitfaden_Kernmechaniken.md` (verbindliche Prüfinstanz), `03_Konzept_Gerüst.md`.
-- **System-Specs** (`docs/spec/`, Index in `spec/README.md`): Kampf/ATB/Shock, Gambits/Steuerung, Materia, Ausrüstung/Gil, Stats, Charaktere/Party, Prestige/Reunion, Ökonomie/Währungen, Niederlage/Offline, Progression/Regionen, Gegner-Encounter, Gegner-Katalog (10 Monster), Encounter-Zyklus-1 (Platzierung + Stats), Charakter-Visuals, UI-Layout.
+- **System-Specs** (`docs/spec/`, Index in `spec/README.md`): Kampf/ATB/Shock, Gambits/Steuerung, Materia, Ausrüstung/Gil, Stats, Charaktere/Party, Prestige/Reunion, Ökonomie/Währungen, Niederlage/Offline, Progression/Regionen, Gegner-Encounter, Gegner-Katalog (10 Monster), Encounter-Zyklus-1 (Platzierung + Stats), Charakter-Visuals, Region-Kulissen, UI-Layout.
 - **Visuals:** 4 Charaktere, 10 Monster, 3 Kapitel-1-Kulissen — als PNGs **und** reproduzierbare Generatoren (`assets/generate_{characters,monsters,regions}.py`).
 
 ## Entschieden (Kern-Pfeiler)

@@ -29,17 +29,9 @@ Die Stil-Regeln unten gelten identisch für Monster (64×64, Iso-Kippung, Bodens
 
 - `assets/regions/{reactor_row,bargain_bazaar,megacorp_tower}_160.png` (nativ 160×96) / `_480.png` (3× Nearest) / `_sheet.png` (Kontaktbogen). **Veralteter Stand** – das verbindliche Format steht unten unter „Kulissen-Format".
 - `assets/generate_regions.py` – **Kulissen-Generator** (gleiche Pixel-Welt, mit Alpha-Compositing für Glows/Wolken).
-- **Regeln:** jede Kulisse hat eine **Standfläche** im unteren Drittel (Party links, Gegner rechts); fokale Motive aus der Seitenleisten-Zone halten (s. `ui-layout.md`). Ebenen-Aufbau (Himmel/Skyline → Hauptmotiv → Vordergrund/Boden) für späteres Parallax – das sind die Ebenen **B0/B1/B2** des Bühnen-Frameworks.
+→ **Bildsprache, Leitmotive der 15 Regionen, Signalfarben-Disziplin und Format: `regionen-kulissen.md`.** Kulissen sind ein eigenes System und werden dort spezifiziert; hier stehen nur noch die Assets.
 
-### Kulissen-Format (verbindlich, aus dem Bühnen-Framework abgeleitet)
-
-Der Backdrop wird **nie auf die Stage gestreckt**, sondern mit demselben Faktor `s` skaliert wie die Sprites (`ui-layout.md`, „Bühnen-Framework"). Damit ist das Assetmaß nicht mehr frei:
-
-- **Maßstab:** 1 Backdrop-Pixel = **3 su** = 3 Sprite-Pixel. Der gröbere Backdrop-Raster ist gewollt (Kulisse grob, Figuren fein) – aber ab jetzt in einem **festen ganzzahligen** Verhältnis, nicht in einem von der Fenstergröße abhängigen.
-- **Nenn-Box: 168×96** – exakt die Bühnenbox (504×288 su, Format 7:4). Alles Gestaltungsrelevante liegt hier drin.
-- **Bodenfläche: die unteren 32 Pixel** der Nenn-Box (y 64–96) – das Bodenband. **Verbindlich für jede Kulisse, auch für alle künftigen Regionen 4–15.** Die Standlinien der Figuren liegen 12 px bzw. 25⅓ px unterhalb der Bodenkante (su 228 und 268); der Boden muss dort durchgehend als begehbare Fläche lesbar sein (keine Mauer, kein Wasser, keine Abbruchkante quer durch die Standlinien).
-- **Bleed-Zonen: je 28 Pixel links und rechts, 32 Pixel oben** → **Gesamt-Canvas 224×128**, Nenn-Box darin bei x 28–196, y 32–128 (unten bündig, weil die Bühne unten verankert wird). Der Bleed setzt Himmel, Skyline und Boden schlicht fort und trägt **kein** fokales Motiv – er wird je nach Fensterformat sichtbar oder nicht. Abgedeckte Stage-Seitenverhältnisse: **rund 1,31 bis 2,33** (4:3 bis 21:9).
-- Die drei Kapitel-1-Kulissen existieren bisher nur als **160×96 ohne Bleed** und mit einer Bodenzone, die die Vorgabe nicht erfüllt (schmaler Straßenstreifen plus strukturloser dunkler Vordergrund, geprüft in `assets/mockups/stage-framework-check.html`). Sie sind über den Generator **neu zu erzeugen**, nicht nachzubearbeiten.
+Kurzfassung für den Stil-Bezug: gleiche Pixel-Welt wie die Figuren, aber gröberes Raster (1 Backdrop-Pixel = 3 su). Ebenen-Aufbau Himmel/Skyline → Hauptmotiv → Vordergrund/Boden = **B0/B1/B2** des Bühnen-Frameworks. Die drei Kapitel-1-Kulissen sind **neu zu erzeugen** – sie erfüllen weder Format noch Bodenband-Vorgabe.
 - Bisher: Kapitel 1 (Reactor Row, Bargain Bazaar, MegaCorp Tower). Weitere Regionen im selben Look über den Generator ergänzbar.
 
 ## Stil-Regeln (verbindlich für neue Assets)

@@ -106,7 +106,7 @@ Von hinten nach vorn. Auf diese Namen kann in Folge-Sessions Bezug genommen werd
 
 | Ebene | Inhalt |
 |---|---|
-| **B0 Ferne** | Himmel/Skyline im Backdrop (langsamstes Parallax, falls Parallax kommt) |
+| **B0 Ferne** | Himmel/Skyline im Backdrop; **die einzige Ebene, in der sich etwas bewegen darf** (`regionen-kulissen.md` §10) |
 | **B1 Motiv** | Hauptmotiv des Backdrops (Reaktor, Basar, Turm) |
 | **B2 Boden** | Bodenfläche des Backdrops (unteres Drittel) |
 | **F-Stapel** | **je Figur ein eigener Stapel**, sortiert nach Standlinie (hintere Reihe zuerst): **F0** Bodenaufsätze (Shock-Ring, Bodenmarker, auf der Standlinie liegend) → **F1** Sprite → **F2** Sprite-Marker (Silhouetten-Umriss + Schein + Glyphe) |
@@ -242,7 +242,7 @@ Das übrige UI-Design (Shop-/Materia-/Prestige-Panels, Farben-Feinschliff, Respo
 - Konkrete Prozente der drei Flächen (Stage / Bottom-Leiste / Seitenleiste) innerhalb der genannten Korridore.
 - **Portrait-/Kompakt-Layout unterhalb `s = 1,0`** – dort greift das Bühnen-Framework bewusst nicht. Ob dann die Bühnenbox anders proportioniert wird (schmaler, höher) oder die Seitenleiste weicht, ist offen.
 - Seitenleiste links oder rechts; Einklapp-Verhalten. **Neu relevant:** Beim Ein-/Ausklappen ändert sich die Stage-Breite und damit `s` – ob die Bühne dabei animiert mitskaliert oder springt, ist noch nicht entschieden.
-- Parallax zwischen B0/B1/B2 – das Framework sieht die Ebenen vor, aber keine Bewegung.
+- ~~Parallax zwischen B0/B1/B2~~ → **verworfen:** wirkungslos ohne Kamerabewegung, und die Bühne steht still. B0–B2 bleiben als Bauordnung; stattdessen „Kulissen-Leben" (`regionen-kulissen.md` §10).
 - Kampf-Feedback-Ebene (U1): Schadenszahlen, Trefferanzeige, Angriffsbewegung sind bisher inhaltlich nicht spezifiziert, nur eingeplant.
 - ~~Genaue Sprite-Größen im Verhältnis zur Stage~~ → **entschieden:** Bühnen-Framework (su, Bühnenbox 504×288, einheitlicher Faktor `s`).
 - ~~Exaktes Spacing bei voller Party~~ → **entschieden:** Slot-Raster im Bühnen-Framework.
