@@ -358,10 +358,18 @@ def sign(bd: Backdrop, x, y, w, h, *, frame='accent', fill='mid_lo', glyph=None,
     elif glyph == 'arrow':
         bd.rect(ix, iy + ih / 2 - 1, iw - 2, 2, gc)
         bd.poly([(ix + iw - 3, iy), (ix + iw, iy + ih / 2), (ix + iw - 3, iy + ih)], gc)
-    elif glyph == 'logo':  # deliberately oversized block mark
-        bd.rect(ix, iy, iw, 2, gc)
-        bd.rect(ix + iw / 2 - 1, iy, 2, ih, gc)
-        bd.rect(ix, iy + ih - 2, iw, 2, gc)
+    elif glyph == 'monogram':
+        # A corporate mark has to read as a *mark*. The previous 'logo' glyph was
+        # two crossbars plus a centre post -- a sideways H, which on a high-rise
+        # reads as a helipad (spec section 2, "what else could this be?"). A
+        # letterform cannot be mistaken for infrastructure.
+        sw = max(3, int(iw * 0.11))
+        midx = ix + iw / 2
+        vy = iy + ih * 0.72
+        bd.rect(ix, iy, sw, ih, gc)
+        bd.rect(ix + iw - sw, iy, sw, ih, gc)
+        bd.poly([(ix + sw, iy), (ix + sw * 2, iy), (midx + sw / 2, vy), (midx - sw / 2, vy)], gc)
+        bd.poly([(ix + iw - sw * 2, iy), (ix + iw - sw, iy), (midx + sw / 2, vy), (midx - sw / 2, vy)], gc)
     elif glyph == 'burst':
         bd.ellipse(ix + iw / 2, iy + ih / 2, iw / 3, ih / 3, gc)
 

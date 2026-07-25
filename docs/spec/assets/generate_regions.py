@@ -132,7 +132,7 @@ MEGACORP_TOWER = Region(
         (pipe_run, dict(x0=104, y0=30, x1=104, y1=64, thick=7, color='mid_side')),
         (glow, dict(cx=107, cy=-8, r=13, color='accent', core=0)),
         # the one detail: a corporate logo, sized well past good taste
-        (sign, dict(x=16, y=2, w=54, h=26, frame='accent', glyph='logo')),
+        (sign, dict(x=16, y=2, w=54, h=26, frame='accent', glyph='monogram')),
     ],
     ground=dict(seed=29, speckle=0.04),
 )
