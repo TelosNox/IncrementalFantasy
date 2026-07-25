@@ -332,6 +332,14 @@ Abgeleitete Stats: `stat = round(base.stat · growth.stat^(level-1)) · weaponMo
 
 **Verbindlich (Playtest-Fund):** `hp` und `mp` sind **Übertragswerte**, keine abgeleiteten Maxima. Eine Kampfeinheit darf **nicht** bei jedem Zonenstart aus dem Charakter neu aufgebaut werden – genau das hat in der Erstumsetzung HP, MP *und* Limit gleichzeitig entwertet und §3.5 zu totem Text gemacht. Zu Kampfbeginn gilt: HP/MP aus dem Save übernehmen, `atb` und `limit` zurücksetzen.
 
+**Ebenso verbindlich – wann zurückgeschrieben wird (Playtest-Fund nach M11):** Der erreichte HP/MP-Stand wird bei **jedem Verlassen eines Kampfes** in den Charakter zurückgeschrieben – **Sieg, Niederlage *und* Zonenwechsel**. Die Erstumsetzung kannte nur Sieg und Niederlage; ein Zonenwechsel verwarf damit den gesamten im laufenden Kampf erlittenen Schaden, weil der Charakter noch auf dem Stand vom Kampfbeginn stand.
+
+Das las sich im Spiel wie eine Heilung, war aber **Schadens-Amnestie** – und hebelte die halbe Ventil-Ökonomie aus: Wer einen Kampf schlecht laufen sah, wechselte die Zone und zurück und stand wieder wie zu Beginn. Abnutzung wäre damit freiwillig, das Gasthaus (§3.8b) weitgehend überflüssig und die HP-Signalregel (§3.8d) wirkungslos, weil sie nie auslösen kann.
+
+Der Zonenwechsel ist **kein Nulltarif-Ausstieg**: Er kostet den bereits investierten Kampf (keine EXP, kein Gil), lässt aber den erlittenen Schaden stehen. Genau das macht „eine Zone zurück" zu einer Entscheidung statt zu einem Reset-Knopf.
+
+*Bewusst unangetastet bleibt der Reload mitten im Kampf* (Umsetzungsentscheidung 2 zu M11): Er startet die Zone vom letzten Synchronisationspunkt neu. Derselbe Effekt, aber kein Ein-Klick-Weg im Spiel – als seltener Sonderfall akzeptiert, solange die Alternative eine laufende Synchronisation während des Ticks wäre.
+
 ### 4.2 Monster (Katalog-Eintrag)
 
 ```jsonc
