@@ -398,14 +398,24 @@ export class GameStore {
     this.battle.focusTargetIndex = index
   }
 
-  /** feinspec §3.8a (M11) - freie Zonen-Rückkehr: das eigentliche Ventil. Nur zwischen Kämpfen. */
+  /**
+   * feinspec §3.8a (M11) - freie Zonen-Rückkehr: das eigentliche Ventil. Nur zwischen Kämpfen.
+   * Playtest-Fund (Nachtrag zu Entscheidung 2): ein manueller Zonenwechsel spawnt einen neuen
+   * Kampf aus `this.save.party`, OHNE zuvor den im gerade verlassenen (unentschiedenen) Kampf
+   * erlittenen Schaden zurückzuschreiben - `Character.hp/mp` stand danach noch auf dem Stand vom
+   * Kampfbeginn, was im Spiel wie eine Gratis-Heilung aussah. §4.1 verlangt das Rückschreiben bei
+   * JEDEM Verlassen eines Kampfes (Sieg/Niederlage/Zonenwechsel), nicht nur bei Sieg/Niederlage.
+   * Der Zonenwechsel kostet weiterhin den investierten Kampf (keine EXP/Gil, s. `#onWin`/`#onLoss`
+   * fuer die Vergleichsfaelle), laesst den erlittenen Schaden aber stehen.
+   */
   selectZone(zoneIndex: number): void {
     if (this.phase !== 'battle') return
     if (zoneIndex < 1 || zoneIndex > this.save.maxZoneReached) return
     if (zoneIndex === this.save.currentZone) return
     this.#dismissCallout()
-    this.save = { ...this.save, currentZone: zoneIndex }
-    this.battle = spawnBattle(findZone(zoneIndex), this.save.party, this.reunionBoostMult)
+    const party = syncPartyFromBattle(this.save.party, this.battle.party)
+    this.save = { ...this.save, party, currentZone: zoneIndex }
+    this.battle = spawnBattle(findZone(zoneIndex), party, this.reunionBoostMult)
   }
 
   /** feinspec §3.8b (M11) - "nach diesem Kampf ins Gasthaus" umschalten; greift erst nach Kampfende. */
