@@ -28,8 +28,18 @@ Die Stil-Regeln unten gelten identisch für Monster (64×64, Iso-Kippung, Bodens
 ## Region-Kulissen (Backdrops)
 
 - `assets/regions/{reactor_row,bargain_bazaar,megacorp_tower}_160.png` (nativ 160×96) / `_480.png` (3× Nearest) / `_sheet.png` (Kontaktbogen).
-- `assets/generate_regions.py` – **Kulissen-Generator** (160×96, gleiche Pixel-Welt, mit Alpha-Compositing für Glows/Wolken).
-- **Regeln:** jede Kulisse hat eine **Standfläche** im unteren Drittel (Party links, Gegner rechts); fokale Motive aus der Seitenleisten-Zone halten (s. `ui-layout.md`). Ebenen-Aufbau (Himmel/Skyline → Hauptmotiv → Vordergrund/Boden) für späteres Parallax.
+- `assets/generate_regions.py` – **Kulissen-Generator** (gleiche Pixel-Welt, mit Alpha-Compositing für Glows/Wolken).
+- **Regeln:** jede Kulisse hat eine **Standfläche** im unteren Drittel (Party links, Gegner rechts); fokale Motive aus der Seitenleisten-Zone halten (s. `ui-layout.md`). Ebenen-Aufbau (Himmel/Skyline → Hauptmotiv → Vordergrund/Boden) für späteres Parallax – das sind die Ebenen **B0/B1/B2** des Bühnen-Frameworks.
+
+### Kulissen-Format (verbindlich, aus dem Bühnen-Framework abgeleitet)
+
+Der Backdrop wird **nie auf die Stage gestreckt**, sondern mit demselben Faktor `s` skaliert wie die Sprites (`ui-layout.md`, „Bühnen-Framework"). Damit ist das Assetmaß nicht mehr frei:
+
+- **Maßstab:** 1 Backdrop-Pixel = **3 su** = 3 Sprite-Pixel. Der gröbere Backdrop-Raster ist gewollt (Kulisse grob, Figuren fein) – aber ab jetzt in einem **festen ganzzahligen** Verhältnis, nicht in einem von der Fenstergröße abhängigen.
+- **Nenn-Box: 160×96** – exakt die Bühnenbox (480×288 su). Alles Gestaltungsrelevante liegt hier drin.
+- **Bodenfläche: die unteren 32 Pixel** der Nenn-Box (y 64–96) – das Bodenband. **Verbindlich für jede Kulisse, auch für alle künftigen Regionen 4–15.** Die Standlinien der Figuren liegen bei 12 px bzw. 20 px unterhalb der Bodenkante; der Boden muss dort durchgehend als begehbare Fläche lesbar sein (keine Mauer, kein Wasser, keine Abbruchkante quer durch die Standlinien).
+- **Bleed-Zonen: je 32 Pixel links und rechts, 24 Pixel oben** → **Gesamt-Canvas 224×120**, Nenn-Box darin bei x 32–192, y 24–120 (unten bündig, weil die Bühne unten verankert wird). Der Bleed setzt Himmel, Skyline und Boden schlicht fort und trägt **kein** fokales Motiv – er wird je nach Fensterformat sichtbar oder nicht. Abgedeckte Stage-Seitenverhältnisse: **4:3 bis 21:9**.
+- Die drei Kapitel-1-Kulissen existieren bisher nur als 160×96 ohne Bleed und sind über den Generator entsprechend zu erweitern.
 - Bisher: Kapitel 1 (Reactor Row, Bargain Bazaar, MegaCorp Tower). Weitere Regionen im selben Look über den Generator ergänzbar.
 
 ## Stil-Regeln (verbindlich für neue Assets)
@@ -37,8 +47,9 @@ Die Stil-Regeln unten gelten identisch für Monster (64×64, Iso-Kippung, Bodens
 - **Canvas 64×64**, transparenter Hintergrund. Hochskalierung **immer Nearest-Neighbor** (pixelig), nie glätten.
 - **Leicht isometrische Front:** kantige Körper (Quader) mit **hellerer Oberseite** + **dunklerer rechter Seitenfläche** (Tiefe d ≈ 5–6 px). Runde Körper (Wolke, Zylinder) über **hellere Oberkante** + **dunklere Unterkante/rechte Wölbung** andeuten.
 - **Beleuchtung** von oben-links: Oberseiten heller, rechte/untere Flächen dunkler.
-- **Boden-Schatten:** flache Ellipse, ~14 % Schwarz, mittig unter der Figur; Figur steht auf dem Schatten (nicht schweben).
-- **Standfläche:** Sprites stehen auf der Bodenzone der Battle-Stage (Party links, Gegner rechts) – Layout/Platzbedarf s. `ui-layout.md`.
+- **Boden-Schatten:** flache Ellipse, ~14 % Schwarz, mittig unter der Figur; Figur steht auf dem Schatten (nicht schweben). **Verbindlich fürs Layout:** Der Schatten liegt **vollständig innerhalb der Sprite-Box**, berührt deren Unterkante und ist **höchstens 8 su hoch** (8 px bei 64×64-Sprites). Nur dadurch liegt er garantiert im Bodenband, ohne dass die Platzierung je Figur nachgeprüft werden muss.
+- **Standfläche:** Der **Anker** eines Sprites ist die Mitte seiner unteren Boxkante; er sitzt auf einer der beiden Standlinien der Battle-Stage (Slot-Raster s. `ui-layout.md`). Sprites werden nicht freihändig positioniert.
+- **Größenklassen** sind reine su-Angaben: Standard 64, Miniboss 96, Kapitel-Boss 128. Ein zusätzlicher „Display-Zoom" existiert nicht mehr – die Bühne skaliert als Ganzes.
 - **Silhouette zuerst:** jede Figur bleibt ein klar erkennbares ikonisches Objekt.
 - **Augen** (Front): zwei einfache dunkle Rechtecke (3×4 px).
 - **Zwei Helligkeitsstufen** pro Farbfläche genügen (Grundton + Schatten/Highlight).

@@ -1,13 +1,13 @@
 # Bildschirm-Layout & Platz-Budget
 
-**Status:** Platz-Budget/Rahmen – plus die inzwischen entschiedenen Teile der Kampf-Darstellung (Steuer-UI, Aufstellung, Zustände, Markierungen). Übriges UI-Design folgt später.
+**Status:** Platz-Budget/Rahmen – plus das **Bühnen-Framework** (Einheit, Bühnenbox, Skalierung, Bänder, Linien, Slot-Raster, Ebenen) und die entschiedenen Teile der Kampf-Darstellung (Steuer-UI, Aufstellung, Zustände, Markierungen). Übriges UI-Design folgt später.
 **Rahmen:** unterlegt Region-Kulissen und Sprite-Platzierung; `../03_Konzept_Gerüst.md` §4.
 **Prüfinstanz:** `../02_Leitfaden_Kernmechaniken.md`.
 
 ## Schnittstellen zu anderen Systemen
 
-- **Region-Kulissen** (Backdrops): brauchen eine Standfläche; fokale Motive aus der Seitenleisten-Zone halten.
-- **Charaktere/Monster** (`charaktere-visuals.md`): 64×64-Sprites stehen auf der Standfläche der Stage.
+- **Region-Kulissen** (Backdrops): liefern die Bodenfläche im festgelegten Bodenband und die seitlichen/oberen **Bleed-Zonen**; fokale Motive aus der Seitenleisten- und der Bleed-Zone halten.
+- **Charaktere/Monster** (`charaktere-visuals.md`): 64×64-Sprites (= 64 su) stehen mit ihrem Anker auf einer der beiden Standlinien; Bodenschatten ≤ 8 su innerhalb der Sprite-Box.
 - **Incremental-System-UIs** (Materia, Shop, Prestige, Stats, Gambits): leben in der Seitenleiste/Submenüs (später).
 - **Kampf** (`kampf-analyse-shock.md`): HP-/Shock-/Telegraf-Anzeigen über den Sprites brauchen freien Kopfraum.
 
@@ -18,12 +18,103 @@
 - **Incremental / Menüs:** vertikale Leiste **seitlich** (~18–24 % Breite) – Materia, Shop, Prestige, Stats, Submenüs; ideal einklappbar.
 - **Stage** = verbleibende ~76–80 % × ~78–82 %.
 
+Diese Prozente beschreiben, **wie viel Fläche** die Stage vom Fenster bekommt. Was **innerhalb** der Stage passiert, ist ab hier vollständig durch das Bühnen-Framework festgelegt und hängt von der Fenstergröße nicht mehr ab.
+
+## Bühnen-Framework (verbindlich)
+
+**Neu, Playtest-Korrektur nach M11.** Vorher war die Kampfzone in **zwei unabhängigen Maßsystemen** beschrieben: Sprites absolut (64/96/128 px nativ + fester 2×-Zoom), Kulisse und Aufstellung relativ („unteres Drittel", „responsive an der Stage-Breite", „exaktes Spacing ist Implementierungsdetail"). Zwei Maßsysteme können per Konstruktion nicht proportionsstabil sein – bei schmalerem Fenster schrumpfte die Stage, die Sprites aber nicht (Figuren rückten zusammen), und der Backdrop wurde gestreckt, während die Sprites es nicht wurden (die Bodenfläche wanderte unter den Füßen weg). Das Framework ersetzt beides durch **eine Einheit und einen Skalierungsfaktor**.
+
+**Schema:** `assets/stage-framework.svg` (Bänder, Linien, Slot-Raster, Bleed und Boss-Gegenprobe maßstäblich).
+
+### Einheit und Bühnenbox
+
+- **Stage-Unit (su)** ist die einzige Längeneinheit der Kampfzone. **1 su = 1 Sprite-Pixel nativ.**
+- Der Backdrop ist nativ 160×96 (`charaktere-visuals.md`). Damit gilt fest: **1 Backdrop-Pixel = 3 su.** Kulisse und Figuren liegen in **einem** Raster.
+- **Bühnenbox: 480 × 288 su** (Format 5:3 = das bestehende Kulissenformat ×3).
+- **Alle** Positionen, Abstände und Bandhöhen werden in su angegeben – nie in Prozent der Stage, nie in CSS-Pixeln.
+
+### Skalierung: ein Faktor für alles
+
+- **`s` = CSS-Pixel pro su**, angewandt auf **Backdrop, Sprites, Bodenaufsätze, Marker und Kopf-HUD gleichermaßen**.
+- **`s = min(Stage-Breite / 480, Stage-Höhe / 288)`**, fließend (nicht auf ganze Stufen gerundet), begrenzt auf **1,0 ≤ s ≤ 4,0**.
+- Der früher als „2×-Display-Zoom" beschlossene Wert ist damit keine Sprite-Eigenschaft mehr, sondern der **Referenzfall `s = 2`** (Bühne 960×576 CSS-px, Standardfigur 128 px). Die Größenhierarchie aus `charaktere-visuals.md` (Standard 64 / Miniboss 96 / Kapitel-Boss 128 su) bleibt unverändert – sie ist jetzt schlicht in su ausgedrückt.
+- **Bewusster Preis dieser Wahl:** Bei krummem `s` ist das Pixelraster ungleichmäßig (einzelne Pixel werden 1 CSS-px breiter). Das ist gegenüber ganzzahligen Zoomstufen abgewogen und **zugunsten der Komposition entschieden**: Eine Bühne, deren Proportionen sich beim Resizen nie ändern, ist mehr wert als ein perfektes Pixelraster mit sichtbaren Sprüngen und breiten Rändern. Rendering bleibt Nearest-Neighbor.
+- **Unterhalb `s = 1,0`** (Stage schmaler als 480 CSS-px) greift **nicht** dieses Layout, sondern das noch unspezifizierte Portrait-/Kompakt-Layout (s. „Offene Punkte").
+
+### Verankerung und Bleed
+
+- Die Bühnenbox wird **horizontal zentriert** und **vertikal an ihrer Unterkante** am unteren Rand der Stage verankert. Der Boden bleibt damit immer unten; überschüssige Fläche entsteht oben (Himmel) und seitlich.
+- Überschüssige Fläche wird **nicht** durch Balken oder durch Strecken gefüllt, sondern durch den **Bleed** des Backdrops: Die Kulisse wird mit demselben `s` über die Bühnenbox hinaus gezeichnet. Asset-Vorgabe dazu in `charaktere-visuals.md` („Region-Kulissen").
+- **Der Backdrop wird nie unabhängig von `s` skaliert oder auf die Stage gestreckt.** Genau das war der ursprüngliche Fehler.
+
+### Vertikale Bänder (y von der Bühnenoberkante, 0 … 288)
+
+| Band | y (su) | Höhe | Inhalt |
+|---|---|---|---|
+| **Himmelband** | 0 – 72 | 72 | Backdrop-Ferne. Kein Sprite, kein Kopf-HUD ragt hier hinein. |
+| **Figurenband** | 72 – 192 | 120 | Sprite-Körper und ihr HUD-Kopfraum. |
+| **Bodenband** | 192 – 288 | 96 | Standflächen, Schatten, Bodenaufsätze. |
+
+Das **Bodenband ist exakt das untere Drittel der Bühne** und entspricht **den unteren 32 der 96 Backdrop-Pixel**. Das ist die verbindliche Antwort auf „wie hoch muss die Bodenfläche reichen": nicht „ungefähr unteres Drittel", sondern 32 Pixel im Asset.
+
+### Linien und Anker
+
+- **Bodenkante `G` bei y = 192** – Oberkante der Bodenfläche im Backdrop.
+- **Standlinie hinten `B₂` bei y = 228**, **Standlinie vorn `B₁` bei y = 252**.
+- **Anker einer Figur = Mitte der unteren Kante ihrer Sprite-Box.** Der Anker sitzt auf der Standlinie ihrer Reihe.
+- **Reserven:** 36 su zwischen `G` und `B₂`, 36 su zwischen `B₁` und der Bühnenunterkante. Keine Figur steht an einer Kante.
+- **Deckenlinie bei y = 72:** Sprite-Oberkante plus 24 su HUD-Reserve muss darunter bleiben. Gegenprobe Kapitel-Boss (128 su, hintere Standlinie): Oberkante y = 100, HUD-Reserve bis y = 76 – passt.
+- **Schatten-Regel (Asset):** Der Bodenschatten liegt **vollständig innerhalb der Sprite-Box**, berührt deren Unterkante und ist **≤ 8 su hoch**. Damit liegt jeder Schatten automatisch im Bodenband, sobald der Anker auf einer Standlinie sitzt – die Bedingung „Schatten immer auf der Bodenfläche" ist strukturell erfüllt und muss nicht je Figur geprüft werden.
+
+### Tiefenvektor und Slot-Raster
+
+Die hintere Reihe entsteht aus der vorderen durch **einen** konstanten Versatz – dem **Tiefenvektor `D` = (−32, −24) su** (32 su nach links, 24 su nach oben). `D` ist für Party **und** Gegner identisch; das erfüllt die Regel „eine gemeinsame Perspektivrichtung für die ganze Stage, nicht je Seite gespiegelt" rechnerisch statt nur beschreibend. Der Vertikalanteil (24 su ≈ ⅜ Figurenhöhe) ist bewusst klein gehalten, damit der Versatz als Tiefe und nicht als Formation liest (Begründung s. „Aufstellung").
+
+**Slot-Mitten (x in su), Belegungsreihenfolge von innen nach außen:**
+
+| Slot | Seite | Reihe | x | y (Standlinie) |
+|---|---|---|---|---|
+| P1 | Party | vorn | 192 | 252 |
+| P2 | Party | hinten | 160 | 228 |
+| P3 | Party | vorn | 112 | 252 |
+| P4 | Party | hinten | 80 | 228 |
+| E1 | Gegner | vorn | 320 | 252 |
+| E2 | Gegner | hinten | 288 | 228 |
+| E3 | Gegner | vorn | 400 | 252 |
+| E4 | Gegner | hinten | 368 | 228 |
+
+- Abstand innerhalb einer Reihe: **80 su**. Aufstellung ist um die Bühnenmitte (x = 240) **symmetrisch**; Randabstand außen 48 su.
+- **Feste Slot-Zuordnung, kein Nachrücken – auch nicht bei Party-Zuwachs.** Jede Figur behält ihren Slot über den ganzen Zyklus; stoßen später Figuren dazu, füllen sie freie Slots, ohne die vorhandenen zu verschieben. Zum Start steht Claude allein auf P1 (x = 192, leicht links der Mitte). Das ist dieselbe Begründung wie beim Gegner-Nachrücken: Was der Spieler anklickt, darf sich nicht unter dem Cursor verschieben.
+- **Solo-Gegner** (Miniboss 96 su, Kapitel-Boss 128 su) stehen **mittig in der Gegnerzone auf der hinteren Standlinie**: x = 344, y = 228.
+
+### Ebenen (Z-Reihenfolge)
+
+Von hinten nach vorn. Auf diese Namen kann in Folge-Sessions Bezug genommen werden.
+
+| Ebene | Inhalt |
+|---|---|
+| **B0 Ferne** | Himmel/Skyline im Backdrop (langsamstes Parallax, falls Parallax kommt) |
+| **B1 Motiv** | Hauptmotiv des Backdrops (Reaktor, Basar, Turm) |
+| **B2 Boden** | Bodenfläche des Backdrops (unteres Drittel) |
+| **F-Stapel** | **je Figur ein eigener Stapel**, sortiert nach Standlinie (hintere Reihe zuerst): **F0** Bodenaufsätze (Shock-Ring, Bodenmarker, auf der Standlinie liegend) → **F1** Sprite → **F2** Sprite-Marker (Silhouetten-Umriss + Schein + Glyphe) |
+| **U0 Kopf-HUD** | Name/HP/Shock/Telegraf über den Sprites |
+| **U1 Feedback** | Schadenszahlen, Treffer-Effekte |
+| **U2 Overlay** | Aktions-Popup, Unlock-Callout, Stage-Banner |
+
+**Wichtig:** Die Marker gehören in den Stapel **ihrer** Figur, nicht auf eine globale Marker-Ebene – sonst würde der Umriss einer hinteren Figur über eine vordere gezeichnet und der Tiefeneindruck bräche. Nur U0–U2 liegen global über allem; für U0 gilt weiterhin die Kopfraum-Regel (hintere Reihe darf nicht verdeckt werden).
+
+### Leitplanken-Check
+
+- **„Lesbarkeit zuerst"** (`../03_Konzept_Gerüst.md` §15): Der eigentliche Gewinn. Eine Kampfzone, deren Komposition sich mit der Fenstergröße ändert, ist genau die Art unlesbarer Oberfläche, gegen die diese Leitplanke steht – Spieler lernen Positionen und Marker als Muster, und das Muster darf nicht vom Browserfenster abhängen.
+- **Anti-Pattern #10 („ungleichmäßig springende Zähler")** betrifft die Zahldarstellung, nicht das Rendering – **aber die Analogie ist die richtige Brille für den Preis der fließenden Skalierung:** Auch ein ungleichmäßiges Pixelraster bricht eine Illusion von Sauberkeit. Die Abwägung ist bewusst getroffen (stabile Komposition schlägt perfektes Raster) und hier festgehalten, damit sie später nicht als Versehen gelesen wird. Wird das im Spiel störender als erwartet, ist die Gegenmaßnahme **nicht** variables Spacing, sondern ein Rasten von `s` auf ganze/halbe Stufen bei gleichzeitig mehr Bleed.
+- **Kein Konflikt** mit den Anti-Patterns #1–#9, #11, #12: Das Framework fügt weder Systeme noch Ressourcen hinzu, es legt nur fest, wo Vorhandenes steht.
+
 ## Battle-Stage & Standfläche (verbindlich für Kulissen)
 
-- Jede Kulisse braucht eine klare **Standfläche** (Bodenzone) im **unteren Stage-Drittel**, sichtbar über der Bottom-Leiste.
-- **Party bis 4 (links)** vs. **Gegner bis 4 (rechts)** auf derselben Bodenlinie; native 64×64-Sprites.
-- **Display-Zoom auf der Stage (entschieden, Playtest-Korrektur nach M6):** Alle Sprites werden zusätzlich zur nativen Asset-Auflösung mit einem gemeinsamen **2×-Nearest-Neighbor-Zoom** gerendert (Figuren/Standard-Monster effektiv 128×128). Der Zoom wirkt **multiplikativ auf alle Sprite-Klassen gleichermaßen** – die in `charaktere-visuals.md` festgelegte relative Größenhierarchie (Standard 1× = 64px nativ, Miniboss 1,5× = 96px nativ, Kapitel-Boss 2× = 128px nativ) bleibt dadurch unverändert erhalten, es skaliert nur gemeinsam mit hoch (Miniboss effektiv 192px, Kapitel-Boss effektiv 256px). Exaktes Spacing/Kollisionsvermeidung bei voller 4-gegen-4-Party ist Implementierungsdetail (responsive an der tatsächlichen Stage-Breite), keine fixe Pixel-Vorgabe.
-- **Fokale Motive** (z. B. Reaktor) nicht in die Seitenleisten-Zone legen; Backdrop breiter anlegen (Parallax/Crop) mit Sicherheitsrand.
+- Jede Kulisse braucht eine klare **Standfläche** (Bodenzone) – konkret: das **Bodenband** (untere 96 su = untere 32 Backdrop-Pixel), sichtbar über der Bottom-Leiste.
+- **Party bis 4 (links)** vs. **Gegner bis 4 (rechts)** auf den beiden Standlinien; native 64×64-Sprites (= 64 su).
+- **Display-Zoom (entschieden nach M6, im Framework aufgegangen):** Der frühere „gemeinsame 2×-Nearest-Neighbor-Zoom" ist jetzt der Referenzfall `s = 2` des Bühnen-Frameworks. Die Größenhierarchie aus `charaktere-visuals.md` (Standard 64 / Miniboss 96 / Kapitel-Boss 128 su) bleibt erhalten und skaliert mit `s` gemeinsam hoch. **Spacing ist kein Implementierungsdetail mehr**, sondern über das Slot-Raster festgelegt.
+- **Fokale Motive** (z. B. Reaktor) nicht in die Seitenleisten-Zone legen; Bleed-Zonen des Backdrops tragen kein fokales Motiv (s. `charaktere-visuals.md`).
 - **Kopfraum** über den Sprites frei halten, damit HP/Shock/Telegraf-Anzeigen nicht von UI verdeckt werden (Lesbarkeit).
 
 ## Kampf-Darstellung: Aufstellung, Zustände & Markierungen
@@ -36,7 +127,7 @@ Party wie Gegner stehen in **zwei leicht versetzten Reihen** statt in einer Lini
 
 **Verbindliche Einschränkung: Der Versatz muss als *Tiefe* lesbar sein, nicht als *Formation*.** In JRPGs ist die Vorder-/Hinterreihe eine etablierte Konvention mit mechanischer Bedeutung (vorne kassiert mehr, hinten sind die Fragilen). Diese Mechanik haben wir **nicht** – Gegner zielen auf die höchsten aktuellen HP, völlig positionsunabhängig (`gegner-encounter.md` §6a). Eine als Formation lesbare Aufstellung würde also eine Wirkung suggerieren, die es nicht gibt, und Spieler würden ihre Aufstellung „optimieren", ohne dass irgendetwas passiert. Der Versatz bleibt deshalb dezent – erkennbar als Perspektive, nicht als zwei taktische Blöcke.
 
-- **Tiefenmittel:** leichter Vertikalversatz, teilweise Überlappung, korrekte Z-Reihenfolge (hintere Reihe hinter der vorderen), optional minimale atmosphärische Abdunklung/Entsättigung nach hinten.
+- **Tiefenmittel:** leichter Vertikalversatz, teilweise Überlappung, korrekte Z-Reihenfolge (hintere Reihe hinter der vorderen), optional minimale atmosphärische Abdunklung/Entsättigung nach hinten. **Zahlenwerte dazu im Bühnen-Framework:** Tiefenvektor `D` = (−32, −24) su, Slot-Raster, F-Stapel.
 - **Kein Größenunterschied zwischen den Reihen.** Größe ist bereits ein bedeutungstragender Kanal (Standard 1× / Miniboss 1,5× / Kapitel-Boss 2×, s. „Battle-Stage & Standfläche"). Würde Tiefe zusätzlich über Skalierung laufen, wäre ein Miniboss hinten von einem Standardgegner vorn nicht mehr sicher zu unterscheiden.
 - **Eine gemeinsame Perspektivrichtung für die ganze Stage** – nicht je Seite gespiegelt, sonst liest es sich als zwei getrennte Bühnen statt als ein Raum.
 - **Reihenzuordnung bleibt innerhalb eines Kampfes stabil.** Fällt jemand, rücken die anderen nicht nach (s. u.).
@@ -95,6 +186,10 @@ Das übrige UI-Design (Shop-/Materia-/Prestige-Panels, Farben-Feinschliff, Respo
 
 ## Offene Punkte
 
-- Konkrete Prozente und Responsive-Verhalten (Landscape vs. Portrait/Mobile).
-- Seitenleiste links oder rechts; Einklapp-Verhalten.
-- ~~Genaue Sprite-Größen im Verhältnis zur Stage~~ → **entschieden:** 2×-Display-Zoom auf allen Sprite-Klassen (s. „Battle-Stage & Standfläche" oben); exaktes Spacing bei voller Party bleibt Implementierungsdetail.
+- Konkrete Prozente der drei Flächen (Stage / Bottom-Leiste / Seitenleiste) innerhalb der genannten Korridore.
+- **Portrait-/Kompakt-Layout unterhalb `s = 1,0`** – dort greift das Bühnen-Framework bewusst nicht. Ob dann die Bühnenbox anders proportioniert wird (schmaler, höher) oder die Seitenleiste weicht, ist offen.
+- Seitenleiste links oder rechts; Einklapp-Verhalten. **Neu relevant:** Beim Ein-/Ausklappen ändert sich die Stage-Breite und damit `s` – ob die Bühne dabei animiert mitskaliert oder springt, ist noch nicht entschieden.
+- Parallax zwischen B0/B1/B2 – das Framework sieht die Ebenen vor, aber keine Bewegung.
+- Kampf-Feedback-Ebene (U1): Schadenszahlen, Trefferanzeige, Angriffsbewegung sind bisher inhaltlich nicht spezifiziert, nur eingeplant.
+- ~~Genaue Sprite-Größen im Verhältnis zur Stage~~ → **entschieden:** Bühnen-Framework (su, Bühnenbox 480×288, einheitlicher Faktor `s`).
+- ~~Exaktes Spacing bei voller Party~~ → **entschieden:** Slot-Raster im Bühnen-Framework.

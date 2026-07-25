@@ -24,6 +24,7 @@
 - **Roster:** Claude/Barrel/Tofa/Air is... mit Waffen-Specials; **10 Monster** (englische Namen) mit Merkmalen + Debüt-Zuordnung (Zyklus 1 vs. Kap. 2+).
 - **Zyklus-1-Encounter:** konkrete Monster-Platzierung je Region + grobe Stats + Skalierungsregel.
 - **Pixel-Stil** und **UI-Platzbudget** festgelegt.
+- **Bühnen-Framework der Kampfzone** (`spec/ui-layout.md`): eine Einheit (Stage-Unit), feste Bühnenbox 480×288 su, **ein** Skalierungsfaktor `s` für Backdrop und Sprites, feste Bänder/Standlinien/Slots, benannte Ebenen (B0–B2 / F-Stapel / U0–U2). Ersetzt die bisherige Mischung aus absoluten Sprite-Größen und relativem Layout, die Proportionen fenstergrößenabhängig machte. Asset-Folge: Kulissen brauchen Bleed-Zonen (Canvas 224×120, `spec/charaktere-visuals.md`).
 
 ## Offen: Playtest-Balance (Zahlen/Kurven)
 
