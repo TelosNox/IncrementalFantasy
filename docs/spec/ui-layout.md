@@ -1,6 +1,6 @@
 # Bildschirm-Layout & Platz-Budget
 
-**Status:** nur **Platz-Budget/Rahmen** – echtes UI-Design folgt später.
+**Status:** Platz-Budget/Rahmen – plus die inzwischen entschiedenen Teile der Kampf-Darstellung (Steuer-UI, Aufstellung, Zustände, Markierungen). Übriges UI-Design folgt später.
 **Rahmen:** unterlegt Region-Kulissen und Sprite-Platzierung; `../03_Konzept_Gerüst.md` §4.
 **Prüfinstanz:** `../02_Leitfaden_Kernmechaniken.md`.
 
@@ -25,6 +25,48 @@
 - **Display-Zoom auf der Stage (entschieden, Playtest-Korrektur nach M6):** Alle Sprites werden zusätzlich zur nativen Asset-Auflösung mit einem gemeinsamen **2×-Nearest-Neighbor-Zoom** gerendert (Figuren/Standard-Monster effektiv 128×128). Der Zoom wirkt **multiplikativ auf alle Sprite-Klassen gleichermaßen** – die in `charaktere-visuals.md` festgelegte relative Größenhierarchie (Standard 1× = 64px nativ, Miniboss 1,5× = 96px nativ, Kapitel-Boss 2× = 128px nativ) bleibt dadurch unverändert erhalten, es skaliert nur gemeinsam mit hoch (Miniboss effektiv 192px, Kapitel-Boss effektiv 256px). Exaktes Spacing/Kollisionsvermeidung bei voller 4-gegen-4-Party ist Implementierungsdetail (responsive an der tatsächlichen Stage-Breite), keine fixe Pixel-Vorgabe.
 - **Fokale Motive** (z. B. Reaktor) nicht in die Seitenleisten-Zone legen; Backdrop breiter anlegen (Parallax/Crop) mit Sicherheitsrand.
 - **Kopfraum** über den Sprites frei halten, damit HP/Shock/Telegraf-Anzeigen nicht von UI verdeckt werden (Lesbarkeit).
+
+## Kampf-Darstellung: Aufstellung, Zustände & Markierungen
+
+**Neu, Playtest-Politur nach M11.** Bis hierher standen alle Figuren in einer gleichförmigen Reihe, gefallene Figuren blieben unverändert stehen, und die beiden Markierungsarten waren unterschiedlich gestaltet.
+
+### Aufstellung: zwei versetzte Reihen (Tiefe)
+
+Party wie Gegner stehen in **zwei leicht versetzten Reihen** statt in einer Linie, um Tiefe anzudeuten.
+
+**Verbindliche Einschränkung: Der Versatz muss als *Tiefe* lesbar sein, nicht als *Formation*.** In JRPGs ist die Vorder-/Hinterreihe eine etablierte Konvention mit mechanischer Bedeutung (vorne kassiert mehr, hinten sind die Fragilen). Diese Mechanik haben wir **nicht** – Gegner zielen auf die höchsten aktuellen HP, völlig positionsunabhängig (`gegner-encounter.md` §6a). Eine als Formation lesbare Aufstellung würde also eine Wirkung suggerieren, die es nicht gibt, und Spieler würden ihre Aufstellung „optimieren", ohne dass irgendetwas passiert. Der Versatz bleibt deshalb dezent – erkennbar als Perspektive, nicht als zwei taktische Blöcke.
+
+- **Tiefenmittel:** leichter Vertikalversatz, teilweise Überlappung, korrekte Z-Reihenfolge (hintere Reihe hinter der vorderen), optional minimale atmosphärische Abdunklung/Entsättigung nach hinten.
+- **Kein Größenunterschied zwischen den Reihen.** Größe ist bereits ein bedeutungstragender Kanal (Standard 1× / Miniboss 1,5× / Kapitel-Boss 2×, s. „Battle-Stage & Standfläche"). Würde Tiefe zusätzlich über Skalierung laufen, wäre ein Miniboss hinten von einem Standardgegner vorn nicht mehr sicher zu unterscheiden.
+- **Eine gemeinsame Perspektivrichtung für die ganze Stage** – nicht je Seite gespiegelt, sonst liest es sich als zwei getrennte Bühnen statt als ein Raum.
+- **Reihenzuordnung bleibt innerhalb eines Kampfes stabil.** Fällt jemand, rücken die anderen nicht nach (s. u.).
+- **Kopfraum-Regel erweitert:** Namen/HP/Shock-Anzeigen der hinteren Reihe dürfen nicht von Sprites der vorderen verdeckt werden.
+
+### Gefallene Figuren
+
+**Party – „am Boden, nicht weg":** Eine Figur mit 0 HP bleibt **an ihrem Platz sichtbar**, deutlich als ausgeschieden markiert (entsättigt/abgedunkelt, leere HP-Leiste, nach Möglichkeit veränderte Pose). Sie wird **nicht entfernt**, denn das entspricht der Mechanik: Sie ist für *diesen Kampf* raus, kehrt aber nach dem nächsten Sieg automatisch mit 25 % zurück (Sieg-Erholung, `feinspec-kapitel1.md` §3.5). Der Platz gehört ihr weiterhin.
+
+*Wichtig:* Kapitel 1 kennt **keine Wiederbelebungs-Aktion**. Die Rückkehr nach dem Sieg ist der einzige Weg zurück – die Darstellung darf also keine Aktion andeuten, die es nicht gibt (kein „Revive"-Knopf, kein Aufforderungs-Blinken).
+
+**Gegner – verschwinden, aber mit einem Takt:** Besiegte Gegner werden ausgeblendet, jedoch **nicht schlagartig** (kurzes Auflösen/Ausblenden), sonst liest sich der Abgang wie ein Darstellungsfehler statt wie ein Erfolg.
+
+**Verbindlich: Der frei gewordene Platz wird nicht nachgerückt.** Die verbleibenden Gegner behalten bis Kampfende ihre Position. Zwei Gründe: Das Fokusziel ist ein **Array-Index** und bewusst über die gesamte Kampfdauer stabil (Umsetzungsentscheidung 3 zu M11) – ein optisches Nachrücken würde entkoppeln, was der Spieler anklickt, von dem, was er sieht. Und nachrückende Sprites verschieben Klickziele unter dem Cursor, mitten im Kampf.
+
+### Markierungen: gleiche Form, unterschiedliche Farbe
+
+Es gibt zwei Markierungen mit **verschiedener Bedeutung**:
+
+| Markierung | Bedeutung | Zweck |
+|---|---|---|
+| an einer **Party-Figur** | wird als Nächstes angegriffen | Verteidigungs-Information, Grundlage für Defend (`feinspec-kapitel1.md` §3.9) |
+| an einem **Gegner** | ist das Fokusziel | Absichtserklärung des Spielers |
+
+Bisher unterschieden sie sich in der **Form** (dezenter Rand vs. großer Kasten) – das ist die falsche Achse. **Die Form bleibt konstant, die Farbe trägt die Bedeutung:**
+
+- **Form (beide):** dünner Umriss entlang der Sprite-Silhouette plus dezenter Schein. **Keine Kästen** – ein Rechteck um ein freigestelltes Pixel-Sprite wirkt wie ein Debug-Rahmen und dominiert die Stage.
+- **Farbe:** **rot/warm** für „wird getroffen" (Bedrohung), **kühl (Cyan/Weiß)** für „Fokusziel" (Spielerabsicht). Cyan ist im Spiel bereits die Farbe der Spielerkontrolle (Manual-Chip, `feinspec-kapitel1.md` §1.5) – die Zuordnung ist also schon gelernt.
+- **Gold/Bernstein bleibt exklusiv dem Shock vorbehalten.** Die aktuelle bernsteinfarbene Fokus-Markierung kollidiert direkt mit dem Shock-Ring am selben Gegner – **das ist ein Lesbarkeitsfehler, keine Geschmacksfrage**: Zwei unabhängige Zustände teilen sich eine Signalfarbe, und ausgerechnet am selben Objekt.
+- **Kleine Glyphen (▲/◆) bleiben** als redundante Kodierung neben der Farbe – dasselbe Doppel-Kodierungs-Prinzip, das die Aktions-Popup-Zustände schon nutzen (s. unten „Zustandskodierung doppelt").
 
 ## Charakter-Steuerung: Panels & Aktions-Popup
 

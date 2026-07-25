@@ -103,6 +103,14 @@ Der Shock-Stand jedes Gegners ist als **Ring um den Gegner** sichtbar. Farbwelt 
 
 Ein einziges Element (der Ring) trägt beide Phasen: **nach oben füllen = Aufbau**, **nach unten leeren = Countdown**; Richtung plus Bruch-Symbol unterscheiden sie eindeutig (Lesbarkeit-Leitplanke, Binär-/Ein-Element-Prinzip).
 
+**Visuelles Gewicht skaliert mit dem Füllstand (Playtest-Politur nach M11).** Die Erstfassung legte Farbe, Richtung und Symbolik fest, aber nichts über die *Auffälligkeit* – umgesetzt wurde ein durchgehend kräftiger Ring, der schon bei nahezu leerem Stand die Stage dominiert. Bei drei bis vier Gegnern gleichzeitig konkurrieren mehrere satte Goldbögen um Aufmerksamkeit, während sie inhaltlich gerade *nichts* mitteilen.
+
+- **Nahe 0 %:** kaum sichtbar – feine Haarlinie, stark reduzierte Deckkraft. Bei exakt 0 darf der Ring ganz entfallen.
+- **Mit steigendem Füllstand** nehmen Deckkraft, Strichstärke und Sättigung zu. Kurz vor 100 % ist der Ring am auffälligsten – **genau dann, wenn die Information zählt**.
+- **Auslösung, Bruch-Symbol und Fenster-Countdown behalten volle Prominenz.** Das ist der Auszahlungsmoment und darf laut sein.
+
+Der Informationsgehalt bleibt damit unverändert (der Füllgrad ist jederzeit ablesbar) – er wird nur dort leise, wo gerade nichts passiert, und dort laut, wo etwas kippt. **Zusätzlich:** Der Ring muss vom Bodenschatten der Figur unterscheidbar bleiben; bei niedrigem Füllstand liegt er als Bogen unter dem Sprite und konkurriert sonst optisch mit der Standfläche.
+
 ## 7. Wellen / Zonen-Rahmen
 
 - Party gegen **Gegnerwelle**; alles besiegt → nächste Zone; **Boss = Gate** (C2).
