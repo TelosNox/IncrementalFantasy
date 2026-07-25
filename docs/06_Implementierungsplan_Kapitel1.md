@@ -338,7 +338,11 @@ Umzusetzen:
 - Die rechnerische Gegenprobe meldet keine gesperrten Signalfarben als gesättigte Lichtpunkte.
 - Eine vierte, neu angelegte Region lässt sich **allein über eine Rezeptur** ergänzen, ohne neue Zeichenfunktion. Das ist der eigentliche Test des Baukastens.
 
-**Voraussetzung:** `python` ist auf dem Entwicklungsrechner **nicht im PATH** (nur der Microsoft-Store-Alias). Das zuerst klären – ohne lauffähigen Generator ist der Meilenstein nicht abnehmbar.
+**Voraussetzung – erledigt (25.07.2026):** Python 3.13.14 mit Pillow 12.3.0 ist installiert (`%LOCALAPPDATA%\Programs\Python\Python313\python.exe`). Der Microsoft-Store-Alias verdeckt es weiterhin in Shells, die vor der Installation gestartet wurden – dort hilft ein neues Terminal oder der volle Pfad.
+
+**Gegenprobe gelaufen:** Alle vier Generatoren (`characters`, `monsters`, `bosses`, `regions`) laufen durch und erzeugen **pixelgleiche** Assets zum eingecheckten Stand (44/44 Dateien, verglichen über `ImageChops.difference`). Die Sprites sind also reproduzierbar – niemand hat am Generator vorbei gemalt.
+
+> **Achtung, Rausch-Diffs:** Ein Generator-Lauf ändert trotzdem **jede** PNG-Datei, weil Pillow 12 anders komprimiert als die Version, mit der die Assets ursprünglich erzeugt wurden. `git status` meldet dann 44 geänderte Dateien ohne einen einzigen abweichenden Pixel. Bei M12 ist deshalb **vor** dem Committen zu prüfen, ob eine Änderung inhaltlich ist – ein Byte-Diff beweist hier nichts. Wer das sauber lösen will, fixiert die PNG-Kodierung (feste `compress_level`, keine Metadaten) und erzeugt einmalig alle Assets neu; dann sind Byte-Diffs künftig wieder aussagekräftig.
 
 ---
 
