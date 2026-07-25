@@ -71,6 +71,17 @@ Ladehinweis (CLAUDE.md): `03_Konzept_Gerüst.md` + betroffene `spec/*.md`, `02_L
 
 ---
 
+## Nächste Umsetzungs-Meilensteine: M12 & M13 (Darstellungsschiene)
+
+Aus der Konzept-Session vom 25.07.2026 (Bühnen-Framework) stehen zwei umsetzungsreife Meilensteine in `06_Implementierungsplan_Kapitel1.md`:
+
+- **M12 – Region-Kulissen: Baukasten & Neuauflage.** Generator von handgeschriebenen Zeichenfunktionen auf Bausteine + Rezeptur umstellen, die drei Kapitel-1-Kulissen im neuen Format neu erzeugen. Führend: `spec/regionen-kulissen.md`. *Voraussetzung: Python ist auf dem Entwicklungsrechner nicht im PATH.*
+- **M13 – Bühnen-Framework in der Stage.** Kampfzone von handkalibrierten Pixelwerten auf das gerechnete su-System umstellen. Führend: `spec/ui-layout.md`.
+
+**Reihenfolge M12 vor M13** – M13 erwartet Kulissen im neuen Format. Beide sind reine Darstellung, ändern keine Mechanik und blockieren die Kapitel-2-Feinspec nicht.
+
+---
+
 ## ⚠️ Stand M11-Umsetzung (25.07.2026)
 
 **M11 ist implementiert und alle 88 automatisierten Tests sind grün** (`npm test`), inkl. eines neu aufgesetzten `tests/chapter-playthrough.test.ts` gegen die drei Spielertypen aus feinspec §12 (M/T/V). Umgesetzt: Zonen-Rückkehr (freie Zonen-Auswahl in der Sidebar), HP/MP-Übertrag zwischen Kämpfen, Sieg-Erholung (+25 % HP/MP) getrennt von Level-Up (heilt nicht mehr automatisch), MP-Refund-Kanal gestrichen, Gasthaus als zeitbasierter Heilkanal (Sidebar-Anmeldung + Stage-Banner), Niederlage ohne Heilung, Limit als Esper-Modell (nur an den drei Gates), Gegner-Zielwahl (höchste HP) + Partei-Fokusziel (Klick auf Gegner, Markierungen für Fokus- und nächstes Gegnerziel), Offline-Progress aus dem Live-Pfad entfernt (`core/offline.ts` bleibt als Balance-Werkzeug), Save-Migration v1→v2.

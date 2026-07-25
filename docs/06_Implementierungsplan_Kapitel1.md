@@ -27,6 +27,8 @@ Jeder Meilenstein ist als eigenständige Arbeitseinheit gedacht (in etwa PR-Grö
 | M9 | Niederlage-Loop, Offline-UI, 1. Reunion | Kompletter Kapitel-1-Loop inkl. Reunion spielbar & speicherbar | feinspec §7.3, Mockup 04, `prestige-reunion.md` |
 | M10 | Härtung & Politur | Release-reifer Kapitel-1-Build | siehe M10 unten |
 | **M11** | **Ventil-Kette & Ressourcen-Ökonomie** | **Kapitel 1 erstmals von einem Menschen durchspielbar** | feinspec §3.4/§3.5/§3.8, `niederlage-offline.md` |
+| M12 | Region-Kulissen: Baukasten & Neuauflage | Drei Kapitel-1-Kulissen im neuen Format, reproduzierbar | `spec/regionen-kulissen.md` |
+| M13 | Bühnen-Framework in der Stage | Kampfzone proportionsstabil bei jeder Fenstergröße | `spec/ui-layout.md` „Bühnen-Framework" |
 
 ---
 
@@ -310,6 +312,72 @@ Erst nach bestandener Liste wird die Pacing-Tabelle in feinspec §7.4 ersetzt; b
 
 ---
 
+## M12 – Region-Kulissen: Baukasten & Neuauflage
+
+**Ziel:** Die Kulissen von drei handgeschriebenen Zeichenfunktionen auf ein reproduzierbares Werkzeug umstellen und im Format des Bühnen-Frameworks neu erzeugen.
+
+**Kern-Referenz:** `spec/regionen-kulissen.md` (führend, inkl. Leitmotiven und Format §9), `spec/ui-layout.md` (Bühnen-Framework, liefert die Geometrie), `spec/charaktere-visuals.md` (Stil-Regeln). Prüfinstanz wie immer `02_Leitfaden_Kernmechaniken.md`.
+
+**Der Befund in einem Satz:** `docs/spec/assets/generate_regions.py` enthält je Region **eine handgeschriebene Funktion aus rohen Koordinaten** – bei drei Kulissen tragbar, bei fünfzehn nicht, und jede Umgestaltung ist Zahlenraten ohne visuelles Feedback.
+
+Umzusetzen:
+
+1. **Bausteinbibliothek** statt Primitiv-Aufrufe: benannte, parametrierte Elemente (`tower`, `stack`, `pipe_run`, `awning_row`, `window_grid`, `crag`, `foliage`, `sign`, `ground_texture`) mit eingebauten Stil-Regeln (Iso-Kippung, Licht von oben-links, zwei Helligkeitsstufen je Fläche).
+2. **Regionsdefinition als Rezeptur:** Palette + Liste von Bausteinen mit Position/Größe, kein Zeichencode je Region. Das Bodenband entsteht **generisch** aus Palette und Bodentextur, nicht je Region neu.
+3. **Neues Format** (`regionen-kulissen.md` §9): Nenn-Box 168×96, Canvas 224×128 mit Bleed (28 px seitlich, 32 px oben, unten bündig), Bodenfläche in den unteren 32 px der Nenn-Box.
+4. **Die drei Kapitel-1-Kulissen neu erzeugen** nach ihren Leitmotiven (§6): Reactor Row / Bargain Bazaar / MegaCorp Tower. **Neu erzeugen, nicht nachbearbeiten** – Format, Bodenband und Farbwahl sind gleichzeitig betroffen.
+5. **Prüfmodus:** Rendern mit eingeblendeten Framework-Linien (`G`, `B₁`, `B₂`, Bleed-Grenzen), damit Verstöße vor der Übernahme auffallen.
+6. **Rechnerische Gegenprobe:** Signalfarben-Sperre (§4) und Kontrast-Budget (§5) automatisch prüfen, statt sie dem Auge zu überlassen.
+7. **Übernahme nach `src/assets/regions/`** – bisher liegen dort die `_480.png`-Varianten; welche Auflösung das Spiel nach dem Framework tatsächlich braucht, entscheidet sich mit M13 (der Backdrop wird mit `s` skaliert, nicht mehr gestreckt).
+
+**Bekannter Verstoß, der dabei verschwinden muss:** Reactor Row zeichnet seine Fenster in `#e7c14b`, MegaCorp Tower wiederholt dieselbe Farbe als Fensterpunkte – das ist exakt die für **Shock** reservierte Signalfarbe (`ui-layout.md`, „Markierungen"). Beide Kulissen streuen damit Shock-Signale über die ganze Bühne.
+
+**Abnahme:**
+- Der Generator läuft reproduzierbar durch und erzeugt die drei Kulissen im Canvas 224×128.
+- Der Prüfmodus zeigt für jede Kulisse: Bodenfläche über beide Standlinien durchgehend begehbar lesbar, kein fokales Motiv in den Bleed-Zonen.
+- Die rechnerische Gegenprobe meldet keine gesperrten Signalfarben als gesättigte Lichtpunkte.
+- Eine vierte, neu angelegte Region lässt sich **allein über eine Rezeptur** ergänzen, ohne neue Zeichenfunktion. Das ist der eigentliche Test des Baukastens.
+
+**Voraussetzung:** `python` ist auf dem Entwicklungsrechner **nicht im PATH** (nur der Microsoft-Store-Alias). Das zuerst klären – ohne lauffähigen Generator ist der Meilenstein nicht abnehmbar.
+
+---
+
+## M13 – Bühnen-Framework in der Stage
+
+**Ziel:** Die Kampfzone von handkalibrierten Pixelwerten auf das gerechnete Bühnen-Framework umstellen, sodass sich bei Fenstergrößenänderung ausschließlich die Größe ändert – nie die Komposition.
+
+**Kern-Referenz:** `spec/ui-layout.md`, Abschnitt „Bühnen-Framework" (führend). Schema: `spec/assets/stage-framework.svg`. Sollbild: die Prüf-Mockups `spec/assets/mockups/stage-*.html`.
+
+**Der Befund in einem Satz:** Umsetzungsentscheidung 19 hält fest, dass die heutige Geometrie „interaktiv am Screenshot kalibriert, nicht rechnerisch hergeleitet" ist (`margin-top:-90px`, `translate(-65px, 5px)`, `ENEMY_LAYOUTS`) – Sprites sind absolut in Pixeln bemessen, Kulisse und Abstände relativ zur Stage, und zwei Maßsysteme können nicht proportionsstabil sein.
+
+Umzusetzen:
+
+1. **Stage-Unit als einzige Längeneinheit** (1 su = 1 Sprite-Pixel), Bühnenbox **504 × 288 su**, alle Positionen in su statt in CSS-Pixeln oder Prozent.
+2. **Ein Skalierungsfaktor** `s = min(Stage-Breite/504, Stage-Höhe/288)`, begrenzt auf 1,0 … 4,0, angewandt auf **Backdrop, Sprites, Bodenaufsätze, Marker und Kopf-HUD gemeinsam**. Der bisherige feste 2×-Sprite-Zoom entfällt – er ist jetzt der Referenzfall `s = 2`.
+3. **Verankerung:** Bühnenbox horizontal zentriert, an ihrer Unterkante am Stage-Boden verankert; Überschuss wird vom **Backdrop-Bleed** gefüllt. Der Backdrop wird **nie** unabhängig skaliert oder auf die Stage gestreckt.
+4. **Slot-Raster** aus der Spec (P1 176 / P2 216 / P3 56 / P4 96; E1 328 / E2 368 / E3 408 / E4 448; Solo-Gegner 388), Standlinien B₂ = 228 / B₁ = 268, Tiefenvektor `D` = (+40, −40). `ENEMY_LAYOUTS` und die Party-Flex-Zeilen werden dadurch **ersetzt**, nicht ergänzt.
+5. **Ebenen** B0–B2 / F-Stapel je Figur / U0–U2. Marker gehören in den Stapel **ihrer** Figur, nicht auf eine globale Ebene – sonst liegt der Umriss einer hinteren Figur über einer vorderen.
+6. **Vortreten bei Bereitschaft:** Party-Figur mit vollem ATB verschiebt sich um (+12, +12) su und wird nicht abgedunkelt; Kopf-HUD wandert mit. Nur Party, nicht Gegner.
+7. **Kontrastplatte hinter dem Kopf-HUD** (verbindlich) und **Tiefen-Abdunklung** der hinteren Reihe (empfohlen, im Code bereits als `brightness(0.88) saturate(0.85)` vorhanden).
+
+**Zwei Altlasten, die dabei aufzulösen sind:**
+
+- **UI-4 (Entscheidung 19):** Der Anzeige-Tausch der Party-Sitzplätze (`PARTY_DISPLAY_ORDER`) war ausdrücklich ein Platzhalter. Die Spec legt jetzt fest: feste Slot-Zuordnung, Belegung von innen nach außen, **kein Nachrücken auch bei Party-Zuwachs**. Entweder `PARTY_DISPLAY_ORDER` entfällt, oder die tatsächlich gewünschte Zuordnung wird als Entscheidung festgehalten – der Platzhalter darf nicht stillschweigend zur Regel werden.
+- **UI-2 (Entscheidung 18):** Die Spec begründet die cyanfarbene Fokus-Markierung damit, dass Cyan im Spiel bereits die Farbe der Spielerkontrolle sei – im Code trifft das nicht zu (der Auto/Manual-Umschalter nutzt Blau). Entweder die Farbzuordnung im Code vereinheitlichen oder die Begründung in der Spec korrigieren; beides ist besser als der jetzige Widerspruch.
+
+**Abnahme:**
+- **Das eigentliche Kriterium:** Beim Verkleinern des Fensters ändert sich ausschließlich die Größe. Figurenabstände, Standlinien und die Lage der Bodenfläche bleiben proportional identisch – das war der Ausgangsfehler.
+- Kein Sprite und kein HUD ragt ins Himmelband; der Kapitel-Boss (128 su auf B₂) bleibt mit HUD unter der Deckenlinie.
+- Bei 4 gegen 4 überlappt kein Kopf-HUD ein anderes.
+- Die Position eines Gegners hängt **nicht** von der Sprite-Größe seiner Nachbarn ab (die in Entscheidung 19 behobene Klasse von Fehlern darf nicht zurückkehren).
+- `npm test` und `npm run check` grün – M13 ist reine Darstellung, die Mechanik bleibt unberührt.
+
+**Reihenfolge:** M12 **vor** M13. M13 erwartet Kulissen im Format 168×96 mit Bodenband und Bleed; die heutigen sind 160×96 ohne beides.
+
+---
+
 ## Danach
+
+**M12/M13 sind die Darstellungsschiene** und laufen unabhängig von der Kapitel-2-Feinspec: Sie ändern keine Mechanik, sondern lösen den in der Konzept-Session vom 25.07.2026 gefundenen Layout-Fehler (zwei Maßsysteme in der Kampfzone) und seine Asset-Folgen. Sie blockieren Kapitel 2 nicht und werden nicht von ihm blockiert.
 
 Kapitel-2-Feinspec (Materia/Slots/AP/Magie, programmierbarer Gambit-Editor) folgt erst, wenn **M11** steht und Kapitel 1 nachweislich durchspielbar ist – bewusst sequenziell, kein Parallel-Design auf einem unbewiesenen Fundament (Leitplanke „Skelett zuerst", `02_Leitfaden_Kernmechaniken.md` §5). Der erste Playtest hat genau diese Leitplanke bestätigt: Das Skelett war nicht bewiesen, sondern nur simuliert.
