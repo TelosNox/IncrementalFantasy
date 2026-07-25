@@ -1,6 +1,8 @@
 import os, math
 from PIL import Image, ImageDraw
 
+from pixel_io import save_png, upscale
+
 C = {'cloudA':'#9fb0c6','cloudB':'#c4d2e2','cloudTop':'#dfe9f4','cloudHi':'#f0f5fb','cloudSh':'#7d90ab',
 'blonde':'#e6c356','blondeH':'#f3dd86','blade':'#c3cad6','bladeH':'#e6eaf0','gold':'#e7c14b','handle':'#6e4523',
 'wood':'#a9713f','woodMid':'#98652f','woodD':'#7d5127','woodTop':'#c99a63','ring':'#9aa2b0','metalH':'#e2e6ec',
@@ -118,8 +120,8 @@ os.makedirs(OUT,exist_ok=True)
 chars={'claude':claude(),'barrel':barrel(),'tofa':tofa(),'airis':airis()}
 sheet=Image.new('RGBA',(256*4,256),(0,0,0,0))
 for i,(n,im) in enumerate(chars.items()):
-    im.save(os.path.join(OUT,f'{n}_64.png'))
-    up=im.resize((256,256),Image.NEAREST); up.save(os.path.join(OUT,f'{n}_256.png'))
+    save_png(im,os.path.join(OUT,f'{n}_64.png'))
+    up=upscale(im,4); save_png(up,os.path.join(OUT,f'{n}_256.png'))
     sheet.paste(up,(i*256,0))
-sheet.save(os.path.join(OUT,'_sheet_256.png'))
+save_png(sheet,os.path.join(OUT,'_sheet_256.png'))
 print('done', list(chars.keys()))

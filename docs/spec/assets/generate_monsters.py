@@ -1,6 +1,8 @@
 import os
 from PIL import Image, ImageDraw
 
+from pixel_io import save_png, upscale
+
 C={'slimeGrey':'#a7adb8','slimeGreyD':'#7e8590','slimeGreyT':'#c8ccd3','straw':'#d9b25a','strawD':'#b78f3c','strawT':'#ecd089',
 'box':'#c79a5e','boxT':'#ddb987','boxR':'#a2743f','tape':'#ecdcb8',
 'steel':'#525a68','steelH':'#c3cad6','steelD':'#2f343f','dial':'#e2e6ec','cream':'#efe9df','creamD':'#cfc7b6','lid':'#5e3f24','sleeve':'#c99a63',
@@ -106,8 +108,8 @@ order=list(MON.keys())
 sheet=Image.new('RGBA',(256*5,256*2),(0,0,0,0))
 for i,n in enumerate(order):
     im=MON[n]()
-    im.save(os.path.join(OUT,f'{n}_64.png'))
-    up=im.resize((256,256),Image.NEAREST); up.save(os.path.join(OUT,f'{n}_256.png'))
+    save_png(im,os.path.join(OUT,f'{n}_64.png'))
+    up=upscale(im,4); save_png(up,os.path.join(OUT,f'{n}_256.png'))
     sheet.paste(up,((i%5)*256,(i//5)*256))
-sheet.save(os.path.join(OUT,'_sheet_256.png'))
+save_png(sheet,os.path.join(OUT,'_sheet_256.png'))
 print('done',order)

@@ -27,11 +27,11 @@ Die Stil-Regeln unten gelten identisch für Monster (64×64, Iso-Kippung, Bodens
 
 ## Region-Kulissen (Backdrops)
 
-- `assets/regions/{reactor_row,bargain_bazaar,megacorp_tower}_160.png` (nativ 160×96) / `_480.png` (3× Nearest) / `_sheet.png` (Kontaktbogen). **Veralteter Stand** – das verbindliche Format steht unten unter „Kulissen-Format".
-- `assets/generate_regions.py` – **Kulissen-Generator** (gleiche Pixel-Welt, mit Alpha-Compositing für Glows/Wolken).
+- `assets/regions/{reactor_row,bargain_bazaar,megacorp_tower,quaintsville}_224.png` (nativ 224×128 = Nenn-Box 168×96 + Bleed) / `_672.png` (3× Nearest, nur zur Ansicht) / `_sheet.png` (Kontaktbogen) / `_check/` (Prüfmodus mit eingeblendetem Framework-Raster).
+- `assets/region_kit.py` – **Kulissen-Baukasten** (Bausteine, Prüfmodus, rechnerische Gegenprobe); `assets/generate_regions.py` – nur noch Paletten + Rezepturen. Gleiche Pixel-Welt wie die Figuren, mit Alpha-Compositing für Glows/Rauch.
 → **Bildsprache, Leitmotive der 15 Regionen, Signalfarben-Disziplin und Format: `regionen-kulissen.md`.** Kulissen sind ein eigenes System und werden dort spezifiziert; hier stehen nur noch die Assets.
 
-Kurzfassung für den Stil-Bezug: gleiche Pixel-Welt wie die Figuren, aber gröberes Raster (1 Backdrop-Pixel = 3 su). Ebenen-Aufbau Himmel/Skyline → Hauptmotiv → Vordergrund/Boden = **B0/B1/B2** des Bühnen-Frameworks. Die drei Kapitel-1-Kulissen sind **neu zu erzeugen** – sie erfüllen weder Format noch Bodenband-Vorgabe.
+Kurzfassung für den Stil-Bezug: gleiche Pixel-Welt wie die Figuren, aber gröberes Raster (1 Backdrop-Pixel = 3 su). Ebenen-Aufbau Himmel/Skyline → Hauptmotiv → Vordergrund/Boden = **B0/B1/B2** des Bühnen-Frameworks. Die drei Kapitel-1-Kulissen wurden in M12 im neuen Format **neu erzeugt**.
 - Bisher: Kapitel 1 (Reactor Row, Bargain Bazaar, MegaCorp Tower). Weitere Regionen im selben Look über den Generator ergänzbar.
 
 ## Stil-Regeln (verbindlich für neue Assets)

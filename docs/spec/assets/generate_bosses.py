@@ -7,6 +7,8 @@ Steckbriefe: gegner-katalog.md. Reproduzierbar & erweiterbar.
 import os
 from PIL import Image, ImageDraw
 
+from pixel_io import save_png, upscale
+
 C={
 # Karton (Blando-Familie)
 'box':'#c79a5e','boxT':'#ddb987','boxR':'#a2743f','tape':'#ecdcb8','boxDk':'#7d5127',
@@ -132,14 +134,14 @@ OUT=os.path.join(os.path.dirname(__file__),'bosses'); os.makedirs(OUT,exist_ok=T
 pad=8; cells=[]
 for name,(fn,sz) in BOSS.items():
     im=fn()
-    im.save(os.path.join(OUT,f'{name}_base.png'))           # native (96 bzw. 128)
-    up=im.resize((sz*4,sz*4),Image.NEAREST)                 # 4x Nearest = gleiche Pixelgroesse wie Monster
-    up.save(os.path.join(OUT,f'{name}_x4.png'))
+    save_png(im,os.path.join(OUT,f'{name}_base.png'))           # native (96 bzw. 128)
+    up=upscale(im,4)                 # 4x Nearest = gleiche Pixelgroesse wie Monster
+    save_png(up,os.path.join(OUT,f'{name}_x4.png'))
     cells.append((name,up,sz*4))
 # Kontaktbogen (gemeinsame Grundlinie, Groessen massstabsgetreu)
 Wd=sum(c[2] for c in cells)+pad*(len(cells)+1); Ht=max(c[2] for c in cells)+pad*2
 sheet=Image.new('RGBA',(Wd,Ht),(0,0,0,0)); x=pad
 for name,up,w in cells:
     sheet.paste(up,(x,Ht-pad-up.height)); x+=w+pad
-sheet.save(os.path.join(OUT,'_sheet.png'))
+save_png(sheet,os.path.join(OUT,'_sheet.png'))
 print('done',list(BOSS.keys()))

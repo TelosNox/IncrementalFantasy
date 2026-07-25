@@ -6,7 +6,7 @@
 
 - **Fundament:** `01_Recherche_Incremental_Games.md`, `02_Leitfaden_Kernmechaniken.md` (verbindliche Prüfinstanz), `03_Konzept_Gerüst.md`.
 - **System-Specs** (`docs/spec/`, Index in `spec/README.md`): Kampf/ATB/Shock, Gambits/Steuerung, Materia, Ausrüstung/Gil, Stats, Charaktere/Party, Prestige/Reunion, Ökonomie/Währungen, Niederlage/Offline, Progression/Regionen, Gegner-Encounter, Gegner-Katalog (10 Monster), Encounter-Zyklus-1 (Platzierung + Stats), Charakter-Visuals, Region-Kulissen, UI-Layout.
-- **Visuals:** 4 Charaktere, 10 Monster, 3 Kapitel-1-Kulissen — als PNGs **und** reproduzierbare Generatoren (`assets/generate_{characters,monsters,regions}.py`).
+- **Visuals:** 4 Charaktere, 10 Monster, 3 Kapitel-1-Kulissen (+ Quaintsville als Baukasten-Nachweis) — als PNGs **und** reproduzierbare Generatoren (`assets/generate_{characters,monsters,bosses,regions}.py`, Kulissen-Baukasten in `assets/region_kit.py`, deterministische PNG-Ausgabe über `assets/pixel_io.py`).
 
 ## Entschieden (Kern-Pfeiler)
 
@@ -36,7 +36,7 @@ Aggregiert aus den „Offene Detailfragen" der Specs — alle konkreten **Werte/
 - Summons/Esper und Chocobos (nur als sekundär vermerkt).
 - Nebenquest-Inhalte und „bedeutende exklusive Entscheidungen".
 - Boss-Designs über die Kapitel-1-Gates hinaus (Mechaniken/Telegrafs).
-- Kulissen der Regionen 4–15; konkretes UI-Design (nur Platzbudget steht).
+- Kulissen der Regionen 5–15 (Leitmotive stehen, Rezepturen fehlen; Region 4 Quaintsville existiert als Baukasten-Nachweis) sowie die Kapitel-Paletten 3–5; **Kulissen-Leben** (`spec/regionen-kulissen.md` §10) ist spezifiziert, aber nicht gebaut, und der **Zonenwechsel-Schwenk** ist seit M12 entscheidbar. Konkretes UI-Design weiterhin offen (nur Platzbudget steht).
 - Story-Text/Dialoge, Audio.
 
 ## Nächster Schritt: Prototyp-Implementierung
@@ -75,8 +75,8 @@ Ladehinweis (CLAUDE.md): `03_Konzept_Gerüst.md` + betroffene `spec/*.md`, `02_L
 
 Aus der Konzept-Session vom 25.07.2026 (Bühnen-Framework) stehen zwei umsetzungsreife Meilensteine in `06_Implementierungsplan_Kapitel1.md`:
 
-- **M12 – Region-Kulissen: Baukasten & Neuauflage.** Generator von handgeschriebenen Zeichenfunktionen auf Bausteine + Rezeptur umstellen, die drei Kapitel-1-Kulissen im neuen Format neu erzeugen. Führend: `spec/regionen-kulissen.md`. *Voraussetzung: Python ist auf dem Entwicklungsrechner nicht im PATH.*
-- **M13 – Bühnen-Framework in der Stage.** Kampfzone von handkalibrierten Pixelwerten auf das gerechnete su-System umstellen. Führend: `spec/ui-layout.md`.
+- **M12 – Region-Kulissen: Baukasten & Neuauflage. ✅ erledigt (25.07.2026).** Der Generator besteht jetzt aus `assets/region_kit.py` (Bausteine, Prüfmodus, rechnerische Gegenprobe) und `assets/generate_regions.py` (nur Paletten + Rezepturen); die drei Kapitel-1-Kulissen sind im Format 224×128 neu erzeugt, der Shock-Farb-Verstoß ist weg, Quaintsville liegt als vierte Region allein über eine Rezeptur bei. Umsetzungsentscheidungen 20–30 in `06_Implementierungsplan_Kapitel1.md`.
+- **M13 – Bühnen-Framework in der Stage.** Kampfzone von handkalibrierten Pixelwerten auf das gerechnete su-System umstellen. Führend: `spec/ui-layout.md`. **Jetzt an der Reihe** – die Kulissen liegen im erwarteten Format vor.
 
 **Reihenfolge M12 vor M13** – M13 erwartet Kulissen im neuen Format. Beide sind reine Darstellung, ändern keine Mechanik und blockieren die Kapitel-2-Feinspec nicht.
 

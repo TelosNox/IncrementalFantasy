@@ -1,6 +1,6 @@
 # Region-Kulissen (Backdrops)
 
-**Status:** Bildsprache, Leitmotive aller 15 Regionen und Werkzeug-Richtung festgelegt. Konkrete Bausteine je Region folgen bei der Umsetzung.
+**Status:** Bildsprache, Leitmotive aller 15 Regionen und Werkzeug festgelegt. **Baukasten gebaut (M12)**, die drei Kapitel-1-Kulissen im Format 224×128 neu erzeugt, Quaintsville als vierte Rezeptur vorhanden. Regionen 5–15 folgen als Rezepturen.
 **Rahmen:** `../03_Konzept_Gerüst.md` §3 (Regionen) und §8; Geometrie kommt vollständig aus `ui-layout.md`.
 **Prüfinstanz:** `../02_Leitfaden_Kernmechaniken.md`.
 
@@ -48,7 +48,7 @@ Die drei Backdrop-Ebenen des Frameworks (B0/B1/B2) sind zugleich die Bauanleitun
 | **B1 Motiv** | mittleres Drittel (Figurenband) | das eine Leitmotiv | **gedämpft** – hier stehen Sprites und HUD |
 | **B2 Boden** | untere 32 Pixel (Bodenband) | begehbare Fläche | **am ruhigsten** – Textur ja, Muster nein |
 
-- **Das Leitmotiv steht nicht mittig.** Es sitzt seitlich versetzt, damit es weder hinter der Party noch hinter dem Encounter klebt. Die Bühnenmitte ist der ruhigste Ort des Bildes – dort liegt der Mittelgang.
+- **Das Leitmotiv steht nicht mittig, und sein Fokus liegt über den Köpfen.** Es sitzt seitlich versetzt; die Bühnenmitte ist der ruhigste Ort des Bildes – dort liegt der Mittelgang. **Präzisiert bei der Umsetzung (M12, Entscheidung 26):** „Weder hinter der Party noch hinter dem Encounter" ist *horizontal* nicht erfüllbar – das Slot-Raster belegt x 8–83 (Party) und 99–160 (Gegner) von 168 Backdrop-Pixeln. Die Regel gilt deshalb **vertikal**: Der fokale Punkt (das leuchtende Detail, die Signaturform) liegt oberhalb **y = 33**, also über Sprites *und* Kopf-HUD – der Kapitel-Boss ist mit 128 su auf B₂ die höchste Figur und endet genau dort. Die Silhouette darf tiefer reichen, der Blickfang nicht.
 - **Der Boden ist eine Fläche, kein Motiv.** Über beide Standlinien hinweg durchgehend begehbar lesbar: keine Mauer, kein Wasser, keine Abbruchkante, kein auffälliges Muster quer durch die Standlinien. Bodenobjekte (Kisten, Fässer) gehören **nicht** ins Bodenband – dort stehen Figuren.
 - **Bleed-Zonen setzen fort, sie erzählen nicht.** Himmel, Horizont und Boden laufen weiter; kein Motivteil, das jemand sehen muss. Ob der Bleed sichtbar ist, hängt am Fensterformat.
 
@@ -64,15 +64,20 @@ Drei Farbfamilien tragen im Kampf **Bedeutung** und sind für die Kulisse gesper
 
 **Gesperrt sind punktuelle, gesättigte Lichtpunkte in diesen Tönen** – also genau die Form, in der die UI sie benutzt. Großflächige, gedämpfte Verwendung ist unkritisch: Ein rötlicher Abendhimmel ist keine Bedrohungsmarkierung, eine goldene Fensterreihe sehr wohl.
 
-**Aktueller Verstoß, zu beheben:** Reactor Row zeichnet seine Fenster in `#e7c14b` – exakt die Shock-Farbe – und MegaCorp Tower setzt dieselbe Farbe als Fensterpunkte. Beide Kulissen streuen damit Shock-Signale über die ganze Bühne. Fenster gehören in die **Regionsfarbe** oder in ein neutrales Warmweiß.
+**In Zahlen (M12, Entscheidung 24 – so prüft der Generator).** Ein Pixel gilt als Verstoß, wenn *alle vier* Bedingungen zutreffen: Farbton in einer gesperrten Familie (Gold/Bernstein **30–68°**, Cyan **160–205°**, warmes Rot **350–22°**), **S ≥ 0,35**, **V ≥ 0,60** und Teil eines zusammenhängenden Flecks von **≤ 90 px**. Die Schwellen sind die operationalisierte Fassung der Regel oben, nicht eine zusätzliche Regel.
+
+**Konsequenz für Signaturfarben (wichtig für Kapitel 2 und 4):** „Warmes Ocker" (Quaintsville), „Terracotta" (Stargazer Gulch) und „Rostrot" (Blastoff Burg) liegen **innerhalb** der gesperrten Familien. Sie sind als Flächenfarbe erlaubt, als punktuelles Licht (Fenster, Schild, Detail) aber nur **gedämpft** – praktisch heißt das V ≤ 0,50 im Ausgangston, weil der Baukasten Oberseiten automatisch aufhellt. Quaintsville nutzt deshalb `#7a5f2f` statt eines hellen Ockers.
+
+**Erledigt (M12):** Der Verstoß der Erstfassung – Fenster in `#e7c14b` bei Reactor Row und MegaCorp Tower, exakt die Shock-Farbe – ist mit der Neuauflage weg. Fenster sind jetzt durchgehend **neutrales Warmweiß**; der Prüflauf meldet für alle Kulissen null gesperrte Signalfarben.
 
 ## 5. Kontrast-Budget
 
 Die Figuren sind zweistufig gefärbt und relativ hell (`charaktere-visuals.md`). Damit sie sich abheben:
 
-- **Kulissenhelligkeit steigt nach oben.** Bodenband am dunkelsten, Motivband gedämpft, Himmelband darf hell sein.
+- **Kulissenhelligkeit steigt nach oben.** Bodenband am dunkelsten, Motivband gedämpft, Himmelband darf hell sein. **Auch nachts** – das kostet den gewohnten hellen Lichtsaum am Horizont, aber genau der liegt hinter den Figuren (M12, Entscheidung 27).
 - **Keine hellen Flächen hinter Sprite-Höhe.** Was im Figurenband hell ist, frisst eine Silhouette.
-- **Sättigung gehört den Figuren.** Die Kulisse arbeitet mit gebrochenen Tönen; nur das Leitmotiv-Detail darf einmal sättigen.
+- **Sättigung gehört den Figuren.** Die Kulisse arbeitet mit gebrochenen Tönen; nur das Leitmotiv-Detail darf einmal sättigen. Gemessen wird das als **Chroma** `(max−min)/255` (≤ 0,16 im Mittel, ≤ 4 % der Fläche über 0,42), nicht als HSV-Sättigung – die stuft dunkle Blaugrautöne fälschlich als bunt ein (M12, Entscheidung 25).
+- **Keine helle Fläche in der Sprite-Zone.** Operationalisiert: zwischen y 33 (Kopfhöhe des Kapitel-Bosses) und der Bodenkante G dürfen höchstens 12 % der Fläche heller als L 0,60 sein.
 - **Die Kontrastplatte des HUD ist kein Freibrief** (`ui-layout.md`): Sie rettet den Text, nicht die Silhouette der Figur dahinter.
 
 ## 6. Leitmotive der 15 Regionen
@@ -91,7 +96,7 @@ Je Region: das eine Motiv, die Signaturfarbe, das eine Detail. Namen und Reihenf
 
 | # | Region | Leitmotiv | Signaturfarbe | Detail |
 |---|---|---|---|---|
-| 4 | **Quaintsville** | Fachwerkgiebel mit Windrad | warmes Ocker | ein Wegweiser mit zu vielen Schildern |
+| 4 | **Quaintsville** | Fachwerkgiebel mit Windrad | warmes Ocker, **gedämpft** (s. §4) | ein Wegweiser mit zu vielen Schildern |
 | 5 | **The Squelchlands** | Nebelbänke über Tümpeln, eine Bogenspur im Morast | Moosgrün-Grau | Blasen, die aufsteigen |
 | 6 | **The Ore Snore** | Stollenmund mit Lorengleis | Violett-Grau | eine Lore, die halb im Gleis steckt |
 
@@ -123,9 +128,11 @@ Je Region: das eine Motiv, die Signaturfarbe, das eine Detail. Namen und Reihenf
 
 ## 7. Werkzeug: Baukasten statt Einzelfunktionen
 
-**Befund:** `assets/generate_regions.py` enthält je Region **eine handgeschriebene Funktion mit rohen Koordinaten** (`s.r(40,40,52,34,'#2b333c')`). Bei drei Kulissen tragbar, bei fünfzehn nicht: Es gibt keine Wiederverwendung, jede Änderung ist Zahlenraten ohne visuelles Feedback, und die Stilkonsistenz hängt allein an Disziplin.
+**Gebaut in M12.** `assets/region_kit.py` enthält Bausteine, Prüfmodus und Gegenprobe; `assets/generate_regions.py` enthält **nur noch Paletten und Rezepturen** – eine Region ist eine `Palette` plus eine Liste `(Baustein, Parameter)`. Aufruf: `python generate_regions.py [--check] [--report]`. Details und Abweichungen: `../06_Implementierungsplan_Kapitel1.md`, Umsetzungsentscheidungen 20–30.
 
-**Richtung für die Umsetzung:**
+**Ursprünglicher Befund (erledigt):** `assets/generate_regions.py` enthielt je Region **eine handgeschriebene Funktion mit rohen Koordinaten** (`s.r(40,40,52,34,'#2b333c')`). Bei drei Kulissen tragbar, bei fünfzehn nicht: Es gab keine Wiederverwendung, jede Änderung war Zahlenraten ohne visuelles Feedback, und die Stilkonsistenz hing allein an Disziplin.
+
+**Richtung für die Umsetzung – so umgesetzt:**
 
 1. **Bausteinbibliothek** statt Primitiv-Aufrufe – benannte, parametrierte Elemente (`tower`, `stack`, `pipe_run`, `awning_row`, `window_grid`, `crag`, `foliage`, `sign`, `ground_texture`), die die Stil-Regeln bereits eingebaut haben (Iso-Kippung, Licht von oben-links, zwei Helligkeitsstufen).
 2. **Regionsdefinition als Rezeptur** – jede Region beschreibt sich als Palette plus Liste von Bausteinen mit Position und Größe, nicht als Zeichencode.
@@ -133,7 +140,9 @@ Je Region: das eine Motiv, die Signaturfarbe, das eine Detail. Namen und Reihenf
 4. **Prüfmodus** – der Generator kann jede Kulisse mit eingeblendeten Framework-Linien (`G`, `B₁`, `B₂`, Bleed-Grenzen) rendern, damit Verstöße auffallen, bevor sie ins Spiel gelangen.
 5. **Gegenprobe automatisieren** – ein Lauf prüft die Signalfarben-Sperre (§4) und das Kontrast-Budget (§5) rechnerisch. Beides ist messbar und muss nicht dem Auge überlassen bleiben.
 
-> **Als Annahme markiert** (Konzept-Modus, `../../CLAUDE.md`): Ob dieser Baukasten in Pillow bequem umsetzbar ist oder ob ein anderes Werkzeug sinnvoller wäre, ist eine Werkzeugfrage der Umsetzungs-Session. Das Konzept verlangt nur: **Bausteine + Rezeptur + Prüfmodus**, nicht eine bestimmte Bibliothek.
+> **Annahme aufgelöst** (war: „ob dieser Baukasten in Pillow bequem umsetzbar ist"): Ja – umgesetzt in Pillow, ohne Fremdbibliothek. Vorhanden sind die neun oben genannten Bausteine plus `sky`, `glow`, `wheel` und `lamp_string`; Varianten stecken als Parameter in den Bausteinen (`tower(cap='gable'|'dome'|'stepped')`, `sign(burn=…)` für die halb durchgebrannte Reklame). Koordinaten in Rezepturen sind Nenn-Box-Pixel, der Bleed ist der negative Bereich.
+>
+> **Abnahme-Test bestanden, mit Einschränkung:** Quaintsville (§6, Region 4) ist als reine Rezeptur ergänzt – kein neuer Baustein, kein neuer Parameter. Der Baukasten wurde allerdings von vornherein gegen alle 15 Motive entworfen; die Regionen 5–15 werden ihn weiter wachsen lassen (ein `arch` für den Stollenmund, eine Parasol-Variante für Costa del Sofa). Der Unterschied zum alten Stand ist, dass ein neuer Baustein danach **allen** Regionen gehört.
 
 ## 8. Aufwandsstaffelung
 
@@ -163,11 +172,39 @@ Nicht jede Kulisse verdient denselben Aufwand:
 - **Höchstens zwei bis drei Elemente je Kulisse**, mit unterschiedlichen Zykluslängen, damit kein wahrnehmbarer Gleichtakt entsteht.
 - **Kein Zustand, keine Bedeutung.** Kulissen-Leben ist reine Atmosphäre und darf nie mit Gameplay-Signalen verwechselbar sein (§4).
 
+**Stand M12:** Nichts davon ist gebaut. Der Generator liefert wie vorgesehen ein flaches PNG – der Rauch über den Reaktorschloten ist gemalt, nicht animiert. Kulissen-Leben ist damit weiterhin ein offener Punkt und braucht einen eigenen Meilenstein (Einzelelemente über dem Backdrop, außerhalb des Generators).
+
 **Offen gelassen: der Zonenwechsel-Schwenk.** Beim Wechsel von einer Zone zur nächsten gäbe es echte Kamerabewegung – das Bild zieht kurz seitlich weiter, „wir kommen voran". Das wäre ein Fortschrittssignal, das heute fehlt: Innerhalb einer Region bleibt die Kulisse gleich, der Spieler sieht nie, dass er sich durch sie hindurchbewegt. Der Haken ist die Bildbreite – der Bleed trägt einen, vielleicht zwei Schwenks, bei zehn Zonen je Region ist er aufgebraucht. Sauber ginge das nur mit **nahtlos kachelbaren** Kulissen, was die Gestaltung deutlich einschränkt. Die Frage wird entschieden, wenn die ersten neuen Kulissen stehen – nicht vorher, weil sie an deren Gestaltung hängt. Für einen bloßen Ortswechsel-Akzent genügt ohnehin ein kurzer Versatz mit Blende, ohne echte Fahrt.
+
+## 11. Paletten (Stand M12)
+
+Eine Palette besteht aus **sieben gesetzten Farben**; alles Weitere (hellere Oberseite, dunklere rechte Seitenfläche, gedämpfte Akzentvariante, Bodenkante) leitet der Baukasten daraus ab. Wer eine neue Region anlegt, setzt also sieben Werte, keine dreißig.
+
+| Rolle | Wofür | Regel |
+|---|---|---|
+| `sky_top` / `sky_bottom` | Verlauf des Himmelbands | **oben heller als unten** (§5), auch nachts |
+| `far` | B0-Silhouetten | dunkler als `sky_bottom`, sonst verschwindet die Skyline nicht nach hinten |
+| `mid` | B1-Motivmasse | die Fläche, vor der Figuren stehen – dunkel genug für Silhouetten |
+| `accent` | Signaturfarbe (§6) | bei gesperrten Familien gedämpft, s. §4 |
+| `ground` | B2-Bodenfläche | dunkelster Ton des Bildes |
+| `light` | Fensterlicht | **neutrales Warmweiß**, Chroma < 0,1 – nie eine Signalfarbe |
+
+**Kapitel 1 – „The Grid" (gebaut):**
+
+| Region | sky_top | sky_bottom | far | mid | accent | ground | light |
+|---|---|---|---|---|---|---|---|
+| Reactor Row | `#3a4d61` | `#1c2731` | `#212d38` | `#222d36` | `#5fbf7a` | `#171e24` | `#e9e2d2` |
+| Bargain Bazaar | `#5d4269` | `#191322` | `#221a2b` | `#2b1f33` | `#d95a9c` | `#1a1422` | `#f3ead9` |
+| MegaCorp Tower | `#33495e` | `#16202b` | `#1b2632` | `#213040` | `#4b7fd4` | `#151d26` | `#e6eef6` |
+
+**Kapitel 2 – erster Eintrag (Quaintsville, als Baukasten-Nachweis):** `#a8c4d6` / `#6b8394` / `#4e6058` / `#5f4f3b` / `#7a5f2f` / `#41392c` / `#efe6d2`. Die Kapitel-2-Palette insgesamt („erdig, Tageslicht") ist damit **nicht** festgelegt – Quaintsville ist ein Vorgriff, kein Kapitelentscheid.
+
+**Die Grenzwerte gelten, nicht die Hex-Werte.** Eine Palette ist richtig, wenn der Prüflauf (`--check`) sie durchlässt; die Zahlen oben sind eine bestandene Lösung, keine Vorschrift.
 
 ## Offene Punkte
 
-- **Zonenwechsel-Schwenk** und die daran hängende Frage, ob Kulissen nahtlos kachelbar angelegt werden (s. §10).
-- **Tageszeit-Varianten** je Region (z. B. Rückkehr im Reunion-Zyklus bei anderem Licht) – reizvoll, aber vervielfacht die Assets.
-- Ob Zonen innerhalb einer Region **Varianten** derselben Kulisse bekommen (verschobene Bausteine) oder strikt dieselbe.
-- Konkrete Hex-Paletten je Kapitel – bisher nur als Stimmung benannt.
+- **Zonenwechsel-Schwenk** (§10) – **jetzt entscheidbar**, die Kulissen stehen. Die Zahl dazu: Der Bleed trägt seitlich je 28 px auf 168 px Nenn-Breite, also **rund ein Sechstel Bildbreite pro Seite**. Das reicht für einen spürbaren Versatz mit Blende, nicht für zehn Schwenks je Region. Nahtlos kachelbare Kulissen bleiben die Alternative – mit dem inzwischen bekannten Preis, dass der Baukasten Motive dann links und rechts anschlussfähig bauen müsste, was „Silhouette + Signaturfarbe + ein Detail" (§2) direkt einschränkt.
+- **Kulissen-Leben (§10) ist noch nicht gebaut.** M12 liefert ein flaches PNG; der Rauch über den Reaktorschloten ist gemalt, nicht bewegt. Die Regeln in §10 stehen, die Umsetzung braucht einen eigenen Meilenstein (kleine Einzelelemente über dem Backdrop, nicht im Generator).
+- **Tageszeit-Varianten** je Region (z. B. Rückkehr im Reunion-Zyklus bei anderem Licht) – reizvoll, aber vervielfacht die Assets. **Neu einzuschätzen:** Mit dem Baukasten ist eine Variante nur noch eine zweite Palette auf derselben Rezeptur, also fast gratis in der Herstellung – die Frage ist damit nicht mehr Aufwand, sondern ob der Wiedererkennungswert (§2) darunter leidet.
+- Ob Zonen innerhalb einer Region **Varianten** derselben Kulisse bekommen (verschobene Bausteine) oder strikt dieselbe – gleiche Neubewertung wie oben: technisch billig geworden.
+- Konkrete Hex-Paletten für **Kapitel 3–5** (§11 deckt Kapitel 1 ab).

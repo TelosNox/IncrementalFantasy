@@ -1,7 +1,7 @@
 <script lang="ts">
-  import reactorRow from '../assets/regions/reactor_row_480.png'
-  import bargainBazaar from '../assets/regions/bargain_bazaar_480.png'
-  import megacorpTower from '../assets/regions/megacorp_tower_480.png'
+  import reactorRow from '../assets/regions/reactor_row_224.png'
+  import bargainBazaar from '../assets/regions/bargain_bazaar_224.png'
+  import megacorpTower from '../assets/regions/megacorp_tower_224.png'
   import { GATE_MONSTER_IDS } from '../content/monsters'
   import { INN_DEAD_TIME, SHOCK_MAX, SHOCK_WINDOW } from '../core/formulas'
   import { CHARACTER_SPRITES, ENEMY_SPRITES } from './sprites'
@@ -18,12 +18,6 @@
         ? 'R2 · Bargain Bazaar'
         : 'R3 · MegaCorp Tower',
   )
-
-  // feinspec §8 (bekannte Warnung, M10-Fix) - das fokale Reaktor-/Aufzug-Motiv der MegaCorp-Kulisse
-  // sitzt nah am rechten Bildrand; bei "cover"+"center" wird es an der Stage-Grenze zur Seitenleiste
-  // abgeschnitten/eng. Backdrop hier nach links ausgerichtet, damit das Motiv mehr Luft zur
-  // Stage-Kante hat statt direkt an ihr zu kleben.
-  const isMegacorpBackdrop = $derived(game.save.currentZone > 18)
 
   // kampf-analyse-shock.md §6 - Shock-Ring erst ab Region 3 sichtbar ("gebündelt mit Tofa").
   const shockVisible = $derived(game.save.currentZone >= REGION3_JOIN_ZONE)
@@ -181,7 +175,7 @@
   }
 </script>
 
-<div class="stage" class:region3-backdrop={isMegacorpBackdrop} style:background-image={`url(${backdrop})`}>
+<div class="stage" style:background-image={`url(${backdrop})`}>
   <!-- ui-layout.md "Freischaltungs-Hinweis": ueberdeckt kurzzeitig die normale Statuszeile,
        pausiert aber nichts - reines Lesbarkeits-Add-on bei Rollout-Flag-Wechseln. -->
   {#if game.calloutMessage}
@@ -343,13 +337,12 @@
     background-size: cover;
     background-position: center;
     background-color: var(--game-bg-deep);
+    /* regionen-kulissen.md §9 - die Kulissen liegen nativ als 224x128 vor (Nenn-Box 168x96
+       plus Bleed) und werden hier hochskaliert; Nearest-Neighbor ist verbindlich. Der
+       M10-Fix "MegaCorp links ausrichten" ist entfallen: das fokale Motiv sitzt jetzt
+       innerhalb der Nenn-Box, den Ueberschuss traegt der Bleed. */
+    image-rendering: pixelated;
     overflow: hidden;
-  }
-
-  /* feinspec §8 (M10-Fix) - MegaCorp-Kulisse links ausrichten, damit das rechts sitzende
-     Reaktor-/Aufzug-Motiv nicht an der Stage-Kante zur Seitenleiste klebt. */
-  .stage.region3-backdrop {
-    background-position: left center;
   }
 
   .banner {
