@@ -6,7 +6,7 @@ C = {'cloudA':'#9fb0c6','cloudB':'#c4d2e2','cloudTop':'#dfe9f4','cloudHi':'#f0f5
 'wood':'#a9713f','woodMid':'#98652f','woodD':'#7d5127','woodTop':'#c99a63','ring':'#9aa2b0','metalH':'#e2e6ec',
 'gun':'#525a68','gunD':'#2f343f','hairD':'#2a2622','shade':'#2b2f3a','shadeD':'#1f2229','skirt':'#3a3f4c',
 'white':'#f2f0e6','whiteT':'#fbf9ef','whiteSh':'#d3d1c4','hair':'#26262f','skin':'#e7b48a','red':'#d24b4b','redL':'#e46a6a',
-'router':'#3a4150','routerD':'#2b303c','routerL':'#525b6d','pink':'#e0788f','pinkD':'#c15570','led':'#64cf87','cable':'#2b303c',
+'pink':'#e0788f','pinkD':'#c15570','led':'#64cf87',
 'flower':'#f4b6cf','flowerC':'#f4d35e','eye':'#20242e',
 'fanPaper':'#f6ead9','fanPaperSh':'#e3d2b8','rib':'#8a6a3c'}
 def K(k):
