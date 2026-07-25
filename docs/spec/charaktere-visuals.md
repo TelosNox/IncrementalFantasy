@@ -27,7 +27,7 @@ Die Stil-Regeln unten gelten identisch für Monster (64×64, Iso-Kippung, Bodens
 
 ## Region-Kulissen (Backdrops)
 
-- `assets/regions/{reactor_row,bargain_bazaar,megacorp_tower}_160.png` (nativ 160×96) / `_480.png` (3× Nearest) / `_sheet.png` (Kontaktbogen).
+- `assets/regions/{reactor_row,bargain_bazaar,megacorp_tower}_160.png` (nativ 160×96) / `_480.png` (3× Nearest) / `_sheet.png` (Kontaktbogen). **Veralteter Stand** – das verbindliche Format steht unten unter „Kulissen-Format".
 - `assets/generate_regions.py` – **Kulissen-Generator** (gleiche Pixel-Welt, mit Alpha-Compositing für Glows/Wolken).
 - **Regeln:** jede Kulisse hat eine **Standfläche** im unteren Drittel (Party links, Gegner rechts); fokale Motive aus der Seitenleisten-Zone halten (s. `ui-layout.md`). Ebenen-Aufbau (Himmel/Skyline → Hauptmotiv → Vordergrund/Boden) für späteres Parallax – das sind die Ebenen **B0/B1/B2** des Bühnen-Frameworks.
 
@@ -36,16 +36,17 @@ Die Stil-Regeln unten gelten identisch für Monster (64×64, Iso-Kippung, Bodens
 Der Backdrop wird **nie auf die Stage gestreckt**, sondern mit demselben Faktor `s` skaliert wie die Sprites (`ui-layout.md`, „Bühnen-Framework"). Damit ist das Assetmaß nicht mehr frei:
 
 - **Maßstab:** 1 Backdrop-Pixel = **3 su** = 3 Sprite-Pixel. Der gröbere Backdrop-Raster ist gewollt (Kulisse grob, Figuren fein) – aber ab jetzt in einem **festen ganzzahligen** Verhältnis, nicht in einem von der Fenstergröße abhängigen.
-- **Nenn-Box: 160×96** – exakt die Bühnenbox (480×288 su). Alles Gestaltungsrelevante liegt hier drin.
-- **Bodenfläche: die unteren 32 Pixel** der Nenn-Box (y 64–96) – das Bodenband. **Verbindlich für jede Kulisse, auch für alle künftigen Regionen 4–15.** Die Standlinien der Figuren liegen bei 12 px bzw. 20 px unterhalb der Bodenkante; der Boden muss dort durchgehend als begehbare Fläche lesbar sein (keine Mauer, kein Wasser, keine Abbruchkante quer durch die Standlinien).
-- **Bleed-Zonen: je 32 Pixel links und rechts, 24 Pixel oben** → **Gesamt-Canvas 224×120**, Nenn-Box darin bei x 32–192, y 24–120 (unten bündig, weil die Bühne unten verankert wird). Der Bleed setzt Himmel, Skyline und Boden schlicht fort und trägt **kein** fokales Motiv – er wird je nach Fensterformat sichtbar oder nicht. Abgedeckte Stage-Seitenverhältnisse: **4:3 bis 21:9**.
-- Die drei Kapitel-1-Kulissen existieren bisher nur als 160×96 ohne Bleed und sind über den Generator entsprechend zu erweitern.
+- **Nenn-Box: 168×96** – exakt die Bühnenbox (504×288 su, Format 7:4). Alles Gestaltungsrelevante liegt hier drin.
+- **Bodenfläche: die unteren 32 Pixel** der Nenn-Box (y 64–96) – das Bodenband. **Verbindlich für jede Kulisse, auch für alle künftigen Regionen 4–15.** Die Standlinien der Figuren liegen 12 px bzw. 25⅓ px unterhalb der Bodenkante (su 228 und 268); der Boden muss dort durchgehend als begehbare Fläche lesbar sein (keine Mauer, kein Wasser, keine Abbruchkante quer durch die Standlinien).
+- **Bleed-Zonen: je 28 Pixel links und rechts, 32 Pixel oben** → **Gesamt-Canvas 224×128**, Nenn-Box darin bei x 28–196, y 32–128 (unten bündig, weil die Bühne unten verankert wird). Der Bleed setzt Himmel, Skyline und Boden schlicht fort und trägt **kein** fokales Motiv – er wird je nach Fensterformat sichtbar oder nicht. Abgedeckte Stage-Seitenverhältnisse: **rund 1,31 bis 2,33** (4:3 bis 21:9).
+- Die drei Kapitel-1-Kulissen existieren bisher nur als **160×96 ohne Bleed** und mit einer Bodenzone, die die Vorgabe nicht erfüllt (schmaler Straßenstreifen plus strukturloser dunkler Vordergrund, geprüft in `assets/mockups/stage-framework-check.html`). Sie sind über den Generator **neu zu erzeugen**, nicht nachzubearbeiten.
 - Bisher: Kapitel 1 (Reactor Row, Bargain Bazaar, MegaCorp Tower). Weitere Regionen im selben Look über den Generator ergänzbar.
 
 ## Stil-Regeln (verbindlich für neue Assets)
 
 - **Canvas 64×64**, transparenter Hintergrund. Hochskalierung **immer Nearest-Neighbor** (pixelig), nie glätten.
 - **Leicht isometrische Front:** kantige Körper (Quader) mit **hellerer Oberseite** + **dunklerer rechter Seitenfläche** (Tiefe d ≈ 5–6 px). Runde Körper (Wolke, Zylinder) über **hellere Oberkante** + **dunklere Unterkante/rechte Wölbung** andeuten.
+- **Tiefenachse (verbindlich, wirkt bis ins Bühnen-Layout):** Oberseite und rechte Seitenfläche werden beide mit dem Versatz **`(+dd, −dd)`** gezeichnet (Helfer `blk` in `generate_characters.py`) – die Tiefenachse läuft **45° nach rechts-oben**, die Kamera steht oben-rechts-vorn. Daraus leitet sich der Tiefenvektor der Aufstellung ab (`ui-layout.md`, `D` = (+40, −40)). **Wer die Iso-Kippung ändert, ändert das Bühnen-Layout mit** – beides muss dieselbe Achse zeigen, sonst behaupten Figuren und Aufstellung zwei verschiedene Kamerapositionen.
 - **Beleuchtung** von oben-links: Oberseiten heller, rechte/untere Flächen dunkler.
 - **Boden-Schatten:** flache Ellipse, ~14 % Schwarz, mittig unter der Figur; Figur steht auf dem Schatten (nicht schweben). **Verbindlich fürs Layout:** Der Schatten liegt **vollständig innerhalb der Sprite-Box**, berührt deren Unterkante und ist **höchstens 8 su hoch** (8 px bei 64×64-Sprites). Nur dadurch liegt er garantiert im Bodenband, ohne dass die Platzierung je Figur nachgeprüft werden muss.
 - **Standfläche:** Der **Anker** eines Sprites ist die Mitte seiner unteren Boxkante; er sitzt auf einer der beiden Standlinien der Battle-Stage (Slot-Raster s. `ui-layout.md`). Sprites werden nicht freihändig positioniert.
