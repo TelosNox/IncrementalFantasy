@@ -711,7 +711,6 @@ export class GameStore {
     }
 
     if (this.save.inn.queued) {
-      this.save = { ...this.save, inn: { queued: false } }
       this.#enterInn(false, nextZone)
     } else {
       this.battle = spawnBattle(findZone(nextZone), party, boostMult)
@@ -726,13 +725,23 @@ export class GameStore {
     this.retryRemaining = RETRY_PENALTY
   }
 
-  /** feinspec §3.8b (M11) - Gasthaus-Aufenthalt beginnen. `forced` = Niederlage-Pflichtaufenthalt (kein "Leave now"). */
+  /**
+   * feinspec §3.8b (M11) - Gasthaus-Aufenthalt beginnen. `forced` = Niederlage-Pflichtaufenthalt
+   * (kein "Leave now"). Playtest-Fund: `inn.queued` ("nach diesem Kampf ins Gasthaus") wurde bisher
+   * nur im freiwilligen Sieg-Pfad (`#onWin`) zurueckgesetzt - ein erzwungener Aufenthalt nach einer
+   * Niederlage (`advance()` `phase === 'retry'` -> hier) liess das Flag unangetastet stehen. Danach
+   * war der Spieler tatsaechlich im Gasthaus (die eigentliche Absicht des Flags ist damit erfuellt),
+   * aber die Anzeige blieb "queued" und der naechste Sieg loeste ungefragt NOCH einen Aufenthalt aus.
+   * Zentral hier zuruecksetzen deckt beide Eintrittswege (freiwillig ueber `#onWin`, erzwungen ueber
+   * die Retry-Zeitstrafe) ab, statt es an jeder Aufrufstelle einzeln zu wiederholen.
+   */
   #enterInn(forced: boolean, nextZone: number): void {
     this.#dismissCallout()
     this.phase = 'inn'
     this.innForced = forced
     this.innElapsed = 0
     this.#innNextZone = nextZone
+    this.save = { ...this.save, inn: { queued: false } }
   }
 
   /** feinspec §3.8b (M11) - 10s Totzeit, danach 5%/s auf HP+MP gleichzeitig; endet automatisch bei voller Heilung. */
