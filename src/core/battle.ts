@@ -100,9 +100,14 @@ export function createPartyUnit(
     name: character.name,
     side: 'party',
     maxHp,
-    hp: Math.min(maxHp, Math.max(0, character.hp)),
+    // Playtest-Fund: `Character.hp/mp` sind zwischen Kaempfen absichtlich reelle
+    // Zwischenwerte (Sieg-Erholung/Gasthaus-Drip runden bewusst NICHT, s.
+    // `formulas.ts` hpGainPostVictory/mpGainPostVictory/innGain) - erst der Uebertritt
+    // in die Kampf-Domaene (BattleUnit) rundet auf ganze HP/MP, wie es jede andere
+    // Kampfformel auch tut. Ohne dieses Runden zeigte die UI z.B. "87.3/150" an.
+    hp: Math.min(maxHp, Math.max(0, Math.round(character.hp))),
     maxMp,
-    mp: Math.min(maxMp, Math.max(0, character.mp)),
+    mp: Math.min(maxMp, Math.max(0, Math.round(character.mp))),
     atk: Math.round(atkAfterLevel * mod.atk * boostMult),
     mag: Math.round(magAfterLevel * mod.mag * boostMult),
     def: defAfterLevel,

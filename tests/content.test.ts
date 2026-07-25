@@ -94,7 +94,7 @@ describe('§6.3 Zonen-Encounter Z1-Z30', () => {
 
   it('Zone 8: Blandzilla-Miniboss ist Gate', () => {
     const z8 = ZONES.find((z) => z.zone === 8)!
-    expect(z8.waves).toEqual([[{ monster: 'blandzilla', size: 1.6 }]])
+    expect(z8.waves).toEqual([[{ monster: 'blandzilla', size: 1.8 }]])
     expect(z8.isGate).toBe(true)
     expect(z8.limitAllowed).toBe(true)
   })

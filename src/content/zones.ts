@@ -46,7 +46,14 @@ export const ZONES: Zone[] = [
   // bewusst NICHT idle-trivial sein sollen (feinspec §4.7). Ein einzelner (wenn auch dicker)
   // Gegner ist strukturell weniger gefaehrlich als 3 gleichzeitige Angreifer (Zone 6/7) - mehr
   // HP verlaengert den Kampf und damit die Gesamt-Exposition gegen Blandzillas eigenen Schaden.
-  zone(8, wave(['blandzilla', 1.6]), true),
+  //
+  // Playtest-Nachtrag (M11): 1,6 reichte nicht - ein voll geheilter, angemessen
+  // leveled Claude (Solo, s. BARREL_JOIN_ZONE) gewann auch OHNE je Limit zu zuenden
+  // (nur Attack/Cross Slash), das Gate lehrte "Limit als Wand-Brecher" (feinspec §7.1)
+  // dadurch nicht mehr zuverlaessig. Auf 1,8 angehoben: simulationsvalidiertes Fenster
+  // 1,7-1,9 HP, in dem "kein Limit" verliert, aber "Limit sobald voll" (die M-Referenz,
+  // `resolveOptimalAction`) weiterhin gewinnt - ab 2,0 kippt auch die Limit-Linie.
+  zone(8, wave(['blandzilla', 1.8]), true),
   zone(9, wave(['blando', 1.0], ['caffiend', 1.0])),
   zone(10, wave(['blando', 1.0], ['caffiend', 1.0])),
   zone(11, wave(['safeguard', 1.0])),

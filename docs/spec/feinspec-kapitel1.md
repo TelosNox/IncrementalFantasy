@@ -594,13 +594,13 @@ Welle: Funkus + Shortfuse + Blando, volle Party. **Playtest-Korrektur (§4.7):**
 
 ### 7.4 Pacing (neu simuliert, M11-Nachtrag)
 
-Ersetzt sowohl die ursprüngliche Erstfassung (durchgehend smarter Auto) als auch die zwischenzeitlich als „⚠️ UNGÜLTIG" markierte Fassung (Harness farmte implizit bei jeder Niederlage, Verstoß gegen F2). Gemessen über die reale TS-Engine (`tests/chapter-playthrough.test.ts`), **nach** dem §3.9/§4.7-Nachtrag zur Zielvorauswahl (`06_Implementierungsplan_Kapitel1.md` M11-Entscheidungen 11/12) – Entscheidung 13 dokumentiert den Messvorgang. Gemessen gegen die drei Spielertypen aus §12, nicht mehr gegen eine einzelne „empfohlene Spielweise": Die Zonen-Rückkehr ist als Spielerentscheidung modelliert (Farmen der zuletzt geschafften Zone, F2), Retry-Strafe und Gasthaus-Totzeit sind in „Gesamtzeit" enthalten; „Kampfzeit aktiv" ist ausschließlich die echte ATB-Zeit der siegreichen Kämpfe (Menü-/Kauf-/Wartezeit kommt obendrauf, s. u.).
+Ersetzt sowohl die ursprüngliche Erstfassung (durchgehend smarter Auto) als auch die zwischenzeitlich als „⚠️ UNGÜLTIG" markierte Fassung (Harness farmte implizit bei jeder Niederlage, Verstoß gegen F2). Gemessen über die reale TS-Engine (`tests/chapter-playthrough.test.ts`), **nach** dem §3.9/§4.7-Nachtrag zur Zielvorauswahl UND nach dem Blandzilla-Fix (`06_Implementierungsplan_Kapitel1.md` M11-Entscheidungen 11/12/14) – Entscheidung 13/16 dokumentiert den Messvorgang. Gemessen gegen die drei Spielertypen aus §12, nicht mehr gegen eine einzelne „empfohlene Spielweise": Die Zonen-Rückkehr ist als Spielerentscheidung modelliert (Farmen der zuletzt geschafften Zone, F2), Retry-Strafe und Gasthaus-Totzeit sind in „Gesamtzeit" enthalten; „Kampfzeit aktiv" ist ausschließlich die echte ATB-Zeit der siegreichen Kämpfe (Menü-/Kauf-/Wartezeit kommt obendrauf, s. u.).
 
 | Typ | Gesamtzeit (inkl. Retry-Strafe/Gasthaus) | Kampfzeit aktiv | Endlevel Claude | Verhältnis zu M |
 |-----|:-----------------------------------------:|:----------------:|:----------------:|:----------------:|
-| **M** – manuell | ~15,4 min | ~6,9 min | 18 | 1,0× (Referenz) |
-| **T** – teilautomatisch (nur Fokusziel) | ~43,0 min | ~8,2 min | 21 | ~2,8× |
-| **V** – vollautomatisch | ~52,9 min | ~7,9 min | 21 | ~3,4× |
+| **M** – manuell | ~15,6 min | ~6,9 min | 18 | 1,0× (Referenz) |
+| **T** – teilautomatisch (nur Fokusziel) | ~44,3 min | ~8,3 min | 21 | ~2,8× |
+| **V** – vollautomatisch | ~53,0 min | ~7,9 min | 21 | ~3,4× |
 
 Beide Verhältnisse liegen innerhalb des Korridors aus §12 B2 (T ∈ [1,3; 3,5], V ∈ [2,5; 4,5]) – niedriger als die zuvor im Dokument vermerkten ≈3,2×/≈4,1× (das war stiller Zahlendrift gegenüber dem tatsächlichen Code, kein Effekt dieses Nachtrags selbst, s. Umsetzungsentscheidung 13). Auffällig: **Kampfzeit aktiv unterscheidet sich zwischen den Typen kaum** (~7–8 min für alle drei) – der große Zeitunterschied entsteht fast vollständig durch Retries + Gasthaus-Wartezeit, nicht durch längere Kämpfe. Das ist die erwartete Konsequenz aus §4.7: Auto (T/V) verliert öfter, nicht langsamer.
 
@@ -608,11 +608,11 @@ Beide Verhältnisse liegen innerhalb des Korridors aus §12 B2 (T ∈ [1,3; 3,5]
 
 | Typ | Retries Gate Z8 (Blandzilla) | Retries Gate Z18 (Fort Knoxious) | Retries Gate Z30 (Vaultron) | Härteste reguläre Zone |
 |-----|:-----------------------------:|:----------------------------------:|:-----------------------------:|-------------------------|
-| M | 1 | 1 | 1 | Z6/Z14 (je 1) |
-| T | 3 | 1 | 15 | Z7 (4) |
+| M | 2 | 1 | 1 | Z6/Z14 (je 1) |
+| T | 4 | 1 | 15 | Z7 (4) |
 | V | 4 | 10 | 11 | Z7/Z15 (je 3) |
 
-Typ M liegt an allen drei Gates bei 0–2 Retries (§12 C2) – Limit-Zündungen pro Figur dabei 1,0/1,0/1,5 an Z8/Z18/Z30, innerhalb des D5-Korridors (1–2×). Für T und V ist **Vaultron (Z30) weiterhin die mit Abstand härteste Stelle** des Kapitels (kein Special/Heal/Limit für Auto, §4.7) – erwartungsgemäß, das ist die Kapitel-Wand, die zur 1. Reunion hinführt (§7.3). Keine reguläre Zone verlangt für irgendeinen Typ spürbar mehr Retries als das nächstfolgende Gate (C4, mit der in Entscheidung 6 dokumentierten ±2-Toleranz).
+Typ M liegt an allen drei Gates bei 0–2 Retries (§12 C2) – Blandzilla (Z8) braucht davon typischerweise **einen** Fehlversuch: Claude kommt (solo, Barrel stößt erst in Zone 9 dazu) mit nur ~34 % HP aus Zone 7 an, verliert den ersten Blandzilla-Versuch dadurch fast immer, das erzwungene Gasthaus danach heilt voll, der zweite Versuch gewinnt knapp – **und zwar nur, weil Limit sofort bei voller Leiste gezündet wird** (s. Entscheidung 14/16, feinspec §7.1: „Limit als Wand-Brecher"). Limit-Zündungen pro Figur dabei 1,0/1,0/1,5 an Z8/Z18/Z30, innerhalb des D5-Korridors (1–2×). Für T und V ist **Vaultron (Z30) weiterhin die mit Abstand härteste Stelle** des Kapitels (kein Special/Heal/Limit für Auto, §4.7) – erwartungsgemäß, das ist die Kapitel-Wand, die zur 1. Reunion hinführt (§7.3). Keine reguläre Zone verlangt für irgendeinen Typ spürbar mehr Retries als das nächstfolgende Gate (C4, mit der in Entscheidung 6 dokumentierten ±2-Toleranz).
 
 **Einordnung in Echtzeit:** Die Tabellenwerte sind reine Simulationszeit ohne Menüs/Käufe – ein aktiver **Erstdurchlauf** (Typ M) liegt inkl. Waffenkäufen und Entscheidungen realistisch bei **~25–35 min**; Typ T/V ohne Offline-Progress entsprechend länger, da die Gasthaus-/Retry-Wartezeit jetzt **echte Zeit am Bildschirm** ist (§3.8e). Das ist der eigentliche Prüfstein für E2 (gespielt beurteilen, nicht gerechnet) und für die in §10 noch offene Leitplanke #5 (F3: Prüfung am Menschen steht noch aus).
 

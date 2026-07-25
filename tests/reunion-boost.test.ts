@@ -62,6 +62,22 @@ describe('M9 Reunion-Boost - applyVictoryRecovery (Kanal 1, §3.5/§3.8d) nutzt 
   })
 })
 
+// Playtest-Fund (Nachtrag): `applyVictoryRecovery`/`applyInnRecovery` liefern absichtlich
+// reelle HP/MP-Zwischenwerte (s. Test oben, "erholt 25% ... gedeckelt am Maximum" prueft
+// exakt einen Bruchwert) - das ist fuer die kontinuierliche Gasthaus-Erholung noetig
+// (`#advanceInn` addiert jeden Frame einen Bruchteil, s. `ui/gameStore.svelte.ts`). Ohne
+// Rundung beim Uebertritt in die Kampf-Domaene zeigte die UI z.B. "87.3/150" HP an.
+describe('Playtest-Fund - createPartyUnit rundet Character.hp/mp beim Uebertritt in die Kampf-Domaene', () => {
+  it('rundet einen reellen Zwischenwert (z.B. aus Sieg-Erholung/Gasthaus-Drip) auf ganze HP/MP', () => {
+    const fractional: typeof CLAUDE = { ...CLAUDE, hp: 87.3, mp: 12.6 }
+    const unit = createPartyUnit(fractional, 1)
+    expect(Number.isInteger(unit.hp)).toBe(true)
+    expect(Number.isInteger(unit.mp)).toBe(true)
+    expect(unit.hp).toBe(87)
+    expect(unit.mp).toBe(13)
+  })
+})
+
 describe('M9 Reunion-Boost - projectOffline reicht den Boost weiter', () => {
   it('eine geboostete Party clear\'t eine Zone schneller/mehrfach haeufiger als ungeboostet', () => {
     const party = [{ ...CLAUDE }]

@@ -458,3 +458,63 @@ describe('feinspec §3.8c - Niederlage heilt nicht (M11)', () => {
     expect(hpAtDefeat).toBe(Math.max(0, Math.round(battle.units[0].hp)))
   })
 })
+
+// Playtest-Fund (Nachtrag zu M11): Ein voll geheilter, gate-angemessen leveled Claude
+// (Solo, Barrel stoesst erst in Zone 9 dazu) besiegte Blandzilla (Zone 8) auch OHNE je
+// Limit zu zuenden (nur Attack/Cross Slash) - das Gate lehrte "Limit als Wand-Brecher"
+// (feinspec §7.1) dadurch nicht mehr zuverlaessig. `content/zones.ts` Zone 8 auf
+// Groesse 1,8 angehoben (vorher 1,6); dieser Test haelt das Zielverhalten fest, statt
+// nur die Zahl selbst zu pruefen (die haette man auch "zufaellig richtig" treffen koennen).
+describe('feinspec §7.1/§4.7 - Blandzilla (Z8) ist ohne Limit nicht zuverlaessig zu schaffen', () => {
+  function runBlandzilla(claudeLevel: number, fireLimit: boolean): { win: boolean; limitFires: number } {
+    const zone = findZone(8)
+    const claude: Character = {
+      ...CHARACTERS.claude,
+      level: claudeLevel,
+      weaponTier: weaponTierForLevel(claudeLevel),
+      controlMode: 'manual',
+    }
+    const partyUnits = [createPartyUnit(claude, 8, 1, zone.limitAllowed)]
+    partyUnits[0].hp = partyUnits[0].maxHp
+    partyUnits[0].mp = partyUnits[0].maxMp
+    const enemyUnits = zone.waves[0].map((ref) => createEnemyUnit(MONSTERS[ref.monster], 8, ref.size))
+    const state: BattleState = createBattleState(partyUnits, enemyUnits)
+
+    let limitFires = 0
+    let t = 0
+    while (t < 900) {
+      const result = battleTick(state, DT)
+      if (result === 'win') return { win: true, limitFires }
+      if (result === 'loss') return { win: false, limitFires }
+      if (result === 'paused') {
+        const unit = state.awaitingPlayerChoice as BattleUnit
+        const wouldFire = unit.limitAllowed && unit.limit >= LIMIT_MAX
+        if (wouldFire && !fireLimit) {
+          // Limit ist voll, aber wir zuenden absichtlich nicht - naechstbeste Aktion
+          // stattdessen (Attack/Special), Leiste bleibt fuer die naechste Pruefung voll.
+          const saved = unit.limit
+          unit.limit = LIMIT_MAX - 1
+          resolveOptimalAction(unit, state)
+          unit.limit = Math.min(LIMIT_MAX, saved)
+        } else {
+          if (wouldFire) limitFires += 1
+          resolveOptimalAction(unit, state)
+        }
+        unit.atb = 0
+        state.awaitingPlayerChoice = null
+        continue
+      }
+      t += DT
+    }
+    return { win: false, limitFires }
+  }
+
+  // Level 4 = die vom validierten M-Harness gemessene Ankunft an Zone 8 (s. `playChapter('M')`).
+  it('gewinnt mit Limit sobald voll (die M-Referenz aus §4.7)', () => {
+    expect(runBlandzilla(4, true).win).toBe(true)
+  })
+
+  it('verliert OHNE je Limit zu zuenden, obwohl Attack/Special weiterhin optimal genutzt werden', () => {
+    expect(runBlandzilla(4, false).win).toBe(false)
+  })
+})

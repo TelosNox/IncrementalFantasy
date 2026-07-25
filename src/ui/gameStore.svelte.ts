@@ -198,7 +198,20 @@ export class GameStore {
   /** feinspec §3.8b (M11) - welche Zone nach Abschluss des Gasthaus-Aufenthalts gespielt wird. */
   #innNextZone: number | null = null
 
+  /**
+   * Playtest-Fund (Gasthaus ohne sichtbares Heil-Feedback): Während `phase === 'inn'`
+   * ist `this.battle` die eingefrorene Momentaufnahme vom Kampfende - sie tickt nicht mit,
+   * während `#advanceInn()` jeden Frame `this.save.party` heilt (§3.8b). Ohne diesen Zweig
+   * zeigten Stage/CharacterPanel während des gesamten Gasthaus-Aufenthalts den HP/MP-Stand
+   * von VOR der Heilung. Live-Projektion über dieselbe, bereits getestete `createPartyUnit()`
+   * (F1) - rein zur Anzeige, kein Einfluss auf den echten Kampfzustand (ATB/Limit laufen
+   * hier absichtlich leer/0, da im Gasthaus nicht gekämpft wird).
+   */
   get party(): BattleUnit[] {
+    if (this.phase === 'inn') {
+      const zone = findZone(this.#innNextZone ?? this.save.currentZone)
+      return this.save.party.map((c) => createPartyUnit(c, zone.zone, this.reunionBoostMult, zone.limitAllowed))
+    }
     return this.battle.party
   }
 
