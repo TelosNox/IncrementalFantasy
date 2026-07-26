@@ -62,6 +62,13 @@ Um den Kontext schlank zu halten, gilt beim **Spezifizieren eines einzelnen Syst
 Der Block „Schnittstellen zu anderen Systemen" oben in jeder `spec/`-Datei macht Abhängigkeiten explizit.
 `docs/spec/README.md` enthält die Übersicht. Verbindliche Prüfinstanz bleibt in jedem Fall `docs/02_Leitfaden_Kernmechaniken.md`.
 
+## Git-Workflow (verbindlich)
+
+- **Es wird direkt auf `main` gearbeitet und committet.** Keine Feature-Branches, kein PR-Workflow – das ist eine bewusste Entscheidung für dieses Solo-Projekt und gilt bis auf Weiteres.
+- Die allgemeine Regel „auf dem Default-Branch zuerst einen Branch anlegen" ist hier **ausdrücklich außer Kraft gesetzt**. Nicht bei jedem Commit erneut nachfragen oder darauf hinweisen.
+- Committet/gepusht wird weiterhin **nur auf Aufforderung** des Nutzers.
+- Commit-Messages auf **Englisch** (siehe Sprachregel oben).
+
 ## Feste Rahmenentscheidungen
 
 - **Monetarisierung:** keine. Falls überhaupt, ausschließlich ein einmaliger Kaufpreis – keine In-Game-Käufe, keine Werbung, keine Zeit-Paywalls.
