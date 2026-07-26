@@ -6,25 +6,25 @@ import { MONSTERS } from '../content/monsters'
 import { deriveCharacterMaxHp, deriveCharacterMaxMp } from './battle'
 import type { Character, Zone } from './entities'
 import { applyExpGain, hpGainPostVictory, innGain, mpGainPostVictory, scaleEnemyStat } from './formulas'
+import type { ExpGainResult } from './formulas'
 
 /**
- * feinspec §3.6 - EXP anwenden; Level-Up ändert nur Level/Maximalwerte, KEINE Heilung mehr
- * (M11-Revision, §3.5/§3.8d/§11: HP/MP sind jetzt Übertragswerte mit genau zwei Kanälen -
- * Sieg-Erholung (§3.5) und Gasthaus (§3.8b). Ein impliziter dritter "Level-Up heilt voll"-Kanal
- * würde die HP-Signalregel §3.8d unterlaufen, die genau auf diesen beiden Kanälen beruht - vor
- * M11 war das folgenlos, weil jede Zone ohnehin komplett frisch aufgebaut wurde. `hp`/`mp`
- * bleiben unverändert und sind nach einem Level-Up automatisch gültig, da das Maximum bei
- * einem Level-Up nie sinkt. `boostMult` = prestige-reunion.md permanenter Reunion-Boost.
+ * feinspec §3.6 - EXP eines Sieges auf den PARTY-Topf anwenden (stats-kampfwerte.md §4.1:
+ * ein Level fuer die ganze Party, kein Level je Figur). Ein Level-Up aendert nur Level und
+ * damit die Maximalwerte, KEINE Heilung (M11-Revision, §3.5/§3.8d/§11: HP/MP sind
+ * Übertragswerte mit genau zwei Kanälen - Sieg-Erholung (§3.5) und Gasthaus (§3.8b). Ein
+ * impliziter dritter "Level-Up heilt voll"-Kanal würde die HP-Signalregel §3.8d unterlaufen).
+ * `hp`/`mp` der Figuren bleiben unverändert und sind nach einem Level-Up automatisch gültig,
+ * da das Maximum bei einem Level-Up nie sinkt.
  */
-export function applyVictoryExp(character: Character, gainedExp: number, _boostMult = 1): Character {
-  const gained = applyExpGain(character.level, character.exp, gainedExp)
-  return { ...character, level: gained.level, exp: gained.exp }
+export function applyVictoryExp(partyLevel: number, partyExp: number, gainedExp: number): ExpGainResult {
+  return applyExpGain(partyLevel, partyExp, gainedExp)
 }
 
 /** feinspec §3.5/§3.8d - Kanal 1: +25% des Maximums auf HP UND MP nach jedem Sieg, gedeckelt am Maximum. */
-export function applyVictoryRecovery(character: Character, boostMult = 1): Character {
-  const maxHp = deriveCharacterMaxHp(character, boostMult)
-  const maxMp = deriveCharacterMaxMp(character, boostMult)
+export function applyVictoryRecovery(character: Character, partyLevel: number, boostMult = 1): Character {
+  const maxHp = deriveCharacterMaxHp(character, partyLevel, boostMult)
+  const maxMp = deriveCharacterMaxMp(character, partyLevel, boostMult)
   return {
     ...character,
     hp: Math.min(maxHp, character.hp + hpGainPostVictory(maxHp)),
@@ -33,10 +33,15 @@ export function applyVictoryRecovery(character: Character, boostMult = 1): Chara
 }
 
 /** feinspec §3.8b - Kanal 2: Gasthaus-Erholung über `seconds` (nur der Anteil NACH der Totzeit darf hier ankommen). */
-export function applyInnRecovery(character: Character, seconds: number, boostMult = 1): Character {
+export function applyInnRecovery(
+  character: Character,
+  partyLevel: number,
+  seconds: number,
+  boostMult = 1,
+): Character {
   if (seconds <= 0) return character
-  const maxHp = deriveCharacterMaxHp(character, boostMult)
-  const maxMp = deriveCharacterMaxMp(character, boostMult)
+  const maxHp = deriveCharacterMaxHp(character, partyLevel, boostMult)
+  const maxMp = deriveCharacterMaxMp(character, partyLevel, boostMult)
   return {
     ...character,
     hp: Math.min(maxHp, character.hp + innGain(maxHp, seconds)),
@@ -49,7 +54,10 @@ export interface ZoneReward {
   gil: number
 }
 
-/** feinspec §3.6/§6.2/§6.3 - Summe aus EXP/Gil aller Monster einer Zonen-Welle, zonen-skaliert. */
+/**
+ * feinspec §3.6/§6.2/§6.3 - Summe aus EXP/Gil aller Monster einer Zonen-Welle, zonen-skaliert.
+ * Die Summe geht als **ein** Betrag in den Party-Topf (stats-kampfwerte.md §4.1).
+ */
 export function zoneReward(zone: Zone): ZoneReward {
   let exp = 0
   let gil = 0

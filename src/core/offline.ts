@@ -31,8 +31,11 @@ export interface OfflineProjection {
   repeats: number
   timePerClearSeconds: number
   wasClearing: boolean
-  /** Fortgeschriebener Party-Zustand (Level/EXP/HP/MP); unverändert, wenn nicht schaffbar. */
+  /** Fortgeschriebener Party-Zustand (HP/MP); unverändert, wenn nicht schaffbar. */
   party: Character[]
+  /** Fortgeschriebenes Gruppenlevel + EXP-Rest (stats-kampfwerte.md §4.1); unverändert, wenn nicht schaffbar. */
+  partyLevel: number
+  partyExp: number
   gilGained: Decimal
 }
 
@@ -42,6 +45,8 @@ export interface OfflineProjection {
  */
 export function projectOffline(
   party: Character[],
+  partyLevel: number,
+  partyExp: number,
   zoneIndex: number,
   elapsedSeconds: number,
   boostMult = 1,
@@ -57,7 +62,9 @@ export function projectOffline(
   // (kein Spieler da, der waehlt), daher hier hart auf "auto" ueberschrieben,
   // unabhaengig vom gespeicherten `controlMode` (der bleibt im zurueckgegebenen
   // `party` unveraendert, nur die interne Simulation zwingt Auto).
-  const battleUnits = party.map((c) => createPartyUnit({ ...c, controlMode: 'auto' }, zoneIndex, boostMult))
+  const battleUnits = party.map((c) =>
+    createPartyUnit({ ...c, controlMode: 'auto' }, partyLevel, zoneIndex, boostMult),
+  )
   const enemyUnits = zone.waves[0].map((ref) => createEnemyUnit(MONSTERS[ref.monster], zoneIndex, ref.size))
   const state = createBattleState(battleUnits, enemyUnits)
   const battleResult = simulateBattle(state)
@@ -74,6 +81,8 @@ export function projectOffline(
       timePerClearSeconds,
       wasClearing,
       party,
+      partyLevel,
+      partyExp,
       gilGained: new Decimal(0),
     }
   }
@@ -82,7 +91,8 @@ export function projectOffline(
   const totalExp = reward.exp * repeats
   const gilGained = new Decimal(reward.gil).mul(repeats)
 
-  const updatedParty = party.map((character) => applyVictoryExp(character, totalExp, boostMult))
+  // stats-kampfwerte.md §4.1 - ein Topf fuer die ganze Party statt einer Gutschrift je Figur.
+  const leveled = applyVictoryExp(partyLevel, partyExp, totalExp)
 
   return {
     elapsedSeconds,
@@ -90,7 +100,9 @@ export function projectOffline(
     repeats,
     timePerClearSeconds,
     wasClearing,
-    party: updatedParty,
+    party,
+    partyLevel: leveled.level,
+    partyExp: leveled.exp,
     gilGained,
   }
 }

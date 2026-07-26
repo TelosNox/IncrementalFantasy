@@ -26,10 +26,10 @@ import {
 import type { BattleUnit } from '../core/battle'
 import type { BestiaryEntry, Character, ControlMode, Zone } from '../core/entities'
 import { resolvePartyAction, resolvePartyTarget } from '../core/gambits'
-import { INN_DEAD_TIME, LIMIT_MAX, RETRY_PENALTY, limitFireDamage } from '../core/formulas'
+import { INN_DEAD_TIME, LIMIT_MAX, RETRY_PENALTY, expToNext, limitFireDamage } from '../core/formulas'
 import { applyInnRecovery, applyVictoryExp, applyVictoryRecovery, zoneReward } from '../core/progression'
 import { battleTick, createBattleState, DT, type BattleState } from '../core/tick'
-import type { SaveState } from '../save/schema'
+import { SAVE_VERSION, type SaveState } from '../save/schema'
 import { serializeToJson } from '../save/serialize'
 import {
   clearSave,
@@ -96,13 +96,31 @@ function freshCharacter(id: string, controlMode: ControlMode): Character {
   return { ...CHARACTERS[id], controlMode }
 }
 
+/**
+ * charaktere-party.md - "Neuzugaenge steigen auf dem aktuellen Gruppenlevel ein ... ab dem
+ * ersten Kampf voll einsatzfaehig". Die HP/MP aus `CHARACTERS` sind die Werte auf Level 1;
+ * ohne diese Ableitung stiesse Barrel in Zone 9 mit 140 HP zu einer Party dazu, deren Maximum
+ * laengst darueber liegt - der Beitritt waere wieder das tote Gewicht, das die Umstellung auf
+ * das Gruppenlevel gerade beseitigt (stats-kampfwerte.md §4.1).
+ */
+function joinCharacter(id: string, controlMode: ControlMode, partyLevel: number, boostMult: number): Character {
+  const character = freshCharacter(id, controlMode)
+  return {
+    ...character,
+    hp: deriveCharacterMaxHp(character, partyLevel, boostMult),
+    mp: deriveCharacterMaxMp(character, partyLevel, boostMult),
+  }
+}
+
 function freshSaveState(): SaveState {
   return {
-    version: 2,
+    version: SAVE_VERSION,
     chapter: 1,
     currentZone: 1,
     maxZoneReached: 1,
     party: [freshCharacter(CLAUDE.id, 'manual')],
+    partyLevel: 1,
+    partyExp: 0,
     roster: ['claude'],
     currencies: { gil: new Decimal(0), reunionEssence: new Decimal(0) },
     bestiary: {},
@@ -119,8 +137,8 @@ function freshSaveState(): SaveState {
   }
 }
 
-function spawnBattle(zone: Zone, party: Character[], boostMult = 1): BattleState {
-  const partyUnits = party.map((c) => createPartyUnit(c, zone.zone, boostMult, zone.limitAllowed))
+function spawnBattle(zone: Zone, party: Character[], partyLevel: number, boostMult = 1): BattleState {
+  const partyUnits = party.map((c) => createPartyUnit(c, partyLevel, zone.zone, boostMult, zone.limitAllowed))
   const enemyUnits = zone.waves[0].map((ref) => createEnemyUnit(MONSTERS[ref.monster], zone.zone, ref.size))
   return createBattleState(partyUnits, enemyUnits)
 }
@@ -175,7 +193,7 @@ export class GameStore {
   corruptSaveNotice = $state<{ message: string } | null>(
     initialLoad.kind === 'corrupt' ? { message: initialLoad.message } : null,
   )
-  battle = $state<BattleState>(spawnBattle(findZone(this.save.currentZone), this.save.party, this.reunionBoostMult))
+  battle = $state<BattleState>(spawnBattle(findZone(this.save.currentZone), this.save.party, this.save.partyLevel, this.reunionBoostMult))
   phase = $state<Phase>('battle')
   retryRemaining = $state(0)
   /** feinspec §3.8b (M11) - seit dem Ende der Totzeit verstrichene Gasthaus-Zeit (fuer die Fortschrittsanzeige). */
@@ -210,7 +228,9 @@ export class GameStore {
   get party(): BattleUnit[] {
     if (this.phase === 'inn') {
       const zone = findZone(this.#innNextZone ?? this.save.currentZone)
-      return this.save.party.map((c) => createPartyUnit(c, zone.zone, this.reunionBoostMult, zone.limitAllowed))
+      return this.save.party.map((c) =>
+        createPartyUnit(c, this.save.partyLevel, zone.zone, this.reunionBoostMult, zone.limitAllowed),
+      )
     }
     return this.battle.party
   }
@@ -231,6 +251,26 @@ export class GameStore {
   /** feinspec §3.8a (M11) - höchste je erreichte Zone; Obergrenze der freien Zonen-Auswahl. */
   get maxZoneReached(): number {
     return this.save.maxZoneReached
+  }
+
+  /**
+   * stats-kampfwerte.md §4.1/feinspec §3.6 - **ein** Level-/EXP-Anzeiger für die Gruppe
+   * (nicht vier pro Charakter-Panel). `partyExpProgress` ist der Anteil 0..1 zum nächsten Level.
+   */
+  get partyLevel(): number {
+    return this.save.partyLevel
+  }
+
+  get partyExp(): number {
+    return this.save.partyExp
+  }
+
+  get partyExpToNext(): number {
+    return expToNext(this.save.partyLevel)
+  }
+
+  get partyExpProgress(): number {
+    return Math.min(1, this.save.partyExp / this.partyExpToNext)
   }
 
   /** feinspec §3.8b (M11) - "nach diesem Kampf ins Gasthaus" angemeldet? */
@@ -415,7 +455,7 @@ export class GameStore {
     this.#dismissCallout()
     const party = syncPartyFromBattle(this.save.party, this.battle.party)
     this.save = { ...this.save, party, currentZone: zoneIndex }
-    this.battle = spawnBattle(findZone(zoneIndex), party, this.reunionBoostMult)
+    this.battle = spawnBattle(findZone(zoneIndex), party, this.save.partyLevel, this.reunionBoostMult)
   }
 
   /** feinspec §3.8b (M11) - "nach diesem Kampf ins Gasthaus" umschalten; greift erst nach Kampfende. */
@@ -458,6 +498,9 @@ export class GameStore {
       currentZone: 1,
       maxZoneReached: 1,
       party,
+      // prestige-reunion.md - das Gruppenlevel ist der eine Wert, der zurueckfaellt (statt vier).
+      partyLevel: 1,
+      partyExp: 0,
       currencies: {
         gil: new Decimal(0),
         reunionEssence: this.save.currencies.reunionEssence.add(REUNION_ESSENCE_GAIN),
@@ -467,7 +510,7 @@ export class GameStore {
       inn: { queued: false },
     }
     this.phase = 'battle'
-    this.battle = spawnBattle(findZone(1), party, this.reunionBoostMult)
+    this.battle = spawnBattle(findZone(1), party, 1, this.reunionBoostMult)
     this.#triggerCallout(
       reunionCount === 1
         ? 'The 1st Reunion! Gambit graduation unlocked - permanent boost active.'
@@ -510,7 +553,7 @@ export class GameStore {
     this.save = result.state
     this.corruptSaveNotice = null
     this.phase = 'battle'
-    this.battle = spawnBattle(zone, this.save.party, this.reunionBoostMult)
+    this.battle = spawnBattle(zone, this.save.party, this.save.partyLevel, this.reunionBoostMult)
     writeSave(this.save)
     this.#triggerCallout(`Save imported – Zone ${this.save.currentZone}.`)
     return { ok: true }
@@ -660,16 +703,29 @@ export class GameStore {
     const reward = zoneReward(zone)
     const gil = this.save.currencies.gil.add(reward.gil)
 
-    let party = syncPartyFromBattle(this.save.party, this.battle.party).map((c) => {
-      const leveled = applyVictoryExp(c, reward.exp, boostMult)
-      return applyVictoryRecovery(leveled, boostMult)
-    })
+    // stats-kampfwerte.md §4.1 - die Wellen-Summe geht EINMAL in den Party-Topf, nicht je Figur.
+    const leveled = applyVictoryExp(this.save.partyLevel, this.save.partyExp, reward.exp)
+    const partyLevel = leveled.level
+    if (partyLevel > this.save.partyLevel) {
+      this.#triggerCallout(`Party level ${partyLevel}! The whole roster grows together.`)
+    }
+
+    let party = syncPartyFromBattle(this.save.party, this.battle.party).map((c) =>
+      applyVictoryRecovery(c, partyLevel, boostMult),
+    )
     const bestiary = this.#recordBestiary()
 
     const isFrontierClear = this.save.currentZone >= this.save.maxZoneReached
 
     if (isFrontierClear && this.save.currentZone >= CHAPTER1_MAX_ZONE) {
-      this.save = { ...this.save, party, currencies: { ...this.save.currencies, gil }, bestiary }
+      this.save = {
+        ...this.save,
+        party,
+        partyLevel,
+        partyExp: leveled.exp,
+        currencies: { ...this.save.currencies, gil },
+        bestiary,
+      }
       this.phase = 'chapter-complete'
       writeSave(this.save)
       return
@@ -693,7 +749,7 @@ export class GameStore {
       // feinspec §6.3 Z9-10 - Barrel stößt zu Beginn der Region 2 zur Party.
       if (!roster.includes('barrel') && nextZone >= BARREL_JOIN_ZONE) {
         roster = [...roster, 'barrel']
-        party = [...party, freshCharacter('barrel', flags.manualToggleUnlocked ? 'auto' : 'manual')]
+        party = [...party, joinCharacter('barrel', flags.manualToggleUnlocked ? 'auto' : 'manual', partyLevel, boostMult)]
         this.#triggerCallout('Barrel joins the party – suppressing fire incoming!')
       }
 
@@ -701,7 +757,7 @@ export class GameStore {
       if (!roster.includes('tofa') && nextZone >= REGION3_JOIN_ZONE) {
         roster = [...roster, 'tofa', 'airis']
         const mode = flags.manualToggleUnlocked ? 'auto' : 'manual'
-        party = [...party, freshCharacter('tofa', mode), freshCharacter('airis', mode)]
+        party = [...party, joinCharacter('tofa', mode, partyLevel, boostMult), joinCharacter('airis', mode, partyLevel, boostMult)]
         this.#triggerCallout('Tofa and Air is... join the party – full roster online!')
       }
     } else {
@@ -712,6 +768,8 @@ export class GameStore {
     this.save = {
       ...this.save,
       party,
+      partyLevel,
+      partyExp: leveled.exp,
       roster,
       currentZone: nextZone,
       maxZoneReached,
@@ -723,7 +781,7 @@ export class GameStore {
     if (this.save.inn.queued) {
       this.#enterInn(false, nextZone)
     } else {
-      this.battle = spawnBattle(findZone(nextZone), party, boostMult)
+      this.battle = spawnBattle(findZone(nextZone), party, partyLevel, boostMult)
     }
   }
 
@@ -761,13 +819,13 @@ export class GameStore {
 
     if (this.innElapsed > INN_DEAD_TIME) {
       const healSeconds = Math.min(deltaSeconds, this.innElapsed - INN_DEAD_TIME)
-      const party = this.save.party.map((c) => applyInnRecovery(c, healSeconds, boostMult))
+      const party = this.save.party.map((c) => applyInnRecovery(c, this.save.partyLevel, healSeconds, boostMult))
       this.save = { ...this.save, party }
     }
 
     const fullyHealed = this.save.party.every((c) => {
-      const maxHp = deriveCharacterMaxHp(c, boostMult)
-      const maxMp = deriveCharacterMaxMp(c, boostMult)
+      const maxHp = deriveCharacterMaxHp(c, this.save.partyLevel, boostMult)
+      const maxMp = deriveCharacterMaxMp(c, this.save.partyLevel, boostMult)
       return c.hp >= maxHp && c.mp >= maxMp
     })
     if (fullyHealed) this.#leaveInn()
@@ -777,7 +835,7 @@ export class GameStore {
     const zone = findZone(this.#innNextZone ?? this.save.currentZone)
     this.#innNextZone = null
     this.phase = 'battle'
-    this.battle = spawnBattle(zone, this.save.party, this.reunionBoostMult)
+    this.battle = spawnBattle(zone, this.save.party, this.save.partyLevel, this.reunionBoostMult)
     writeSave(this.save)
   }
 }

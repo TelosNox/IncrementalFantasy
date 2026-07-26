@@ -13,7 +13,7 @@ export interface StatBlock {
   spd: number
 }
 
-/** feinspec §2 - Wachstumsraten pro Level (multiplikativ). MP wächst separat (formulas.ts). */
+/** feinspec §2 - Wachstumsraten pro Gruppenlevel (multiplikativ). MP wächst separat (formulas.ts). */
 export interface GrowthRates {
   hp: number
   atk: number
@@ -28,11 +28,16 @@ export interface CharacterSpecial {
   unlockedFromZone: number
 }
 
-/** feinspec §4.1 - Character (Laufzeit-Instanz). */
+/**
+ * feinspec §4.1 - Character (Laufzeit-Instanz).
+ *
+ * Kein `level`/`exp` je Figur: `stats-kampfwerte.md` §4.1 legt **ein** Gruppenlevel für die
+ * gesamte Party fest (`SaveState.partyLevel`/`partyExp`). Die Figur trägt nur noch, was sie
+ * unterscheidet (Basiswerte, Wachstumsraten, Waffe) - das Wachstum kommt von außen.
+ */
 export interface Character {
   id: string
   name: string
-  level: number
   base: StatBlock
   growth: GrowthRates
   special: CharacterSpecial
@@ -43,7 +48,6 @@ export interface Character {
   mp: number
   atb: number
   limit: number
-  exp: number
 }
 
 /** feinspec §4.2 - Trait-Enum (Kapitel 1). */

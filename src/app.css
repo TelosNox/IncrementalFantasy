@@ -9,6 +9,9 @@
   --game-mp: #4dd0d6;
   --game-atb: #4ea1f5;
   --game-limit: #f5a623;
+  /* stats-kampfwerte.md §4.1 - EXP/Gruppenlevel. Eigene Farbe statt einer geliehenen: Gold ist
+     Gil, Cyan die Spielerkontrolle (M13 Entscheidung 38), Blau ATB, Gruen HP, Orange Limit. */
+  --game-exp: #8b7ae8;
 
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
 

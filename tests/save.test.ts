@@ -11,10 +11,10 @@ function sampleSaveState(): SaveState {
     chapter: 1,
     currentZone: 9,
     maxZoneReached: 12,
-    party: [
-      { ...CLAUDE, level: 6, exp: 12 },
-      { ...BARREL, level: 6, exp: 0 },
-    ],
+    party: [{ ...CLAUDE }, { ...BARREL }],
+    // stats-kampfwerte.md §4.1 - ein Level/EXP-Stand fuer die ganze Party.
+    partyLevel: 6,
+    partyExp: 12,
     roster: ['claude', 'barrel'],
     currencies: {
       gil: new Decimal(3140),
@@ -52,6 +52,8 @@ describe('Architektur §6 - Save-Round-Trip (serialize -> deserialize)', () => {
     expect(restored.currentZone).toBe(original.currentZone)
     expect(restored.maxZoneReached).toBe(original.maxZoneReached)
     expect(restored.party).toEqual(original.party)
+    expect(restored.partyLevel).toBe(original.partyLevel)
+    expect(restored.partyExp).toBe(original.partyExp)
     expect(restored.roster).toEqual(original.roster)
     expect(restored.bestiary).toEqual(original.bestiary)
     expect(restored.reunionCount).toBe(original.reunionCount)
@@ -86,7 +88,7 @@ describe('Architektur §6 - Migrations-Grundgerüst', () => {
     expect(() => migrate(data)).toThrow()
   })
 
-  it('migriert v1 (M0-M10, vor der Ventil-Kette) nach v2: offline entfällt, maxZoneReached/inn kommen dazu', () => {
+  it('migriert v1 (M0-M10, vor der Ventil-Kette) über v2 hinweg: offline entfällt, maxZoneReached/inn/Gruppenlevel kommen dazu', () => {
     const v1 = {
       version: 1,
       chapter: 1,
@@ -115,5 +117,47 @@ describe('Architektur §6 - Migrations-Grundgerüst', () => {
     expect(migrated.maxZoneReached).toBe(14)
     expect(migrated.inn).toEqual({ queued: false })
     expect((migrated as unknown as { offline?: unknown }).offline).toBeUndefined()
+    // Leere Party (v1-Testdatensatz) -> Gruppenlevel faellt auf den Startwert zurueck.
+    expect(migrated.partyLevel).toBe(1)
+    expect(migrated.partyExp).toBe(0)
+  })
+
+  // stats-kampfwerte.md §4.1 - der eigentliche Grund fuer v3: aus vier Charakter-Leveln wird eins.
+  it('migriert v2 nach v3: das hoechste Charakter-Level wird zum Gruppenlevel, level/exp entfallen an der Figur', () => {
+    const v2 = {
+      version: 2,
+      chapter: 1,
+      currentZone: 20,
+      maxZoneReached: 20,
+      party: [
+        { ...CLAUDE, level: 20, exp: 7 },
+        { ...BARREL, level: 12, exp: 3 },
+      ],
+      roster: ['claude', 'barrel'],
+      currencies: { gil: '100', reunionEssence: '0' },
+      bestiary: {},
+      reunionCount: 0,
+      flags: {
+        autoAttackUnlocked: true,
+        mpVisible: true,
+        manualToggleUnlocked: true,
+        defenseUnlocked: false,
+        materiaUnlocked: false,
+        gambitsUnlocked: false,
+      },
+      inn: { queued: false },
+    } as unknown as SerializedSaveState
+
+    const migrated = migrate(v2)
+
+    expect(migrated.version).toBe(SAVE_VERSION)
+    // Das hoechste vorhandene Level gewinnt - der Nachzuegler Barrel steigt auf, statt
+    // Claude auf Barrels Stand zurueckzustufen (kein stiller Fortschrittsverlust).
+    expect(migrated.partyLevel).toBe(20)
+    expect(migrated.partyExp).toBe(7)
+    for (const c of migrated.party) {
+      expect(c).not.toHaveProperty('level')
+      expect(c).not.toHaveProperty('exp')
+    }
   })
 })

@@ -65,6 +65,22 @@
     🛏 {game.innQueued ? 'Inn queued – after this fight' : 'Queue Inn after this fight'}
   </button>
 
+  <!--
+    stats-kampfwerte.md §4.1 / feinspec §3.6 - EIN Level-/EXP-Anzeiger für die ganze Gruppe.
+    Bewusst hier und nicht im Charakter-Panel: ein Wert, der für alle gilt, gehört nicht
+    viermal neben vier Figuren.
+  -->
+  <div class="party-level">
+    <div class="party-level-head">
+      <span class="currency-label">Party Level</span>
+      <span class="currency-value">{game.partyLevel}</span>
+    </div>
+    <div class="exp-bar" title="{game.partyExp} / {game.partyExpToNext} EXP">
+      <div class="exp-fill" style:width="{game.partyExpProgress * 100}%"></div>
+    </div>
+    <div class="exp-label">{game.partyExp} / {game.partyExpToNext} EXP</div>
+  </div>
+
   <div class="currency">
     <span class="currency-label">Gil</span>
     <span class="currency-value">{game.save.currencies.gil.toString()}</span>
@@ -213,6 +229,39 @@
 
   .currency-value {
     color: var(--game-gold);
+  }
+
+  /* stats-kampfwerte.md §4.1 - Gruppenlevel + EXP-Fortschritt, ein Block fuer die ganze Party. */
+  .party-level {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--game-border);
+    color: var(--game-text-bright);
+    font-size: 14px;
+  }
+
+  .party-level-head {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .exp-bar {
+    margin-top: 4px;
+    height: 6px;
+    background: var(--game-border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .exp-fill {
+    height: 100%;
+    background: var(--game-exp);
+  }
+
+  .exp-label {
+    margin-top: 2px;
+    font-size: 11px;
+    color: var(--game-text);
   }
 
   .bestiary-button {

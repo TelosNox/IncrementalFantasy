@@ -22,6 +22,15 @@ export const INN_RATE = 0.05
 export const EXP_BASE = 20
 export const EXP_GROWTH = 1.22
 
+/*
+ * Bewusst KEINE Regions-Stufe auf die Gegner-Basiswerte. feinspec §3.7 sah mit der Umstellung
+ * auf das Gruppenlevel ein `REGION_STEP` (x1,5 ab Z9, x1,4 ab Z19) vor, um den Roster-Sprung
+ * aufzufangen - als ausdruecklicher Schaetzwert, "gegen die TS-Engine zu validieren" (§11).
+ * Die Messung gegen `tests/chapter-playthrough.test.ts` hat die Annahme widerlegt: ohne Stufe
+ * trifft das Kapitel die §7.4-Baseline (M 13,3 / T 42,8 / V 53,2 min gegen 15,6 / 44,3 / 53,0),
+ * mit x1,5/x1,4 explodiert es auf 84 / 177 / 203 min. Details: Umsetzungsentscheidung 42.
+ */
+
 /**
  * MP wächst linear mit dem Level; feinspec §2 dokumentiert nur die
  * multiplikativen Wachstumsraten für HP/ATK/MAG/DEF/SPD, nicht für MP.
@@ -30,7 +39,7 @@ export const EXP_GROWTH = 1.22
  */
 export const MP_GROWTH_PER_LEVEL = 0.03
 
-/** feinspec §4.1 - abgeleiteter Levelwert: round(base · growth^(level-1)). */
+/** feinspec §4.1 - abgeleiteter Wert auf dem Gruppenlevel: round(base · growth^(level-1)). */
 export function deriveStat(base: number, growthRate: number, level: number): number {
   return Math.round(base * Math.pow(growthRate, level - 1))
 }
@@ -137,7 +146,12 @@ export interface ExpGainResult {
   exp: number
 }
 
-/** §3.6 EXP/Level: Level-Up sobald exp >= exp_to_next(L), Überschuss wird übertragen. */
+/**
+ * §3.6 EXP/Gruppenlevel: Level-Up sobald exp >= exp_to_next(L), Überschuss wird übertragen.
+ * Angewandt auf den Party-Topf (`SaveState.partyLevel`/`partyExp`), nicht mehr je Figur -
+ * die Rate ist dieselbe wie zuvor, weil schon vorher jede Figur die volle Wellen-Summe erhielt
+ * (stats-kampfwerte.md §4.1, feinspec §2).
+ */
 export function applyExpGain(level: number, exp: number, gained: number): ExpGainResult {
   let currentLevel = level
   let pool = exp + gained
@@ -148,7 +162,7 @@ export function applyExpGain(level: number, exp: number, gained: number): ExpGai
   return { level: currentLevel, exp: pool }
 }
 
-/** §3.7 Zonen-Skalierungsfaktor: g^(zoneIndex-1). */
+/** §3.7 Zonen-Skalierungsfaktor: g^(zoneIndex-1). Gilt für Kampfwerte UND Belohnungen. */
 export function zoneScaleFactor(zoneIndex: number): number {
   return Math.pow(ZONE_GROWTH, zoneIndex - 1)
 }

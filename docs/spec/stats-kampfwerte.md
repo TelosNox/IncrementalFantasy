@@ -53,7 +53,7 @@ Es gibt **genau ein Level für die gesamte Party**. EXP fließt in einen Party-T
 
 **Der eigentliche Auslöser (Playtest):** Mit individuellen Leveln stieß Barrel bei Zone 9 mit L1 zu einem L~9-Claude, Tofa und Air is… bei Zone 19 mit L1 zu L~19 – bei ×1,055 ATK/Level ~1,6× bzw. ~2,6× Rückstand. Die Neuzugänge waren über eine halbe Region totes Gewicht. Das ist kein Balancing-Detail, sondern nahe an „totes Feature": eine gerade freigeschaltete Figur, die nichts beiträgt, entwertet ihre eigene Freischaltung.
 
-**Bewusst in Kauf genommen:** Der Bogen „neues Mitglied wächst ins Team hinein" entfällt. In einem Idle-Auto-Battler ist das kein Pflege-Moment, sondern eine Phase ohne Beitrag – der Beitritt wird stattdessen ein sichtbarer Kraft-Sprung. Balancing-Konsequenz: `progression-regionen.md` / `feinspec-kapitel1.md` §3.7 (Regions-Stufe).
+**Bewusst in Kauf genommen:** Der Bogen „neues Mitglied wächst ins Team hinein" entfällt. In einem Idle-Auto-Battler ist das kein Pflege-Moment, sondern eine Phase ohne Beitrag – der Beitritt wird stattdessen ein sichtbarer Kraft-Sprung. Balancing-Konsequenz: `feinspec-kapitel1.md` §3.7 – dort war eine Regions-Stufe als Gegengewicht vorgesehen; die Messung an der Engine hat sie verworfen.
 
 **Solo-/Paar-Challenges (E1, ab Kap. 2):** greifen auf dasselbe Gruppenlevel zu. „Solo" heißt „nur eine Figur kämpft", nicht „schwächere Figur". Ein eigenes, gedeckeltes Challenge-Level wäre die Alternative (mehr Eigengewicht für Challenges) – bis zur Kapitel-2-Spec offen, aber nicht der Default.
 
@@ -94,6 +94,6 @@ Gegner nutzen dasselbe Kern-Set (HP/ATK/DEF/SPD, MAG bei magischen Gegnern) plus
 
 - Formeln sind vorgeschlagen (s. oben); Feinjustage der Parameter (Basis-T, Mitigations-Kurve, Level-Wachstum) im Playtest.
 - Wachstumskurven je Stat/Rolle über das Gruppenlevel; Höhe der Ausrüstungs-Boni.
-- Höhe der Regions-Stufe (`REGION_STEP`), die den Roster-Zuwachs auffängt – Startwerte in `feinspec-kapitel1.md` §3.7, gegen die TS-Engine zu validieren.
+- ~~Höhe der Regions-Stufe (`REGION_STEP`)~~ – **erledigt:** gegen die TS-Engine gemessen und verworfen, die Gegnerkurve bleibt die reine `g`-Kurve (`feinspec-kapitel1.md` §3.7). Offen bleibt die *gespielte* Beurteilung von Durchlauf 2 (volle Gruppe ab Zone 1).
 - MP-Größenordnung im Verhältnis zu Special-/Magie-Kosten und Regen.
 - Gegner-Stat-Skalierung je Zone.

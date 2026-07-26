@@ -103,11 +103,11 @@ Aus der Konzept-Session vom 25.07.2026 (Bühnen-Framework) stehen zwei umsetzung
 
 **Was sich dadurch NICHT ändert:** die EXP-Kurve `exp_to_next(L) = round(20 · 1,22^(L-1))`. Bisher bekam ohnehin jede Figur die volle Wellen-Summe – der Party-Topf hat exakt dieselbe Rate.
 
-**Was sich ändert:** eine neue **Regions-Stufe** auf der Gegner-Basis (`REGION_STEP`: ×1,5 ab Zone 9, ×1,4 ab Zone 19, kumulativ; `spec/feinspec-kapitel1.md` §2/§3.7). Ohne sie werden R2/R3 zu leicht, weil die reine `g`-Kurve implizit gegen nicht mitkämpfende Neuzugänge balanciert war. Die Stufen sind bewusst unterlinear zum Roster-Zuwachs.
+**Regions-Stufe: vorgesehen, gemessen, verworfen.** Als Gegengewicht war eine Stufe auf der Gegner-Basis geplant (`REGION_STEP`: ×1,5 ab Zone 9, ×1,4 ab Zone 19) – gegen die Erwartung, R2/R3 würden sonst zu leicht. Die Validierung an der TS-Engine hat die Erwartung widerlegt: **ohne** Stufe trifft das Kapitel die §7.4-Baseline nahezu exakt, **mit** ihr verfünffacht sich die Spielzeit. Die Gegnerkurve bleibt die reine `g`-Kurve (`spec/feinspec-kapitel1.md` §3.7, Umsetzungsentscheidung 42).
 
-**Ab der 1. Reunion** steht die volle Gruppe schon in Zone 1 (Charaktere bleiben erhalten, Level fällt auf 1). Region 1 wird dadurch deutlich leichter – **gewollt als Prestige-Belohnung**, keine Sonderregel für Folgeläufe. Die Regions-Stufen normalisieren das Tempo bei Zone 9/19, ohne eine neue Wand zu erzeugen (`spec/prestige-reunion.md`).
+**Ab der 1. Reunion** steht die volle Gruppe schon in Zone 1 (Charaktere bleiben erhalten, Level fällt auf 1). Region 1 wird dadurch deutlich leichter – **gewollt als Prestige-Belohnung**, keine Sonderregel für Folgeläufe (`spec/prestige-reunion.md`). Wie stark das ausfällt, ist noch *gespielt* zu beurteilen.
 
-**Offen / Auftrag an die Umsetzungs-Session:** `REGION_STEP` ist ein reiner Schätzwert und gegen die TS-Engine zu validieren (`tests/chapter-playthrough.test.ts`, Spielertypen M/T/V) – für Durchlauf 1 *und* Durchlauf 2. Ebenfalls anzupassen: UI zeigt **einen** Level-/EXP-Anzeiger für die Gruppe statt vier pro Charakter-Panel; Save-Migration für den zusammengeführten Level-Wert.
+**Umgesetzt** (`06_Implementierungsplan_Kapitel1.md`, Umsetzungsentscheidung 42): Gruppenlevel im Save (`partyLevel`/`partyExp`, Migration v2→v3), `Character` ohne eigenes `level`/`exp`, Neuzugänge steigen auf dem Gruppenlevel mit vollen HP/MP ein, **ein** Level-/EXP-Anzeiger in der Sidebar. `REGION_STEP` validiert und verworfen (s. o.). **Weiterhin offen:** die *gespielte* Beurteilung von Durchlauf 2 (volle Gruppe ab Zone 1) – rechnerisch abgedeckt, am Menschen nicht.
 
 Geänderte Dokumente: `03_Konzept_Gerüst.md`, `spec/stats-kampfwerte.md`, `spec/feinspec-kapitel1.md`, `spec/charaktere-party.md`, `spec/oekonomie-waehrungen.md`, `spec/progression-regionen.md`, `spec/prestige-reunion.md`.
 

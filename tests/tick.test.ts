@@ -38,7 +38,7 @@ function dummyPartyTank(): BattleUnit {
 
 describe('feinspec §5 battleTick - Referenzbeispiel §3.1/§7.1', () => {
   it('Claude solo (kein Special) vs. Blando: 12 Schaden alle 2s, Sieg nach 8s', () => {
-    const claude = createPartyUnit(CLAUDE, 1) // Zone 1: Special erst ab Zone 3 -> reiner Klicker
+    const claude = createPartyUnit(CLAUDE, 1, 1) // Zone 1: Special erst ab Zone 3 -> reiner Klicker
     const blando = createEnemyUnit(BLANDO, 1)
     expect(claude.canSpecial).toBe(false)
 
@@ -74,7 +74,7 @@ describe('gegner-encounter.md §6a Zielwahl (M11) - Gegner greifen die höchsten
 
 describe('feinspec §5.1 Bedenkzeit-Pause-Guard', () => {
   it('pausiert die Uhr, sobald eine Manuell-Figur bereit ist', () => {
-    const claude = createPartyUnit(CLAUDE, 1)
+    const claude = createPartyUnit(CLAUDE, 1, 1)
     claude.controlMode = 'manual'
     const blando = createEnemyUnit(BLANDO, 1)
     const state = createBattleState([claude], [blando])

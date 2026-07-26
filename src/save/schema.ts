@@ -4,7 +4,7 @@
 import type Decimal from 'break_eternity.js'
 import type { BestiaryEntry, Character } from '../core/entities'
 
-export const SAVE_VERSION = 2
+export const SAVE_VERSION = 3
 
 export interface SaveFlags {
   autoAttackUnlocked: boolean
@@ -21,10 +21,10 @@ export interface SaveFlags {
 /**
  * Gil/Reunion-Essenz akkumulieren unbegrenzt über den ganzen Run (bzw. über
  * Reunions hinweg) und sind deshalb BigNumber (Architektur §6, Anti-Pattern
- * #10). EXP dagegen ist bereits als `Character.exp` je Figur vorhanden
- * (feinspec §4.1: pro Level gedeckelt durch exp_to_next, nie groß) - ein
- * zusätzliches `currencies.exp` wäre eine redundante, leicht divergierende
- * Kopie derselben Daten und wird hier bewusst nicht übernommen.
+ * #10). EXP dagegen steht als `partyExp` direkt im SaveState (feinspec §4.1:
+ * pro Level gedeckelt durch exp_to_next, nie groß) - ein zusätzliches
+ * `currencies.exp` wäre eine redundante, leicht divergierende Kopie derselben
+ * Daten und wird hier bewusst nicht übernommen.
  */
 export interface SaveCurrencies {
   gil: Decimal
@@ -44,6 +44,14 @@ export interface SaveState {
   /** feinspec §3.8a/§4.6 - höchste je erreichte Zone; Obergrenze der freien Zonen-Auswahl (Ventil). */
   maxZoneReached: number
   party: Character[]
+  /**
+   * stats-kampfwerte.md §4.1 - **ein** Level für die gesamte Party; EXP fließt in einen Topf.
+   * Neu hinzustoßende Figuren stehen damit sofort auf dem aktuellen Stand (das war der Grund
+   * für die Umstellung: mit Charakter-Leveln kam Barrel in Zone 9 als L1 zu einem L~9-Claude).
+   */
+  partyLevel: number
+  /** stats-kampfwerte.md §4.1 - EXP-Topf der Party; Überschuss über `exp_to_next` wird übertragen. */
+  partyExp: number
   roster: string[]
   currencies: SaveCurrencies
   bestiary: Record<string, BestiaryEntry>

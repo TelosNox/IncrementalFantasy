@@ -24,7 +24,7 @@ Jede Figur hat eine **über die Waffe freigeschaltete Spezialfähigkeit**, die i
 
 Roster-Rhythmus: Region 1 Claude allein → Region 2 Barrel → Region 3 Tofa + Air is... gleichzeitig (volle Gruppe).
 
-**Neuzugänge steigen auf dem aktuellen Gruppenlevel ein** (`stats-kampfwerte.md` §4.1) – eine frisch freigeschaltete Figur ist ab dem ersten Kampf voll einsatzfähig. Der Beitritt ist damit ein sichtbarer Kraft-Sprung; die Gegnerkurve fängt ihn mit einer Regions-Stufe auf (`feinspec-kapitel1.md` §3.7).
+**Neuzugänge steigen auf dem aktuellen Gruppenlevel ein** (`stats-kampfwerte.md` §4.1) – eine frisch freigeschaltete Figur ist ab dem ersten Kampf voll einsatzfähig. Der Beitritt ist damit ein sichtbarer Kraft-Sprung. Eine Gegen-Stufe auf der Gegnerkurve war dafür vorgesehen, ist aber gegen die Engine gemessen und verworfen worden – der Sprung verschiebt Niederlagen an die Gates, statt die Region zu trivialisieren (`feinspec-kapitel1.md` §3.7).
 
 **Bei Reunion:** die gelernte Spezialfähigkeit **bleibt erhalten** (permanenter Skill); nur die Waffe als Ausrüstung wird zurückgesetzt (Kraft neu erspielt).
 

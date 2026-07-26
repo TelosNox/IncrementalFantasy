@@ -29,6 +29,7 @@ Jeder Meilenstein ist als eigenständige Arbeitseinheit gedacht (in etwa PR-Grö
 | **M11** | **Ventil-Kette & Ressourcen-Ökonomie** | **Kapitel 1 erstmals von einem Menschen durchspielbar** | feinspec §3.4/§3.5/§3.8, `niederlage-offline.md` |
 | M12 | Region-Kulissen: Baukasten & Neuauflage | Drei Kapitel-1-Kulissen im neuen Format, reproduzierbar | `spec/regionen-kulissen.md` |
 | M13 | Bühnen-Framework in der Stage | Kampfzone proportionsstabil bei jeder Fenstergröße | `spec/ui-layout.md` „Bühnen-Framework" |
+| M14 | Gruppenlevel statt Charakter-Level | Neuzugänge sind ab dem ersten Kampf voll einsatzfähig | `spec/stats-kampfwerte.md` §4.1, feinspec §3.6/§3.7 |
 
 ---
 
@@ -423,6 +424,44 @@ Am laufenden Dev-Server gemessen, nicht aus dem Code abgeleitet (die Vorgabe „
 39. **Playtest-Fund: Der Bleed reicht nicht für jedes Fenster.** Bei einer sehr hohen/schmalen Stage (`s` wird von der Breite bestimmt) bleibt über den 96 su Bleed ein Rest – in der Vorfassung ein schwarzer Balken, also genau das, was „Verankerung und Bleed" ausschließt. Die Stage trägt deshalb die oberste Himmelsfarbe der jeweiligen Kulisse als Hintergrundfarbe (die oberste Backdrop-Zeile **ist** `sky_top` der Palette, s. `regionen-kulissen.md` §11) – der Himmel läuft optisch weiter, ohne den Backdrop zu strecken. Die drei Hex-Werte stehen dafür in `Stage.svelte`; sauberer wäre ein generierter Export aus dem Baukasten, was aber erst lohnt, wenn Regionen 4–15 dazukommen.
 40. **Der 2×-Zoom und `ENEMY_LAYOUTS` sind ersatzlos entfallen.** `spriteSize()` gab CSS-Pixel zurück (128/192/256), jetzt gibt `spriteSu()` su zurück (64/96/128) und `s` macht daraus Pixel – der frühere feste Zoom ist der Referenzfall `s = 2`. Damit sind auch die handkalibrierten Werte aus Entscheidung 19 weg (`margin-top:-90px`, `translate(-65px, 5px)`, die `:first-child`/`:last-child`-Spaltenkorrekturen und die `520×460px`-Platzhalterbox der Gegnerseite).
 41. **Abnahme.** `npm test` 110/110 und `npm run check` grün. Im Browser gegengemessen (Stage 998×576 → `s` = 1,98; 1024×640 → 1,585; 1600×1000 → 2,476): Alle Anker- und HUD-Positionen ergeben **auf 0,1 su identische** su-Koordinaten – das eigentliche Kriterium („beim Verkleinern ändert sich ausschließlich die Größe") ist damit nicht nur gerechnet, sondern gemessen. Kapitel-Boss Z30: Sprite-Oberkante y = 100 su, HUD-Oberkante y = 77,9 su – beides unter der Deckenlinie (72). Vortreten verifiziert: Claude 176/268 → 188/280, Nachbarn unverändert.
+
+---
+
+## M14 – Gruppenlevel statt Charakter-Level
+
+**Ziel:** Die in der Konzept-Session vom 26.07.2026 beschlossene Umstellung (`spec/stats-kampfwerte.md` §4.1) im Code umsetzen: **ein** Level für die ganze Party statt vier synchron mitlaufender Charakter-Level.
+
+**Der Befund, der sie ausgelöst hat:** Mit individuellen Leveln stieß Barrel in Zone 9 als L1 zu einem L~9-Claude, Tofa und Air is… in Zone 19 als L1 zu L~19 – ~1,6× bzw. ~2,6× ATK-Rückstand. Eine frisch freigeschaltete Figur trug über eine halbe Region nichts bei und entwertete damit ihre eigene Freischaltung.
+
+**Umgesetzt:** `Character` ohne `level`/`exp`; `SaveState.partyLevel`/`partyExp` als einziger Levelstand; Save-Migration v2 → v3; Neuzugänge steigen auf dem Gruppenlevel mit abgeleiteten (vollen) HP/MP ein; **ein** Level-/EXP-Anzeiger in der Sidebar statt vier pro Charakter-Panel.
+
+**Abnahme:** `npm test` 117/117 und `npm run check` grün; im Browser gegengeprüft (Level-Up auf 2 nach Zone 3, EXP-Grenze 20 → 24, Claudes HP-Maximum 110 → 126).
+
+**Umsetzungsentscheidungen (M14):**
+
+42. **`REGION_STEP` gegen die Engine validiert – und verworfen.** `spec/feinspec-kapitel1.md` §3.7 sah mit dem Gruppenlevel eine Regions-Stufe auf die Gegner-Basiswerte vor (×1,5 ab Zone 9, ×1,4 ab Zone 19), ausdrücklich als Schätzwert markiert und laut §11 „gegen die TS-Engine zu validieren". Genau das ist geschehen – über einen Sweep gegen `tests/chapter-playthrough.test.ts` mit den drei Spielertypen aus §12:
+
+    | `REGION_STEP` | Gesamtzeit M / T / V | verletzte §12-Kriterien |
+    |---|---|---|
+    | **keine (1,0 / 1,0)** | **13,3 / 42,8 / 53,2 min** | **2** |
+    | 1,05 / 1,05 | 14,5 / 51,2 / 61,7 min | 4 |
+    | 1,15 / 1,10 | 19,2 / 63,4 / 77,5 min | 4 |
+    | 1,25 / 1,15 | 26,9 / 97,1 / 113,4 min | 7 |
+    | 1,50 / 1,40 (Spec) | 83,7 / 176,8 / 203,3 min | 7 |
+
+    Zum Vergleich die §7.4-Baseline vor der Umstellung: **15,6 / 44,3 / 53,0 min**. Ohne Stufe wird sie nahezu exakt getroffen – die befürchtete Aufweichung von R2/R3 tritt schlicht nicht ein. Der Grund ist derselbe, aus dem die EXP-Kurve unverändert bleiben konnte: Der Party-Topf levelt exakt so schnell wie zuvor Claude allein, und der Zugewinn durch einen voll skalierten Neuzugang ist deutlich kleiner als der Gegendruck einer multiplikativen Stufe auf **alle** Gegnerwerte einer ganzen Region. **Die Stufe ist ersatzlos entfallen** (kein Feature-Flag mit Wert 1,0), `spec/feinspec-kapitel1.md` §2/§3.7/§11 und die vier abhängigen Spec-Stellen sind korrigiert. *Der Vorgang ist die Rückkanal-Regel im Reinformat: Die Konzept-Session hat die Annahme sauber als Schätzung markiert, die Umsetzungs-Session hat sie gemessen und widerlegt.*
+
+43. **Zwei §12-Kriterien mit Toleranz statt falscher Strenge – beide Male mit gemessener Begründung.**
+    - **C1 „M ≤ T an jedem Gate"**, an Zone 18 jetzt mit +1 Toleranz (M 2, T 1): Das Ventil reguliert sich selbst. Seit Barrel auf dem Gruppenlevel einsteigt, verliert M in Region 2 seltener, farmt entsprechend weniger und steht am Gate mit knapp niedrigerem Level als T, der sich seine Retries erkauft hat. Die Aussage des Kriteriums – *manuell spielen lohnt sich* – ist davon unberührt: M braucht fürs Kapitel 13,3 min, T 42,8 min. Dieselbe Toleranz existiert an Zone 30 bereits seit Entscheidung 6, aus demselben Grund.
+    - **C3 „V ≤ 15 Retries je Gate" auf ≤ 18 angehoben:** V's Niederlagen verlagern sich mit dem Gruppenlevel aus der Fläche an die Gates (Z30: 16 statt 11, dafür weniger in Region 2) – im Sinne von C4 („Wände gehören an Gates") die gewollte Richtung, bei unveränderter Gesamtzeit (53,2 gegen 53,0 min). Die 15 war eine runde Zahl, kein gemessener Schwellwert. Beides in `feinspec-kapitel1.md` §12 nachgezogen, statt es still im Test zu ändern.
+
+44. **Das Level wandert in den `SaveState`, nicht in eine „Leitfigur".** `partyLevel`/`partyExp` liegen im Save neben `party`, nicht als Feld einer ausgezeichneten Figur. `deriveCharacterMaxHp/MaxMp` und `createPartyUnit` bekommen das Level als **verpflichtenden** Parameter (statt eines Defaults): Jede Aufrufstelle muss sich bewusst entscheiden, welchen Levelstand sie meint – bei einem Default wäre ein vergessener Aufruf still auf Level 1 gelaufen und hätte sich als Balance-Fehler getarnt.
+
+45. **Migration v2 → v3 übernimmt das höchste vorhandene Charakter-Level**, nicht den Durchschnitt und nicht das Minimum. Das höchste Level ist bei jedem realen Altstand das der von Anfang an dabei gewesenen Figur – also genau der Stand, den ein von vorn gespielter Save unter der neuen Regel hätte (jede Figur bekam schon vorher die volle Wellen-Summe). Durchschnitt oder Minimum wären eine stille Rückstufung erspielten Fortschritts; die Neuzugänge steigen beim Laden stattdessen auf, exakt wie im laufenden Spiel.
+
+46. **Neuzugänge treten mit abgeleiteten HP/MP an, nicht mit den Level-1-Startwerten aus `content/characters.ts`.** Ohne diesen Schritt wäre Barrel in Zone 9 mit 140 HP zu einer Party gestoßen, deren Maximum längst darüber liegt – der Beitritt wäre wieder das tote Gewicht gewesen, das die Umstellung gerade beseitigt. Betrifft `joinCharacter()` im Store und die entsprechende Stelle im Pacing-Harness.
+
+47. **Eigene Farbe für EXP (`--game-exp`, violett).** Gold ist Gil, Cyan die Spielerkontrolle (Entscheidung 38), Blau ATB, Grün HP, Orange Limit – eine geliehene Farbe hätte die in M13 gerade erst hergestellte Eindeutigkeit wieder aufgeweicht.
 
 ---
 

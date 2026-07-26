@@ -40,7 +40,7 @@
           <div class="list-title">Resets</div>
           <ul>
             <li>Zone progress → Zone 1</li>
-            <li>Character levels → Level 1</li>
+            <li>Party level → Level 1</li>
             <li>Gil → 0</li>
             <li>Weapon tiers → Tier 0</li>
           </ul>

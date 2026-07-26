@@ -15,7 +15,7 @@ import { createBattleState } from '../src/core/tick'
 describe('feinspec §3.9 - Specials ohne eigenen Zweck folgen dem Fokusziel', () => {
   it('Claudes Cross Slash trifft das gesetzte Fokusziel, nicht automatisch das stärkste', () => {
     const claude = { ...CLAUDE, weaponTier: 1 }
-    const unit = createPartyUnit(claude, 6)
+    const unit = createPartyUnit(claude, 1, 6)
     const strong = createEnemyUnit(BLANDO, 6) // volle HP - waere ohne Fix das automatische Ziel
     const weak = createEnemyUnit(BLANDO, 6)
     weak.hp = 1 // eindeutig NICHT das staerkste Ziel
@@ -31,7 +31,7 @@ describe('feinspec §3.9 - Specials ohne eigenen Zweck folgen dem Fokusziel', ()
 
   it('Tofas Shock Strike folgt weiterhin derselben Fokusziel-Regel (Referenzverhalten, unverändert)', () => {
     const tofa = { ...TOFA, weaponTier: 1 }
-    const unit = createPartyUnit(tofa, 19)
+    const unit = createPartyUnit(tofa, 1, 19)
     const strong = createEnemyUnit(BLANDO, 19)
     const weak = createEnemyUnit(BLANDO, 19)
     weak.hp = 1
@@ -63,7 +63,7 @@ describe('feinspec §3.9 - Specials ohne eigenen Zweck folgen dem Fokusziel', ()
 describe('feinspec §3.9/§4.7 - Barrels Suppress (Referenz-Policy) zielt auf Schadensdurchsatz', () => {
   it('waehlt den langsamen Schwerschlaeger (hoher ATK*SPD) statt den schnellen, aber harmlosen Gegner', () => {
     const barrel = { ...BARREL, weaponTier: 1 }
-    const unit = createPartyUnit(barrel, 30)
+    const unit = createPartyUnit(barrel, 1, 30)
     // schnell, aber kaum Durchsatz - die alte "SPD >= 140"-Regel haette dieses Ziel gewaehlt
     const fast = createEnemyUnit(BLANDO, 30)
     fast.spd = 150
@@ -83,7 +83,7 @@ describe('feinspec §3.9/§4.7 - Barrels Suppress (Referenz-Policy) zielt auf Sc
 
   it('ignoriert dabei ein gesetztes Fokusziel (eigener, im Spec benannter Zweck, keine Fokusziel-Ausnahme)', () => {
     const barrel = { ...BARREL, weaponTier: 1 }
-    const unit = createPartyUnit(barrel, 30)
+    const unit = createPartyUnit(barrel, 1, 30)
     const focused = createEnemyUnit(BLANDO, 30) // vom Spieler fokussiert, aber kaum Durchsatz
     focused.spd = 90
     focused.atk = 2

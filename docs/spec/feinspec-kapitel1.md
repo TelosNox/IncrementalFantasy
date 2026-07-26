@@ -71,7 +71,7 @@ Die manuelle Steuerung als **FF7-Menübox** am Charakter-Panel: dunkle Blau/Lila
 |-----------|--------|------|-------------------|
 | ATB-Basisintervall | `BASE_T` | **2,0 s** | `stats-kampfwerte.md`; SPD 100 = 1 Aktion / 2 s |
 | Zonen-Wachstumsfaktor | `g` | **1,07** | glatt Zone-für-Zone; sim-justiert (Spec-Vorschlag war 1,08) |
-| Regions-Stufe Gegner-Basis | `REGION_STEP` | **×1,5** ab Zone 9 · **×1,4** ab Zone 19 (kumulativ) | fängt den Roster-Sprung durch das Gruppenlevel auf (§3.7); **Startwerte, gegen die TS-Engine zu validieren** (§11) |
+| ~~Regions-Stufe Gegner-Basis~~ | ~~`REGION_STEP`~~ | **entfällt** (Messung, s. §3.7) | gegen die TS-Engine validiert und **verworfen**: die Aufweichung, die sie auffangen sollte, tritt nicht ein |
 | Tick-Auflösung | `DT` | 0,1 s | Simulations-/Loop-Takt |
 | Shock-Schwelle | `SHOCK_MAX` | 100 | willkürliche Einheit |
 | Shock-Fensterdauer | `SHOCK_WINDOW` | 6,0 s | im Spec-Band 5–8 s |
@@ -180,23 +180,19 @@ Ein Level für die gesamte Party – Begründung, Playtest-Befund und die verwor
 ### 3.7 Zonen-Skalierung
 
 ```
-effektiver Monster-Stat = basis · g^(zone_index - 1) · REGION_STEP(zone_index)
-                                                         # g = 1,07
+effektiver Monster-Stat = basis · g^(zone_index - 1)     # g = 1,07
 Zonen-Index läuft über das ganze Kapitel durch:
     Region 1 = Zonen 1–8, Region 2 = 9–18, Region 3 = 19–30.
-REGION_STEP = 1,0  (Zonen 1–8)
-            = 1,5  (Zonen 9–18)
-            = 2,1  (Zonen 19–30)   # 1,5 · 1,4, kumulativ
 Gate-Spike = die Gate-Basiswerte (§6.2) liegen bereits ~1,6–1,8× über der
 letzten regulären Zone der Region.
 Größen-/Farbvarianten streuen ±15 % (kleiner = schwächer/schneller).
 ```
 
-**Warum die Regions-Stufe (neu, aus dem Playtest zum Gruppenlevel):** Die reine `g`-Kurve war implizit gegen eine Party balanciert, in der die Neuzugänge wegen ihres L1-Rückstands faktisch nicht mitkämpften. Mit dem Gruppenlevel (`stats-kampfwerte.md` §4.1) steht bei Zone 9 ein voll skalierter Barrel und bei Zone 19 zwei voll skalierte Figuren im Feld – der Party-DPS springt genau dort, wo die Kurve glatt weiterlief. Ohne Gegenstufe würden R2 und R3 spürbar zu leicht, und der bewusst eingebaute Widerstand am Gate (ATK 5,5 %/Level unter g 7 %/Zone, §2) verschwände ausgerechnet an den Roster-Grenzen.
+**Die Regions-Stufe wurde eingeführt und wieder verworfen – gemessen, nicht geschätzt.** Mit dem Gruppenlevel wurde hier eine Stufe auf die Gegner-Basiswerte vorgesehen (×1,5 ab Zone 9, ×1,4 ab Zone 19), gegen die Erwartung, dass R2/R3 sonst zu leicht würden: Barrel (Z9) und Tofa+Air is… (Z19) stoßen jetzt voll skaliert dazu, der Party-DPS springt also dort, wo die `g`-Kurve glatt weiterläuft. Der Wert war ausdrücklich als Schätzung markiert und gegen die TS-Engine zu validieren (§11).
 
-Die Stufen sind **unterlinear zum Roster-Zuwachs** (1→2 Figuren: ×1,5 statt ×2; 2→4: ×1,4 statt ×2), weil zusätzliche Figuren nicht voll durchschlagen: Overkill, Zielverteilung und Nicht-DPS-Rollen (Barrel Control, Air is… Healing) fressen einen Teil des Zuwachses.
+**Die Messung widerlegt die Erwartung.** Gegen `tests/chapter-playthrough.test.ts` (die drei Spielertypen aus §12) trifft das Kapitel **ohne** Stufe die §7.4-Baseline nahezu exakt – Gesamtzeit M 13,3 / T 42,8 / V 53,2 min gegen die dort dokumentierten 15,6 / 44,3 / 53,0. Mit ×1,5/×1,4 explodiert sie auf 84 / 177 / 203 min; schon ×1,15/×1,1 verfehlt mehr Kriterien als gar keine Stufe. Der Grund: Der Party-EXP-Topf levelt exakt so schnell wie zuvor Claude allein (jede Figur bekam schon vorher die volle Wellen-Summe), und der Zugewinn durch einen voll skalierten Neuzugang ist kleiner als der Gegendruck einer multiplikativen Stufe auf **alle** Gegnerwerte einer ganzen Region. Die Gegnerkurve bleibt deshalb die reine `g`-Kurve. Details: `06_Implementierungsplan_Kapitel1.md`, Umsetzungsentscheidung 42.
 
-**Verhalten ab der 1. Reunion – bewusst so, keine Sonderregel:** Reunion erhält die Charaktere und resettet nur Level/Zonen (`prestige-reunion.md`). Ab Durchlauf 2 steht die volle Gruppe schon in Zone 1, den Roster-Zuwachs gibt es nicht mehr – die Stufen bei Zone 9/19 bleiben trotzdem unkonditioniert stehen. Das ist kein Defekt: Durchlauf 2 ist an jeder Stelle mindestens so stark wie Durchlauf 1 (gleiche Levelkurve, volle Gruppe, plus Essenz), die Stufe erzeugt also keine neue Wand, sondern **beendet das Vorspulen**. Region 1 fühlt sich im zweiten Durchlauf deutlich leichter an – das ist die Prestige-Belohnung, nicht ein Balancing-Leck. Bezahlt wird dieselbe Kurve damit aus zwei verschiedenen Quellen: in Durchlauf 1 vom Roster, ab Durchlauf 2 vom Startvorsprung plus Reunion-Essenz. Eine konditionale Skalierung („Stufe nur im ersten Durchlauf") wäre verstecktes Zustandsverhalten und würde die Lesbarkeit der Zonenkurve zerstören.
+**Was der Roster-Sprung stattdessen bewirkt:** Er verschiebt Niederlagen aus der Fläche an die Gates (Typ V an Z30: 16 statt 11 Retries, dafür weniger in Region 2) – im Sinne von §12 C4 die gewollte Richtung, bei praktisch unveränderter Gesamtzeit.
 
 ### 3.8 Die Ventil-Kette: Zonen-Rückkehr, Gasthaus, Niederlage (revidiert)
 
@@ -696,7 +692,7 @@ Die drei Kapitel-1-Bosse (maßstabsgetreu, Minibosse 1,5× / Kapitel-Boss 2×) �
 Die sensibelsten Hebel:
 
 - **`g` + Level-Wachstum + EXP-Kurve** hängen zusammen (steuern Kampfdauer-Konstanz und Wandhärte) – nur gemeinsam justieren.
-- **`REGION_STEP` (×1,5 / ×1,4, §3.7)** – der einzige Wert, den die Umstellung auf das Gruppenlevel neu einführt, und ein reiner Schätzwert. Er entscheidet, ob der Beitritt von Barrel bzw. Tofa+Air is… sich als Kraft-Sprung anfühlt (gewollt) oder die Region trivialisiert. **Gegen die TS-Engine neu zu balancieren** (nicht gegen `assets/sim/sim_chapter1.py` – seit M11 nicht mehr gültig, s. `04_Status_und_Roadmap.md`); Messlatte ist `tests/chapter-playthrough.test.ts` mit den drei Spielertypen aus §12. Zielgröße unverändert: Kampfdauer über das Kapitel ungefähr konstant, spürbare Wand am jeweiligen Gate. Gegenprobe nötig für **Durchlauf 2** (volle Gruppe ab Zone 1) – dort darf die Stufe das Tempo normalisieren, aber keine Wand erzeugen.
+- ~~**`REGION_STEP`**~~ – **erledigt**: gegen die TS-Engine gemessen und verworfen (§3.7). Die Gegnerkurve bleibt die reine `g`-Kurve. Offen bleibt die Gegenprobe für **Durchlauf 2** (volle Gruppe ab Zone 1) – dass Region 1 sich dort leichter anfühlt, ist gewollt (`prestige-reunion.md`), aber noch nicht gespielt beurteilt.
 - **Erholung nach Sieg (25 %)** – gebunden an die Signalregel in §3.8d, nicht frei wählbar: komfortable Zone netto neutral, harte Zone netto negativ. Diese Regel bestimmt den Wert, nicht umgekehrt.
 - **Gasthaus: Totzeit (10 s) und Rate (5 %/s).** Die Totzeit ist der eigentliche Design-Hebel (sie macht Heil-Spam unwirtschaftlich); die Rate steuert nur, wie teuer ein voller Heilgang ist. Ursprünglich als Band 5–10 s diskutiert – 10 s ist der Startwert, weil er nach einer Niederlage auf runde 30 s Gesamtwartezeit führt. **Wichtig:** Ohne Offline-Progress ist diese Zeit jetzt echte Wartezeit am Bildschirm; sie muss sich *gespielt* vertretbar anfühlen, nicht nur gerechnet.
 - **MP-Ökonomie:** Refill 25 % + **neu herzuleitende** Special-Kosten (§6.1 war gegen den gestrichenen Refund balanciert). Bestimmt, wie oft Specials fallen – und wie hart die Heilungs-Obergrenze in Bosskämpfen greift.
@@ -751,9 +747,9 @@ Die Erstfassung von B3 verlangte, der Sprung M→T müsse der *kleinere* sein: E
 
 ### C – Wo die Wände sitzen
 
-- **C1** An jedem der drei Gates gilt für die Retry-Zahl: **M ≤ T ≤ V**.
+- **C1** An jedem der drei Gates gilt für die Retry-Zahl: **M ≤ T ≤ V**. *Mit Toleranz an zwei Stellen, jeweils als Umsetzungsentscheidung dokumentiert: T ≤ V an Zone 30 mit +6 (Entscheidung 6), M ≤ T an Zone 18 mit +1 (Entscheidung 42 – seit Barrel auf dem Gruppenlevel einsteigt, verliert M in Region 2 seltener, farmt weniger und steht am Gate mit knapp niedrigerem Level als der grindende T).*
 - **C2** Für M liegt die Retry-Zahl an allen drei Gates bei **0–1**. Können zahlt sich aus.
-- **C3** Für V ist die Retry-Zahl an jedem Gate **≤ 15** (in Kombination mit A2 – Grinden muss die Zahl senken).
+- **C3** Für V ist die Retry-Zahl an jedem Gate **≤ 18** (in Kombination mit A2 – Grinden muss die Zahl senken). *Ursprünglich ≤ 15 – eine runde Zahl, kein gemessener Schwellwert. Mit dem Gruppenlevel verlagern sich V's Niederlagen aus der Fläche an die Gates (§3.7): Z30 16 statt 11 Retries bei unveränderter Gesamtzeit – im Sinne von C4 die gewollte Richtung.*
 - **C4** **Keine reguläre Zone darf für irgendeinen Typ mehr Retries erfordern als das nächstfolgende Gate.** Wände gehören an Gates. Genau das war in der Vorfassung verletzt: Zone 6 wurde zur härtesten Stelle der Region.
 
 ### D – Ressourcen-Ökonomie
