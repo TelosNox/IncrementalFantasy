@@ -37,7 +37,9 @@ Diese Prozente beschreiben, **wie viel Fläche** die Stage vom Fenster bekommt. 
 
 ### Skalierung: ein Faktor für alles
 
-- **`s` = CSS-Pixel pro su**, angewandt auf **Backdrop, Sprites, Bodenaufsätze, Marker und Kopf-HUD gleichermaßen**.
+- **`s` = CSS-Pixel pro su**, angewandt auf **Backdrop, Sprites, Bodenaufsätze, Marker und Kopf-HUD gleichermaßen** – also auf die Backdrop-Ebenen, den F-Stapel und **U0**.
+- **Nicht mitskaliert werden U1 und U2** (Kampf-Feedback, Aktions-Popup, Banner). Das ist Absicht: Es sind **textführende** Flächen, und bei `s = 1` wäre mitskalierter Text unlesbar. Sie leben in CSS-Pixeln und werden bei kleiner Bühne relativ *größer*.
+- **Preis davon, und die Regel dagegen:** Ein Overlay, das nicht mitskaliert, wächst bei schrumpfender Bühne über die Figuren hinweg. **Ein U1/U2-Element darf deshalb nie die Figur überlappen, auf die es sich bezieht** – es weicht horizontal aus, statt sie zu verdecken. **Gemessener Fall (M13-Abnahme):** Das Aktions-Popup misst konstant 232×23 CSS-px – bei Stage 1092×656 sind das 107 su und es verdeckt nichts, bei Stage 540×720 sind es 217 su und es verdeckt **34 % der handelnden Figur**. Ausgerechnet die, die durch Vortreten und fehlende Abdunklung gerade hervorgehoben wird: Die visuelle Klammer zwischen Popup und Figur kippt dort in ihr Gegenteil.
 - **`s = min(Stage-Breite / 504, Stage-Höhe / 288)`**, fließend (nicht auf ganze Stufen gerundet), begrenzt auf **1,0 ≤ s ≤ 4,0**.
 - Der früher als „2×-Display-Zoom" beschlossene Wert ist damit keine Sprite-Eigenschaft mehr, sondern der **Referenzfall `s = 2`** (Bühne 1008×576 CSS-px, Standardfigur 128 px). Die Größenhierarchie aus `charaktere-visuals.md` (Standard 64 / Miniboss 96 / Kapitel-Boss 128 su) bleibt unverändert – sie ist jetzt schlicht in su ausgedrückt.
 - **Bewusster Preis dieser Wahl:** Bei krummem `s` ist das Pixelraster ungleichmäßig (einzelne Pixel werden 1 CSS-px breiter). Das ist gegenüber ganzzahligen Zoomstufen abgewogen und **zugunsten der Komposition entschieden**: Eine Bühne, deren Proportionen sich beim Resizen nie ändern, ist mehr wert als ein perfektes Pixelraster mit sichtbaren Sprüngen und breiten Rändern. Rendering bleibt Nearest-Neighbor.
@@ -226,7 +228,7 @@ Die Bottom-Leiste trägt je Figur ein **Charakter-Panel** (HP/MP/ATB/Limit) plus
 - **Zustandskodierung doppelt (Lesbarkeit):** verfügbare Aktionen **hell + kräftige (dickere) Schrift**; nicht verfügbare (z. B. Spezial ohne MP) **gedämpft + dünne Schrift** – sichtbar, aber sofort als „gerade nicht möglich" lesbar.
 - **Limit:** wenn geladen, in **bunten Buchstaben** (jeder Buchstabe eine kräftige Farbe) – die FF7-Signatur.
 - **Skalierung:** feste Grundaktionen oben (Attack, Special, Limit; Defend ab Boss-Event); **Materia unter der Kategorie „Magic ▸"** als **scroll-/blätterbare Unterliste** → das Popup behält seine Größe, egal wie viele Materia (rutscht nie aus dem Bild). Kategorie nur sichtbar, wenn Materia-Aktionen existieren.
-- **Platz:** Popup wächst nach **oben** in die Stage (über der Bottom-Leiste), auf der Party-Seite (links), damit es die Gegner-Seite und deren HUD nicht verdeckt.
+- **Platz:** Popup wächst nach **oben** in die Stage (über der Bottom-Leiste), auf der Party-Seite (links), damit es die Gegner-Seite und deren HUD nicht verdeckt. **Es weicht der eigenen Figur aus** (s. Bühnen-Framework, „Skalierung"): Läge es über der Figur, deren Aktion es abfragt, verdeckt es genau das, worauf es sich bezieht – bei kleiner Bühne messbar ein Drittel davon. Maßgeblich ist die Figur **in ihrer vorgetretenen Position**, nicht ihr Slot.
 
 ## Freischaltungs-Hinweis (Unlock-Callout)
 

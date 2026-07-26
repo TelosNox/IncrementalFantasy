@@ -396,6 +396,20 @@ Umzusetzen:
 
 **Reihenfolge:** M12 **vor** M13. M13 erwartet Kulissen im Format 168×96 mit Bodenband und Bleed; die heutigen sind 160×96 ohne beides. *(M12 ist erledigt, die Kulissen liegen im neuen Format vor.)*
 
+### ✅ Abnahme M13 (Konzept-Review, 26.07.2026) – bestanden
+
+Am laufenden Dev-Server gemessen, nicht aus dem Code abgeleitet (die Vorgabe „die Abnahme ist rein visuell" oben):
+
+| Stage | `s` | Claude | Blando | Spritegröße |
+|---|---|---|---|---|
+| 998 × 608 | 1,981 | x 188, Standlinie 280 | x 328, Standlinie 268 | 64 su |
+| 540 × 720 | 1,071 | x 188, Standlinie 280 | x 328, Standlinie 268 | 64 su |
+| 1092 × 656 | 2,167 | x 188, Standlinie 280 | x 328, Standlinie 268 | 64 su |
+
+**Die Stage schrumpft um 46 %, die Komposition bleibt in su identisch** – das Kernkriterium ist erfüllt. Claudes x = 188 statt 176 ist korrekt (bereit → vorgetreten um +12, Standlinie 280, 8 su Restreserve). Ebenfalls geprüft: Der Übergang von der Stage-Hintergrundfarbe in den Kulissenhimmel ist bei hoher, schmaler Stage nahtlos (Fund 3); die Boss-mit-Begleitern-Regel (Fund 1) setzt Vaultrons Kopf-HUD exakt auf die Deckenlinie y = 72, und seine Begleiter überlappen ihn nur im unteren Fünftel.
+
+**Ein Nachzieher, aus einer Spec-Lücke, nicht aus der Umsetzung:** Das Aktions-Popup misst konstant 232×23 CSS-px und skaliert nicht mit `s` – bei Stage 540×720 sind das 217 su, und es verdeckt **34 % der handelnden Figur**. Die Skalierungsregel nannte U1/U2 gar nicht; dass sie **nicht** mitskalieren, ist richtig (Text muss lesbar bleiben), die fehlende Konsequenz daraus war die Regel „ein Overlay überlappt nie die Figur, auf die es sich bezieht". Beides jetzt in `ui-layout.md` („Skalierung" und „Charakter-Steuerung"). Umzusetzen: Das Popup weicht der Figur horizontal aus, maßgeblich ist deren **vorgetretene** Position.
+
 **Umsetzungsentscheidungen (M13):**
 
 31. **Geometrie raus aus der Komponente: neues `src/ui/stageLayout.ts`.** Slot-Raster, Standlinien, Skalierung, Vortreten und die HUD-Maße liegen jetzt in einem DOM-freien Modul, `Stage.svelte` enthält nur noch Darstellung. Grund: Die M13-Abnahmekriterien sind sämtlich geometrische Aussagen („kein HUD ragt ins Himmelband", „bei 4 gegen 4 überlappt kein Kopf-HUD", „die Position hängt nicht von der Größe des Nachbarn ab") – als Modul sind sie **prüfbar** statt betrachtbar. `tests/stage-layout.test.ts` (13 Tests) hält jedes Kriterium einzeln fest; die Testsuite steht damit bei 110/110.
