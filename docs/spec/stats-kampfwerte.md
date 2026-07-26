@@ -8,7 +8,7 @@
 
 - **Kampf** (`kampf-analyse-shock.md`): ATK/MAG = Schaden, DEF = Schadensreduktion, SPD = ATB-Füllrate, HP/MP = Überleben/Ressource.
 - **Analyse** (`kampf-analyse-shock.md`): enthüllt beim Gegner **ATK/DEF/HP**.
-- **Charaktere** (`charaktere-party.md`): Stat-Profile je Rolle; Wachstum über Level.
+- **Charaktere** (`charaktere-party.md`): Stat-Profile je Rolle; Wachstum über das **Gruppenlevel** (§4.1) – kein individuelles Charakter-Level.
 - **Ausrüstung** (`ausruestung-gil.md`): liefert Stat-Boni (Waffe → ATK/MAG, Rüstung → DEF/HP, u. a. SPD).
 - **Materia** (`materia.md`): **magische/elementare Resistenz läuft über Materia**, nicht über einen Kern-Stat.
 - **Progression/Gegner** (`progression-regionen.md`): Gegner nutzen dasselbe Kern-Set + Schwäche-Tags.
@@ -43,7 +43,19 @@ Jeder Stat bedient genau ein System; die vier Figuren bekommen dadurch natürlic
 
 ## 4. Woher die Stats wachsen
 
-**Charakter-Level (rollen-gewichtet) + Ausrüstung** – **nicht** über Materia (dort keine flachen Stat-Boni, damit jede Materia eine Gameplay-Entscheidung bleibt).
+**Gruppenlevel (rollen-gewichtet) + Ausrüstung** – **nicht** über Materia (dort keine flachen Stat-Boni, damit jede Materia eine Gameplay-Entscheidung bleibt).
+
+### 4.1 Gruppenlevel statt Charakter-Level (verbindlich)
+
+Es gibt **genau ein Level für die gesamte Party**. EXP fließt in einen Party-Topf; ein Levelaufstieg hebt alle Figuren gleichzeitig. Die Stats einer Figur = ihre eigenen Basiswerte (§5) × rollen-gewichtetes Wachstum auf dem Gruppenlevel. Neu hinzustoßende Figuren stehen sofort auf dem aktuellen Gruppenlevel.
+
+**Warum:** An einem individuellen Level hängt bei uns keine Spielerentscheidung – es gibt keine EXP-Zuweisung, keine Bank, keine Rotation, die Party ist fix und alle kämpfen. Vier synchron mitlaufende Zähler wären reine Buchführung (Leitfaden §3 „Multi-Charakter/Parallelität ⟷ klarer Fokus", §5 „Tiefe dosiert"). Differenzierung bleibt vollständig erhalten – über Basiswerte, Rollen-Gewichtung, Ausrüstung und ab Kapitel 2 Materia.
+
+**Der eigentliche Auslöser (Playtest):** Mit individuellen Leveln stieß Barrel bei Zone 9 mit L1 zu einem L~9-Claude, Tofa und Air is… bei Zone 19 mit L1 zu L~19 – bei ×1,055 ATK/Level ~1,6× bzw. ~2,6× Rückstand. Die Neuzugänge waren über eine halbe Region totes Gewicht. Das ist kein Balancing-Detail, sondern nahe an „totes Feature": eine gerade freigeschaltete Figur, die nichts beiträgt, entwertet ihre eigene Freischaltung.
+
+**Bewusst in Kauf genommen:** Der Bogen „neues Mitglied wächst ins Team hinein" entfällt. In einem Idle-Auto-Battler ist das kein Pflege-Moment, sondern eine Phase ohne Beitrag – der Beitritt wird stattdessen ein sichtbarer Kraft-Sprung. Balancing-Konsequenz: `progression-regionen.md` / `feinspec-kapitel1.md` §3.7 (Regions-Stufe).
+
+**Solo-/Paar-Challenges (E1, ab Kap. 2):** greifen auf dasselbe Gruppenlevel zu. „Solo" heißt „nur eine Figur kämpft", nicht „schwächere Figur". Ein eigenes, gedeckeltes Challenge-Level wäre die Alternative (mehr Eigengewicht für Challenges) – bis zur Kapitel-2-Spec offen, aber nicht der Default.
 
 ## 5. Charakter-Stat-Profile (vorläufig)
 
@@ -61,7 +73,7 @@ Jeder Stat bedient genau ein System; die vier Figuren bekommen dadurch natürlic
 | **Tofa** | 95 | 20 | 12 | 5 | 3 | 130 |
 | **Air is...** | 80 | 30 | 7 | 14 | 3 | 95 |
 
-Level-Wachstum (grob, tunbar): ~+8 % HP, +6 % ATK/MAG, +5 % DEF pro Level; SPD wächst kaum (bleibt Build-Hebel). So bleibt die Kampfdauer trotz Gegner-Skalierung (g^Zone) ungefähr konstant.
+Level-Wachstum (grob, tunbar): ~+8 % HP, +6 % ATK/MAG, +5 % DEF pro **Gruppenlevel**; SPD wächst kaum (bleibt Build-Hebel). So bleibt die Kampfdauer trotz Gegner-Skalierung (g^Zone) ungefähr konstant.
 
 ## Formeln (grob, tunbar)
 
@@ -81,6 +93,7 @@ Gegner nutzen dasselbe Kern-Set (HP/ATK/DEF/SPD, MAG bei magischen Gegnern) plus
 ## Offene Detailfragen (Balance – Playtest)
 
 - Formeln sind vorgeschlagen (s. oben); Feinjustage der Parameter (Basis-T, Mitigations-Kurve, Level-Wachstum) im Playtest.
-- Wachstumskurven je Stat/Rolle über Level; Höhe der Ausrüstungs-Boni.
+- Wachstumskurven je Stat/Rolle über das Gruppenlevel; Höhe der Ausrüstungs-Boni.
+- Höhe der Regions-Stufe (`REGION_STEP`), die den Roster-Zuwachs auffängt – Startwerte in `feinspec-kapitel1.md` §3.7, gegen die TS-Engine zu validieren.
 - MP-Größenordnung im Verhältnis zu Special-/Magie-Kosten und Regen.
 - Gegner-Stat-Skalierung je Zone.

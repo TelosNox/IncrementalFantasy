@@ -71,6 +71,7 @@ Die manuelle Steuerung als **FF7-Menübox** am Charakter-Panel: dunkle Blau/Lila
 |-----------|--------|------|-------------------|
 | ATB-Basisintervall | `BASE_T` | **2,0 s** | `stats-kampfwerte.md`; SPD 100 = 1 Aktion / 2 s |
 | Zonen-Wachstumsfaktor | `g` | **1,07** | glatt Zone-für-Zone; sim-justiert (Spec-Vorschlag war 1,08) |
+| Regions-Stufe Gegner-Basis | `REGION_STEP` | **×1,5** ab Zone 9 · **×1,4** ab Zone 19 (kumulativ) | fängt den Roster-Sprung durch das Gruppenlevel auf (§3.7); **Startwerte, gegen die TS-Engine zu validieren** (§11) |
 | Tick-Auflösung | `DT` | 0,1 s | Simulations-/Loop-Takt |
 | Shock-Schwelle | `SHOCK_MAX` | 100 | willkürliche Einheit |
 | Shock-Fensterdauer | `SHOCK_WINDOW` | 6,0 s | im Spec-Band 5–8 s |
@@ -85,9 +86,9 @@ Die manuelle Steuerung als **FF7-Menübox** am Charakter-Panel: dunkle Blau/Lila
 | Gasthaus-Erholungsrate | `INN_RATE` | 5 %/s vom Maximum | HP und MP **gleichzeitig** (§3.8) |
 | ~~Offline-Rate / Offline-Deckel~~ | – | **entfernt** | Offline-Progress stillgelegt (§3.8) |
 
-**Level-Wachstum pro Stufe** (multiplikativ auf den Basiswert): HP ×1,09 · ATK ×1,055 · MAG ×1,055 · DEF ×1,05 · SPD ×1,00 (SPD bleibt Build-Hebel). Dass ATK (5,5 %/Level) knapp unter `g` (7 %/Zone) liegt, ist Absicht: die Party fällt über eine Region minimal zurück → am Gate steht eine spürbare, grindbare Wand (Ventil-Prinzip bleibt: EXP fließt weiter).
+**Level-Wachstum pro Stufe** (multiplikativ auf den Basiswert, angewandt auf das **Gruppenlevel**, `stats-kampfwerte.md` §4.1): HP ×1,09 · ATK ×1,055 · MAG ×1,055 · DEF ×1,05 · SPD ×1,00 (SPD bleibt Build-Hebel). Dass ATK (5,5 %/Level) knapp unter `g` (7 %/Zone) liegt, ist Absicht: die Party fällt über eine Region minimal zurück → am Gate steht eine spürbare, grindbare Wand (Ventil-Prinzip bleibt: EXP fließt weiter).
 
-**EXP für den nächsten Level:** `exp_to_next(L) = round(20 · 1,22^(L-1))`. Kalibriert auf ~1 Levelaufstieg pro Zone, damit die Kampfdauer über das Kapitel ungefähr konstant bleibt.
+**EXP für den nächsten Level:** `exp_to_next(L) = round(20 · 1,22^(L-1))`. Kalibriert auf ~1 Levelaufstieg pro Zone, damit die Kampfdauer über das Kapitel ungefähr konstant bleibt. **Die Kurve bleibt durch die Umstellung auf das Gruppenlevel unverändert:** Bisher erhielt jede Figur die volle Wellen-Summe: „Party-Topf bekommt die Wellen-Summe" ist exakt dieselbe Rate wie zuvor Claudes.
 
 ---
 
@@ -164,25 +165,38 @@ verfügbar (im Popup sichtbar, aber ausgegraut – `gambits.md` §3).
 - Der frühere Selbstheilungs-Satz „MP leer → Angriff → MP zurück" entfällt. Für Kapitel 1 folgenlos (Auto greift ohnehin nur an, §4.7), für den **Gambit-Editor in Kapitel 2** relevant: Eine Regel „nutze Special" kann dauerhaft ins Leere laufen, statt sich selbst zu reparieren. Gehört in die Kapitel-2-Spec.
 - MP-Regen-Materia (`materia.md` §7) wird dadurch von „wirkungslos" zu einer der attraktivsten Kapitel-2-Belohnungen – die Rolle, die ihr `materia.md` §2 zuweist. **Deshalb darf Sustain in Kapitel 1 bewusst nicht gut gelöst sein.**
 
-### 3.6 EXP / Gil / Level
+### 3.6 EXP / Gil / Gruppenlevel
 
 ```
-Sieg → jede beteiligte Figur erhält die Summe der Monster-EXP der Welle.
+Sieg → der Party-EXP-Topf erhält die Summe der Monster-EXP der Welle.
        Gil-Ertrag = Summe der Monster-Gil.
-Level-Up sobald exp >= exp_to_next(L); Überschuss wird übertragen.
+Level-Up des GRUPPENLEVELS sobald exp >= exp_to_next(L); Überschuss überträgt.
+Ein Level-Up hebt alle Figuren gleichzeitig; Neuzugänge stehen sofort auf L.
 Monster-EXP/Gil skalieren mit g^(zone-1) wie die Stats (§3.7).
 ```
+
+Ein Level für die gesamte Party – Begründung, Playtest-Befund und die verworfenen Alternativen stehen in `stats-kampfwerte.md` §4.1. Für die UI heißt das: **ein** Level-/EXP-Anzeiger für die Gruppe statt vier pro Charakter-Panel (`ui-layout.md`).
 
 ### 3.7 Zonen-Skalierung
 
 ```
-effektiver Monster-Stat = basis · g^(zone_index - 1)     # g = 1,07
+effektiver Monster-Stat = basis · g^(zone_index - 1) · REGION_STEP(zone_index)
+                                                         # g = 1,07
 Zonen-Index läuft über das ganze Kapitel durch:
     Region 1 = Zonen 1–8, Region 2 = 9–18, Region 3 = 19–30.
+REGION_STEP = 1,0  (Zonen 1–8)
+            = 1,5  (Zonen 9–18)
+            = 2,1  (Zonen 19–30)   # 1,5 · 1,4, kumulativ
 Gate-Spike = die Gate-Basiswerte (§6.2) liegen bereits ~1,6–1,8× über der
 letzten regulären Zone der Region.
 Größen-/Farbvarianten streuen ±15 % (kleiner = schwächer/schneller).
 ```
+
+**Warum die Regions-Stufe (neu, aus dem Playtest zum Gruppenlevel):** Die reine `g`-Kurve war implizit gegen eine Party balanciert, in der die Neuzugänge wegen ihres L1-Rückstands faktisch nicht mitkämpften. Mit dem Gruppenlevel (`stats-kampfwerte.md` §4.1) steht bei Zone 9 ein voll skalierter Barrel und bei Zone 19 zwei voll skalierte Figuren im Feld – der Party-DPS springt genau dort, wo die Kurve glatt weiterlief. Ohne Gegenstufe würden R2 und R3 spürbar zu leicht, und der bewusst eingebaute Widerstand am Gate (ATK 5,5 %/Level unter g 7 %/Zone, §2) verschwände ausgerechnet an den Roster-Grenzen.
+
+Die Stufen sind **unterlinear zum Roster-Zuwachs** (1→2 Figuren: ×1,5 statt ×2; 2→4: ×1,4 statt ×2), weil zusätzliche Figuren nicht voll durchschlagen: Overkill, Zielverteilung und Nicht-DPS-Rollen (Barrel Control, Air is… Healing) fressen einen Teil des Zuwachses.
+
+**Verhalten ab der 1. Reunion – bewusst so, keine Sonderregel:** Reunion erhält die Charaktere und resettet nur Level/Zonen (`prestige-reunion.md`). Ab Durchlauf 2 steht die volle Gruppe schon in Zone 1, den Roster-Zuwachs gibt es nicht mehr – die Stufen bei Zone 9/19 bleiben trotzdem unkonditioniert stehen. Das ist kein Defekt: Durchlauf 2 ist an jeder Stelle mindestens so stark wie Durchlauf 1 (gleiche Levelkurve, volle Gruppe, plus Essenz), die Stufe erzeugt also keine neue Wand, sondern **beendet das Vorspulen**. Region 1 fühlt sich im zweiten Durchlauf deutlich leichter an – das ist die Prestige-Belohnung, nicht ein Balancing-Leck. Bezahlt wird dieselbe Kurve damit aus zwei verschiedenen Quellen: in Durchlauf 1 vom Roster, ab Durchlauf 2 vom Startvorsprung plus Reunion-Essenz. Eine konditionale Skalierung („Stufe nur im ersten Durchlauf") wäre verstecktes Zustandsverhalten und würde die Lesbarkeit der Zonenkurve zerstören.
 
 ### 3.8 Die Ventil-Kette: Zonen-Rückkehr, Gasthaus, Niederlage (revidiert)
 
@@ -682,6 +696,7 @@ Die drei Kapitel-1-Bosse (maßstabsgetreu, Minibosse 1,5× / Kapitel-Boss 2×) �
 Die sensibelsten Hebel:
 
 - **`g` + Level-Wachstum + EXP-Kurve** hängen zusammen (steuern Kampfdauer-Konstanz und Wandhärte) – nur gemeinsam justieren.
+- **`REGION_STEP` (×1,5 / ×1,4, §3.7)** – der einzige Wert, den die Umstellung auf das Gruppenlevel neu einführt, und ein reiner Schätzwert. Er entscheidet, ob der Beitritt von Barrel bzw. Tofa+Air is… sich als Kraft-Sprung anfühlt (gewollt) oder die Region trivialisiert. **Gegen die TS-Engine neu zu balancieren** (nicht gegen `assets/sim/sim_chapter1.py` – seit M11 nicht mehr gültig, s. `04_Status_und_Roadmap.md`); Messlatte ist `tests/chapter-playthrough.test.ts` mit den drei Spielertypen aus §12. Zielgröße unverändert: Kampfdauer über das Kapitel ungefähr konstant, spürbare Wand am jeweiligen Gate. Gegenprobe nötig für **Durchlauf 2** (volle Gruppe ab Zone 1) – dort darf die Stufe das Tempo normalisieren, aber keine Wand erzeugen.
 - **Erholung nach Sieg (25 %)** – gebunden an die Signalregel in §3.8d, nicht frei wählbar: komfortable Zone netto neutral, harte Zone netto negativ. Diese Regel bestimmt den Wert, nicht umgekehrt.
 - **Gasthaus: Totzeit (10 s) und Rate (5 %/s).** Die Totzeit ist der eigentliche Design-Hebel (sie macht Heil-Spam unwirtschaftlich); die Rate steuert nur, wie teuer ein voller Heilgang ist. Ursprünglich als Band 5–10 s diskutiert – 10 s ist der Startwert, weil er nach einer Niederlage auf runde 30 s Gesamtwartezeit führt. **Wichtig:** Ohne Offline-Progress ist diese Zeit jetzt echte Wartezeit am Bildschirm; sie muss sich *gespielt* vertretbar anfühlen, nicht nur gerechnet.
 - **MP-Ökonomie:** Refill 25 % + **neu herzuleitende** Special-Kosten (§6.1 war gegen den gestrichenen Refund balanciert). Bestimmt, wie oft Specials fallen – und wie hart die Heilungs-Obergrenze in Bosskämpfen greift.

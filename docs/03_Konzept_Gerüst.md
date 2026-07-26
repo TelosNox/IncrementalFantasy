@@ -19,7 +19,7 @@ Ein **Idle-Auto-Battler-RPG**, in dem eine Parodie-Party sich durch Monster- und
 
 ## 2. Kern-Loop (A1 + D2)
 
-Die Party kämpft **automatisch** gegen Monsterwellen. Siege liefern drei Basis-Ressourcen: **EXP** (Charakter-Level), **AP** (Materia-Level) und **Gil** (Ausrüstung/Slots). Monster-Zonen sind die messbare Progression; **Bosse sind Meilenstein-Gates** (C2), die die nächste Region und die nächste Systemstufe freischalten.
+Die Party kämpft **automatisch** gegen Monsterwellen. Siege liefern drei Basis-Ressourcen: **EXP** (Gruppenlevel), **AP** (Materia-Level) und **Gil** (Ausrüstung/Slots). Monster-Zonen sind die messbare Progression; **Bosse sind Meilenstein-Gates** (C2), die die nächste Region und die nächste Systemstufe freischalten.
 
 Der Kampf ist nie bloßer Zahlenvergleich (das wäre die D2-Schwäche): Seine Textur kommt aus Analyse/Shock, Materia-Builds und Limit-Timing.
 
@@ -104,7 +104,7 @@ Diese Zwei-Achsigkeit ist bewusst gewählt: horizontale Tiefe (Kampf) und vertik
 | **Tofa** | Tifa | Tofublock mit Boxhandschuhen | Nahkampf-Brawler, schneller Shock-Aufbau |
 | **Air is...** | Aerith | Papierfächer mit Blume und angedeuteter Jacke | Heilung / Support / Magie |
 
-**Party-Modell:** Im Hauptmodus tritt die **volle Party** an. Start nur mit Claude, weitere Figuren stoßen **regionsweise** hinzu. Freigeschaltete Charaktere bleiben über Reunion erhalten (nur ihre Level werden zurückgesetzt).
+**Party-Modell:** Im Hauptmodus tritt die **volle Party** an. Start nur mit Claude, weitere Figuren stoßen **regionsweise** hinzu. Freigeschaltete Charaktere bleiben über Reunion erhalten (nur das Level wird zurückgesetzt). **Gelevelt wird gemeinsam:** ein **Gruppenlevel** für die ganze Party, kein individuelles Charakter-Level – Neuzugänge steigen sofort darauf ein und sind ab dem ersten Kampf einsatzfähig (Begründung: `spec/stats-kampfwerte.md` §4.1).
 
 **Challenges (E1):** Läufe mit selbstauferlegter Beschränkung (Solo oder Paar), Vorbild im neueren Original. Recyceln Content mit frischer Würze, rein optional für Enthusiasten. Zusätzlich **Freischaltungs-Quelle** (s. §10).
 
@@ -116,7 +116,7 @@ Diese Zwei-Achsigkeit ist bewusst gewählt: horizontale Tiefe (Kampf) und vertik
 
 **Makro – Reunion** (selten, groß; thematisch Lebensstrom/Wiedergeburt):
 
-- **Zurückgesetzt:** Zonen-Fortschritt, Charakter-Level, Materia-Level und -Slots, Ausrüstung.
+- **Zurückgesetzt:** Zonen-Fortschritt, Gruppenlevel, Materia-Level und -Slots, Ausrüstung.
 - **Erhalten:** Materia-Typen & -Evolutionen, kristallisierte Passiv-Boni, freigeschaltete Charaktere, gelernte Waffen-Spezialfähigkeiten, Bestiarium/Analysen, erworbene Gambit-Fähigkeiten.
 - **Ertrag – Reunion-Essenz:** schaltet **Gambits** frei/aus, kauft permanente Boni, neue Materia-Typen und Roster-Erweiterungen.
 
@@ -142,7 +142,7 @@ Fünf Währungen, jede mit **genau einer** Progressions-Achse (Absicherung gegen
 
 | Währung | Quelle | Verwendung | Ebene |
 |---------|--------|------------|-------|
-| **EXP** | Kämpfe | Charakter-Level | Basis |
+| **EXP** | Kämpfe | Gruppenlevel | Basis |
 | **AP** | Kämpfe (auto auf alle Materia) | Materia-Level | Basis |
 | **Gil** | Kämpfe | Ausrüstung / Slot-Freischaltung | Basis (je Zyklus neu relevant) |
 | **Materia-Prestige-Währung** | Materia-Cap-Reset | Materia-Evolution | Mikro-Prestige |

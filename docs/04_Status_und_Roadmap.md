@@ -93,4 +93,22 @@ Aus der Konzept-Session vom 25.07.2026 (Bühnen-Framework) stehen zwei umsetzung
 
 **Was die automatisierten Tests nicht ersetzen (feinspec §12 E1-E3):** Ein Mensch muss Zone 1 → 30 → Reunion tatsächlich durchspielen. Das steht noch aus – bis dahin gilt M11 als *technisch*, nicht als *menschlich* validiert.
 
+---
+
+## Design-Änderung: Gruppenlevel statt Charakter-Level (26.07.2026, Konzept-Session)
+
+**Playtest-Befund:** Im ersten Durchlauf war Claude massiv stärker als der Rest der Gruppe. Ursache ist strukturell, nicht numerisch: Bei individuellen Leveln und ~1 Levelaufstieg pro Zone stieß Barrel bei Zone 9 mit L1 zu einem L~9-Claude, Tofa und Air is… bei Zone 19 mit L1 zu L~19 – rund 1,6× bzw. 2,6× Rückstand in ATK. Neu freigeschaltete Figuren waren über eine halbe Region ohne Beitrag; die Freischaltung entwertete sich selbst.
+
+**Entschieden:** **Ein gemeinsames Gruppenlevel für die ganze Party.** EXP fließt in einen Party-Topf, Neuzugänge steigen sofort auf dem aktuellen Level ein. Begründung, verworfene Alternativen und die Challenge-Frage: `spec/stats-kampfwerte.md` §4.1.
+
+**Was sich dadurch NICHT ändert:** die EXP-Kurve `exp_to_next(L) = round(20 · 1,22^(L-1))`. Bisher bekam ohnehin jede Figur die volle Wellen-Summe – der Party-Topf hat exakt dieselbe Rate.
+
+**Was sich ändert:** eine neue **Regions-Stufe** auf der Gegner-Basis (`REGION_STEP`: ×1,5 ab Zone 9, ×1,4 ab Zone 19, kumulativ; `spec/feinspec-kapitel1.md` §2/§3.7). Ohne sie werden R2/R3 zu leicht, weil die reine `g`-Kurve implizit gegen nicht mitkämpfende Neuzugänge balanciert war. Die Stufen sind bewusst unterlinear zum Roster-Zuwachs.
+
+**Ab der 1. Reunion** steht die volle Gruppe schon in Zone 1 (Charaktere bleiben erhalten, Level fällt auf 1). Region 1 wird dadurch deutlich leichter – **gewollt als Prestige-Belohnung**, keine Sonderregel für Folgeläufe. Die Regions-Stufen normalisieren das Tempo bei Zone 9/19, ohne eine neue Wand zu erzeugen (`spec/prestige-reunion.md`).
+
+**Offen / Auftrag an die Umsetzungs-Session:** `REGION_STEP` ist ein reiner Schätzwert und gegen die TS-Engine zu validieren (`tests/chapter-playthrough.test.ts`, Spielertypen M/T/V) – für Durchlauf 1 *und* Durchlauf 2. Ebenfalls anzupassen: UI zeigt **einen** Level-/EXP-Anzeiger für die Gruppe statt vier pro Charakter-Panel; Save-Migration für den zusammengeführten Level-Wert.
+
+Geänderte Dokumente: `03_Konzept_Gerüst.md`, `spec/stats-kampfwerte.md`, `spec/feinspec-kapitel1.md`, `spec/charaktere-party.md`, `spec/oekonomie-waehrungen.md`, `spec/progression-regionen.md`, `spec/prestige-reunion.md`.
+
 Ladehinweis (CLAUDE.md): `03_Konzept_Gerüst.md` + betroffene `spec/*.md`, `02_Leitfaden_Kernmechaniken.md` als Prüfinstanz; für technische Umsetzung zusätzlich `05_Architektur.md`.

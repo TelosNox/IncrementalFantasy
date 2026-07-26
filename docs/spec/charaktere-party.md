@@ -24,6 +24,8 @@ Jede Figur hat eine **über die Waffe freigeschaltete Spezialfähigkeit**, die i
 
 Roster-Rhythmus: Region 1 Claude allein → Region 2 Barrel → Region 3 Tofa + Air is... gleichzeitig (volle Gruppe).
 
+**Neuzugänge steigen auf dem aktuellen Gruppenlevel ein** (`stats-kampfwerte.md` §4.1) – eine frisch freigeschaltete Figur ist ab dem ersten Kampf voll einsatzfähig. Der Beitritt ist damit ein sichtbarer Kraft-Sprung; die Gegnerkurve fängt ihn mit einer Regions-Stufe auf (`feinspec-kapitel1.md` §3.7).
+
 **Bei Reunion:** die gelernte Spezialfähigkeit **bleibt erhalten** (permanenter Skill); nur die Waffe als Ausrüstung wird zurückgesetzt (Kraft neu erspielt).
 
 ## Schnittstellen zu anderen Systemen
@@ -31,7 +33,7 @@ Roster-Rhythmus: Region 1 Claude allein → Region 2 Barrel → Region 3 Tofa + 
 - **Fähigkeits-Ebenen:** Materia (`materia.md`, tauschbar) vs. Skills (charakter-eigen, permanent) vs. Limit (Signature) vs. Affinität (angeboren).
 - **Gambits** (`gambits.md`): umschaltbare Party-/Materia-Sets.
 - **Regionen** (`progression-regionen.md`): Figuren stoßen regionsweise hinzu.
-- **EXP** (`oekonomie-waehrungen.md`): Charakter-Level; Level-Reset bei Reunion (`prestige-reunion.md`).
+- **EXP** (`oekonomie-waehrungen.md`): speist **ein gemeinsames Gruppenlevel** (`stats-kampfwerte.md` §4.1), kein individuelles Charakter-Level; Reset bei Reunion (`prestige-reunion.md`).
 - **Challenges** (E1): Solo-/Paar-Läufe; zugleich Unlock-Quelle.
 
 ## Detailspezifikation (TBD)

@@ -75,7 +75,7 @@ Grobe Gesamtstruktur, parodistisch an FF7 angelehnt: **~15 Regionen** in **5 Kap
 
 **Build & Meta:**
 - **Ausrüstung** (Waffen/Rüstung) kaufen/verbessern mit **Gil** – Waffen schalten/verbessern die Spezialfähigkeit.
-- **Charaktere** leveln passiv über **EXP**.
+- **Die Party** levelt passiv über **EXP** – ein gemeinsames **Gruppenlevel** für alle Figuren (`stats-kampfwerte.md` §4.1). Neuzugänge steigen darauf ein; die Gegnerkurve fängt den Roster-Sprung an den Regionsgrenzen mit einer Stufe auf (`feinspec-kapitel1.md` §3.7).
 - **Reunion auslösen**, sobald Kapitelende erreicht.
 
 > Bewusst **noch nicht** dabei (kommt mit/nach der 1. Reunion bzw. später): **Materia & Slots**, **Magie/Zauber**, **AP-Ökonomie**, **programmierbare Gambits**, **Shock-Nutzung** (erst Region 3), **Resistenzen**, **Materia-Evolution**, **Summons**.

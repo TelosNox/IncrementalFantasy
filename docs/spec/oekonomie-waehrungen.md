@@ -8,7 +8,7 @@
 
 | Währung | Quelle | Verwendung | Ebene |
 |---------|--------|------------|-------|
-| **EXP** | Kämpfe | Charakter-Level (`charaktere-party.md`) | Basis |
+| **EXP** | Kämpfe | **Gruppenlevel** – ein Level für die ganze Party (`stats-kampfwerte.md` §4.1) | Basis |
 | **AP** | Kämpfe (auto auf alle Materia) | Materia-Level (`materia.md`) | Basis (ab Kapitel 2) |
 | **Gil** | Kämpfe | Ausrüstung/Item (`ausruestung-gil.md`) | Basis (je Zyklus neu) |
 | **Materia-Prestige-Währung** | Materia-Cap-Reset | Materia-Evolution (`materia.md`) | Mikro-Prestige |
