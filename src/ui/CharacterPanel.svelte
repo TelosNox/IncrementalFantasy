@@ -27,7 +27,11 @@
         <button class:active={unit.controlMode === 'auto'} onclick={() => game.setControlMode(unit.id, 'auto')}>
           Auto
         </button>
-        <button class:active={unit.controlMode === 'manual'} onclick={() => game.setControlMode(unit.id, 'manual')}>
+        <button
+          class="manual"
+          class:active={unit.controlMode === 'manual'}
+          onclick={() => game.setControlMode(unit.id, 'manual')}
+        >
           Manual
         </button>
       </div>
@@ -115,10 +119,20 @@
     cursor: pointer;
   }
 
+  /* ui-layout.md "Markierungen" (M13, Altlast UI-2 aus Entscheidung 18): Die Spec begruendet
+     die cyanfarbene Fokus-Markierung damit, dass Cyan im Spiel bereits die Farbe der
+     Spielerkontrolle sei - im Code traf das nicht zu, hier war auch "Manual" blau. Aufgeloest
+     zugunsten der Spec: aktives "Manual" traegt jetzt Cyan (`--game-mp`, dieselbe Farbe wie
+     Fokusziel und "Leave now"), aktives "Auto" bleibt Blau (`--game-atb`). Damit ist Cyan
+     durchgaengig "der Spieler greift ein". */
   .mode-toggle button.active {
     background: var(--game-atb);
     color: #08111c;
     font-weight: 700;
+  }
+
+  .mode-toggle button.active.manual {
+    background: var(--game-mp);
   }
 
   .row {

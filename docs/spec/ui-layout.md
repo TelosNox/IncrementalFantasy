@@ -1,6 +1,6 @@
 # Bildschirm-Layout & Platz-Budget
 
-**Status:** Platz-Budget/Rahmen – plus das **Bühnen-Framework** (Einheit, Bühnenbox, Skalierung, Bänder, Linien, Slot-Raster, Ebenen) und die entschiedenen Teile der Kampf-Darstellung (Steuer-UI, Aufstellung, Zustände, Markierungen). Übriges UI-Design folgt später.
+**Status:** **Bühnen-Framework in M13 umgesetzt** (`src/ui/stageLayout.ts` + `Stage.svelte`, Abnahme in `tests/stage-layout.test.ts`); die Abschnitte unten sind damit gebaut, nicht mehr nur beschlossen. Platz-Budget/Rahmen – plus das **Bühnen-Framework** (Einheit, Bühnenbox, Skalierung, Bänder, Linien, Slot-Raster, Ebenen) und die entschiedenen Teile der Kampf-Darstellung (Steuer-UI, Aufstellung, Zustände, Markierungen). Übriges UI-Design folgt später.
 **Rahmen:** unterlegt Region-Kulissen und Sprite-Platzierung; `../03_Konzept_Gerüst.md` §4.
 **Prüfinstanz:** `../02_Leitfaden_Kernmechaniken.md`.
 
@@ -48,6 +48,7 @@ Diese Prozente beschreiben, **wie viel Fläche** die Stage vom Fenster bekommt. 
 - Die Bühnenbox wird **horizontal zentriert** und **vertikal an ihrer Unterkante** am unteren Rand der Stage verankert. Der Boden bleibt damit immer unten; überschüssige Fläche entsteht oben (Himmel) und seitlich.
 - Überschüssige Fläche wird **nicht** durch Balken oder durch Strecken gefüllt, sondern durch den **Bleed** des Backdrops: Die Kulisse wird mit demselben `s` über die Bühnenbox hinaus gezeichnet. Asset-Vorgabe dazu in `charaktere-visuals.md` („Region-Kulissen").
 - **Der Backdrop wird nie unabhängig von `s` skaliert oder auf die Stage gestreckt.** Genau das war der ursprüngliche Fehler.
+- **Wenn der Bleed nicht reicht** (M13-Fund): Bei einer sehr hohen/schmalen Stage bestimmt die Breite `s`, und über den 96 su oberem Bleed bleibt ein Rest. Der wird **mit der obersten Himmelsfarbe der Kulisse** gefüllt (die oberste Backdrop-Zeile ist exakt `sky_top` der Palette, `regionen-kulissen.md` §11) – der Himmel läuft optisch weiter. Kein Balken, kein Strecken, keine zweite Kachel.
 
 ### Vertikale Bänder (y von der Bühnenoberkante, 0 … 288)
 
@@ -97,8 +98,10 @@ Die hintere Reihe entsteht aus der vorderen durch **einen** konstanten Versatz �
 | E4 | Gegner | hinten | 448 | 228 |
 
 - **Bounding-Boxen:** Party 24–248, Gegner 296–480. **Randbündig statt mittensymmetrisch** – beide Gruppen haben 24 su Außenrand, dazwischen 48 su Mittelgang. Eine Symmetrie um die Bühnenmitte ist bei ungleich breiten Gruppen nicht herstellbar und wäre auch falsch: Gleiche Ränder lesen sich als bewusste Rahmung, eine erzwungene Mittensymmetrie würde die Gegner an den Rand drücken.
-- **Feste Slot-Zuordnung, kein Nachrücken – auch nicht bei Party-Zuwachs.** Jede Figur behält ihren Slot über den ganzen Zyklus; stoßen später Figuren dazu, füllen sie freie Slots, ohne die vorhandenen zu verschieben. Zum Start steht Claude allein auf P1 (x = 192, leicht links der Mitte). Das ist dieselbe Begründung wie beim Gegner-Nachrücken: Was der Spieler anklickt, darf sich nicht unter dem Cursor verschieben.
-- **Solo-Gegner** (Miniboss 96 su, Kapitel-Boss 128 su) stehen **mittig in der Gegnerzone auf der hinteren Standlinie**: x = 388, y = 228.
+- **Feste Slot-Zuordnung, kein Nachrücken – auch nicht bei Party-Zuwachs.** Jede Figur behält ihren Slot über den ganzen Zyklus; stoßen später Figuren dazu, füllen sie freie Slots, ohne die vorhandenen zu verschieben. Zum Start steht Claude allein auf **P1 (x = 176)**, leicht links der Mitte. Das ist dieselbe Begründung wie beim Gegner-Nachrücken: Was der Spieler anklickt, darf sich nicht unter dem Cursor verschieben. *(Korrigiert in M13: Hier stand „x = 192" – ein stehengebliebener Zwischenwert, der der Tabelle oben widersprach. Normativ ist die Tabelle.)*
+- **Belegungsreihenfolge (M13):** Party in Roster-Reihenfolge P1 → P2 → P3 → P4, also Claude P1, Barrel P2, Tofa P3, Air is… P4. Gegner in Encounter-Reihenfolge E1 → E2 → E3 → E4.
+- **Übergroße Figuren gehören nach hinten in die Mitte** – x = 388, y = 228. Das gilt **nicht nur für Solo-Gegner**, sondern für jede Figur über Standardgröße (Miniboss 96 su, Kapitel-Boss 128 su), auch mit Begleitung; die Begleiter stehen dann auf den **vorderen** Plätzen davor. Ein 128-su-Boss auf E1 würde den Nachbarn auf E2 fast vollständig verdecken – unlesbar und nicht anklickbar. Sichtbare Folge: Der Boss thront hinter seinen Schergen (Z18 Fort Knoxious + Caffiend, Z30 Vaultron + 2 Blando). *(Ergänzt in M13 – die Spec kannte bis dahin nur „Solo-Gegner" und gleich große Pulks.)*
+- **Ein Solo-Gegner in Standardgröße** (64 su, z. B. Z1/Z2/Z11) steht dagegen auf **E1**, wie jeder erste Gegner: Der zentrale Rückplatz gehört der Größenklasse, nicht der Anzahl. Ein einzelner Standardgegner ganz hinten in der Mitte wirkt weit weg statt bedrohlich, und so bleibt „kein Nachrücken" auch beim Wechsel von einem auf zwei Gegner wörtlich erfüllt.
 
 ### Ebenen (Z-Reihenfolge)
 
@@ -208,7 +211,7 @@ Es gibt zwei Markierungen mit **verschiedener Bedeutung**:
 Bisher unterschieden sie sich in der **Form** (dezenter Rand vs. großer Kasten) – das ist die falsche Achse. **Die Form bleibt konstant, die Farbe trägt die Bedeutung:**
 
 - **Form (beide):** dünner Umriss entlang der Sprite-Silhouette plus dezenter Schein. **Keine Kästen** – ein Rechteck um ein freigestelltes Pixel-Sprite wirkt wie ein Debug-Rahmen und dominiert die Stage.
-- **Farbe:** **rot/warm** für „wird getroffen" (Bedrohung), **kühl (Cyan/Weiß)** für „Fokusziel" (Spielerabsicht). Cyan ist im Spiel bereits die Farbe der Spielerkontrolle (Manual-Chip, `feinspec-kapitel1.md` §1.5) – die Zuordnung ist also schon gelernt.
+- **Farbe:** **rot/warm** für „wird getroffen" (Bedrohung), **kühl (Cyan/Weiß)** für „Fokusziel" (Spielerabsicht). Cyan ist im Spiel bereits die Farbe der Spielerkontrolle (Manual-Chip, `feinspec-kapitel1.md` §1.5) – die Zuordnung ist also schon gelernt. *(M13: Das stimmte zum Zeitpunkt der Spec **nicht** – der Auto/Manual-Umschalter war für beide Zustände blau. Aufgelöst zugunsten dieser Regel: Aktives „Manual" trägt jetzt Cyan, aktives „Auto" bleibt Blau. Cyan heißt damit durchgängig „der Spieler greift ein".)*
 - **Der Shock-Ring bekommt einen dunklen Saum.** Ohne ihn hängt seine Lesbarkeit an der Kulissenfarbe – und mehrere Regionen liegen palettenseitig in derselben Farbfamilie (Quaintsville „warmes Ocker", Stargazer Gulch „Terrakotta", Blastoff Burg „Rostrot"). Die Signalfarben-Sperre für Kulissen (`regionen-kulissen.md` §4) verhindert die *Verwechslung* mit einem Marker, aber nicht den *Kontrastverlust*: Lesbarkeit hängt am Farbton, nicht nur an der Sättigung. Ein dunkler Saum löst das an der richtigen Stelle – einmal am Ring, statt die Paletten von zwei Kapiteln immer weiter einzuschnüren.
 - **Gold/Bernstein bleibt exklusiv dem Shock vorbehalten.** Die aktuelle bernsteinfarbene Fokus-Markierung kollidiert direkt mit dem Shock-Ring am selben Gegner – **das ist ein Lesbarkeitsfehler, keine Geschmacksfrage**: Zwei unabhängige Zustände teilen sich eine Signalfarbe, und ausgerechnet am selben Objekt.
 - **Kleine Glyphen (▲/◆) bleiben** als redundante Kodierung neben der Farbe – dasselbe Doppel-Kodierungs-Prinzip, das die Aktions-Popup-Zustände schon nutzen (s. unten „Zustandskodierung doppelt").

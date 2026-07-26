@@ -76,9 +76,9 @@ Ladehinweis (CLAUDE.md): `03_Konzept_Gerüst.md` + betroffene `spec/*.md`, `02_L
 Aus der Konzept-Session vom 25.07.2026 (Bühnen-Framework) stehen zwei umsetzungsreife Meilensteine in `06_Implementierungsplan_Kapitel1.md`:
 
 - **M12 – Region-Kulissen: Baukasten & Neuauflage. ✅ erledigt (25.07.2026).** Der Generator besteht jetzt aus `assets/region_kit.py` (Bausteine, Prüfmodus, rechnerische Gegenprobe) und `assets/generate_regions.py` (nur Paletten + Rezepturen); die drei Kapitel-1-Kulissen sind im Format 224×128 neu erzeugt, der Shock-Farb-Verstoß ist weg, Quaintsville liegt als vierte Region allein über eine Rezeptur bei. Umsetzungsentscheidungen 20–30 in `06_Implementierungsplan_Kapitel1.md`.
-- **M13 – Bühnen-Framework in der Stage.** Kampfzone von handkalibrierten Pixelwerten auf das gerechnete su-System umstellen. Führend: `spec/ui-layout.md`. **Jetzt an der Reihe** – die Kulissen liegen im erwarteten Format vor.
+- **M13 – Bühnen-Framework in der Stage. ✅ erledigt (26.07.2026).** Die Kampfzone rechnet jetzt in Stage-Units mit einem Skalierungsfaktor: Geometrie in `src/ui/stageLayout.ts`, Darstellung in `Stage.svelte`, Abnahme in `tests/stage-layout.test.ts` (13 Tests, Suite 110/110). Handkalibrierte Pixelwerte, `ENEMY_LAYOUTS` und der feste 2×-Zoom sind entfallen; die beiden Altlasten UI-2 (Cyan) und UI-4 (Sitzplatz-Platzhalter) sind aufgelöst. Umsetzungsentscheidungen 31–41 in `06_Implementierungsplan_Kapitel1.md`.
 
-**Reihenfolge M12 vor M13** – M13 erwartet Kulissen im neuen Format. Beide sind reine Darstellung, ändern keine Mechanik und blockieren die Kapitel-2-Feinspec nicht.
+**Reihenfolge M12 vor M13** – M13 erwartet Kulissen im neuen Format. Beide sind reine Darstellung, ändern keine Mechanik und blockieren die Kapitel-2-Feinspec nicht. **Die Darstellungsschiene ist damit abgearbeitet.**
 
 ---
 
