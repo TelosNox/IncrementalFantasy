@@ -84,6 +84,7 @@ Der Block „Schnittstellen zu anderen Systemen" oben in jeder `spec/`-Datei mac
 - Die allgemeine Regel „auf dem Default-Branch zuerst einen Branch anlegen" ist hier **ausdrücklich außer Kraft gesetzt**. Nicht bei jedem Commit erneut nachfragen oder darauf hinweisen.
 - Committet/gepusht wird weiterhin **nur auf Aufforderung** des Nutzers.
 - Commit-Messages auf **Englisch** (siehe Sprachregel oben).
+- **Commit-Messages immer über eine Datei übergeben: `git commit -F <datei>`** – nie über `-m` mit Here-String. Grund (reproduziert am 31.07.2026): PowerShell 5.1 klammert mehrzeilige Argumente in ASCII-`"`, ohne die `"` im Text zu escapen. `git.exe` zerlegt die Zeile neu, jedes `"` schaltet den Quote-Zustand um – ein **Quote-Paar mit Leerzeichen dazwischen** („zwei Wörter") fällt damit aus der Klammerung, das Leerzeichen trennt Argumente, und `git` deutet den Rest als Pathspec (`pathspec '…' did not match any file(s)`). Ohne Leerzeichen zwischen den Quotes geht es zufällig gut – deshalb ist der Fehler mehrfach durchgerutscht. Mit `-F` findet gar keine Shell-Quotierung statt. Gilt analog für PR-Bodies: `gh pr create --body-file`.
 
 ## Feste Rahmenentscheidungen
 

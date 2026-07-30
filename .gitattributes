@@ -1,2 +1,25 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+# Textdateien erkennen und im Repository immer als LF speichern.
+#
+# "eol=lf" haelt zusaetzlich das ARBEITSVERZEICHNIS auf LF und ueberstimmt damit
+# core.autocrlf=true, das der Git-for-Windows-Installer in die System-Gitconfig
+# schreibt. Ohne diese Zeile warnt Git bei jedem Commit ("LF will be replaced by
+# CRLF the next time Git touches it") und das Arbeitsverzeichnis wird gemischt:
+# Markdown mit LF, TypeScript mit CRLF. Der Index war ohnehin schon durchgehend
+# LF -- diese Datei macht nur explizit, was faktisch gilt, und zwar unabhaengig
+# von der Git-Installation der jeweiligen Maschine.
+* text=auto eol=lf
+
+# Ausnahme: Windows-Batchdateien brauchen CRLF.
+# cmd.exe parst .bat/.cmd mit reinen LF-Enden fehlerhaft (abgeschnittene
+# Kommandos bei Labels/goto). Derzeit gibt es keine solche Datei im Repo --
+# die Regel steht vorbeugend hier, damit LF nicht zur stillen Falle wird,
+# falls doch mal ein Skript dazukommt.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binaerdateien: keinerlei Konvertierung.
+*.png binary
+*.pdf binary
+*.ico binary
+*.woff binary
+*.woff2 binary
