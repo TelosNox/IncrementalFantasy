@@ -239,6 +239,59 @@ Die Bottom-Leiste trägt je Figur ein **Charakter-Panel** (HP/MP/ATB/Limit) plus
 - **Kein Zusatzsystem:** Das ist **keine Vorstufe eines Gambit-UIs** – der programmierbare Gambit-Editor bleibt bis zur 1. Reunion bewusst unsichtbar (feinspec §0, `gambits.md` §6). Der Callout erklärt nur *dass* sich etwas geändert hat, nicht *wie* die Automatik im Detail funktioniert.
 - **Leitplanken-Check:** kein Widerspruch zu „gestaffelter Rollout" (kündigt nur an, zeigt keine neue Komplexität) oder „Automatik ist verdient" (bestätigt im Gegenteil, dass sie gerade verdient wurde). Reines Lesbarkeits-Add-on.
 
+## Mechanik-Einführung: Popup + Codex (verbindlich, neu 30.07.2026)
+
+**Der Unlock-Callout oben genügt nicht.** Er sagt *dass* sich etwas geändert hat, nicht *was es ist*. Der Playtest-Befund lautete: „Die Mechaniken kommen derzeit ziemlich still ins Spiel."
+
+**Warum das kein Politur-Thema ist.** Bei der Zielvorgabe von **~30 Minuten für Durchlauf 1** (`feinspec-kapitel1.md` §12) kommen rund **vierzehn Mechaniken in dreißig Minuten** – alle zwei Minuten eine. Und:
+
+> **Eine Mechanik, die der Spieler nicht bemerkt, benutzt er nicht.** Wer Defend und Zielwahl nie wahrgenommen hat, spielt zwangsläufig als Typ V (vollautomatisch).
+
+Damit ist die stumme Einführung **mitverantwortlich für die Idle-Konvergenz**, die dieselbe Session als Kernproblem diagnostiziert hat (`oekonomie-waehrungen.md` §1a, `gegner-encounter.md` §5a). Das Einführungs-System ist Teil des Fixes, nicht Kosmetik danach.
+
+### Form
+
+- **Blockierend, mit Pause.** Die Kampfuhr hält an; der Spieler muss **aktiv wegklicken**, dann läuft das Spiel weiter. Das unterscheidet die Einführung vom Unlock-Callout (nicht-blockierender Toast), der für *Bestätigungen* bleibt.
+- **Ein Popup pro Mechanik**, mit Erklärung im Parodie-Ton.
+- **Keine konkreten Zahlen im Text.** Qualitativ formulieren: „Jeder Sieg bringt einen Anteil deiner MP zurück", **nicht** „25 % MP pro Sieg". Begründung: Wir ändern beim Neu-Balancieren praktisch alle diese Werte; eine Zahl im Erklärtext wird dann zur Falschaussage des Spiels an den Spieler. Ein qualitativer Satz bleibt über jedes Balancing hinweg wahr. *Das ist strenger als „Werte aus der Konfiguration generieren" – generierte Zahlen können weiterhin falsch beschriftet oder falsch gerundet sein, eine nicht vorhandene Zahl nicht.*
+
+### Nur für bedienbare Mechaniken
+
+**Popup nur, wenn der Spieler etwas *tun* kann.** Passive Vorgänge (Shock-Aufbau, Limit-Füllung) brauchen eine gute Anzeige, kein Popup. Sonst wird aus der Einführung ein Spießrutenlauf, der Spieler klickt reflexhaft durch, und die wichtigen Popups gehen mit unter.
+
+Kanonische Liste für Kapitel 1 (Reihenfolge = Auftritt):
+
+| # | Einführung | Auslöser |
+|---|---|---|
+| 1 | **Claude stellt sich vor** | vor dem ersten Kampf (Zone 1) |
+| 2 | ATB & Angreifen | erster Kampf |
+| 3 | Auto-Attack | Zone 5 (Freischaltung) |
+| 4 | **Spezialfähigkeit & MP** | Zone 3 |
+| 5 | Zonen-Rückkehr *(Ventil)* | erste Niederlage |
+| 6 | Gasthaus | erstmals verfügbar |
+| 7 | Limit | erstes Gate (Blandzilla) |
+| 8 | **Barrel stellt sich vor** | Beitritt Zone 9 |
+| 9 | Zielwahl / Fokusziel | erster Heiler-Gegner (Region 2) |
+| 10 | Analyse & Bestiarium | erster Heiler-Gegner (**nicht** früher – `kampf-analyse-shock.md` §5) |
+| 11 | Defend & Telegraf | erste telegrafierte Groß-Attacke |
+| 12 | **Tofa + Air is… stellen sich vor** | Beitritt Zone 19 |
+| 13 | Shock | Region 3 |
+| 14 | Reunion | Erreichen der Kapitel-Wand |
+
+**Nr. 5 und 11 sind die wichtigsten** – Zonen-Rückkehr und Defend/Zielwahl sind genau die Mechaniken, die den spielenden vom idlenden Spieler trennen. Beide sind heute stumm.
+
+### Selbstvorstellungen (1, 8, 12)
+
+Die Figuren stellen sich **selbst** vor, mit 2–3 witzigen Sätzen, aus denen ihre **Stärke** hervorgeht – kein Datenblatt in dritter Person. Details und Entwurfszeilen: `charaktere-party.md`. Der Special ist dabei **keine** neue Mechanik (Nr. 4 hat sie eingeführt) – erklärt wird die **Rolle**.
+
+### Codex
+
+**Jede Einführung landet dauerhaft in einem nachlesbaren Codex.** Begründung aus dem Playtest: „manchmal klickt man zu schnell etwas weg und versteht es hinterher nicht mehr." Ein verpasstes Popup darf keine verlorene Mechanik sein.
+
+### Ab Durchlauf 2 stumm
+
+**Erledigte Einführungen überstehen die Reunion** (Flag je Mechanik, `prestige-reunion.md` Erhalt-Liste). Sonst bestraft die Reunion den Spieler mit Wiederholung – und die volle Party ab Zone 1 würde drei Selbstvorstellungen direkt hintereinander auslösen. Der Codex bleibt selbstverständlich zugänglich.
+
 ## Nicht jetzt
 
 Das übrige UI-Design (Shop-/Materia-/Prestige-Panels, Farben-Feinschliff, Responsive/Portrait) folgt später. **Ausnahme:** die **Steuer-UI oben** (Aktions-Popup + Modus-Schalter) ist bereits spezifiziert, da sie fürs Kampfgefühl zentral ist und in die Implementierung geht. Der übrige Bereich bleibt vorerst **reservierter Platz**, damit Kulissen und Sprite-Platzierung ihn einkalkulieren.

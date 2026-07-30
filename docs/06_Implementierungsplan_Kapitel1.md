@@ -465,8 +465,74 @@ Am laufenden Dev-Server gemessen, nicht aus dem Code abgeleitet (die Vorgabe „
 
 ---
 
+## M15 – Ökonomie-Umbau: Gil streichen, EXP dämpfen
+
+**Aus der Konzept-Session vom 30.07.2026** (zweiter Playtest). Der Meilenstein ist ein **Blocker** für alles Weitere: Er ändert die einzige Run-Währung.
+
+**Ziel**
+
+1. **Gil vollständig entfernen** – Währung, Shop, `buyWeapon()`, `weaponTier`, Monster-Gil, Save-Feld. Migration v3 → v4.
+2. **Waffen-Tier-Leiter entfernen**; das entfallende ATK/HP/MAG-Wachstum in die **Level-Kurve** übernehmen (`spec/stats-kampfwerte.md` §4).
+3. **Special über Zonen-Trigger**, permanent: `specialUnlocked` statt `weaponTier >= 1`. Claude **Zone 3**, alle späteren Figuren **mit Beitritt**. Übersteht die Reunion.
+4. **EXP-Dämpfung über Level × Zone** (`spec/oekonomie-waehrungen.md` §1a, `spec/feinspec-kapitel1.md` §3.6): Plateau (~+2–3 Level über Zonen-Erwartung) mit anschließendem Sturz, **nie null**. `L_erw(zone)` **aus der Zonen-Kurve abgeleitet**, nicht als Tabelle.
+5. **Zielzeiten neu simulieren** gegen die Tabelle in feinspec §12 B2 – und das Zielband für den schwachen Spieler (T′) **festlegen**, das die Konzept-Session offengelassen hat.
+
+**Spec-Referenzen:** `spec/oekonomie-waehrungen.md` (§1, §1a, „Gil ist gestrichen"), `spec/feinspec-kapitel1.md` (§3.6, §6.4, §11, §12), `spec/stats-kampfwerte.md` §4, `spec/charaktere-party.md`, `spec/ausruestung-gil.md` §0, `spec/prestige-reunion.md`, `spec/niederlage-offline.md` §3.
+
+**Abnahme**
+
+- Kein `gil`/`weaponTier` mehr im Code, im Save oder in den Content-Daten; Migration lädt Altstände verlustfrei.
+- Der Special ist nach einer Reunion **ab Zone 1 verfügbar** (der alte Widerspruch ist weg).
+- **B4:** Typ V besiegt den Kapitel-Boss nicht durch Tieffarmen in einer Größenordnung, die ein Mensch abwartet.
+- **A3 hält weiter:** Ein Spieler, der ein Gate manuell nicht schafft, kommt durch 1–2 Zonen Rückkehr in wenigen Vielfachen der Referenzzeit durch.
+- Zielzeiten M ≈ 30 min / T ≈ 90 min getroffen oder mit gemessener Begründung korrigiert.
+
+⚠️ **Das Hauptrisiko dieses Meilensteins ist nicht die Streichung, sondern Punkt 4:** Ob „Plateau breit genug für A3" und „Sturz steil genug für B4" gleichzeitig erreichbar sind, ist ungemessen. Zeigt die Messung, dass es nicht geht, ist das ein **Konzept-Rückkanal**, keine Zahlenfrage – dann fehlt ein zweiter Mechanismus.
+
+---
+
+## M16 – Zielwahl muss zählen
+
+**Ziel:** Können soll etwas kaufen, das Farmen nicht ersetzt. Heute ist Zielwahl fast wirkungslos und Analyse damit nutzlos – dieselbe Wurzel wie der geschlossene §12-Korridor.
+
+- **Heiler-Gegner nach Region 2 vorziehen** (`spec/gegner-encounter.md` §5a) – dort, wo auch die Analyse aufgeht.
+- **Analyse-Popup erst am ersten Gegner, bei dem Zielwahl zählt**, nicht bei Regionsbeginn.
+- Optional, pro Boss dosierbar: **temporärer, telegrafierter Konter-Zustand** (Angreifen schadet dem Angreifer). **Nur temporär, nur Boss/Miniboss** – als Dauer-Trait ausdrücklich verworfen. Leitlinie **fordernd, nicht strafend**: Autoplay verliert HP, stirbt nicht zwangsläufig.
+
+**Abnahme:** Der Abstand M↔T wächst messbar gegenüber M15; Analyse hat ab ihrem ersten Auftritt einen ablesbaren Nutzen (E4).
+
+**Einordnung:** Das ist **Inhaltsdesign, keine Deadlock-Sicherung** – die EXP-Dämpfung aus M15 erledigt das Idle-Overpowern allein. Deshalb ist M16 dosierbar und nicht tragend.
+
+---
+
+## M17 – Mechanik-Einführung: Popup + Codex
+
+**Ziel:** Rund vierzehn Mechaniken kommen in ~30 Minuten stumm ins Spiel. **Eine Mechanik, die der Spieler nicht bemerkt, benutzt er nicht** – wer Defend und Zielwahl nie wahrnimmt, spielt zwangsläufig vollautomatisch. Damit ist die stumme Einführung mitverantwortlich für die Idle-Konvergenz, die M15/M16 behandeln.
+
+**Umfang** (vollständige Spec: `spec/ui-layout.md`, „Mechanik-Einführung"):
+
+- Blockierendes Popup mit Pause, **aktiv wegzuklicken**; nur für **bedienbare** Mechaniken (14 Einträge, kanonische Liste in der Spec).
+- **Selbstvorstellungen** der vier Figuren – 2–3 witzige Sätze, aus denen die Stärke hervorgeht (`spec/charaktere-party.md`). **Claude stellt sich vor dem allerersten Kampf vor**, getrennt vom Mechanik-Popup in Zone 3.
+- **Keine konkreten Zahlen in Erklärtexten** – qualitativ formulieren. Wir ändern in M15 praktisch alle diese Werte.
+- **Codex** zum Nachlesen; **ab Durchlauf 2 stumm** (Flag je Mechanik, übersteht die Reunion).
+
+**Abnahme:** E4 und E5 aus feinspec §12 – ein Spieler kann die Mechaniken und die Rolle jeder Figur benennen und weiß nach seiner ersten Niederlage von der Zonen-Rückkehr.
+
+**Reihenfolge: nach M15, aber vor der Kapitel-2-Feinspec.** Nach M15, weil die Auslöser an Zonennummern und Freischaltzeitpunkten hängen, die M15 ändert – vorher gebaut heißt zweimal gebaut. Vor Kapitel 2, weil dort Materia, AP, Slots und der Gambit-Editor dazukommen: Steht das Framework, rutschen sie hinein statt wieder stumm zu erscheinen.
+
+---
+
 ## Danach
 
 **M12/M13 sind die Darstellungsschiene** und laufen unabhängig von der Kapitel-2-Feinspec: Sie ändern keine Mechanik, sondern lösen den in der Konzept-Session vom 25.07.2026 gefundenen Layout-Fehler (zwei Maßsysteme in der Kampfzone) und seine Asset-Folgen. Sie blockieren Kapitel 2 nicht und werden nicht von ihm blockiert.
 
-Kapitel-2-Feinspec (Materia/Slots/AP/Magie, programmierbarer Gambit-Editor) folgt erst, wenn **M11** steht und Kapitel 1 nachweislich durchspielbar ist – bewusst sequenziell, kein Parallel-Design auf einem unbewiesenen Fundament (Leitplanke „Skelett zuerst", `02_Leitfaden_Kernmechaniken.md` §5). Der erste Playtest hat genau diese Leitplanke bestätigt: Das Skelett war nicht bewiesen, sondern nur simuliert.
+Kapitel-2-Feinspec (Materia/Slots/AP/Magie, programmierbarer Gambit-Editor) folgt erst, wenn **M15–M17** stehen und Kapitel 1 nachweislich durchspielbar ist – bewusst sequenziell, kein Parallel-Design auf einem unbewiesenen Fundament (Leitplanke „Skelett zuerst", `02_Leitfaden_Kernmechaniken.md` §5). Beide Playtests haben genau diese Leitplanke bestätigt: Das Skelett war nicht bewiesen, sondern nur simuliert.
+
+**Reihenfolge: M15 → M16 → M17 → Kapitel-2-Feinspec.** M15 ist der Blocker (einzige Run-Währung), M16 macht Können bezahlbar, M17 macht die Mechaniken überhaupt sichtbar.
+
+**Was Kapitel 2 aus der 30.07.-Session mitbekommt:**
+
+- **Materia-Erwerb läuft nicht über eine Kaufwährung.** Ein Gil-finanzierter Materia-Shop ist verworfen (dieselbe Inflationsfalle). Quellen sind **Erst-Clears** und das **Reunion-Upgrade-Menü** (Essenz).
+- **Kostenregel:** Preise steigen mit der **Zahl der bisherigen Käufe**, nicht mit einem festen Betrag.
+- **Je System genau ein Milestone**, danach freie Wahl – keine Milestone-Kette, das wäre die Tier-Leiter auf der Meta-Ebene.
+- **Der Gambit-Editor ist der Automatisierungspfad für gelöste Mechaniken:** Was der Spieler in Durchlauf 1 von Hand gelöst hat, gießt er danach in eine Regel. Das ist der Bogen manuell → planerisch und die eigentliche Antwort auf „woran wachsen Gambits".

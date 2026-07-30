@@ -19,7 +19,7 @@ Ein **Idle-Auto-Battler-RPG**, in dem eine Parodie-Party sich durch Monster- und
 
 ## 2. Kern-Loop (A1 + D2)
 
-Die Party kämpft **automatisch** gegen Monsterwellen. Siege liefern drei Basis-Ressourcen: **EXP** (Gruppenlevel), **AP** (Materia-Level) und **Gil** (Ausrüstung/Slots). Monster-Zonen sind die messbare Progression; **Bosse sind Meilenstein-Gates** (C2), die die nächste Region und die nächste Systemstufe freischalten.
+Die Party kämpft **automatisch** gegen Monsterwellen. Siege liefern zwei Basis-Ressourcen: **EXP** (Gruppenlevel) und **AP** (Materia-Level, ab Kapitel 2). Monster-Zonen sind die messbare Progression; **Bosse sind Meilenstein-Gates** (C2), die die nächste Region und die nächste Systemstufe freischalten.
 
 Der Kampf ist nie bloßer Zahlenvergleich (das wäre die D2-Schwäche): Seine Textur kommt aus Analyse/Shock, Materia-Builds und Limit-Timing.
 
@@ -76,13 +76,16 @@ Diese Zwei-Achsigkeit ist bewusst gewählt: horizontale Tiefe (Kampf) und vertik
 
 ---
 
-## 7. Ausrüstung & Slots (A4, Gil-Sink)
+## 7. Ausrüstung & Slots (A4)
+
+> **Revidiert 30.07.2026: Gil ist gestrichen.** Ausrüstung wird nicht mehr gekauft; Slots werden über das **Reunion-Upgrade-Menü** mit Essenz freigeschaltet. Begründung: `spec/oekonomie-waehrungen.md`, Abschnitt „Gil ist gestrichen". In **Kapitel 1** hat die Waffe damit keine Funktion – sie beginnt erst mit den Materia-Slots in Kapitel 2.
 
 - **Ausrüstung liefert die Slots.** Ein Ausrüstungs-Item je Figur (die „Waffe") trägt Slots und verbundene Paare; bessere Ausrüstung = mehr/besser verbundene Slots.
 - **Bewusste Trade-offs statt „immer das Neueste":** Stat-Verteilung (Rohschaden vs. Verteidigung) und die **Slot-Layout-Wahl** (verbundene Paare vs. Breite, s. `spec/ausruestung-gil.md`) – gegen A3-Schwäche „kauf das Teuerste". Keine Ökonomie-Multiplikatoren auf Ausrüstung (die leben in der Meta-Ebene).
 - **Waffen-Mods** als Feinschliff: Slot hinzufügen, zwei Einzel-Slots zu einem Paar verbinden, Element-Affinität geben.
 - **Pro Charakter** eigene Ausrüstung → Party-Building (D3), gekoppelt an die Gambit-Sets.
-- **Gil-Rolle & Reunion:** Gil finanziert Ausrüstung/Slot-Freischaltung. Weil Slots/Ausrüstung bei jeder Reunion zurückgesetzt werden, bleibt **Gil in jedem Zyklus neu relevant** – keine tote Währung.
+- **Slot-Freischaltung & Reunion:** Slots werden bei jeder Reunion zurückgesetzt und über das **Upgrade-Menü** (Reunion-Essenz) neu freigeschaltet – je System **ein** Milestone als Einstieg, danach freie Wahl (`spec/prestige-reunion.md`). Die Entscheidung liegt damit **vor** dem Durchlauf, wo der Spieler die Information dafür hat, nicht mitten darin.
+- **Keine Waffen-Ausrichtungen** (offensiv/defensiv/SPD-lastig): Die Spezialfähigkeit ist die Rollen-Signatur der Figur; eine Waffe, die sie zurechtbiegen kann, schleift die Diversität der vier Figuren.
 
 ---
 
@@ -144,9 +147,10 @@ Fünf Währungen, jede mit **genau einer** Progressions-Achse (Absicherung gegen
 |---------|--------|------------|-------|
 | **EXP** | Kämpfe | Gruppenlevel | Basis |
 | **AP** | Kämpfe (auto auf alle Materia) | Materia-Level | Basis |
-| **Gil** | Kämpfe | Ausrüstung / Slot-Freischaltung | Basis (je Zyklus neu relevant) |
 | **Materia-Prestige-Währung** | Materia-Cap-Reset | Materia-Evolution | Mikro-Prestige |
-| **Reunion-Essenz** | Reunion | Gambits, permanente Boni, Materia-Typen, Roster | Makro-Prestige |
+| **Reunion-Essenz** | Reunion | **Upgrade-Menü**: Gambits, permanente Boni, Slots, Materia-Typen, Roster | Makro-Prestige |
+
+**Gil ist gestrichen (30.07.2026).** Eine Währung kann nur dann eine Entscheidung tragen, wenn **Zeit ihre Knappheit nicht auflösen kann** – die Zonen-Rückkehr macht jeden Preis farmbar. Entscheidungen leben deshalb auf der Meta-Ebene, deren Währungen pro Reset-Punkt entstehen. Run-Währungen (EXP/AP) tragen Fortschritt, keine Wahl. Details und verworfene Alternativen: `spec/oekonomie-waehrungen.md`.
 
 ---
 
@@ -160,7 +164,9 @@ Fünf Währungen, jede mit **genau einer** Progressions-Achse (Absicherung gegen
 
 ## 13. Offline-Modell (A6)
 
-Offline kämpft die Party in der **aktuellen** Zone weiter (kein Überspringen ungeschlagener Gates) und sammelt EXP/AP/Gil mit gedeckelter „Welcome-back"-Ernte, etwas unter Aktiv-Rate. Aktiv-Spiel bringt **Optimierung** (Limit-Timing, Live-Analyse), keine rohen Multiplikatoren – hält das Idle-Versprechen, ohne Aktiv-Spiel zu entwerten (§3).
+> **⚠️ Überholt:** Offline-Progress ist seit M11 **stillgelegt** (`spec/niederlage-offline.md` §4), und Gil ist gestrichen. Der folgende Absatz beschreibt die Ursprungsabsicht; die Wiedereinführung ist als *aufladbarer Boost* vorgesehen, nicht als passiver Ertrag.
+
+Offline kämpft die Party in der **aktuellen** Zone weiter (kein Überspringen ungeschlagener Gates) und sammelt EXP/AP mit gedeckelter „Welcome-back"-Ernte, etwas unter Aktiv-Rate. Aktiv-Spiel bringt **Optimierung** (Limit-Timing, Live-Analyse), keine rohen Multiplikatoren – hält das Idle-Versprechen, ohne Aktiv-Spiel zu entwerten (§3).
 
 ---
 
@@ -179,7 +185,7 @@ Diese Bausteine sind eingeplant, aber **nicht Teil des Kern-Loops** und werden s
 
 - **Lesbarkeit zuerst:** jedes System braucht eine lesbare Oberfläche (Binär-Marker statt Zähler ist das Musterbeispiel) – Dauer-Schutz gegen die D1/D4-Spreadsheet-Gefahr.
 - **Gestaffelter Rollout:** nie alles auf einmal zeigen; Systeme entlang der drei Freischaltungs-Achsen einführen.
-- **Ventil-Prinzip:** an jeder Wand fließt weiter etwas (AP/Gil/EXP) – Fortschritt stoppt nie ganz.
+- **Ventil-Prinzip:** an jeder Wand fließt weiter etwas (EXP, ab Kap. 2 AP) – Fortschritt stoppt nie ganz. **Aber gedämpft:** Tieffarmen darf nicht die beste Strategie sein (`spec/oekonomie-waehrungen.md` §1a).
 - **Automatik ist verdient:** stumpfe Auto-Attack sofort, strategische Gambits über Reunion.
 - **Beide Playstyles tragfähig:** aktiv (Limits, Live-Analyse) und idle müssen sich lohnen.
 - **Währungs-Disziplin:** bei fünf Währungen bleiben, jede mit klarer Einzelrolle.

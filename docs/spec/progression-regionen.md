@@ -10,7 +10,7 @@
 - **Gambits** (`gambits.md`): werden über die **1. Reunion** freigeschaltet; manuelle Prüfsteine sitzen (selten) an ausgewählten Bossen.
 - **Charaktere** (`charaktere-party.md`): Figuren + ihre Waffen-Spezialfähigkeiten stoßen regionsweise hinzu.
 - **Prestige** (`prestige-reunion.md`): Reunion ist ab **Kapitelende** verfügbar, wiederholbar; beschleunigt Re-Traversal.
-- **Ökonomie** (`oekonomie-waehrungen.md`): Zonen liefern EXP/Gil (MP als Kampf-Ressource); AP/Materia erst später.
+- **Ökonomie** (`oekonomie-waehrungen.md`): Zonen liefern **EXP** (MP als Kampf-Ressource); AP/Materia erst später. **Gil ist gestrichen** (30.07.2026).
 
 ---
 
@@ -70,11 +70,11 @@ Grobe Gesamtstruktur, parodistisch an FF7 angelehnt: **~15 Regionen** in **5 Kap
 - Gegner analysieren → zeigt **Grundstats (ATK/DEF/HP)**; eine **Schwäche** kann sichtbar werden, ist aber **noch nicht nutzbar** (Skill/Shock fehlt) → Köder auf Region 3.
 
 **Zwischen den Kämpfen (revidiert nach dem ersten Playtest):**
-- **Zonen-Rückkehr:** jede bereits geschaffte Zone ist jederzeit frei anwählbar. Dort farmt man EXP/Gil unbegrenzt weiter. **Das ist das Ventil des ganzen Spiels** – ohne es ist eine verlorene Zone in einer deterministischen Engine ein permanenter Stopp (`niederlage-offline.md` §3).
+- **Zonen-Rückkehr:** jede bereits geschaffte Zone ist jederzeit frei anwählbar. Dort farmt man **EXP** unbegrenzt weiter – aber **nach Level × Zone gedämpft** (`oekonomie-waehrungen.md` §1a). **Das ist das Ventil des ganzen Spiels** – ohne es ist eine verlorene Zone in einer deterministischen Engine ein permanenter Stopp (`niederlage-offline.md` §3). *Die Dämpfung kam am 30.07.2026 dazu, weil Tieffarmen sonst die **beste** Strategie ist statt der Notausgang.*
 - **Gasthaus:** vorab anmeldbarer Heil-Aufenthalt zwischen zwei Kämpfen, kostet Zeit statt Gil. HP und MP tragen sonst über alle Kämpfe hinweg über.
 
 **Build & Meta:**
-- **Ausrüstung** (Waffen/Rüstung) kaufen/verbessern mit **Gil** – Waffen schalten/verbessern die Spezialfähigkeit.
+- ~~Ausrüstung kaufen/verbessern mit Gil~~ → **entfallen (30.07.2026).** Die Spezialfähigkeit kommt über einen **Zonen-Trigger** (Claude Zone 3, spätere Figuren mit Beitritt, `charaktere-party.md`); Slots werden im **Reunion-Upgrade-Menü** freigeschaltet.
 - **Die Party** levelt passiv über **EXP** – ein gemeinsames **Gruppenlevel** für alle Figuren (`stats-kampfwerte.md` §4.1). Neuzugänge steigen darauf ein; die Gegnerkurve bleibt dabei die reine `g`-Kurve (eine Gegen-Stufe an den Regionsgrenzen wurde gemessen und verworfen, `feinspec-kapitel1.md` §3.7).
 - **Reunion auslösen**, sobald Kapitelende erreicht.
 
@@ -133,7 +133,7 @@ Roster-Rhythmus: **Region 1 Claude allein → Region 2 Barrel** (man ist nicht a
 **Region 2 – Bargain Bazaar** – Barrel stößt dazu; neue Mechanik: Analyse:
 - Barrels Spezial: **Unterdrückung** (verlangsamt Gegner-ATB).
 - **Analyse** zeigt Grundstats (ATK/DEF/HP); eine Schwäche wird sichtbar, ist aber **noch nicht nutzbar** (Köder).
-- **Gil** → erste Waffen-/Ausrüstungs-Verbesserungen.
+- ~~Gil → erste Waffen-/Ausrüstungs-Verbesserungen~~ → **entfallen (30.07.2026).**
 
 **Region 3 – MegaCorp Tower** – Tofa + Air is... (volle Gruppe); neue Mechanik: Shock:
 - Tofa verstärkt **Shock**, Air is... **heilt** – Verteidigung/Heilung werden relevant.

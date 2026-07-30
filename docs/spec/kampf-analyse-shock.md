@@ -68,6 +68,14 @@ MP ist der **Limiter**, der die Gambit-Tiefe überhaupt erst erzeugt: Ohne Koste
 - Kein Chore (pro Art nur einmal); **Wissen persistiert über Reunion**.
 - Analyse schaltet **weakness-basierte Gambit-Bedingungen** frei → Synergie-Loop (§2).
 
+**Playtest-Befund (30.07.2026): „Die Analyse ist zu Beginn wertlos, man kann sie für nichts nutzen."** Das trifft zu. Sie geht laut Rollout in **Region 2** auf, enthüllt dort ATK/DEF/HP und Schwächen – aber Schwächen sind erst mit Shock nutzbar (Region 3) und mit Element-Wahl richtig (Materia, Kapitel 2), und die Zahlen nur, wenn **Zielwahl etwas entscheidet**.
+
+**Diagnose: Analyse ist nicht prinzipiell wertlos, sie ist wertlos, weil Zielwahl wertlos ist.** Dieselbe Wurzel wie der Spielertyp-Korridor.
+
+**Beschluss (Kopplung, keine Streichung):** Mit dem **Heiler-Gegner in Region 2** (`gegner-encounter.md` §5a) bekommt Analyse ab ihrem ersten Auftritt einen Nutzen – man liest, *welcher* Gegner zuerst muss. Bleibt dieser Schritt aus, gehört Analyse nach Kapitel 2, wo Element-Wahl ihre Befunde nutzbar macht.
+
+**Folge für die Einführung:** Das Analyse-Popup erscheint **erst am ersten Gegner, bei dem Zielwahl zählt** – nicht bei Regionsbeginn. Ein Werkzeug einzuführen, das nichts tut, ist schlechter, als es später einzuführen: Der Spieler lernt, dass Erklärungen sich nicht lohnen.
+
 ## 6. Shock
 
 Jeder Gegner sammelt **Shock** über zugefügten Schaden – **immer**, auch ohne Schwäche-Ausnutzung, nur langsamer. Voll aufgeladen → der Gegner wird **geschockt** (Wirkung s. „Shock-Zustand" unten).

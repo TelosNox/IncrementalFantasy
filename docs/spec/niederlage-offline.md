@@ -38,7 +38,13 @@
 
 ## 3. Zonen-Rückkehr – das eigentliche Ventil
 
-**Jede bereits geschaffte Zone ist jederzeit frei anwählbar, vor und zurück.** Dort gewonnene Kämpfe zahlen EXP/Gil regulär und unbegrenzt aus; die höchste je erreichte Zone bleibt gespeichert, Zurückgehen verliert nichts.
+**Jede bereits geschaffte Zone ist jederzeit frei anwählbar, vor und zurück.** Dort gewonnene Kämpfe zahlen EXP aus; die höchste je erreichte Zone bleibt gespeichert, Zurückgehen verliert nichts.
+
+> **⚠️ Revidiert am 30.07.2026: der Ertrag ist nicht mehr unbegrenzt gleich hoch.** Im zweiten Playtest zeigte sich, dass **reines Idle die stärkste Spielweise** war: Man farmt eine tiefe Zone, in der man massiv überlevelt ist, und der Kapitel-Boss fällt irgendwann von selbst. **Damit war die Zonen-Rückkehr von der Notausgangs- zur Optimalstrategie geworden** – dieselbe Krankheit wie die Offline-Projektion am 24.07. (§4): Das unbeteiligteste Spiel ist das beste (Anti-Pattern #5, invertiert).
+>
+> **Fix:** Der EXP-Ertrag wird gedämpft, sobald das Gruppenlevel über dem erwarteten Level der Zone liegt – nie auf null (`oekonomie-waehrungen.md` §1a). Der **legitime** Gebrauch bleibt billig: „ein bis zwei Zonen zurück, dann geht es weiter" ist genau das Verhalten, für das das Ventil gebaut wurde, und es muss sich weiter lohnen. Teuer wird nur das Sitzenbleiben tief unten.
+>
+> **Ein harter Level-Deckel je Zone wurde erwogen und verworfen:** Er nimmt den unendlichen Zeit-Kanal weg. Wer am Deckel sitzt und die Wand mangels Können nicht schafft, stünde wieder im Deadlock – genau das, was dieses Kapitel behoben hat.
 
 - Das ist das Genre-Standardmuster „push bis zur Wand, dann farmen" (Vorbild Trimps, `../02_Leitfaden_Kernmechaniken.md` §1 D2).
 - Es macht den **Skill↔Zeit-Tausch** aus `gambits.md` §4 erstmals einlösbar: manuell gut spielen **oder** eine Zone zurück und stärker werden. Vorher gab es nur den ersten Weg – und wer ihn nicht ging, stand endgültig.

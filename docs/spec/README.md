@@ -18,7 +18,7 @@ sodass Querbezüge ohne Laden der anderen Detail-Docs erkennbar bleiben.
 | `kampf-analyse-shock.md` | Kampf, Analyse/Bestiarium, Shock, Resistenzen | §4 |
 | `gambits.md` | Strategische Automatik | §5 |
 | `materia.md` | Materia (Build-Herzstück) | §6 |
-| `ausruestung-gil.md` | Ausrüstung, Slots, Gil | §7 |
+| `ausruestung-gil.md` | Ausrüstung & Slots (**Gil gestrichen 30.07.2026**; Dateiname ist Altlast) | §7 |
 | `charaktere-party.md` | Roster, Skills/Limits, Party, Challenges | §8 |
 | `charaktere-visuals.md` | Charakter-Visuals (Pixel-Art) + Assets | §8 |
 | `regionen-kulissen.md` | Region-Kulissen: Bildsprache, Leitmotive, Format | §3, §8 |

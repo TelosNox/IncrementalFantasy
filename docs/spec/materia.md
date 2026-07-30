@@ -31,7 +31,7 @@ Daraus die Trennlinie, **wo welche Verbesserung lebt**:
 | **Aktionen & Kombos** (Zauber, Support-Links, Shock, Konter) | **Materia** | verändert Gameplay |
 | **Kampf-Rhythmus & Sustain** (MP-Regen, ggf. HP-Regen, HP-Absorb) | **Materia** (selbstsättigend) | verändert Aktions-Frequenz |
 | **Rohe Max-Stats** (HP/MP/ATK-Ceiling) | **Charakter-Level + Ausrüstung** | kein Verhaltenswechsel, redundant |
-| **Progressions-Ökonomie** (Gil-/EXP-/AP-Rate) | **Meta-Ebene** (Reunion-Essenz / Milestones) | konkurriert sonst um knappe Slots, wird mandatory |
+| **Progressions-Ökonomie** (EXP-/AP-Rate) | **Meta-Ebene** (Reunion-Essenz / Milestones) | konkurriert sonst um knappe Slots, wird mandatory |
 
 „Selbstsättigend" heißt: z. B. MP-Regen bringt ab dem Punkt, wo man frei casten kann, nichts mehr – man gibt den Slot dann für Kampf-Materia frei. So wird kein Regen/Sustain je zum permanenten Pflicht-Slot.
 
@@ -43,7 +43,7 @@ Daraus die Trennlinie, **wo welche Verbesserung lebt**:
 
 - **Feste, knappe Slot-Anzahl**, wächst langsam.
 - **Einzel-Slots** (Materia wirkt für sich) und seltenere **verbundene Slot-Paare** (Support-Materia modifiziert die Nachbarin) – die **Synergie-Engine** (§2 im Leitfaden), „nichts wird obsolet".
-- Slots kommen aus Ausrüstung; werden bei Reunion zurückgesetzt (Gil-Kreislauf).
+- Slots kommen aus Ausrüstung; werden bei Reunion zurückgesetzt und über das **Reunion-Upgrade-Menü** (Essenz) neu freigeschaltet – je System ein Milestone als Einstieg, danach freie Wahl (`prestige-reunion.md`). *Der frühere „Gil-Kreislauf" ist mit der Streichung von Gil entfallen (30.07.2026).*
 
 ## 4. Leveln, Cap & Ränge
 
@@ -70,7 +70,7 @@ Bewusst kleines Set; die Reihenfolge ist eine **Feature-Kaskade** (jede Materia 
 | Materia | Kategorie | Erwerb (wann / wie) | Gameplay-Wirkung |
 |---------|-----------|---------------------|------------------|
 | **Feuer** | Magie | Beat 1 – garantiert bei Materia-System-Einführung (Story/Region) | erstes Element → Schwäche/Shock; lehrt Slot, AP, MP, Ränge |
-| **Eis / Blitz** | Magie | Beat 2 – Shop (Gil) | Element-Vielfalt → passendes Element je Gegner (Set-Entscheidung) |
+| **Eis / Blitz** | Magie | Beat 2 – **Erst-Clear / Upgrade-Menü** | Element-Vielfalt → passendes Element je Gegner (Set-Entscheidung) |
 | **Alle** | Support | Beat 3 – Regions-Boss (garantiert) | Einzelziel → Rundum; erster Kombo-„Aha", Idle-Durchsatz |
 | **MP-Regen** | Independent | Beat 4 – Milestone (z. B. erste Materia auf Cap) | mehr MP/Kampf → mehr Aktionen, dichteres Spiel; **selbstsättigend** |
 | **Heilung** | Magie | Beat 5 – Nebenquest/Challenge (oder Shop) | Heil-Aktion für alle Figuren → defensive Gambit-Sets, MP-Tradeoff |
@@ -83,7 +83,7 @@ Bewusst kleines Set; die Reihenfolge ist eine **Feature-Kaskade** (jede Materia 
 
 **Zurückgestellt – ATB-Boost:** „mehr Speed" kippt schnell ins Mandatory-Muster. Nur denkbar als *aktives Kommando mit Kosten* (Tradeoff), nicht als Dauer-Passiv; Speed-Grundwachstum gehört sonst zu Level/Ausrüstung.
 
-**Ausdrücklich nicht als Materia** (siehe §2): flache HP+/MP+-Ceilings (→ Level/Ausrüstung) und Gil+/EXP+/AP-Rate (→ Reunion-Essenz / Milestones).
+**Ausdrücklich nicht als Materia** (siehe §2): flache HP+/MP+-Ceilings (→ Gruppenlevel) und EXP+/AP-Rate (→ Reunion-Essenz / Milestones).
 
 ---
 
@@ -91,7 +91,7 @@ Bewusst kleines Set; die Reihenfolge ist eine **Feature-Kaskade** (jede Materia 
 
 Verteilt auf die drei Freischaltungs-Achsen plus Shop – bewusst **ohne RNG-Farmdrops** (Zufalls-Gating frustriert, ist intransparent, gegen Lesbarkeit/#1). Höchstens garantierte Erst-Clear-Drops.
 
-- **Shop (Gil), kapitelweise freigeschaltet** – verlässliche Basisquelle; zweiter großer Gil-Sink.
+- ~~Shop (Gil), kapitelweise freigeschaltet~~ → **verworfen (30.07.2026).** Ein Gil-finanzierter Materia-Shop läuft in dieselbe Inflationsfalle, die Gil erledigt hat: Der Spieler verdient laufend mehr, feste Preise werden relativ billiger, die Entscheidung löst sich auf (`oekonomie-waehrungen.md`). **Ersatz:** verlässliche Basisquelle sind **Erst-Clears**, die Wahl liegt im **Reunion-Upgrade-Menü** (Essenz).
 - **Regionen/Bosse (garantierte Erst-Freischaltung)** – story-gebundene Signatur-Materia (horizontale Achse).
 - **Reunion-Essenz** – fortgeschrittene/Meta-Materia-Typen, dauerhaft (vertikale Achse).
 - **Milestones / Achievements / Challenges / Nebenquests** – einzigartige Belohnungs-Materia (Entdeckungs-Achse).

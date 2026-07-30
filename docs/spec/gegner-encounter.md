@@ -46,9 +46,23 @@
 - **Flitzer** (hoher SPD) — handelt oft → macht **Barrels Unterdrückung** wertvoll.
 - **Nuker** (telegrafierter Groß-Treffer) — macht **Air is...' Heilung / Verteidigen / defensive Gambits** nötig.
 - **Schwäche-Gegner** — klar sichtbare Element-Schwäche → belohnt Element-Wahl + Shock.
-- **(später) Heiler-Gegner** — heilt Verbündete → lehrt Ziel-Priorität („erst den Heiler"), eine Gambit-/Targeting-Entscheidung.
+- **Heiler-Gegner** — heilt Verbündete → lehrt Ziel-Priorität („erst den Heiler"), eine Gambit-/Targeting-Entscheidung. **Vorgezogen von „später" nach Region 2** (30.07.2026, s. §5a).
 
 Konkrete Beispiel-Monster (10, mit Merkmal + Visual-Richtung) und vier ergänzende Mechaniken (Split, MP-Drain+Flucht, Untot, Physisch-Immun): siehe `gegner-katalog.md`.
+
+## 5a. Zielwahl muss etwas entscheiden (neu, 30.07.2026)
+
+**Befund aus dem Playtest:** Zielwahl war spürbar wirkungslos („könnte gerne wichtiger sein"), und in derselben Session fiel auf, dass **Analyse in Kapitel 1 nichts nützt** – sie enthüllt ATK/DEF/HP und Schwächen, aber Schwächen sind ohne Element-Wahl nicht nutzbar (Materia ab Kapitel 2) und die Zahlen nur, wenn Zielwahl etwas entscheidet.
+
+**Diagnose:** Analyse ist nicht prinzipiell wertlos – sie ist wertlos, **weil Zielwahl wertlos ist**. Dieselbe Wurzel wie der frühere Spielertyp-Korridor (`feinspec-kapitel1.md` §12): Wenn Wände durch Stats fallen und Stats aus skillfreiem Farmen kommen, konvergieren alle Spielweisen auf „farmen, bis es umfällt". Können zahlt dann nicht, und Werkzeuge des Könnens (Zielwahl, Analyse, Defend) sind Dekoration.
+
+**Beschluss:** Der **Heiler-Gegner wird nach Region 2 vorgezogen** – dorthin, wo laut Rollout auch die Analyse aufgeht. Damit hat Analyse ab ihrem ersten Auftritt einen Nutzen („welcher muss zuerst"), und Zielwahl entscheidet Kämpfe statt sie zu beschleunigen. Weitere Kandidaten in derselben Rolle: Buffer, der die Front verstärkt.
+
+**Einordnung – das ist Inhaltsdesign, keine Deadlock-Sicherung.** Ursprünglich war eine erzwingende Boss-Mechanik als *Gate* gedacht, damit der Kapitel-Boss nicht rein durch Farmen fällt. Diese Begründung ist **entfallen**: Die EXP-Dämpfung über Level × Zone (`oekonomie-waehrungen.md` §1a) erledigt das Idle-Overpowern allein. Gegner-Mechaniken bleiben trotzdem nötig – aber weil gutes Spiel sonst nur „schneller draufhauen" heißt, nicht weil ohne sie ein Deadlock entstünde. **Folge: pro Gegner dosierbar statt Systemzwang.**
+
+**Leitlinie: fordernd, nicht strafend.** Autoplay soll an solchen Gegnern *langsam* verlieren (mehr Schaden nehmen, länger brauchen), nicht *garantiert* sterben. Im Idle-Genre wird strafend schnell als unfair gelesen.
+
+**Konter-Zustand — nur temporär, nur bei Bossen/Minibossen.** „Angreifen schadet dem Angreifer" ist als **Dauer-Trait ausdrücklich verworfen**: schwer verständlich und auf Dauer nervig. Als *temporärer, telegrafierter* Zustand eines Bosses ist es etwas kategorisch anderes – ein Rätsel-Takt statt einer Steuer. Autoplay verliert dort HP, stirbt aber nicht zwangsläufig; damit erfüllt es „fordernd, nicht strafend".
 
 ## 6. Gegner-Aktionen (getaktet & telegrafiert)
 
@@ -77,16 +91,20 @@ Warum „höchste HP" die bessere Regel ist:
 ## 7. Miniboss, Regions-Boss & Kapitel-Wand
 
 - **Region-1-Miniboss:** einfacher, mit einer Groß-Attacke → **lehrt das Limit als Wand-Brecher**.
-- **Regions-Boss = Kapitel-Wand:** kombiniert 2–3 Archetyp-Züge + telegrafierte Mechanik. Bewusst eine **grindbare Idle-Wand** (manuell schneller, per Reunion-Grind auch schaffbar) – *kein* Pflicht-Prüfstein im ersten Zyklus.
+- **Regions-Boss = Kapitel-Wand:** kombiniert 2–3 Archetyp-Züge + telegrafierte Mechanik. Bewusst eine **grindbare Idle-Wand** (manuell schneller, per Grind auch schaffbar) – *kein* Pflicht-Prüfstein im ersten Zyklus.
+
+  **Präzisierung (30.07.2026): grindbar ja – aber nicht in einer Stunde.** Jede Wand muss irgendwann überpowerbar sein; nach mehreren Reunions soll der Region-1-Miniboss selbstverständlich von allein fallen. Im **ersten** Durchlauf darf blindes Idle-Farmen den Kapitel-Boss aber nicht in einer Stunde umlegen, sondern erst in einer Größenordnung, **die niemand freiwillig abwartet**. Getragen wird das nicht von der Bosshöhe (eine reine Stat-Wand ist immer eine Zeitwand – s. u.), sondern von der EXP-Dämpfung (`oekonomie-waehrungen.md` §1a).
+
+  **Merksatz aus dem Playtest:** *Eine reine Stat-Wand kann nie eine Können-Wand sein.* Stats sind farmbar, Farmen ist Zeit – also ist jede Stat-Wand eine Zeitwand, egal wie hoch man sie stellt. Wer will, dass Können zählt, braucht **Mechanik** (§5a), nicht mehr HP.
 
 ## 8. Belohnungen (deterministisch, kein RNG)
 
-Kills geben automatisch EXP/Gil (AP ab Kapitel 2). **Erst-Clear bestimmter Gegner/Bosse** → garantierte Materia-/Skill-Freischaltung. Keine Zufalls-Farmdrops.
+Kills geben automatisch **EXP** (AP ab Kapitel 2; Gil gestrichen 30.07.2026) – der EXP-Ertrag ist nach Level × Zone gedämpft (`oekonomie-waehrungen.md` §1a). **Erst-Clear bestimmter Gegner/Bosse** → garantierte Materia-/Skill-Freischaltung. Keine Zufalls-Farmdrops.
 
 ## Rollout über den ersten Zyklus
 
 - **Region 1:** Standard + Miniboss (Limit). Noch keine Analyse/Schwächen.
-- **Region 2:** Analyse an; **Panzer + Flitzer** treten auf (zeigen, warum man Schwächen/Kontrolle bald will).
+- **Region 2:** Analyse an; **Panzer + Flitzer + Heiler** treten auf. Panzer/Flitzer zeigen, warum man Schwächen/Kontrolle bald will; der **Heiler gibt Analyse und Zielwahl ab dem ersten Auftritt einen Zweck** (§5a).
 - **Region 3:** Shock an; **Schwäche-Gegner + Nuker** (Heilung/Defense wird nötig) → Kapitel-Wand.
 
 ---

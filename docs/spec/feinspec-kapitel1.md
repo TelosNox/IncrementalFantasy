@@ -12,8 +12,8 @@
 - **Progression** (`progression-regionen.md`): 3 Regionen, Roster-Rhythmus, Gate-Struktur.
 - **Encounter** (`encounter-zyklus1.md`): Monster-Platzierung Z1–Z30, Skalierung `g`.
 - **Gegner** (`gegner-katalog.md`): 7 in Zyklus 1 aktive Monster + 3 Gates.
-- **Ausrüstung/Gil** (`ausruestung-gil.md`): Waffe = Stats + Special-Freischaltung (Slots erst Kap. 2).
-- **Ökonomie** (`oekonomie-waehrungen.md`): aktiv nur EXP + Gil (+ MP als Kampf-Ressource).
+- **Ausrüstung** (`ausruestung-gil.md`): in Kapitel 1 **ohne Funktion** – Gil und Waffen-Tiers sind gestrichen (30.07.2026), der Special läuft über einen Zonen-Trigger, Slots kommen erst Kap. 2.
+- **Ökonomie** (`oekonomie-waehrungen.md`): aktiv nur **EXP** (+ MP als Kampf-Ressource) – EXP ist seit der Gil-Streichung die einzige Run-Währung.
 - **Niederlage/Offline** (`niederlage-offline.md`): Zeitstrafe, Retry, Offline-Ernte.
 - **Prestige** (`prestige-reunion.md`): 1. Reunion = Reset/Persistenz + Gambit-Freischaltung.
 - **UI** (`ui-layout.md`): Stage/Bottom/Sidebar-Budget; hier als konkrete Screens umgesetzt.
@@ -22,7 +22,9 @@
 
 ## 0. Geltungsbereich: Was Kapitel 1 enthält – und was bewusst nicht
 
-**Enthalten (der komplette erste Spielabschnitt):** Kern-Loop (Auto-Battle → EXP/Gil), ATB, manueller Klicker-Auftakt, Auto-Attack-Regel, Waffen-Specials der 4 Figuren, Limit als Wand-Brecher, MP als Limiter (2 von 3 Regen-Kanälen), Analyse/Bestiarium, Shock (neutral, langsam), Ausrüstungskauf über Gil, Niederlage/Retry, Offline-Ernte, die 1. Reunion.
+**Enthalten (der komplette erste Spielabschnitt):** Kern-Loop (Auto-Battle → EXP), ATB, manueller Klicker-Auftakt, Auto-Attack-Regel, Waffen-Specials der 4 Figuren, Limit als Wand-Brecher, MP als Limiter, Analyse/Bestiarium, Shock (neutral, langsam), Niederlage/Retry, Mechanik-Einführungen (Popup + Codex), die 1. Reunion.
+
+**Nicht mehr enthalten:** Gil und Ausrüstungskauf (gestrichen 30.07.2026, §6.4), Offline-Ernte (stillgelegt seit M11, §3.8e).
 
 **Bewusst NICHT enthalten** (öffnet ab Kapitel 2 / 1. Reunion, vgl. `progression-regionen.md` §2):
 Materia & Slots, Magie/Zauber, AP-Ökonomie, Materia-Prestige, der **programmierbare** Gambit-Editor (in Kap. 1 laufen nur die fest verdrahteten Default-Regeln aus §4.7), Element-Schwächen als **nutzbare** Mechanik (Kindlebales Feuer-Schwäche ist reiner Teaser), Resistenzen, Summons. Der dritte MP-Kanal (Zeit-Trickle) ist in Kap. 1 noch inaktiv.
@@ -165,15 +167,38 @@ verfügbar (im Popup sichtbar, aber ausgegraut – `gambits.md` §3).
 - Der frühere Selbstheilungs-Satz „MP leer → Angriff → MP zurück" entfällt. Für Kapitel 1 folgenlos (Auto greift ohnehin nur an, §4.7), für den **Gambit-Editor in Kapitel 2** relevant: Eine Regel „nutze Special" kann dauerhaft ins Leere laufen, statt sich selbst zu reparieren. Gehört in die Kapitel-2-Spec.
 - MP-Regen-Materia (`materia.md` §7) wird dadurch von „wirkungslos" zu einer der attraktivsten Kapitel-2-Belohnungen – die Rolle, die ihr `materia.md` §2 zuweist. **Deshalb darf Sustain in Kapitel 1 bewusst nicht gut gelöst sein.**
 
-### 3.6 EXP / Gil / Gruppenlevel
+### 3.6 EXP / Gruppenlevel
 
 ```
-Sieg → der Party-EXP-Topf erhält die Summe der Monster-EXP der Welle.
-       Gil-Ertrag = Summe der Monster-Gil.
+Sieg → der Party-EXP-Topf erhält die Summe der Monster-EXP der Welle,
+       MULTIPLIZIERT mit der Level-Dämpfung dieser Zone (s. u.).
 Level-Up des GRUPPENLEVELS sobald exp >= exp_to_next(L); Überschuss überträgt.
 Ein Level-Up hebt alle Figuren gleichzeitig; Neuzugänge stehen sofort auf L.
-Monster-EXP/Gil skalieren mit g^(zone-1) wie die Stats (§3.7).
+Monster-EXP skaliert mit g^(zone-1) wie die Stats (§3.7).
 ```
+
+**Gil ist gestrichen** (30.07.2026). Kein Gil-Ertrag, kein `gil`-Feld im Save, keine Monster-Gil-Spalte, kein Shop, keine Waffen-Tiers. Begründung und die verworfenen Alternativen: `oekonomie-waehrungen.md`, Abschnitt „Gil ist gestrichen". **EXP ist damit die einzige Run-Währung** – diese Kurve ist nicht mehr eine von zwei Ökonomien, sondern *die* Ökonomie.
+
+**Level-Dämpfung (neu, ersetzt den unbegrenzt gleichhohen Ertrag):**
+
+```
+erwartetes Level einer Zone: L_erw(zone)   # aus der Zonen-Kurve ABGELEITET,
+                                           # nicht als Tabelle gepflegt
+Überschuss  u = max(0, partyLevel - L_erw(zone))
+EXP-Faktor  f(u):  f = 1 für u <= PLATEAU
+                   f fällt für u > PLATEAU, aber NIE auf 0
+```
+
+**Warum überhaupt:** Im zweiten Playtest war **reines Idle die stärkste Spielweise** – tief farmen, wo man überlevelt ist, bis der Kapitel-Boss von selbst fällt. Die Zonen-Rückkehr war damit von der Notausgangs- zur Optimalstrategie geworden. Ursache ist die **Rate, nicht die Menge**: EXP pro Kill ist tief unten niedriger, EXP **pro Sekunde** aber höher, weil die Kill-Zeit zusammenbricht.
+
+**Warum Level × Zone und nicht Abstand zu `maxZoneReached`:** Ein Abstands-Taper verschiebt nur das Fenster – wer Zone 7 erreicht hat, farmt Zone 5, die bei seinem Level längst trivial ist. Der Exploit wandert, statt zu verschwinden. Level × Zone ist absolut; `maxZoneReached` kommt in der Formel nicht vor.
+
+**Anforderungen an `PLATEAU` und die Sturzform** (⚠️ beides ungemessen, erster Prüfpunkt der Umsetzung):
+
+- **Plateau breit genug** (~+2–3 Level), damit „ein bis zwei Zonen zurück, dann geht es" bezahlbar bleibt. Das ist der legitime Ventil-Gebrauch und schützt Leitplanke A3.
+- **Sturz steil genug**, damit blindes Idle den Kapitel-Boss nicht in einer Stunde umlegt.
+- ⚠️ Ob beides gleichzeitig geht, ist **nicht gesetzt**.
+- ⚠️ Der EXP-**Bedarf** steigt bereits mit `1,22^(L-1)`; die Ertragsdämpfung **kompoundiert** damit und kann Progression zu Schlamm machen.
 
 Ein Level für die gesamte Party – Begründung, Playtest-Befund und die verworfenen Alternativen stehen in `stats-kampfwerte.md` §4.1. Für die UI heißt das: **ein** Level-/EXP-Anzeiger für die Gruppe statt vier pro Charakter-Panel (`ui-layout.md`).
 
@@ -206,7 +231,7 @@ Ersetzt durch drei ineinandergreifende Regeln:
 
 ```
 Jede bereits geschaffte Zone ist jederzeit frei anwählbar (vor und zurück).
-Dort gewonnene Kämpfe zahlen EXP/Gil regulär aus – unbegrenzt wiederholbar.
+Dort gewonnene Kämpfe zahlen EXP aus – unbegrenzt wiederholbar, aber **nach Level × Zone gedämpft** (§3.6), damit Tieffarmen nicht die beste Strategie ist.
 Die höchste je erreichte Zone bleibt gespeichert; Rückkehr verliert nichts.
 ```
 
@@ -328,7 +353,8 @@ Sprache-agnostisch (JSON-nah). Feldnamen sind Implementierungsvorschläge; **Cod
   "base": { "hp":110, "mp":20, "atk":14, "mag":6, "def":4, "spd":100 },
   "growth": { "hp":1.09, "atk":1.055, "mag":1.055, "def":1.05, "spd":1.00 },
   "special": { "id":"cross_slash", "mpCost":8, "unlockedFromZone":3 },
-  "weaponTier": 0,          // 0..4, Gil-gekauft; wirkt auf Stats (§6.4)
+  // "weaponTier" ENTFALLEN (30.07.2026, §6.4) - kein Tier, kein Gil-Kauf.
+  "specialUnlocked": false, // Zonen-Trigger; permanent, uebersteht die Reunion
   "controlMode": "auto",    // "auto" | "manual" – je Figur, ab Schalter-Freischaltung (§5.1)
   // Laufzeit:
   "hp":110, "mp":20,        // TRAGEN ÜBER (§3.5/§3.8d) – gehören in den Save
@@ -357,7 +383,7 @@ Der Zonenwechsel ist **kein Nulltarif-Ausstieg**: Er kostet den bereits investie
   "id": "safeguard",
   "name": "Safeguard",
   "base": { "hp":75, "atk":9, "def":12, "spd":70 },
-  "reward": { "exp":12, "gil":10 },
+  "reward": { "exp":12 },          // "gil" ENTFALLEN (30.07.2026)
   "trait": "armor",         // Enum s.u.
   "weaknessTag": null,      // z.B. "fire" (Teaser, in Kap.1 nicht nutzbar)
   "shockAffinity": "neutral",
@@ -392,7 +418,7 @@ Der Zonenwechsel ist **kein Nulltarif-Ausstieg**: Er kostet den bereits investie
 ```jsonc
 {
   "ownerId": "claude",
-  "tier": 2,                       // Gil-gekauft, 0..4
+  // "tier" ENTFALLEN (30.07.2026, §6.4)
   "statMod": { "atk":1.20, "hp":1.10, "mag":1.20 },   // = 1 + 0.10*tier / 0.05*tier
   "unlocksSpecial": true,          // Special ist an die Waffe gekoppelt
   "slots": []                      // leer in Kap. 1; ab Kap. 2 Materia-Slots
@@ -415,7 +441,8 @@ Der Zonenwechsel ist **kein Nulltarif-Ausstieg**: Er kostet den bereits investie
   "maxZoneReached": 24,                   // höchste je geschaffte Zone – Obergrenze der Auswahl
   "party": [ /* Character-Instanzen inkl. übertragener hp/mp, §4.1 */ ],
   "roster": ["claude","barrel"],          // freigeschaltet bis hier
-  "currencies": { "exp": {...}, "gil": 3140, "reunionEssence": 0 },
+  "currencies": { "exp": {...}, "reunionEssence": 0 },  // "gil" ENTFALLEN
+  "introSeen": { "claudeIntro": true, "special": true, ... },  // Mechanik-Einfuehrungen, uebersteht die Reunion
   "bestiary": { /* Monster-ID -> Eintrag */ },
   "reunionCount": 0,
   "inn": { "queued": false },             // §3.8b – „nach diesem Kampf ins Gasthaus"
@@ -507,13 +534,13 @@ Die **globale Pause** (bestätigt): Solange `awaitingPlayerChoice` gesetzt ist, 
 ```
 actions = [ Attack ]                                       # immer
 if figur.special.unlockedFromZone <= currentZone
-   and figur.weaponTier >= 1:                        + Special(mpCost)  # s.u.
+   and figur.specialUnlocked:                        + Special(mpCost)  # s.u.
 if flags.defenseUnlocked:                          + Defend
 if figur.limit >= 100:                             + Limit         # bunt dargestellt
 if flags.materiaUnlocked and figur.materiaActions: + "Magic ▸"     # Unterliste (scroll)
 ```
 
-**Ergänzung `weaponTier >= 1` (M6-Präzisierung):** Die reine Zonen-Bedingung wäre in der Praxis fast immer erfüllt (Gil ist ab Zone 3 bereits vorhanden), verlangt aber keinen echten Kauf. Die Implementierung prüft zusätzlich `weaponTier >= 1`, damit „Special" tatsächlich erst **nach** dem Gil-Kauf erscheint (§6.4, §7.1 Schritt 2) statt rein zonenbasiert – konsequenter zur Gil-Sink-Erzählung, ohne das Grundmodell zu ändern.
+**Die frühere Bedingung `weaponTier >= 1` ist entfallen (30.07.2026).** Sie sollte erzwingen, dass „Special" erst *nach* dem Gil-Kauf erscheint. Da das Tier bei jeder Reunion auf 0 fiel, hat sie zugleich das Versprechen „gelernter Skill bleibt permanent" gebrochen (`charaktere-party.md`) – ein Widerspruch zwischen zwei Spec-Stellen. Ersatz: **`specialUnlocked`**, gesetzt über den Zonen-Trigger (Claude Zone 3, alle späteren mit Beitritt) und **persistent über die Reunion**.
 
 **Ausführbarkeit:** Eine Aktion ist *disabled*, wenn die Ressource fehlt (`Special` bei `mp < mpCost`) – sie wird **angezeigt, aber ausgegraut** (nie entfernt). `Limit` erscheint nur bei voller Leiste.
 
@@ -533,6 +560,8 @@ if flags.materiaUnlocked and figur.materiaActions: + "Magic ▸"     # Unterlist
 | **Air is...** | 3 | 80 | 30 | 7 | 14 | 3 | 95 | Heal Wind: party heal 2.2·MAG (10) | Healing |
 
 ### 6.2 Monster- & Gate-Basiswerte (bei Einführung, vor `g`-Skalierung)
+
+*(Die Spalte **Gil** ist mit dem 30.07.2026 gegenstandslos – Monster werfen kein Gil mehr ab. Sie bleibt in der Tabelle stehen, bis die Werte ohnehin neu simuliert werden.)*
 
 | Entität | HP | ATK | DEF | SPD | EXP | Gil | Trait |
 |---------|---:|----:|----:|----:|----:|----:|-------|
@@ -573,15 +602,24 @@ if flags.materiaUnlocked and figur.materiaActions: + "Magic ▸"     # Unterlist
 | 29 | 3 | 2× Shortfuse + Blando | Eskalation vor der Wand |
 | **30** | 3 | **Vaultron** + 2× Blando | **Kapitel-Wand: telegrafierte AoE** |
 
-### 6.4 Waffen-Tiers (Gil-Sink, Kap. 1)
+### 6.4 Waffen-Tiers — **gestrichen** (30.07.2026)
 
-Ein Item je Figur, Tier 0–4. Effekt: `atk ×(1+0,10·tier)`, `hp ×(1+0,05·tier)`, `mag ×(1+0,10·tier)`. Tier 1 schaltet den Special frei. Slots/A-B-Layout bleiben leer bis Kap. 2. Reset bei Reunion (Gil neu erspielt), der **gelernte Special bleibt**.
+> ⚠️ **Dieser Abschnitt beschreibt ein System, das es nicht mehr gibt.** Waffen-Tiers, `weaponTier`, `buyWeapon()` und der Gil-Preis sind entfallen.
 
-**Zwei Modelle, bewusst unterschieden (M6-Umsetzung):**
+**Was hier stand:** Ein Item je Figur, Tier 0–4, `atk ×(1+0,10·tier)` / `hp ×(1+0,05·tier)` / `mag ×(1+0,10·tier)`, Tier 1 schaltet den Special frei, gekauft für 8 Gil ab Zone 3.
 
-- **Headless-Pacing-Simulation** (`sim_chapter1.py`, M3-Referenzsimulation, `tests/chapter-playthrough.test.ts`): Faustregel `tier = level // 4` (max 4) – reine Vereinfachung, um Balance/Pacing ohne modellierten Shop-Flow durchzurechnen.
-- **Live-Spiel (M6, `ui/gameStore.svelte.ts`):** Tier wird **ausschließlich über einen echten Gil-Kauf** gesetzt (`buyWeapon()`), **nicht** automatisch aus dem Level abgeleitet – deckungsgleich mit §7.1 Schritt 2 ("der erste Gil-Kauf gibt Claude die Waffe"). In Kapitel 1/Region 1 ist damit nur der eine Kauf Tier 0→1 modelliert (weitere Tiers folgen mit Barrel/Region 2 in M7+).
-- **Gil-Preis (Playtest-Baseline, M6):** **8 Gil**, kaufbar ab Zone 3 – exakt der Gil-Stand, den die Baseline-Progression bis dahin abwirft (kein Warten, aber spürbarer erster Sink). War in §11 als offene Stellschraube markiert; dieser Wert ist der erste konkrete Ansatz, keine endgültige Balance.
+**Warum gestrichen (drei unabhängige Gründe):**
+
+1. **Keine Entscheidung.** Viermal dasselbe Upgrade zu kaufen ist das Anti-Pattern „immer wieder das gleiche Upgrade kaufen und aufs nächste warten". Playtest-Wortlaut: „Am Charakter taucht der Kaufbutton auf und man drückt drauf."
+2. **Gil kann keine Entscheidung tragen.** Die Zonen-Rückkehr macht jeden Preis zeit-farmbar; damit ist keine Exklusivität möglich (`oekonomie-waehrungen.md`).
+3. **Der Special-Gate war ein Spec-Widerspruch.** `weaponTier >= 1` als Bedingung + Tier-Reset bei Reunion = der als „permanent" versprochene Skill war ab Durchlauf 2 in jeder Region 1 wieder weg (`charaktere-party.md`). Ein Gambit auf „Special" wäre dort ins Leere gelaufen.
+
+**Was stattdessen gilt:**
+
+- **ATK/HP/MAG-Wachstum ausschließlich über das Gruppenlevel** (`stats-kampfwerte.md` §4). ⚠️ Das aus Tiers entfallende Wachstum ist beim Neu-Balancieren in die Level-Kurve zu übernehmen.
+- **Special über Zonen-Trigger**, permanent (`charaktere-party.md`): Claude in **Zone 3**, alle späteren Figuren **mit Beitritt**.
+- **Die Waffe bleibt** als Träger der Materia-Slots — aber erst ab Kapitel 2. In Kapitel 1 hat sie keine Funktion und erscheint nicht als System.
+- Die Faustregel `tier = level // 4` im Pacing-Harness entfällt mitsamt dem Tier-Begriff.
 
 ---
 
@@ -592,7 +630,7 @@ Ein Item je Figur, Tier 0–4. Effekt: `atk ×(1+0,10·tier)`, `hp ×(1+0,05·ti
 ### 7.1 Region 1, die ersten Minuten (Claude solo)
 
 1. **Zone 1–2, Klicker:** Ein Blando erscheint. Claude hat noch keinen Special; der Spieler tippt „Attack". Alle 2 s ein Treffer à 12 → Blando fällt nach **8 s**. Nach dem Sieg +25 % MP (unsichtbar, bis der Special da ist).
-2. **Zone 3, Waffe & MP:** Der erste Gil-Kauf gibt Claude die Waffe → **Special freigeschaltet, MP-Leiste wird sichtbar**. Der Special (×3 ATK = 42) one-shottet einen Blando; nach 2 Casts ist MP leer → Angriffe füllen wieder auf.
+2. **Zone 3, Special & MP:** Der Zonen-Trigger gibt Claude seine Spezialfähigkeit → **Special freigeschaltet, MP-Leiste wird sichtbar**, begleitet vom Mechanik-Popup (`ui-layout.md`). Der Special one-shottet einen Blando; nach wenigen Casts ist MP leer und füllt sich erst über Siege/Gasthaus wieder. *(Früher hing dieser Beat am ersten Gil-Kauf – der Beat bleibt, der Träger ist weg. Der Satz „Angriffe füllen wieder auf" ist seit §3.5 ohnehin ungültig.)*
 3. **Zone 5, Automatik:** Die **Auto-Attack-Regel** schaltet auf; Trash läuft jetzt idle, der Spieler greift nur noch für den Special ein. ★ Erster „vom Tappen zum mühelosen Fortschritt"-Moment – **begleitet von einem kurzen Freischaltungs-Hinweis** (`ui-layout.md` „Freischaltungs-Hinweis (Unlock-Callout)"), sonst wirkt derselbe Moment verwirrend statt befreiend (Playtest-Learning nach M6).
 4. **Zone 6–7, kleine Wand:** Drei Blandos setzen Claude zu. **Playtest-Korrektur (§4.7):** Da Auto vor der 1. Reunion nur angreift (kein Special), ist das jetzt die erste spürbare Grind-Wand des Kapitels – simulationsvalidiert ~8 Retries/Grindschleifen in Z5, bis Level/Waffe genug abwerfen (Ventil: EXP fließt durchgehend). Wer stattdessen kurz auf Manuell umschaltet und Claudes Special selbst timt, kommt deutlich schneller durch – exakt der „Idle-Wand, manuell schneller"-Fall aus `gambits.md` §4.
 5. **Zone 8, Miniboss & Limit:** **Blandzilla** (130 HP), der Karton-Kaiju. Reiner Angriff wäre zäh; die über die Region geladene **Limit-Leiste** ist der telegrafierte Durchbruch. ★ Lehrt Limit als Wand-Brecher. Danach Claude ~Level 6.
@@ -679,7 +717,7 @@ Die drei Kapitel-1-Bosse (maßstabsgetreu, Minibosse 1,5× / Kapitel-Boss 2×) �
 | #10 Zahlen-Fehler | ✓ BigNumber ab Tag 1; kontinuierliche Zähler |
 | #11 Humor als Krücke | ✓ Parodie liegt auf validierten Mechaniken (Limit-Sprüche als Würze) |
 | Determinismus (kein RNG) | ✓ Schaden/ATB/Shock rein deterministisch |
-| Währungs-Disziplin | ✓ Kap. 1 nur EXP+Gil (+MP als Kampf-Ressource) |
+| Währungs-Disziplin | ✓ Kap. 1 nur **EXP** (+MP als Kampf-Ressource) – Gil gestrichen 30.07.2026, §6.4 |
 
 **Bewusste Abweichung vom Spec-Vorschlag:** `g` von 1,08 auf **1,07** gesenkt und Level-Wachstum minimal unter `g` gelegt – aus der Simulation, damit Gates spürbare, aber grindbare Wände bleiben (bei 1,08 überholte die Skalierung die Party-Power zu stark). Dokumentiert und begründet gemäß CLAUDE.md.
 
@@ -700,8 +738,10 @@ Die sensibelsten Hebel:
 - **Shock-Aufbaurate** (0,5·Schaden) und **Tofa-Bonus** (+45) – wie relevant Shock schon in Kap. 1 ist (nur bei manuellem Spiel nutzbar, s. §4.7).
 - **Zeitstrafe bei Niederlage** (5 s) – wirkt jetzt zusammen mit der Gasthaus-Totzeit; beide Zeitkosten sind gemeinsam zu betrachten, nicht einzeln.
 - **Zonen-Rückkehr:** ob die freie Auswahl ausreicht oder ob es eine Empfehlung/Markierung braucht („hier kommst du gerade sicher durch"). Reine Ventil-Funktion steht, die **Lesbarkeit** ist offen.
-- Waffen-Tier-Kurve über Tier 1 hinaus (Region 2+); der erste Gil-Preis (Tier 0→1, Zone 3) ist mit 8 Gil seit M6 ein erster konkreter Ansatz (§6.4), nicht final.
-- **Zweiter Gil-Sink fehlt weiterhin.** Das Gasthaus wäre der naheliegende gewesen, kostet aber bewusst Zeit statt Gil (Deadlock-Risiko, §3.8b). Offen, s. `oekonomie-waehrungen.md`.
+- ~~Waffen-Tier-Kurve / Gil-Preis~~ und ~~zweiter Gil-Sink~~ → **beide erledigt durch Streichung**: Gil und die Tier-Leiter existieren nicht mehr (§6.4, `oekonomie-waehrungen.md`). Die Frage nach dem zweiten Sink stand zweimal dokumentiert und war nie zu lösen – sie war kein Balance-Detail, sondern das Symptom einer Währung, die keine Entscheidung tragen kann.
+- **NEU und jetzt der sensibelste Hebel überhaupt: die EXP-Dämpfung (§3.6)** – Plateaubreite und Sturzsteilheit. Sie muss gleichzeitig den schwachen Spieler durchlassen (A3) und Idle-Overpowern verhindern (B4). ⚠️ Ob beides zusammen geht, ist ungemessen. Weil Gil weg ist, ist EXP die **einzige** Run-Währung – diese Kurve trägt jetzt allein, was vorher zwei Ökonomien trugen.
+- **Das aus den Waffen-Tiers entfallende ATK/HP/MAG-Wachstum** muss in die Level-Kurve wandern (`stats-kampfwerte.md` §4), sonst fehlt es schlicht.
+- **Zielzeiten** (§12 B2): ~30 min für M, ~90 min für T sind **Konzept-Vorgaben ohne Messung**; das Zielband für den schwachen Spieler (T′) ist noch festzulegen.
 
 **Erledigt durch diese Revision** (vormals hier offen): der Limit-Reset-Fehler bei jedem Zonenstart – das Esper-Modell (§3.4) macht die frühere Persistenz-Anforderung gegenstandslos, statt sie nachzurüsten.
 
@@ -725,15 +765,41 @@ Alle Kriterien werden gegen drei klar getrennte Spielweisen geprüft. Sie sind d
 
 - **A1** Alle drei Typen erreichen Zone 30. **V darf langsamer sein, aber nie blockiert.**
 - **A2 (Ventil, formal):** Für **jede** Zone Z gilt: Es existiert eine Anzahl N wiederholter Siege in Zone Z−1, nach der Z für Typ V gewinnbar ist – mit **N ≤ 20**. Braucht eine Zone mehr, ist sie keine Wand mehr, sondern ein Stau. *Dies ist die formale Fassung von Anti-Pattern #1 und der wichtigste Test der ganzen Liste.*
-- **A3** Kein Spielzustand ist erreichbar, aus dem heraus kein Fortschritt mehr möglich ist – insbesondere nicht bei sehr wenig HP und 0 Gil (das Gasthaus kostet deshalb Zeit statt Gil, §3.8b).
+- **A3** Kein Spielzustand ist erreichbar, aus dem heraus kein Fortschritt mehr möglich ist – insbesondere nicht bei sehr wenig HP. *(Der frühere Zusatz „und 0 Gil" ist mit der Streichung von Gil gegenstandslos; das Gasthaus kostet weiterhin Zeit, §3.8b. **Neu relevant:** Die EXP-Dämpfung in §3.6 darf A3 nicht aushebeln – der Ertrag fällt nie auf null, und das Plateau muss breit genug bleiben, dass Zurückgehen den schwachen Spieler wirklich durchbringt.)*
 
 ### B – Abstand zwischen den Spielertypen
 
 Der Abstand muss **existieren** (sonst lohnt aktives Spiel nicht, Anti-Pattern #5) und **begrenzt** sein (sonst ist Idle bestraft, Leitplanke „Idle-Versprechen respektieren").
 
 - **B1** Reihenfolge der Gesamtdauer strikt: **M < T < V**. Kein Gleichstand.
-- **B2** Zielkorridor, gemessen an M = 1,0: **T ∈ [1,3; 3,5]**, **V ∈ [2,5; 4,5]**. Gemessen in M11 (nach dem §3.9/§4.7-Nachtrag, s. §7.4): T ≈2,8×, V ≈3,4×.
+- **B2** **Neu gefasst am 30.07.2026 – absolute Zielzeiten statt Verhältnis-Korridor.** Der alte Korridor (T ∈ [1,3; 3,5], V ∈ [2,5; 4,5] bei M = 1,0) war doppelt untauglich: Er hing nur an Verhältnissen, sagte also nichts darüber, ob das Kapitel überhaupt die richtige *Länge* hat – und er war seit M11 als „nicht erreichbar" markiert, weil Können am Ende nichts kaufte. Beides ist dieselbe Ursache (s. „Warum der Korridor nicht zu öffnen war").
+
+  | Spielweise | Zielzeit Durchlauf 1 | Herkunft |
+  |---|---|---|
+  | **M** – ordentlich, manuell | **~30 min** (Referenz) | Konzept-Vorgabe: die 1. Reunion ist das Onboarding und muss früh kommen, sonst hört der Spieler vor allem Interessanten auf |
+  | **T** – idle, Gates manuell | **~90 min** (~3×) | Schätzung der Konzept-Session, keine Messung |
+  | **T′** – schwach, manuell + Farmen | **offen: Zielband festzulegen** | muss **endlich** bleiben – das ist der Spieler, den A3 schützt |
+  | **V** – reines Idle | so hoch, dass es **niemand freiwillig abwartet** (Größenordnung Wochen) | ergibt sich aus der EXP-Dämpfung (§3.6) |
+
+  **Alle Werte sind Zielvorgaben, keine gemessene Baseline.** §7.4 bleibt ungültig, bis neu simuliert wird.
+
+  ⚠️ **Die Lücke zwischen T (~90 min) und V (Wochen) ist Faktor ~200.** Der Spieler, der ein Gate manuell *versucht* und nicht schafft (T′), darf nicht in den V-Kanal gedrückt werden – dann hört er auf. **Genau deshalb muss die EXP-Dämpfung ein breites Plateau haben** (§3.6): Ein bis zwei Zonen zurückzugehen muss ihn in wenigen Vielfachen der Referenz durchbringen. Das Zielband für T′ zu bestimmen, ist Teil der Neu-Balancierung.
+
+- **B4 (neu) Der Kapitel-Boss darf nicht durch reines Warten fallen.** Es gibt keine Farmdauer unterhalb der V-Größenordnung, nach der Typ V den Boss ohne einen einzigen manuellen Eingriff besiegt. *Hintergrund: Im zweiten Playtest fiel er nach ausgedehntem Tieffarmen idle – „eine reine Stat-Wand kann nie eine Können-Wand sein" (`gegner-encounter.md` §7). Überpowerbar muss er bleiben; nur nicht in einer Stunde.*
 - **B3** Beide Abstände müssen **existieren** – M < T und T < V. Eine Aussage über ihr Größenverhältnis wird bewusst **nicht** mehr getroffen (s. u.).
+
+### Warum der Korridor nicht zu öffnen war (aufgelöst 30.07.2026)
+
+Der M11-Befund lautete: „Der angenommene Korridor zwischen T und V ließ sich nicht erreichen – an der Kapitel-Wand bringt reine Zielwahl nur einen kleinen Vorteil." Das stand als offene Balance-Frage.
+
+**Es war keine Balance-Frage.** Wenn Wände durch **Stats** fallen und Stats aus **skillfreiem Farmen** kommen, konvergieren alle Spielweisen auf „farmen, bis die Wand umfällt". Der Korridor ließ sich nicht durch Zahlen öffnen, weil er **durch den Farm-Kanal zugedrückt** war. Dieselbe Ursache machte Zielwahl wirkungslos und Analyse nutzlos (`kampf-analyse-shock.md` §5).
+
+**Der Korridor ist damit als eigenes Thema geschlossen.** Er wird über zwei andere Beschlüsse mitgelöst:
+
+1. **EXP-Dämpfung** (§3.6) – Farmen hört auf, die dominante Strategie zu sein.
+2. **Gegner, die Zielwahl erzwingen** (`gegner-encounter.md` §5a, Heiler ab Region 2) – Können bekommt etwas, das Farmen nicht ersetzt.
+
+Der Abschnitt unten bleibt als Beleg stehen: Er beschreibt korrekt, *dass* der Abstand M→T groß und T→V klein ist – die damalige Deutung („ein kleiner Input verdient einen kleinen Ertrag") ist aber nur die halbe Wahrheit. Der Ertrag war klein, weil es an der Wand auf Zielwahl gar nicht ankam.
 
 **Aufgelöst (war offen nach M11): Typ T liegt viel näher an V als an M – und das ist richtig so.**
 
@@ -765,6 +831,8 @@ Die Erstfassung von B3 verlangte, der Sprung M→T müsse der *kleinere* sein: E
 - **E1** Eine Person spielt Zone 1 → 30 → Reunion **ohne Debug-Eingriffe** durch, ohne dauerhaft festzustecken. Das ist die Abnahme von M11.
 - **E2** Die Wartezeiten (Zeitstrafe + Gasthaus-Totzeit) werden **gespielt** beurteilt, nicht gerechnet. Ohne Offline-Progress ist das echte Zeit am Bildschirm.
 - **E3** Ein Spieler kann nach dem Durchgang die Zielregeln **in eigenen Worten benennen** – Gegner wie Party. Wird das nicht erreicht, ist die Regel zwar deterministisch, aber nicht nachvollziehbar (§3.9), und die Anzeige ist nachzubessern.
+- **E4 (neu, 30.07.2026)** Ein Spieler kann nach dem Durchgang **jede eingeführte Mechanik benennen und sagen, wofür jede Figur da ist**. Das ist die Abnahme des Einführungs-Systems (`ui-layout.md`, „Mechanik-Einführung"). *Begründung: Eine Mechanik, die der Spieler nicht bemerkt, benutzt er nicht – wer Defend und Zielwahl nie wahrgenommen hat, spielt zwangsläufig als Typ V. Die stumme Einführung ist damit mitverantwortlich für die Idle-Konvergenz und nicht bloß ein Komfortthema.*
+- **E5 (neu)** Der Spieler weiß nach seiner ersten Niederlage, **dass er in eine frühere Zone zurückgehen kann**. Das Ventil ist die zentrale Anti-Deadlock-Mechanik des Spiels; wird es nicht bemerkt, existiert es faktisch nicht (`niederlage-offline.md` §3, „Lesbarkeit ist Teil der Mechanik").
 
 ### F – Schutz gegen die Wiederholung des Ursprungsfehlers
 

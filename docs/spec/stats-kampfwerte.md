@@ -43,7 +43,11 @@ Jeder Stat bedient genau ein System; die vier Figuren bekommen dadurch natürlic
 
 ## 4. Woher die Stats wachsen
 
-**Gruppenlevel (rollen-gewichtet) + Ausrüstung** – **nicht** über Materia (dort keine flachen Stat-Boni, damit jede Materia eine Gameplay-Entscheidung bleibt).
+**Ausschließlich über das Gruppenlevel** (rollen-gewichtet) – **nicht** über Materia (dort keine flachen Stat-Boni, damit jede Materia eine Gameplay-Entscheidung bleibt) und **seit dem 30.07.2026 nicht mehr über gekaufte Waffen-Tiers**.
+
+**Was sich geändert hat:** Bis dahin lieferte die Waffen-Tier-Leiter `atk ×(1+0,10·tier)` einen zweiten Wachstumskanal, finanziert über Gil. Beides ist gestrichen – die Leiter, weil viermal dasselbe Upgrade zu kaufen keine Entscheidung ist, und Gil, weil eine zeit-farmbare Währung keine Exklusivität tragen kann (`oekonomie-waehrungen.md`, Abschnitt „Gil ist gestrichen"). ⚠️ **Das ATK-Wachstum, das vorher aus Tiers kam, muss beim Neu-Balancieren in die Level-Kurve wandern** – sonst fehlt es schlicht.
+
+Ab Kapitel 2 kommen **Materia-Slots** als Build-Ebene hinzu (freigeschaltet über das Reunion-Upgrade-Menü, `prestige-reunion.md`) – als Gameplay-Veränderer, nicht als flacher Stat-Kanal.
 
 ### 4.1 Gruppenlevel statt Charakter-Level (verbindlich)
 

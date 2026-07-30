@@ -5,7 +5,7 @@
 ## Stand
 
 - **Fundament:** `01_Recherche_Incremental_Games.md`, `02_Leitfaden_Kernmechaniken.md` (verbindliche Prüfinstanz), `03_Konzept_Gerüst.md`.
-- **System-Specs** (`docs/spec/`, Index in `spec/README.md`): Kampf/ATB/Shock, Gambits/Steuerung, Materia, Ausrüstung/Gil, Stats, Charaktere/Party, Prestige/Reunion, Ökonomie/Währungen, Niederlage/Offline, Progression/Regionen, Gegner-Encounter, Gegner-Katalog (10 Monster), Encounter-Zyklus-1 (Platzierung + Stats), Charakter-Visuals, Region-Kulissen, UI-Layout.
+- **System-Specs** (`docs/spec/`, Index in `spec/README.md`): Kampf/ATB/Shock, Gambits/Steuerung, Materia, Ausrüstung (Datei noch `ausruestung-gil.md`, Gil ist gestrichen), Stats, Charaktere/Party, Prestige/Reunion, Ökonomie/Währungen, Niederlage/Offline, Progression/Regionen, Gegner-Encounter, Gegner-Katalog (10 Monster), Encounter-Zyklus-1 (Platzierung + Stats), Charakter-Visuals, Region-Kulissen, UI-Layout.
 - **Visuals:** 4 Charaktere, 10 Monster, 3 Kapitel-1-Kulissen (+ Quaintsville als Baukasten-Nachweis) — als PNGs **und** reproduzierbare Generatoren (`assets/generate_{characters,monsters,bosses,regions}.py`, Kulissen-Baukasten in `assets/region_kit.py`, deterministische PNG-Ausgabe über `assets/pixel_io.py`).
 
 ## Entschieden (Kern-Pfeiler)
@@ -110,5 +110,62 @@ Aus der Konzept-Session vom 25.07.2026 (Bühnen-Framework) stehen zwei umsetzung
 **Umgesetzt** (`06_Implementierungsplan_Kapitel1.md`, Umsetzungsentscheidung 42): Gruppenlevel im Save (`partyLevel`/`partyExp`, Migration v2→v3), `Character` ohne eigenes `level`/`exp`, Neuzugänge steigen auf dem Gruppenlevel mit vollen HP/MP ein, **ein** Level-/EXP-Anzeiger in der Sidebar. `REGION_STEP` validiert und verworfen (s. o.). **Weiterhin offen:** die *gespielte* Beurteilung von Durchlauf 2 (volle Gruppe ab Zone 1) – rechnerisch abgedeckt, am Menschen nicht.
 
 Geänderte Dokumente: `03_Konzept_Gerüst.md`, `spec/stats-kampfwerte.md`, `spec/feinspec-kapitel1.md`, `spec/charaktere-party.md`, `spec/oekonomie-waehrungen.md`, `spec/progression-regionen.md`, `spec/prestige-reunion.md`.
+
+---
+
+## ⚠️ Zweiter Playtest & Konzept-Session (30.07.2026) – Gil gestrichen, Farmen gedämpft
+
+**Kapitel 1 ist durchspielbar** – damit ist E1 aus feinspec §12 erfüllt, die offene M11-Abnahme. Der Durchlauf hat aber zwei strukturelle Fehler freigelegt, die auf dieselbe Ursache zurückgehen: **Zeit ersetzt Können.**
+
+### Befund 1 – Gil war keine Entscheidung
+
+Playtest-Wortlaut: „Am Charakter taucht der Kaufbutton auf und man drückt drauf." Die Waffen-Tier-Leiter (`atk ×(1+0,10·tier)`, viermal identisch) war das Anti-Pattern „immer wieder dasselbe Upgrade kaufen und aufs nächste warten". Die Doku wusste es: „Zweiter Gil-Sink fehlt" stand an **zwei** Stellen und wurde nie gelöst.
+
+**Entschieden: Gil ist gestrichen** – nicht umgebaut, nicht verschoben. Der tragende Grund ist strukturell:
+
+> **Eine Ausgabe-Entscheidung ist nur exklusiv, wenn die Währung auf eine Weise knapp ist, die Zeit nicht auflösen kann.** Die Zonen-Rückkehr (das M11-Ventil, unantastbar) macht jeden Gil-Preis farmbar. Also kann Gil keine Entscheidung tragen, nur eine Wartezeit.
+
+Mitgestrichen: die Tier-Leiter (ATK-Wachstum wandert ins Gruppenlevel), Waffen-Ausrichtungen (hätten die Rollen-Signatur der Figuren geschliffen), und die Sperre `weaponTier >= 1` für den Special. Letztere löst zugleich einen **Spec-Widerspruch**: Der als „permanent" versprochene Skill war ab Durchlauf 2 wieder weg, weil das Tier bei jeder Reunion auf 0 fiel. Verworfene Alternativen mit Begründung: `spec/oekonomie-waehrungen.md`.
+
+**Entscheidungen wandern auf die Meta-Ebene:** ein **Reunion-Upgrade-Menü** auf Essenz-Basis (`spec/prestige-reunion.md`). Je System **ein** Milestone als Einstieg, danach freie Wahl; Preise steigen mit der Zahl der Käufe. Begründung: Am Reunion-Punkt hat der Spieler ein Kapitel gespielt und damit **Information** – mitten im Durchlauf hat er keine, und eine Wahl ohne Information ist ein Münzwurf, der Verantwortung nur vorspiegelt.
+
+### Befund 2 – reines Idle war die stärkste Spielweise
+
+Blindes Farmen in tiefen Zonen legte den Kapitel-Boss um. Damit war die **Zonen-Rückkehr von der Notausgangs- zur Optimalstrategie geworden** – dieselbe Krankheit wie die Offline-Projektion am 24.07. Ursache ist die **Rate, nicht die Menge**: EXP pro Kill ist tief unten niedriger, EXP **pro Sekunde** höher, weil die Kill-Zeit zusammenbricht.
+
+**Entschieden: EXP-Dämpfung über Level × Zone.** Liegt das Gruppenlevel über dem erwarteten Level einer Zone, fällt der Ertrag – **nie auf null**. Nicht über den Abstand zu `maxZoneReached`, weil sich das Fenster dann bloß mitverschiebt (Zone 7 erreicht → Zone 5 gefarmt). Ein harter Level-Deckel ist verworfen: Er nähme den unendlichen Zeit-Kanal und damit Leitplanke A3 den Boden.
+
+**Die Kurvenform ist Teil der Anforderung:** Plateau (~+2–3 Level, damit „1–2 Zonen zurück" bezahlbar bleibt) mit anschließendem Sturz (damit Idle den Boss nicht in einer Stunde umlegt). ⚠️ **Ob beides gleichzeitig geht, ist ungemessen** – der kritische Prüfpunkt von M15.
+
+**Zwei Merksätze aus der Session**, beide allgemein verwendbar:
+
+> **Eine reine Stat-Wand kann nie eine Können-Wand sein.** Stats sind farmbar, Farmen ist Zeit – also ist jede Stat-Wand eine Zeitwand, egal wie hoch man sie stellt. Wer will, dass Können zählt, braucht Mechanik, nicht mehr HP.
+
+> **Was automatisiert werden muss, war keine Entscheidung.** Automatisierung braucht nur, was sich wiederholt. Eine Wahl, die pro Durchlauf einmal fällt, ist planerisches Spiel.
+
+### Zwei alte offene Fragen sind damit geschlossen
+
+- **Spielertyp-Korridor** (§12 B2, offen seit M11): war keine Balance-Frage. Wenn Wände durch Stats fallen und Stats aus skillfreiem Farmen kommen, konvergieren alle Spielweisen – der Korridor war **durch den Farm-Kanal zugedrückt**. Ersetzt durch **absolute Zielzeiten**: M ≈ **30 min**, T ≈ **90 min**, V in Größenordnung Wochen. ⚠️ Die Lücke T→V ist Faktor ~200; das Band für den schwachen Spieler (T′) ist noch festzulegen – er darf nicht in den V-Kanal gedrückt werden, sonst hört er auf.
+- **„Analyse ist zu Beginn wertlos"** (Playtest-Befund): zutreffend, aber nicht prinzipiell – sie ist wertlos, **weil Zielwahl wertlos ist**. Gekoppelt statt gestrichen: Der **Heiler-Gegner wird nach Region 2 vorgezogen**, dorthin, wo die Analyse aufgeht.
+
+### Kapitel 1 wird nicht ärmer, sondern anders
+
+Run-Entscheidungen bleiben: **MP-Budget, Zielwahl/Fokus, Zonenwahl, Gasthaus-Timing** – MP ist der bessere Lehrer für Ressourcen-Entscheidungen als ein Kaufbutton (pro Kampf, sofortiges Feedback). Dazu neu:
+
+- **Special über Zonen-Trigger** statt Kauf: Claude **Zone 3**, alle späteren Figuren **mit Beitritt**. Gilt nur für Durchlauf 1 – ab Durchlauf 2 ist alles ab Zone 1 verfügbar, weshalb Gambit-Regeln auf „Special" nie ins Leere laufen.
+- **Mechanik-Einführung als eigenes System** (`spec/ui-layout.md`): blockierendes Popup mit Pause, aktiv wegzuklicken, nur für **bedienbare** Mechaniken, plus **Codex** zum Nachlesen, ab Durchlauf 2 stumm. **Keine Zahlen in Erklärtexten** – sie würden beim Neu-Balancieren zur Falschaussage des Spiels. Warum das keine Politur ist: *Eine Mechanik, die der Spieler nicht bemerkt, benutzt er nicht* – die stumme Einführung ist mitverantwortlich für die Idle-Konvergenz.
+- **Die vier Figuren stellen sich selbst vor**, 2–3 witzige Sätze, aus denen die Stärke hervorgeht. **Claude vor dem allerersten Kampf** – der erste Text des Spiels, er setzt den Ton der Parodie.
+
+### Nächste Schritte
+
+**M15 → M16 → M17 → Kapitel-2-Feinspec** (`06_Implementierungsplan_Kapitel1.md`):
+
+- **M15 Ökonomie-Umbau** – der Blocker: Gil weg, EXP-Dämpfung, Special-Trigger, Zielzeiten neu simulieren.
+- **M16 Zielwahl muss zählen** – Heiler in Region 2; Konter nur als *temporärer* Bosszustand („fordernd, nicht strafend"). Inhaltsdesign, keine Deadlock-Sicherung – das erledigt M15 allein.
+- **M17 Mechanik-Einführung** – Popup + Codex, vor der Kapitel-2-Feinspec, damit Kapitel-2-Mechaniken in ein bestehendes Framework rutschen.
+
+**Alle Balance-Zahlen von Kapitel 1 bleiben unvalidiert.** §7.4 bleibt ungültig; die Zielzeiten oben sind **Vorgaben, keine Messung**. Diese Session hat bewusst **keine neuen Zahlen** geschrieben – eine zweite reparierte Zahlenreihe wäre derselbe Fehler wie am 24.07.
+
+Geänderte Dokumente: `03_Konzept_Gerüst.md`, `06_Implementierungsplan_Kapitel1.md`, `spec/oekonomie-waehrungen.md`, `spec/ausruestung-gil.md`, `spec/charaktere-party.md`, `spec/prestige-reunion.md`, `spec/stats-kampfwerte.md`, `spec/gegner-encounter.md`, `spec/kampf-analyse-shock.md`, `spec/niederlage-offline.md`, `spec/ui-layout.md`, `spec/feinspec-kapitel1.md`.
 
 Ladehinweis (CLAUDE.md): `03_Konzept_Gerüst.md` + betroffene `spec/*.md`, `02_Leitfaden_Kernmechaniken.md` als Prüfinstanz; für technische Umsetzung zusätzlich `05_Architektur.md`.
