@@ -78,6 +78,18 @@ function rawZoneExp(zone: Zone): number {
  * das Level, mit dem eine exakt im Plan liegende Party an einer Zone ankommt - keine von Hand
  * gepflegte Zahl, sondern eine reine Funktion der bestehenden Konstanten/Content-Tabellen.
  * Einmal berechnet und gecacht (Zonen-/Monster-Content ist zur Laufzeit unveraenderlich).
+ *
+ * M15a-Notiz (Konzept-Review 31.07.2026): Der Review hatte hier zusaetzlich eine Kalibrierung
+ * an einem "echten Durchlauf" gefordert, weil diese Funktion fuer Zone 30 nur L15 liefert,
+ * waehrend das ALTE (ungedaempfte, Vor-M15) Endlevel bei L21-23 lag. Das war ein Fehlschluss:
+ * Die Referenz fuer "was ist normal" ist das GEDAEMPFTE Spiel von heute, nicht die alte
+ * Vor-M15-Baseline - und gegen `tests/chapter-playthrough.test.ts` gemessen landen T/V heute
+ * bei Zone 30 bei L20, nicht L21-23 (die Daempfung selbst haelt das Level ja absichtlich
+ * niedriger als frueher). Der Abstand zu `expectedLevelForZone(30) = 15` betraegt damit nur
+ * 20-15-2,5 = 2,5 Ueberschuss-Level - weit unter `EXP_DAMPING_CUTOFF` (6, `formulas.ts`).
+ * Eine zusaetzliche Kalibrierung war deshalb nicht noetig (B5-Test bestaetigt das mit den
+ * unveraenderten Konstanten); s. Umsetzungsentscheidung M15a in
+ * `06_Implementierungsplan_Kapitel1.md`.
  */
 let expectedLevelCache: number[] | null = null
 
@@ -109,7 +121,12 @@ export function expectedLevelForZone(zoneIndex: number): number {
 export function zoneReward(zone: Zone, partyLevel: number): ZoneReward {
   const raw = rawZoneExp(zone)
   const factor = expDampingFactor(partyLevel, expectedLevelForZone(zone.zone))
-  // §1a "nie auf 0" gilt fuer den tatsaechlichen Ertrag, nicht nur den abstrakten Faktor -
-  // sonst waere die staerkste Daempfungsstufe bei kleinen Zonen-EXP-Werten ein stiller Deadlock.
+  // M15a (oekonomie-waehrungen.md §1a "Nachtrag") - jenseits von EXP_DAMPING_CUTOFF ist 0
+  // ABSICHTLICH die harte Null (Camping-Schutz, §12 B5), keine Wand im Sinne von A3: das
+  // Plateau (1-2 Zonen zurueck) bleibt der bezahlte Ruecksweg, nicht dieser Extremfall.
+  // Innerhalb des Cutoffs bleibt der alte A3-Schutz "nie auf 0 runden" bestehen, sonst waere
+  // die staerkste (aber noch erlaubte) Daempfungsstufe bei kleinen Zonen-EXP-Werten ein
+  // stiller Deadlock.
+  if (factor === 0) return { exp: 0 }
   return { exp: Math.max(1, Math.round(raw * factor)) }
 }

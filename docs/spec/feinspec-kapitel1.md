@@ -804,7 +804,8 @@ Der Abstand muss **existieren** (sonst lohnt aktives Spiel nicht, Anti-Pattern #
 
   *Herkunft:* Der Nutzer hat den Camper als reales Verhalten benannt („startet das Spiel und lässt es während der Arbeitszeit laufen"). Weiterkommen ist ausdrücklich in Ordnung — nicht in Ordnung ist, **nach dem ersten Start direkt den Boss zu schaffen**; es soll mindestens einen Umzug in eine deutlich höhere Zone plus erneutes Campen erfordern. Die Mindestforderung war 2; festgeschrieben sind **3**, damit die nächste Balance-Änderung nicht sofort auf 1 zurückfällt.
 
-  ⚠️ **Nach M15 verletzt.** Gemessen: **eine** 8-h-Session an **Zone 3** (der allerersten Wand) bringt L2 → L20, danach fallen Zonen 4–30 inklusive Vaultron ohne weiteres Farmen. Ursache und Fix: `oekonomie-waehrungen.md` §1a („Warum ein absoluter Floor das Leck ist"), Umsetzung als **M15a**.
+  ⚠️ **Nach M15 verletzt** — gemessen: **eine** 8-h-Session an **Zone 3** (der allerersten Wand) bringt L2 → L20, danach fallen Zonen 4–30 inklusive Vaultron ohne weiteres Farmen. Ursache: `oekonomie-waehrungen.md` §1a („Warum ein absoluter Floor das Leck ist").
+  ✓ **Behoben in M15a** (`EXP_DAMPING_CUTOFF = 6`, `core/formulas.ts`/`core/progression.ts`): gemessen gegen `tests/chapter-playthrough.test.ts` (`simulateCamper`) braucht Typ K jetzt **3 Camping-Sessions** (Zonen 1, 16, 30) bis Vaultron fällt — erfüllt die Mindestforderung. Eine zusätzlich befürchtete Kalibrierung von `expectedLevelForZone` erwies sich als unnötig (06_Implementierungsplan_Kapitel1.md, Umsetzungsentscheidung 57).
 - **B3** Beide Abstände müssen **existieren** – M < T und T < V. Eine Aussage über ihr Größenverhältnis wird bewusst **nicht** mehr getroffen (s. u.).
 
 ### Warum der Korridor nicht zu öffnen war (aufgelöst 30.07.2026)

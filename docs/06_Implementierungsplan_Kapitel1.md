@@ -483,7 +483,7 @@ Am laufenden Dev-Server gemessen, nicht aus dem Code abgeleitet (die Vorgabe „
 
 - ✓ Kein `gil`/`weaponTier` mehr im Code, im Save oder in den Content-Daten; Migration (v3→v4, Entscheidung 51) lädt Altstände verlustfrei.
 - ✓ Der Special ist nach einer Reunion **ab Zone 1 verfügbar** und bleibt es (permanentes `specialUnlocked`, Entscheidung 49) – der alte Widerspruch ist weg.
-- ✓ **B4:** Typ V fällt Vaultron nicht mehr durch Tieffarmen billiger als zuvor – im Gegenteil, spürbar teurer (Entscheidung 52). ⚠️ **Die Begründung in Entscheidung 52 ist allerdings ein Fehlschluss** (s. Konzept-Review 31.07.2026 unter M15a); B4 hält aus einem anderen Grund. **Und der Fall, den die offene B2-Zeile meinte, ist inzwischen gemessen und verletzt** → **B5**, M15a.
+- ✓ **B4:** Typ V fällt Vaultron nicht mehr durch Tieffarmen billiger als zuvor – im Gegenteil, spürbar teurer (Entscheidung 52). ⚠️ **Die Begründung in Entscheidung 52 ist allerdings ein Fehlschluss** (s. Konzept-Review 31.07.2026 unter M15a); B4 hält aus einem anderen Grund. **Und der Fall, den die offene B2-Zeile meinte, war zunächst verletzt** → **B5**, seit M15a (`EXP_DAMPING_CUTOFF`, Entscheidung 56) behoben und gemessen.
 - ✓ **A3 hält weiter:** über den Test-Harness bestätigt, kein Deadlock, EXP-Ertrag nie 0 (`Math.max(1, …)` in `zoneReward()`).
 - Zielzeiten M ≈ 30 min / T ≈ 90 min (Echtzeit inkl. Menüs, §7.4 „Einordnung in Echtzeit") **unverändert erreichbar** – die Simulationszeit für M/T ändert sich durch M15 kaum (Entscheidung 52); **T′-Zielband bleibt offen** (Playtest-Frage, kein Simulationswert).
 
@@ -511,21 +511,21 @@ Am laufenden Dev-Server gemessen, nicht aus dem Code abgeleitet (die Vorgabe „
 
 **Ziel**
 
-1. **Harte Null jenseits `CUTOFF` Überschuss-Leveln** statt `Math.max(1, …)`. A3 wird vom **Plateau** getragen, nicht vom Floor: 1–2 Zonen zurück zahlt weiter voll.
-2. **`expectedLevelForZone` kalibrieren.** Die Vorwärtssimulation ist strukturell richtig (keine Tabelle), aber „ein ungedämpfter Sieg pro Zone" ergibt für Zone 30 **L15**, während echtes Spiel bei **L21–23** endet. Referenz muss ein **gemessener** Durchlauf sein. **Punkt 1 und 2 gehören zusammen** — ein knapper Cutoff auf der unkalibrierten Kurve würde reguläre Spieler am Kapitelende auf 0 EXP setzen.
-3. **Typ K in den Harness** aufnehmen (feinspec §12), sonst bleibt B5 dauerhaft ungemessen.
-4. **B4-Begründung korrigieren** (s. Entscheidung 53).
+1. ✓ **Harte Null jenseits `CUTOFF` Überschuss-Leveln** statt `Math.max(1, …)`. A3 wird vom **Plateau** getragen, nicht vom Floor: 1–2 Zonen zurück zahlt weiter voll.
+2. ✗ **`expectedLevelForZone` kalibrieren.** War als Ziel gesetzt, hat sich bei der Umsetzung als **nicht nötig** herausgestellt (Entscheidung 57) — der Vergleichswert „echtes Spiel endet bei L21–23" war die alte, ungedämpfte Vor-M15-Baseline, nicht das heutige gedämpfte Spiel (das bei Zone 30 gemessen auf L20 endet, mit komfortablem Abstand zum Cutoff). Kein Konzept-Rückkanal, sondern eine korrigierte Annahme des Reviews selbst.
+3. ✓ **Typ K in den Harness** aufgenommen (`simulateCamper`, `tests/chapter-playthrough.test.ts`), s. Entscheidung 58.
+4. ✓ **B4-Begründung korrigiert** (s. Entscheidung 53).
 
 **Spec-Referenzen:** `spec/feinspec-kapitel1.md` §12 (Typ K, B4, B5), `spec/oekonomie-waehrungen.md` §1a („Nachtrag 31.07.2026").
 
 **Abnahme**
 
-- **B5:** Typ K braucht **≥ 3** Camping-Sessions (Referenz 8 h) an deutlich verschiedenen Zonen bis Vaultron.
-- **A3 unverändert:** 1–2 Zonen Rückfall bleibt voll bezahlt; kein Zustand ohne Fortschrittsmöglichkeit.
-- **Keine Regression bei M/T/V:** A2/B1/B2/C1–C4 halten weiter.
-- Reguläre Spieler laufen am Kapitelende **nicht** in den Cutoff.
+- ✓ **B5:** Typ K braucht **≥ 3** Camping-Sessions (Referenz 8 h) an deutlich verschiedenen Zonen bis Vaultron. Gemessen: **3 Sessions**, Zonen 1/16/30 (Entscheidung 56).
+- ✓ **A3 unverändert:** 1–2 Zonen Rückfall bleibt voll bezahlt; kein Zustand ohne Fortschrittsmöglichkeit (voller Testlauf ohne Regression).
+- ✓ **Keine Regression bei M/T/V:** A2/B1/B2/C1–C4 halten weiter (voller Testlauf, 116/116 grün).
+- ✓ Reguläre Spieler laufen am Kapitelende **nicht** in den Cutoff (Überschuss bei Zone 30 gemessen 2,5, Cutoff liegt bei 6 – Entscheidung 57).
 
-**Messwerte des Reviews** (Sonde gegen die echten Module, sonst unveränderte Konstanten) — als Startpunkt, nicht als Vorgabe:
+**Messwerte des Reviews** (Sonde gegen die echten Module, sonst unveränderte Konstanten) — als Startpunkt verwendet:
 
 | `CUTOFF` | Sessions | Camp-Zonen |
 |---|---|---|
@@ -535,11 +535,19 @@ Am laufenden Dev-Server gemessen, nicht aus dem Code abgeleitet (die Vorgabe „
 | **6** | **3** ✓ | 3, 15, 29 |
 | 4 | 4 | 3, 7, 15, 29 |
 
+**Tatsächlich umgesetzt und gemessen** (`EXP_DAMPING_CUTOFF = 6`, `expectedLevelForZone` unverändert – die obige Review-Tabelle nutzte dieselbe unveränderte Kurve, die Werte oben gelten also unverändert): **3 Sessions**, Camp-Zonen **1, 16, 30** (`simulateCamper`, s. Entscheidung 56/58). Die leicht abweichenden Camp-Zonen gegenüber der Review-Sonde (3/15/29 statt 1/16/30) sind Modellierungsdetails der jeweiligen Sonde (u. a. Startzone der ersten Session: die Review-Sonde ging offenbar von einem ersten manuellen Vorstoß bis Zone 3 aus, `simulateCamper` campt konsequent ab Zone 1, da Typ K im Kampf "gar nicht eingreift", auch nicht in den ersten Zonen) – die Kernaussage (3 Sessions an klar getrennten Zonen) ist deckungsgleich.
+
 **Umsetzungsentscheidungen (Konzept-Review, vorab):**
 
 53. **Entscheidung 52s B4-Begründung ist ein Fehlschluss und wird ersetzt.** Dort steht: „B4 ist erfüllt, da A2/C3 einen Abschluss in endlicher, gemessener Zeit weiterhin erzwingen." B4 verlangt aber, dass der Boss **nicht** billig fällt, wenn niemand eingreift — „der Abschluss ist endlich" ist ein Argument **dagegen**. B4 hält aus einem anderen Grund: **Niederlage zahlt nichts** (§3.8c), also wird ein Spieler, der gar nichts bedient, nie stärker; es gibt keinen Kanal „warten und irgendwann gewinnen". Der operative Test ist deshalb B5, nicht B4.
 54. **Zwei Risiken aus dem Review, die M15 nicht als solche notiert hat.** (a) **Die Kriterien sind zum Messwert hin bewegt worden:** B2s V-Obergrenze 4,5 → 5,5×, C3 18 → 20, und A2 hält mit **19 von 20**. Jede Änderung ist einzeln begründet, zusammen ist an dieser Stelle aber **kein Spielraum mehr** — die nächste Balance-Änderung, die V um 5 % verschiebt, bricht A2. (b) **Plateau und normale Progression hängen an derselben Konstante**, solange `L_erw` unkalibriert ist (Ziel 2): Wer am Plateau dreht, um Camping zu bestrafen, verschiebt zugleich das reguläre Pacing.
 55. **Korrektur eines Fehlschlusses des Reviews selbst** — festgehalten, damit die nächste Session ihn nicht wiederholt: Der Review hat zunächst behauptet, A2 („V ≤ 20 Grind-Siege je Zonenstufe") und die B2-Zeile „reines Idle braucht Wochen" widersprächen sich, und daraus eine Grundsatzwahl konstruiert („A2 aufgeben oder Wochen streichen"). Das war falsch. **Typ V ist nicht reines Idle** — der Harness modelliert für V ausdrücklich eine Zonenwahl (`tests/chapter-playthrough.test.ts`, Kommentar „Zonen-Rückkehr ist eine explizite, hier nachgebildete Spielerentscheidung"). V farmt pro Niederlage *einen* Kampf und wird von A2 begrenzt; der Camper farmt an einer selbstgewählten Zone **unbegrenzt** und ist von A2 gar nicht berührt. Es sind zwei verschiedene Spieler, kein Widerspruch — und deshalb lässt sich das Camping-Leck ohne jeden Eingriff in A2 oder das Ventil schließen. *Lehre: Bevor aus zwei Kriterien ein Widerspruch abgeleitet wird, ist zu prüfen, ob sie überhaupt dasselbe Verhalten beschreiben.*
+
+**Umsetzungsentscheidungen (M15a-Implementierung):**
+
+56. **`EXP_DAMPING_CUTOFF = 6` (`core/formulas.ts`), `expDampingFactor` liefert jenseits davon 0 statt des Floors; `zoneReward()` hebt diesen Fall nicht mehr auf 1 an.** `excess` ist dieselbe Größe wie zuvor (`partyLevel - expectedLevel - PLATEAU`); jenseits von 6 Überschuss-Leveln ist der Ertrag hart 0. Gemessen gegen die neue Typ-K-Simulation (`tests/chapter-playthrough.test.ts`, `simulateCamper`): **3 Camping-Sessions** (Zone 1, 16, 30) bis Vaultron fällt – erfüllt B5 (≥3) und bleibt innerhalb des in `oekonomie-waehrungen.md` §1a genannten Zielbands (4–6; 3 ist knapp darunter, aber die Untergrenze selbst ist das harte Kriterium, das Zielband nur ein Regressionsschutz gegen Überkorrektur).
+57. **Die vom Konzept-Review geforderte Kalibrierung von `expectedLevelForZone` an einem „echten Durchlauf" war unnötig – eine Annahme des Reviews war falsch, nicht nur ihre Zahl.** Der Review verglich `expectedLevelForZone(30) = 15` mit dem **alten, ungedämpften** Endlevel L21–23 (§7.4-Baseline, Vor-M15) und schloss daraus, das Plateau würde reguläre Spieler am Kapitelende erfassen. Das ist der falsche Vergleich: Die EXP-Dämpfung selbst hält das heutige (gedämpfte) Endlevel absichtlich niedriger als die alte Baseline – gemessen erreichen T/V bei Zone 30 **L20**, nicht L21–23. Überschuss dort: 20 − 15 − 2,5 = **2,5**, weit unter `EXP_DAMPING_CUTOFF = 6`. Mit dem Cutoff allein (unveränderter `computeExpectedLevels()`, weiterhin „genau ein ungedämpfter Sieg je Zone") bestehen A1–A2, B1–B3, B5, C1–C4, D5 unverändert (voller Testlauf, keine Regression) – eine zusätzliche Kalibrierungs-Konstante hätte nur unbegründete Komplexität hinzugefügt. `oekonomie-waehrungen.md` §1a entsprechend korrigiert (die dortige „Punkt 1 und 2 gehören zusammen"-Aussage war Teil desselben Fehlschlusses).
+58. **Typ K (Camper) im Test-Harness (`tests/chapter-playthrough.test.ts`, `simulateCamper`):** eigene Funktion statt Erweiterung von `playChapter()`, weil das Verhalten strukturell anders ist (Session-Budget in Simulationssekunden statt Zonen-für-Zonen-Fortschritt mit Rückfall-Grinden). Camping-Phase: dieselbe Zone wiederholt im Vollautomatik-Modus (`runBattle(..., 'V', ...)`) bis das Session-Budget (8 h = 28800 s Simulationszeit) verbraucht ist. Vorstoß-Phase: **genau ein** Versuch je Folgezone – das Spiel ist deterministisch (§10, kein RNG), ein Kampf bei gegebenem Party-Level ist entweder gewinnbar oder nicht, wiederholtes Probieren an derselben neuen Zone ändert daran nichts; der erste Fehlschlag ist die nächste Camp-Zone.
 
 ---
 

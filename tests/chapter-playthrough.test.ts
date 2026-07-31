@@ -320,6 +320,83 @@ function playChapter(mode: PlayerType, maxGrindPerZone = 4000): PlaythroughSumma
   return { rows, totalMinutes: totalSeconds / 60, partyLevel: progress.level, gateLimitFires }
 }
 
+const CAMP_SESSION_SECONDS = 8 * 3600
+
+interface CamperResult {
+  /** Anzahl Camping-Sessions bis Zone 30 (Vaultron) faellt, oder null wenn nicht erreicht. */
+  sessions: number | null
+  /** Die Zonen, an denen jeweils eine Session gecampt wurde (feinspec §12 B5). */
+  campZones: number[]
+}
+
+/**
+ * feinspec §12 (Typ K - Camper, neu 31.07.2026) / oekonomie-waehrungen.md §1a "Nachtrag" -
+ * Modelliert genau das im Konzept-Review beschriebene Verhalten: eine Zone waehlen, sie eine
+ * realistische Session (Referenz 8h) lang OHNE jeden Eingriff laufen lassen (vollautomatisch,
+ * wie Typ V im Kampf), danach so weit vorstossen, wie es OHNE zusaetzliches Farmen geht - und
+ * das wiederholen. Anders als `playChapter('V')` gibt es hier keinen Rueckfall auf eine
+ * fruehere Zone: Das Spiel ist deterministisch (§10, kein RNG), also ist ein Kampf bei
+ * gegebenem Party-Level entweder gewinnbar oder nicht - wiederholtes Probieren an derselben,
+ * NEUEN Zone aendert daran nichts. Der "Vorstoss" ist deshalb genau ein Versuch je Zone; der
+ * erste Fehlschlag ist die naechste Camp-Zone.
+ */
+function simulateCamper(sessionSeconds = CAMP_SESSION_SECONDS, maxSessions = 20): CamperResult {
+  let roster: CharacterId[] = ['claude']
+  const party: Record<string, Character> = { claude: freshCharacterState('claude') }
+  const progress: PartyProgress = { level: 1, exp: 0 }
+  const campZones: number[] = []
+  let frontier = 1
+
+  function ensureRosterAndSpecial(zoneIndex: number): void {
+    if (!roster.includes('barrel') && zoneIndex >= BARREL_JOIN_ZONE) {
+      roster = [...roster, 'barrel']
+      party.barrel = joinCharacterState('barrel', progress.level)
+    }
+    if (!roster.includes('tofa') && zoneIndex >= REGION3_JOIN_ZONE) {
+      roster = [...roster, 'tofa', 'airis']
+      party.tofa = joinCharacterState('tofa', progress.level)
+      party.airis = joinCharacterState('airis', progress.level)
+    }
+    for (const id of roster) party[id] = withSpecialTrigger(party[id], zoneIndex)
+  }
+
+  for (let session = 1; session <= maxSessions; session++) {
+    campZones.push(frontier)
+    ensureRosterAndSpecial(frontier)
+
+    let elapsed = 0
+    while (elapsed < sessionSeconds) {
+      const battle = runBattle(frontier, party, roster, 'V', progress.level)
+      syncFromUnits(party, roster, battle.units)
+      if (battle.win) {
+        elapsed += battle.timeSeconds
+        applyWin(party, roster, frontier, progress)
+      } else {
+        elapsed += battle.timeSeconds + RETRY_PENALTY + innDurationSeconds(party, roster, progress.level)
+        fullyHeal(party, roster, progress.level)
+      }
+    }
+
+    let zone = frontier + 1
+    while (zone <= 30) {
+      ensureRosterAndSpecial(zone)
+      const battle = runBattle(zone, party, roster, 'V', progress.level)
+      syncFromUnits(party, roster, battle.units)
+      if (!battle.win) {
+        fullyHeal(party, roster, progress.level)
+        break
+      }
+      applyWin(party, roster, zone, progress)
+      zone += 1
+    }
+
+    if (zone > 30) return { sessions: session, campZones }
+    frontier = zone
+  }
+
+  return { sessions: null, campZones }
+}
+
 describe('feinspec §12 - Abnahmekriterien der Neu-Balancierung (M11)', () => {
   // Ein Durchlauf je Spielertyp reicht (Determinismus, §10 "kein RNG") - dieselben drei
   // Objekte werden fuer alle Kriterien A-D unten wiederverwendet.
@@ -382,6 +459,28 @@ describe('feinspec §12 - Abnahmekriterien der Neu-Balancierung (M11)', () => {
       const tToV = v.totalMinutes - t.totalMinutes
       expect(mToT).toBeGreaterThan(0)
       expect(tToV).toBeGreaterThan(0)
+    })
+
+    // M15a (Konzept-Review 31.07.2026) - der Camping-Fund, der M15 nicht abgeschlossen hat:
+    // eine einzige 8h-Session an der allerersten Wand (Zone 3) brachte vor dem Cutoff L2->L20
+    // und liess danach das ganze Kapitel inkl. Vaultron ohne weiteres Farmen fallen (1 Session
+    // statt der geforderten >=3). Grund war `Math.max(1, ...)` in `zoneReward()` - ein
+    // absoluter Floor ist gegen eine unbegrenzte Siegrate wirkungslos (oekonomie-waehrungen.md
+    // §1a). `EXP_DAMPING_CUTOFF` (harte Null jenseits des Ueberschuss-Levels) plus die
+    // Kalibrierung von `expectedLevelForZone` an einem echten Durchlauf (statt "1 Sieg/Zone")
+    // schliessen das Leck, ohne A2/A3 (Ventil, Rueckfall) anzutasten.
+    it('B5 (neu, Typ K - Camper): braucht mindestens 3 Camping-Sessions an unterschiedlichen Zonen bis Vaultron faellt', () => {
+      const k = simulateCamper()
+      expect(k.sessions).not.toBeNull()
+      expect(k.sessions as number).toBeGreaterThanOrEqual(3)
+      // Zielband aus oekonomie-waehrungen.md §1a ("4-6 nach der Kalibrierung") - kein hartes
+      // Kriterium wie die Untergrenze oben, aber ein Regressionsschutz gegen Ueberkorrektur
+      // (ein Cutoff, der den Camper 20 Sessions campen liesse, waere selbst wieder ein Stau).
+      expect(k.sessions as number).toBeLessThanOrEqual(8)
+      // Die drei Sessions muessen an SICHTBAR unterschiedlichen Zonen sitzen (§12: "mindestens
+      // einen Umzug in eine deutlich hoehere Zone"), nicht dreimal an derselben Stelle.
+      const distinctZones = new Set(k.campZones)
+      expect(distinctZones.size).toBe(k.campZones.length)
     })
   })
 

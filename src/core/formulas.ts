@@ -151,17 +151,25 @@ export interface ExpGainResult {
  * Level x Zone. Ersetzt den zuvor unbegrenzten Ertrag: Idle-Farmen einer Zone, in der
  * die Party laengst ueberlevelt ist, war im zweiten Playtest die staerkste Spielweise
  * (EXP/Kill sinkt zwar mit der Zonen-Tiefe, EXP/SEKUNDE steigt aber, weil die Kill-Zeit
- * schneller kollabiert als der Ertrag). Plateau + Sturz, NIE 0 (A3 darf nie aushebeln).
+ * schneller kollabiert als der Ertrag). Plateau + Sturz, NIE 0 im FLOOR-Bereich (A3 darf
+ * nie aushebeln) - ABER jenseits von CUTOFF Ueberschuss-Leveln harte Null (M15a,
+ * Konzept-Review 31.07.2026, oekonomie-waehrungen.md §1a "Nachtrag"): der Floor allein
+ * schuetzt nur den Ertrag PRO SIEG, nicht die SIEGE PRO STUNDE - eine hoffnungslos
+ * ueberlevelte Party gewinnt so schnell, dass selbst 1 EXP/Sieg zum campingfaehigen
+ * Kanal wird (~14.400 EXP in 8h bei ~1.800 Siegen/h). A3 haengt seitdem NUR noch am
+ * PLATEAU (1-2 Zonen zurueck bleiben vor dem Cutoff und zahlen voll), nicht mehr am Floor.
  *
- * Startwerte (Umsetzungsentscheidung M15, s. 06_Implementierungsplan_Kapitel1.md):
+ * Startwerte (Umsetzungsentscheidung M15/M15a, s. 06_Implementierungsplan_Kapitel1.md):
  * - PLATEAU ~2-3 Level (breit genug, damit "1-2 Zonen zurueck" fuer den schwachen
  *   Spieler bezahlbar bleibt, feinspec §12 A3).
- * - DECAY exponentiell pro Ueberschuss-Level, FLOOR > 0 (nie ganz auf 0, sonst waere
- *   eine Zone ein Deadlock statt eines Ventils).
+ * - DECAY exponentiell pro Ueberschuss-Level, FLOOR > 0 nur INNERHALB des Cutoffs.
+ * - CUTOFF: ab wo der Floor durch eine harte Null ersetzt wird (feinspec §12 B5,
+ *   Typ K - Camper). Gemessen gegen `tests/chapter-playthrough.test.ts`.
  */
 export const EXP_DAMPING_PLATEAU = 2.5
 export const EXP_DAMPING_DECAY = 0.72
 export const EXP_DAMPING_FLOOR = 0.03
+export const EXP_DAMPING_CUTOFF = 6
 
 /**
  * oekonomie-waehrungen.md §1a - "erwartetes Level je Zone, aus der Zonen-Kurve
@@ -169,10 +177,14 @@ export const EXP_DAMPING_FLOOR = 0.03
  * (`expectedLevelForZone`), weil die Ableitung die Zonen-/Monster-Content-Daten
  * braucht (Importzyklus-Grund, s. dort) - hier nur der reine Daempfungsfaktor,
  * der lediglich `partyLevel`/`expectedLevel` als Zahlen kennt.
+ *
+ * Rueckgabe 0 (statt des Floors) jenseits von CUTOFF Ueberschuss-Leveln - `zoneReward()`
+ * darf diesen Fall NICHT mehr auf 1 anheben (M15a, s. dort).
  */
 export function expDampingFactor(partyLevel: number, expectedLevel: number): number {
   const excess = Math.max(0, partyLevel - expectedLevel - EXP_DAMPING_PLATEAU)
   if (excess <= 0) return 1
+  if (excess > EXP_DAMPING_CUTOFF) return 0
   return Math.max(EXP_DAMPING_FLOOR, Math.pow(EXP_DAMPING_DECAY, excess))
 }
 

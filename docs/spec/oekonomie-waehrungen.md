@@ -80,7 +80,7 @@ Also **kein** gleichmäßiger Abfall ab dem ersten Level über Erwartung, sonder
 
 ✓ **Gemessen (M15-Umsetzung, s. `06_Implementierungsplan_Kapitel1.md` Umsetzungsentscheidung 50/52):** Plateau (2,5 Level) und Sturz (Decay 0,72/Überschuss-Level, Floor 0,03) gehen gleichzeitig – A2 (V ≤ 20 Grind-Siege je Zonenstufe) hält bei gemessen 19 als höchstem Wert, kein Konzept-Rückkanal nötig. `zoneReward()` erzwingt zusätzlich `Math.max(1, …)` auf den tatsächlichen Ganzzahl-Ertrag, damit die stärkste Dämpfungsstufe bei kleinen Zonen-EXP-Werten nicht auf 0 rundet (A3 bliebe sonst im Kleinen doch verletzt).
 ✓ **„Erwartetes Level je Zone" ist implementiert als Referenz-Vorwärtssimulation** (`core/progression.ts` `expectedLevelForZone`), nicht als Tabelle: eine Party, die exakt einen ungedämpften Sieg pro Zone einfährt, reine Funktion der bestehenden Zonen-/Monster-Content-Daten und der EXP-Kurve – bricht nicht bei Balance-Änderungen.
-### ✗ Nachtrag 31.07.2026: der Camping-Fall war das Leck – und der A3-Schutz war die Ursache
+### ✓ Nachtrag 31.07.2026: der Camping-Fall war das Leck – und der A3-Schutz war die Ursache (behoben in M15a)
 
 Der oben als „weiterhin offen" markierte Fall ist nachgemessen worden (Konzept-Review, Sonde gegen die echten Module). **Er ist verletzt, und zwar deutlich:** Eine **einzige** 8-Stunden-Session an **Zone 3** – der allerersten Wand – bringt die Party von L2 auf **L20**; danach fallen Zonen 4 bis 30 inklusive Vaultron ohne weiteres Farmen. Kriterium dafür ist jetzt **B5** (`feinspec-kapitel1.md` §12) mit dem neuen Spielertyp **K (Camper)**.
 
@@ -90,12 +90,12 @@ Der oben als „weiterhin offen" markierte Fall ist nachgemessen worden (Konzept
 
 Rechnung: Bei L20 in Zone 3 greift der Floor (0,03 × Rohwert 12 = 0,36), `Math.max(1, …)` macht daraus **1 EXP pro Sieg**. Bei ~1.800 Siegen/Stunde sind das **~14.400 EXP in acht Stunden**, während der ganze Aufstieg L2 → L20 nur rund 3.900 kostet. Ein absoluter Floor ist gegen eine unbegrenzte Siegrate wertlos.
 
-**Zwei Korrekturen, beide nötig (Umsetzung: M15a):**
+**Umgesetzt (M15a):**
 
-1. **Harte Null jenseits eines Abstands.** Jenseits von `CUTOFF` Überschuss-Leveln muss der Ertrag **0** sein, nicht 1. **A3 bleibt geschützt – nicht durch den Floor, sondern durch das Plateau:** Ein bis zwei Zonen zurückzugehen zahlt weiter voll, und nur das ist der legitime Ventil-Gebrauch. *Ein harter Deckel war oben verworfen worden, weil er den unendlichen Zeit-Kanal nähme. Der Einwand greift hier nicht: Dieser Deckel sitzt weit **jenseits** des Rückfallbereichs, nicht in ihm.*
-2. **`L_erw` an echtem Spiel kalibrieren.** `expectedLevelForZone` liefert für Zone 30 **L15**, echtes Spiel endet bei **L21–23** – gutes Spiel liegt chronisch 6–8 Level über der „Erwartung". Das Plateau absorbiert damit einen Teil der **normalen Progression**, und ein knapper `CUTOFF` würde reguläre Spieler am Kapitelende auf 0 setzen. Die Vorwärtssimulation aus Entscheidung 50 ist strukturell richtig (keine Tabelle), aber **falsch kalibriert**: „ein ungedämpfter Sieg pro Zone" ist kein realer Durchlauf.
+1. ✓ **Harte Null jenseits eines Abstands.** Jenseits von `EXP_DAMPING_CUTOFF` Überschuss-Leveln ist der Ertrag **0**, nicht 1 (`core/formulas.ts` `expDampingFactor`, `core/progression.ts` `zoneReward`). **A3 bleibt geschützt – nicht durch den Floor, sondern durch das Plateau:** Ein bis zwei Zonen zurückzugehen zahlt weiter voll, und nur das ist der legitime Ventil-Gebrauch. *Ein harter Deckel war oben verworfen worden, weil er den unendlichen Zeit-Kanal nähme. Der Einwand greift hier nicht: Dieser Deckel sitzt weit **jenseits** des Rückfallbereichs, nicht in ihm.*
+2. ✗ **„`L_erw` an echtem Spiel kalibrieren" – als Ziel gesetzt, bei der Umsetzung als unnötig verworfen.** Der Vergleich „`expectedLevelForZone(30)` liefert L15, echtes Spiel endet bei L21–23" verglich die **gedämpfte** Kurve mit der **alten, ungedämpften** Vor-M15-Baseline (§7.4) – dem falschen Referenzpunkt. Gemessen gegen das heutige (gedämpfte) Spiel endet Zone 30 bei **L20**, nicht L21–23 (die Dämpfung hält das Level ja absichtlich niedriger). Überschuss dort: 20 − 15 − 2,5 = **2,5**, weit innerhalb des Cutoffs (6). Die Vorwärtssimulation (Entscheidung 50) bleibt unverändert „ein ungedämpfter Sieg pro Zone" – siehe `06_Implementierungsplan_Kapitel1.md`, Umsetzungsentscheidung 57.
 
-**Gemessene Wirkung des Cutoffs** (Typ K, sonst unveränderte Konstanten):
+**Gemessene Wirkung des Cutoffs** (Typ K, sonst unveränderte Konstanten – Review-Sonde, vorab):
 
 | `CUTOFF` | Camping-Sessions bis Vaultron | Camp-Zonen |
 |---|---|---|
@@ -105,9 +105,9 @@ Rechnung: Bei L20 in Zone 3 greift der Floor (0,03 × Rohwert 12 = 0,36), `Math.
 | **6** | **3** ✓ | 3, 15, 29 |
 | 4 | 4 | 3, 7, 15, 29 |
 
-Zielwert **4–6 nach der Kalibrierung**. Ohne Kalibrierung wären nur 8–10 gefahrlos – und die erfüllen B5 nicht. Die beiden Korrekturen hängen also zusammen und dürfen nicht getrennt umgesetzt werden.
+**Umgesetzt und gemessen** (`tests/chapter-playthrough.test.ts` `simulateCamper`, `EXP_DAMPING_CUTOFF = 6`, `expectedLevelForZone` unverändert): **3 Sessions**, Camp-Zonen **1, 16, 30** – erfüllt B5 (≥3), volle Testsuite (116/116) ohne Regression bei A1–A2/B1–B3/C1–C4/D5. Die Prognose „ohne Kalibrierung wären nur 8–10 gefahrlos" hat sich **nicht** bestätigt – der Cutoff allein reicht, weil der reale Überschuss am Kapitelende (2,5) viel kleiner ist als angenommen (s. Punkt 2 oben).
 
-⚠️ **Weiterhin offen:** Ob „Plateau breit genug für den schwachen Spieler" (A3) und „Sturz steil genug gegen Camping" (B5) *gleichzeitig* gehen, ist für Typ K **nicht** bestätigt – M15 hat es nur für V gezeigt. Das ist der Prüfpunkt von M15a.
+✓ **Bestätigt:** „Plateau breit genug für den schwachen Spieler" (A3) und „Sturz steil genug gegen Camping" (B5) gehen gleichzeitig, auch für Typ K – gemessen, kein offener Punkt mehr.
 
 ## 2. Erster Zyklus (bis zur 1. Reunion)
 
