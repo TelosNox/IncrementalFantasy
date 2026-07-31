@@ -1,7 +1,7 @@
 <script lang="ts">
   // prestige-reunion.md/feinspec §1.4 (Mockup 04_reunion.png) - klare Reset-/Persistenz-Listen +
-  // Reunion-Essenz-Ertrag. Verfuegbar sobald `game.canReunion` (Zone 30 erreicht, s. gameStore.ts
-  // "man muss die Wand nicht schlagen, um zu reunionen"), nicht erst nach Vaultrons Niederlage.
+  // Reunion-Essenz-Ertrag. Verfuegbar sobald `game.canReunion` (Vaultron besiegt, s. gameStore.ts
+  // `chapterBossDefeated` - Umsetzungsentscheidung 61, der Kapitel-Boss ist Pflicht).
   import { game, REUNION_ESSENCE_GAIN } from './gameStore.svelte'
 
   const nextReunionCount = $derived(game.save.reunionCount + 1)

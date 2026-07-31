@@ -11,6 +11,7 @@ function sampleSaveState(): SaveState {
     chapter: 1,
     currentZone: 9,
     maxZoneReached: 12,
+    chapterBossDefeated: false,
     party: [{ ...CLAUDE }, { ...BARREL }],
     // stats-kampfwerte.md §4.1 - ein Level/EXP-Stand fuer die ganze Party.
     partyLevel: 6,
@@ -201,5 +202,40 @@ describe('Architektur §6 - Migrations-Grundgerüst', () => {
     expect(claude).not.toHaveProperty('weaponTier')
     expect(claude.specialUnlocked).toBe(true)
     expect(barrel.specialUnlocked).toBe(false)
+  })
+
+  // Umsetzungsentscheidung 61 (31.07.2026) - der Kapitel-Boss ist Pflicht. Ein alter Save kann
+  // nicht rueckwirkend belegen, ob Vaultron besiegt wurde (unter der alten Regel unnoetig, um
+  // Zone 30 zu erreichen oder zu reunionen) - `chapterBossDefeated` startet deshalb false, auch
+  // wenn `currentZone` schon bei/ueber 30 steht.
+  it('migriert v4 nach v5: chapterBossDefeated startet false, auch bei currentZone 30', () => {
+    const v4 = {
+      version: 4,
+      chapter: 1,
+      currentZone: 30,
+      maxZoneReached: 30,
+      party: [{ ...CLAUDE }],
+      partyLevel: 20,
+      partyExp: 3,
+      roster: ['claude'],
+      currencies: { reunionEssence: '0' },
+      bestiary: {},
+      reunionCount: 0,
+      flags: {
+        autoAttackUnlocked: true,
+        mpVisible: true,
+        manualToggleUnlocked: true,
+        defenseUnlocked: false,
+        materiaUnlocked: false,
+        gambitsUnlocked: false,
+      },
+      inn: { queued: false },
+    } as unknown as SerializedSaveState
+
+    const migrated = migrate(v4)
+
+    expect(migrated.version).toBe(SAVE_VERSION)
+    expect(migrated.chapterBossDefeated).toBe(false)
+    expect(migrated.currentZone).toBe(30)
   })
 })

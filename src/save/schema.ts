@@ -4,7 +4,7 @@
 import type Decimal from 'break_eternity.js'
 import type { BestiaryEntry, Character } from '../core/entities'
 
-export const SAVE_VERSION = 4
+export const SAVE_VERSION = 5
 
 export interface SaveFlags {
   autoAttackUnlocked: boolean
@@ -43,6 +43,10 @@ export interface SaveState {
   currentZone: number
   /** feinspec §3.8a/§4.6 - höchste je erreichte Zone; Obergrenze der freien Zonen-Auswahl (Ventil). */
   maxZoneReached: number
+  /** prestige-reunion.md, Umsetzungsentscheidung 61 (31.07.2026) - Vaultron (Zone 30) tatsaechlich
+   * besiegt, nicht nur erreicht. Eigenes Flag statt `currentZone >= CHAPTER1_MAX_ZONE`, weil Zone 30
+   * schon beim BETRETEN erreicht ist, bevor der Kampf entschieden wurde. Traegt `canReunion`. */
+  chapterBossDefeated: boolean
   party: Character[]
   /**
    * stats-kampfwerte.md §4.1 - **ein** Level für die gesamte Party; EXP fließt in einen Topf.

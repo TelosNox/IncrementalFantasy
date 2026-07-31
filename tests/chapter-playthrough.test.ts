@@ -334,12 +334,49 @@ interface CamperResult {
  * Modelliert genau das im Konzept-Review beschriebene Verhalten: eine Zone waehlen, sie eine
  * realistische Session (Referenz 8h) lang OHNE jeden Eingriff laufen lassen (vollautomatisch,
  * wie Typ V im Kampf), danach so weit vorstossen, wie es OHNE zusaetzliches Farmen geht - und
- * das wiederholen. Anders als `playChapter('V')` gibt es hier keinen Rueckfall auf eine
- * fruehere Zone: Das Spiel ist deterministisch (§10, kein RNG), also ist ein Kampf bei
- * gegebenem Party-Level entweder gewinnbar oder nicht - wiederholtes Probieren an derselben,
- * NEUEN Zone aendert daran nichts. Der "Vorstoss" ist deshalb genau ein Versuch je Zone; der
- * erste Fehlschlag ist die naechste Camp-Zone.
+ * das wiederholen.
+ *
+ * Umsetzungsentscheidung 59/60 (31.07.2026, Konzept-Review) korrigiert zwei Fehler der
+ * urspruenglichen Fassung, beide mit demselben Ursprung (`frontier = wall`):
+ * `frontier` bleibt die letzte tatsaechlich GESCHAFFTE Zone (nicht die zuletzt gescheiterte) -
+ * dort wird gecampt, weil sie erwiesenermassen gewinnbar ist. Die Wand ist `frontier + 1` und
+ * muss im Vorstoss echt gewonnen werden, sonst bricht der Vorstoss dort ab; Erfolg (Vaultron
+ * faellt) tritt nur ein, wenn Zone 30 tatsaechlich gewonnen wurde, nie als Nebeneffekt einer
+ * Schleife, die gar nicht mehr laeuft. Ausserdem war die Determinismus-Annahme aus Entscheidung
+ * 58 unvollstaendig: HP/MP tragen seit M11 zwischen Kaempfen ueber (§3.4/§3.5), ein Fehlschlag
+ * mit angeschlagener Party nach der Camp-Phase ist also keine Wand, sondern Erschoepfung - genau
+ * das behebt das Spiel selbst automatisch (Niederlage -> Zeitstrafe -> Gasthaus -> Retry
+ * derselben Zone, `niederlage-offline.md` §1). Ein Vorstoss-Versuch zaehlt deshalb erst als echte
+ * Wand, wenn auch ein zweiter Versuch NACH vollem Gasthaus-Heal scheitert (danach aendert nichts
+ * mehr am deterministischen Ergebnis).
  */
+function attemptWithAutoRetry(
+  zone: number,
+  party: Record<string, Character>,
+  roster: CharacterId[],
+  progress: PartyProgress,
+): boolean {
+  let battle = runBattle(zone, party, roster, 'V', progress.level)
+  syncFromUnits(party, roster, battle.units)
+  if (battle.win) {
+    applyWin(party, roster, zone, progress)
+    return true
+  }
+
+  // niederlage-offline.md §1 - Niederlage heilt nicht, aber loest automatisch Zeitstrafe +
+  // Gasthaus (Vollheilung) aus, bevor dieselbe Zone erneut versucht wird.
+  fullyHeal(party, roster, progress.level)
+  battle = runBattle(zone, party, roster, 'V', progress.level)
+  syncFromUnits(party, roster, battle.units)
+  if (battle.win) {
+    applyWin(party, roster, zone, progress)
+    return true
+  }
+
+  fullyHeal(party, roster, progress.level)
+  return false
+}
+
 function simulateCamper(sessionSeconds = CAMP_SESSION_SECONDS, maxSessions = 20): CamperResult {
   let roster: CharacterId[] = ['claude']
   const party: Record<string, Character> = { claude: freshCharacterState('claude') }
@@ -380,18 +417,14 @@ function simulateCamper(sessionSeconds = CAMP_SESSION_SECONDS, maxSessions = 20)
     let zone = frontier + 1
     while (zone <= 30) {
       ensureRosterAndSpecial(zone)
-      const battle = runBattle(zone, party, roster, 'V', progress.level)
-      syncFromUnits(party, roster, battle.units)
-      if (!battle.win) {
-        fullyHeal(party, roster, progress.level)
-        break
-      }
-      applyWin(party, roster, zone, progress)
+      if (!attemptWithAutoRetry(zone, party, roster, progress)) break
+      frontier = zone
       zone += 1
     }
 
-    if (zone > 30) return { sessions: session, campZones }
-    frontier = zone
+    // Erfolg nur bei einem echten Sieg in Zone 30 - nie als Nebeneffekt einer Schleife,
+    // deren Rumpf gar nicht mehr lief (Entscheidung 59a).
+    if (frontier === 30) return { sessions: session, campZones }
   }
 
   return { sessions: null, campZones }

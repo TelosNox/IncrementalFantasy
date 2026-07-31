@@ -117,6 +117,7 @@ function freshSaveState(): SaveState {
     chapter: 1,
     currentZone: 1,
     maxZoneReached: 1,
+    chapterBossDefeated: false,
     party: [freshCharacter(CLAUDE.id, 'manual')],
     partyLevel: 1,
     partyExp: 0,
@@ -288,13 +289,14 @@ export class GameStore {
   }
 
   /**
-   * prestige-reunion.md "Verfügbar ab Kapitelende (sobald man die Kapitel-Wand erreicht) - man
-   * muss die Wand nicht schlagen, um zu reunionen": verfuegbar sobald Zone 30 erreicht ist, auch
-   * waehrend eines laufenden/verlorenen Vaultron-Kampfs (Ausweg fuer Spieler, die die Wand nicht
-   * schaffen - "Skill vs. Zeit"-Wahlfreiheit statt Zwangs-Grind).
+   * prestige-reunion.md, Umsetzungsentscheidung 61 (31.07.2026) - der Kapitel-Boss ist Pflicht:
+   * verfuegbar erst, wenn Vaultron tatsaechlich besiegt wurde (`chapterBossDefeated`), nicht schon
+   * beim Erreichen von Zone 30. Der frühere Ausweg (Reunion ohne Sieg) war redundant, weil A2
+   * (≤ 20 Farm-Siege in der Vorzone) jede Zone auch fuer den vollautomatischen Spielertyp
+   * gewinnbar macht - gemessen an Zone 30 hält A2 mit 15 (Entscheidung 63).
    */
   get canReunion(): boolean {
-    return this.save.currentZone >= CHAPTER1_MAX_ZONE
+    return this.save.chapterBossDefeated
   }
 
   #character(id: string): Character {
@@ -692,6 +694,7 @@ export class GameStore {
         partyLevel,
         partyExp: leveled.exp,
         bestiary,
+        chapterBossDefeated: true,
       }
       this.phase = 'chapter-complete'
       writeSave(this.save)
