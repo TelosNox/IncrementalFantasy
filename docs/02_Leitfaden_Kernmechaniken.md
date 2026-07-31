@@ -249,6 +249,20 @@ Kompakte Ableitung aus dem Obigen – als Prüfliste für kommende Design-Entsch
 Diese Leitplanken sind am Projekt selbst gelernt und stehen gleichberechtigt neben den obigen.
 
 - **Ein Leitplanken-Haken ist erst gültig, wenn die Mechanik im *Spiel* geprüft wurde – nicht in der Simulation, die sie voraussetzt.** Der Kapitel-1-Leitplanken-Check meldete „✓ #1 Wände ohne Ventil: Grind-Kämpfe leveln weiter", während im Spiel an einer Wand *gar nichts* floss. Der Test-Harness farmte bei jeder Niederlage an der Vorzone – eine Mechanik, die es im Spiel nie gab. Die Simulation maß ein anderes Spiel als das ausgelieferte und bestätigte genau die Annahme, die sie hätte prüfen sollen.
+- **Zu jedem Abnahmekriterium gehört, welches Spielerverhalten es prüft – und wo die Simulation davon abweicht. Ein Haken ist ungültig, solange diese Abweichung nicht benannt ist.** *(Operationale Fassung der Leitplanke darüber. Sie ist nötig, weil die erzählende Form den Fehler nicht verhindert hat: Er ist danach noch zweimal aufgetreten.)*
+
+  Drei Instanzen desselben Fehlers, jede mit demselben Muster – die Simulation prüfte ein **bequemeres** Spiel als das ausgelieferte, und niemand fragte, welches Verhalten sie eigentlich modelliert:
+
+  | | Was der Haken behauptete | Was die Simulation tat |
+  |---|---|---|
+  | **24.07.2026** | „Wände haben ein Ventil" | farmte bei Niederlage an der Vorzone – eine Mechanik, die es im Spiel nicht gab |
+  | **M15** | „Idle-Overpowern ist behoben" | modellierte nur M/T/V, also ausschließlich Spieler **mit** Zonenwahl; der Camper aus dem Playtest-Befund fehlte ganz |
+  | **M15a** | „Der Camper braucht ≥ 3 Sessions" | meldete Erfolg, **ohne den Boss zu besiegen**, und ließ Wände überspringen |
+
+  Konkret verlangt die Leitplanke drei Angaben je Kriterium: **(a) welcher Spielertyp** geprüft wird, **(b) welche Aktionen dieser Typ ausführt** (bei uns entscheidend: greift er im Kampf ein? wählt er Zonen? farmt er begrenzt oder unbegrenzt?), und **(c) an welcher Stelle die Sonde vom Spiel abweicht** – Abweichungen sind erlaubt und oft nötig, aber sie müssen dastehen, samt der **Richtung** des Fehlers (lässt sie den Spieler schneller oder langsamer erscheinen?).
+
+  Ergänzend, aus dem M15a-Fall: **Ein Erfolgs-Zweig darf nicht aus dem Fehlen einer Schleife folgen.** Dort meldete `if (zone > 30) return success` Erfolg, weil die Vorstoß-Schleife bei einem Startwert jenseits der letzten Zone gar nicht mehr lief. Erfolgskriterien gehören an ein **positives Ereignis** gebunden (ein tatsächlicher Sieg), nie an das Ausbleiben eines Durchlaufs.
+
 - **Determinismus und „einfach nochmal probieren" schließen einander aus.** Ohne Zufall wiederholt sich ein verlorener Kampf bitgenau, beliebig oft. Wer auf RNG verzichtet (gut für Lesbarkeit und Fairness), **muss** das Ventil aus #1 als eigene Mechanik bauen – ein Ort zum Stärkerwerden oder ein Ertrag aus der Niederlage. Sonst ist jede Wand kein Hindernis, sondern ein Endpunkt.
 - **Ein Ventil, das der Spieler nicht sieht, ist keins.** „Es fließt weiter Fortschritt" wirkt nur, wenn das Fließen ablesbar ist. Unsichtbarer Fortschritt an einer Wand fühlt sich exakt wie Anti-Pattern #1 an, selbst wenn die Mechanik sauber arbeitet.
 

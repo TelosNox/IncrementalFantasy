@@ -755,7 +755,7 @@ Die sensibelsten Hebel:
 
 ## 12. Abnahmekriterien der Neu-Balancierung
 
-**Zweck:** Die Konzeptphase liefert bewusst **keine neuen Zahlen** – sie liefert die Eigenschaften, die die Zahlen erfüllen müssen. Die Umsetzung findet die Werte und prüft sie gegen diese Liste. Grund: Die alte Baseline war nicht falsch berechnet, sondern gegen das falsche Modell gemessen (§9). Ein Kriterium ist deshalb nur dann eins, wenn es **falsifizierbar** ist und sagt, **wo** es geprüft wird.
+**Zweck:** Die Konzeptphase liefert bewusst **keine neuen Zahlen** – sie liefert die Eigenschaften, die die Zahlen erfüllen müssen. Die Umsetzung findet die Werte und prüft sie gegen diese Liste. Grund: Die alte Baseline war nicht falsch berechnet, sondern gegen das falsche Modell gemessen (§9). Ein Kriterium ist deshalb nur dann eins, wenn es **falsifizierbar** ist und sagt, **wo** es geprüft wird — und seit dem 31.07.2026 zusätzlich, **welches Spielerverhalten** es prüft und **wo die Simulation davon abweicht** (`../02_Leitfaden_Kernmechaniken.md` §5). Der Grund: Dreimal hat hier ein Haken gehalten, weil die Sonde ein bequemeres Spiel maß als das ausgelieferte. Zu jedem Kriterium gehören daher der geprüfte **Typ**, dessen **Aktionen** (greift er im Kampf ein? wählt er Zonen? farmt er begrenzt oder unbegrenzt?) und die **Richtung** jeder Abweichung — lässt sie den Spieler schneller oder langsamer erscheinen?
 
 ### Die vier Spielertypen
 
