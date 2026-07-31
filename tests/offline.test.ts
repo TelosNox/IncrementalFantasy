@@ -6,13 +6,12 @@ import { projectOffline } from '../src/core/offline'
 // Retry-Schleife ohne Fortschritt" an einer unschaffbaren Wand, ohne Absturz.
 
 describe('Architektur §5 - Offline-Projektion', () => {
-  it('3h weg an einer schaffbaren Zone: Fortschritt (EXP/Gil), kein Crash', () => {
+  it('3h weg an einer schaffbaren Zone: Fortschritt (EXP), kein Crash', () => {
     const party = [{ ...CLAUDE }]
     const projection = projectOffline(party, 1, 0, 1, 3 * 60 * 60)
 
     expect(projection.wasClearing).toBe(true)
     expect(projection.repeats).toBeGreaterThan(0)
-    expect(projection.gilGained.gt(0)).toBe(true)
     // stats-kampfwerte.md §4.1 - der EXP-Ertrag hebt das Gruppenlevel, nicht ein Level je Figur.
     expect(projection.partyLevel).toBeGreaterThan(1)
   })
@@ -22,7 +21,6 @@ describe('Architektur §5 - Offline-Projektion', () => {
     const projection = projectOffline(party, 1, 0, 30, 3 * 60 * 60)
 
     expect(projection.wasClearing).toBe(false)
-    expect(projection.gilGained.eq(0)).toBe(true)
     expect(projection.party).toEqual(party)
     expect(projection.partyLevel).toBe(1)
   })

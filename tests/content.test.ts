@@ -9,7 +9,6 @@ import {
   VAULTRON,
 } from '../src/content/monsters'
 import { ZONES } from '../src/content/zones'
-import { weaponStatMod, weaponTierForLevel } from '../src/content/weapons'
 
 // Stichprobenartiger Soll/Ist-Abgleich gegen feinspec-kapitel1.md §6 (1:1-Treffer).
 
@@ -42,24 +41,24 @@ describe('§6.1 Charakter-Startwerte & Specials', () => {
 describe('§6.2 Monster- & Gate-Basiswerte', () => {
   it('Blando (Referenzbeispiel §3.1)', () => {
     expect(BLANDO.base).toEqual({ hp: 40, atk: 8, def: 2, spd: 100 })
-    expect(BLANDO.reward).toEqual({ exp: 5, gil: 4 })
+    expect(BLANDO.reward).toEqual({ exp: 5 })
     expect(BLANDO.trait).toBe('baseline')
   })
 
   it('Blandzilla (R1-Miniboss, Z8)', () => {
     expect(BLANDZILLA.base).toEqual({ hp: 130, atk: 11, def: 4, spd: 90 })
-    expect(BLANDZILLA.reward).toEqual({ exp: 40, gil: 35 })
+    expect(BLANDZILLA.reward).toEqual({ exp: 40 })
   })
 
   it('Fort Knoxious (R2-Gate, Z18)', () => {
     expect(FORT_KNOXIOUS.base).toEqual({ hp: 160, atk: 12, def: 14, spd: 70 })
-    expect(FORT_KNOXIOUS.reward).toEqual({ exp: 70, gil: 60 })
+    expect(FORT_KNOXIOUS.reward).toEqual({ exp: 70 })
     expect(FORT_KNOXIOUS.trait).toBe('armor')
   })
 
   it('Vaultron (Kapitel-Boss, Z30)', () => {
     expect(VAULTRON.base).toEqual({ hp: 240, atk: 14, def: 16, spd: 70 })
-    expect(VAULTRON.reward).toEqual({ exp: 140, gil: 120 })
+    expect(VAULTRON.reward).toEqual({ exp: 140 })
     expect(VAULTRON.trait).toBe('boss')
   })
 
@@ -126,22 +125,5 @@ describe('§6.3 Zonen-Encounter Z1-Z30', () => {
     for (const z of ZONES) {
       expect(z.limitAllowed).toBe(z.isGate)
     }
-  })
-})
-
-describe('§6.4 Waffen-Tier-Formel', () => {
-  it('Tier 0 = keine Mods, kein Special', () => {
-    expect(weaponStatMod(0)).toEqual({ atk: 1, hp: 1, mag: 1 })
-  })
-
-  it('Tier 2: atk x1.20, hp x1.10, mag x1.20', () => {
-    expect(weaponStatMod(2)).toEqual({ atk: 1.2, hp: 1.1, mag: 1.2 })
-  })
-
-  it('tier = level // 4, gedeckelt bei 4', () => {
-    expect(weaponTierForLevel(3)).toBe(0)
-    expect(weaponTierForLevel(4)).toBe(1)
-    expect(weaponTierForLevel(19)).toBe(4)
-    expect(weaponTierForLevel(30)).toBe(4)
   })
 })

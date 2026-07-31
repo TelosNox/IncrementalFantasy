@@ -41,7 +41,12 @@ export interface Character {
   base: StatBlock
   growth: GrowthRates
   special: CharacterSpecial
-  weaponTier: number // 0..4, Gil-gekauft (§6.4)
+  /**
+   * feinspec §4.1/§6.4 (30.07.2026) - permanenter Zonen-Trigger statt Gil-Kauf. Einmal true,
+   * bleibt es true - auch ueber die Reunion hinweg (s. `ui/gameStore.svelte.ts` `reunion()`).
+   * `special.unlockedFromZone` bleibt das Content-Metadatum fuer den Ausloese-Zeitpunkt.
+   */
+  specialUnlocked: boolean
   controlMode: ControlMode
   // Laufzeit:
   hp: number
@@ -70,7 +75,6 @@ export interface MonsterBaseStats {
 
 export interface MonsterReward {
   exp: number
-  gil: number
 }
 
 /** feinspec §4.2 - Monster (Katalog-Eintrag). */
@@ -98,21 +102,6 @@ export interface Zone {
   isGate: boolean
   /** feinspec §3.4 - Esper-Modell: Limit existiert NUR in Encountern mit true (in Kap. 1 die drei Gates). */
   limitAllowed: boolean
-}
-
-export interface WeaponStatMod {
-  atk: number
-  hp: number
-  mag: number
-}
-
-/** feinspec §4.4 - Weapon/Item (Kapitel 1: nur Stats + Special, keine Slots). */
-export interface Weapon {
-  ownerId: string
-  tier: number // 0..4, Gil-gekauft
-  statMod: WeaponStatMod
-  unlocksSpecial: boolean
-  slots: unknown[] // leer in Kapitel 1, ab Kapitel 2 Materia-Slots
 }
 
 /** feinspec §4.5 - Bestiarium-Eintrag. */

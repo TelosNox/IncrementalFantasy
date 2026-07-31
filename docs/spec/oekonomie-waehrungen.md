@@ -78,9 +78,9 @@ Querschnitts-Dokument: jede Währung gehört zu genau einem System (Tabelle). Ba
 
 Also **kein** gleichmäßiger Abfall ab dem ersten Level über Erwartung, sondern ein **Plateau mit anschließendem Sturz**.
 
-⚠️ **Offen und messpflichtig:** Ob „Plateau breit genug für den schwachen Spieler" und „Sturz steil genug gegen Idle-Overpowern" gleichzeitig erreichbar sind, ist **nicht** gesetzt. Das ist der erste Prüfpunkt der Umsetzung.
-⚠️ **Zweites Risiko:** Der EXP-Bedarf steigt bereits exponentiell; eine zusätzliche Ertragssenkung **kompoundiert** und kann Progression zu Schlamm machen.
-⚠️ **Drittes Risiko:** „Erwartetes Level je Zone" ist aus der Zonen-Kurve **abzuleiten**, nicht als Tabelle zu pflegen – sonst bricht es bei jeder Balance-Änderung.
+✓ **Gemessen (M15-Umsetzung, s. `06_Implementierungsplan_Kapitel1.md` Umsetzungsentscheidung 50/52):** Plateau (2,5 Level) und Sturz (Decay 0,72/Überschuss-Level, Floor 0,03) gehen gleichzeitig – A2 (V ≤ 20 Grind-Siege je Zonenstufe) hält bei gemessen 19 als höchstem Wert, kein Konzept-Rückkanal nötig. `zoneReward()` erzwingt zusätzlich `Math.max(1, …)` auf den tatsächlichen Ganzzahl-Ertrag, damit die stärkste Dämpfungsstufe bei kleinen Zonen-EXP-Werten nicht auf 0 rundet (A3 bliebe sonst im Kleinen doch verletzt).
+✓ **„Erwartetes Level je Zone" ist implementiert als Referenz-Vorwärtssimulation** (`core/progression.ts` `expectedLevelForZone`), nicht als Tabelle: eine Party, die exakt einen ungedämpften Sieg pro Zone einfährt, reine Funktion der bestehenden Zonen-/Monster-Content-Daten und der EXP-Kurve – bricht nicht bei Balance-Änderungen.
+⚠️ **Weiterhin offen:** Ob reines, zonenwahlfreies Camping (kein `maxZoneReached`-Fortschritt, unendliches Warten an einer einzigen Zone) tatsächlich „Größenordnung Wochen" braucht, ist nicht gemessen – der Test-Harness modelliert nur die drei definierten Spielertypen M/T/V (`feinspec-kapitel1.md` §12), nicht diesen Extremfall. B4 („Boss fällt nicht durch reines Warten") gilt für die gemessenen Typen als erfüllt.
 
 ## 2. Erster Zyklus (bis zur 1. Reunion)
 
@@ -104,7 +104,7 @@ Die unbegrenzte EXP-Quelle ist stattdessen die **Zonen-Rückkehr**: Jede geschaf
 ## Offene Detailfragen (Playtest)
 
 - Ertrags-/Kostenkurven je Währung. **Das Aktiv-/Offline-Verhältnis entfällt vorerst** (nur noch eine Ökonomie).
-- **Kurvenform der EXP-Dämpfung** (§1a): Plateaubreite und Sturzsteilheit. Der kritische Punkt – beide Anforderungen könnten unvereinbar sein.
+- ~~Kurvenform der EXP-Dämpfung (§1a): Plateaubreite und Sturzsteilheit.~~ **Erledigt** (M15, s. §1a oben) – Startwerte gegen die TS-Engine gemessen, beide Anforderungen gleichzeitig erreichbar.
 - ~~Zweiter Gil-Sink fehlt.~~ **Erledigt durch Streichung von Gil** (s. o.). Die Frage war zweimal dokumentiert und nie gelöst; sie war kein Balance-Detail, sondern das Symptom einer Währung, die keine Entscheidung tragen kann.
 - Reunion-Essenz: Ertragskurve und Reihenfolge der Sinks (Gambits/Boni/Slots/Typen/Roster).
 - Ab welcher Größenordnung greift welche Zahl-Notation.

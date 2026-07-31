@@ -45,7 +45,7 @@ Jeder Stat bedient genau ein System; die vier Figuren bekommen dadurch natürlic
 
 **Ausschließlich über das Gruppenlevel** (rollen-gewichtet) – **nicht** über Materia (dort keine flachen Stat-Boni, damit jede Materia eine Gameplay-Entscheidung bleibt) und **seit dem 30.07.2026 nicht mehr über gekaufte Waffen-Tiers**.
 
-**Was sich geändert hat:** Bis dahin lieferte die Waffen-Tier-Leiter `atk ×(1+0,10·tier)` einen zweiten Wachstumskanal, finanziert über Gil. Beides ist gestrichen – die Leiter, weil viermal dasselbe Upgrade zu kaufen keine Entscheidung ist, und Gil, weil eine zeit-farmbare Währung keine Exklusivität tragen kann (`oekonomie-waehrungen.md`, Abschnitt „Gil ist gestrichen"). ⚠️ **Das ATK-Wachstum, das vorher aus Tiers kam, muss beim Neu-Balancieren in die Level-Kurve wandern** – sonst fehlt es schlicht.
+**Was sich geändert hat:** Bis dahin lieferte die Waffen-Tier-Leiter `atk ×(1+0,10·tier)` einen zweiten Wachstumskanal, finanziert über Gil. Beides ist gestrichen – die Leiter, weil viermal dasselbe Upgrade zu kaufen keine Entscheidung ist, und Gil, weil eine zeit-farmbare Währung keine Exklusivität tragen kann (`oekonomie-waehrungen.md`, Abschnitt „Gil ist gestrichen"). ✓ **Erledigt (M15):** Das ATK/MAG/HP-Wachstum aus dem alten Tier 4 (Level ≥16: `atk`/`mag` ×1,40, `hp` ×1,20) ist in die Level-Kurve gefaltet – `growth.atk`/`growth.mag` 1,055 → **1,073**, `growth.hp` 1,09 → **1,10** (`content/characters.ts`), gefittet auf Level 21 (altes Endlevel Typ T/V, `feinspec-kapitel1.md` §7.4). Startwert, zusammen mit der EXP-Dämpfung gegen den Test-Harness gemessen (`06_Implementierungsplan_Kapitel1.md` Umsetzungsentscheidung 48).
 
 Ab Kapitel 2 kommen **Materia-Slots** als Build-Ebene hinzu (freigeschaltet über das Reunion-Upgrade-Menü, `prestige-reunion.md`) – als Gameplay-Veränderer, nicht als flacher Stat-Kanal.
 
@@ -77,7 +77,7 @@ Es gibt **genau ein Level für die gesamte Party**. EXP fließt in einen Party-T
 | **Tofa** | 95 | 20 | 12 | 5 | 3 | 130 |
 | **Air is...** | 80 | 30 | 7 | 14 | 3 | 95 |
 
-Level-Wachstum (grob, tunbar): ~+8 % HP, +6 % ATK/MAG, +5 % DEF pro **Gruppenlevel**; SPD wächst kaum (bleibt Build-Hebel). So bleibt die Kampfdauer trotz Gegner-Skalierung (g^Zone) ungefähr konstant.
+Level-Wachstum (M15: inkl. des gefalteten Waffen-Tier-Wachstums, s. §4 oben): +10 % HP, +7,3 % ATK/MAG, +5 % DEF pro **Gruppenlevel**; SPD wächst kaum (bleibt Build-Hebel). So bleibt die Kampfdauer trotz Gegner-Skalierung (g^Zone) ungefähr konstant.
 
 ## Formeln (grob, tunbar)
 

@@ -7,7 +7,6 @@
 // Retry-Zeitstrafen-Muster ergibt sich dann von selbst (kein Fortschritt, aber
 // auch kein Crash, niederlage-offline.md §3), ohne Sonderfall-Code.
 
-import Decimal from 'break_eternity.js'
 import { MONSTERS } from '../content/monsters'
 import { ZONES } from '../content/zones'
 import { createEnemyUnit, createPartyUnit } from './battle'
@@ -36,7 +35,6 @@ export interface OfflineProjection {
   /** Fortgeschriebenes Gruppenlevel + EXP-Rest (stats-kampfwerte.md §4.1); unverändert, wenn nicht schaffbar. */
   partyLevel: number
   partyExp: number
-  gilGained: Decimal
 }
 
 /**
@@ -83,13 +81,11 @@ export function projectOffline(
       party,
       partyLevel,
       partyExp,
-      gilGained: new Decimal(0),
     }
   }
 
-  const reward = zoneReward(zone)
+  const reward = zoneReward(zone, partyLevel)
   const totalExp = reward.exp * repeats
-  const gilGained = new Decimal(reward.gil).mul(repeats)
 
   // stats-kampfwerte.md §4.1 - ein Topf fuer die ganze Party statt einer Gutschrift je Figur.
   const leveled = applyVictoryExp(partyLevel, partyExp, totalExp)
@@ -103,6 +99,5 @@ export function projectOffline(
     party,
     partyLevel: leveled.level,
     partyExp: leveled.exp,
-    gilGained,
   }
 }

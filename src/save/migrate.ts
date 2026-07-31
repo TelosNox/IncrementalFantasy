@@ -1,18 +1,30 @@
 // Migrations-Grundgerüst (Architektur §6). v1 -> v2: M11 (Ventil-Kette) fügt
 // `maxZoneReached`/`inn` hinzu und legt das alte `offline`-Feld still (feinspec
 // §3.8e). v2 -> v3: die vier Charakter-Level werden zu einem Gruppenlevel
-// (stats-kampfwerte.md §4.1). Ältere Stände laufen die Kette der Reihe nach
-// durch; künftige Schritte werden hier nur noch angehängt.
+// (stats-kampfwerte.md §4.1). v3 -> v4: M15 (30.07.2026) streicht Gil und die
+// Waffen-Tier-Leiter, Special-Unlock wird zum permanenten `specialUnlocked`-Flag.
+// Ältere Stände laufen die Kette der Reihe nach durch; künftige Schritte werden
+// hier nur noch angehängt.
 
 import type { Character } from '../core/entities'
 import { SAVE_VERSION } from './schema'
 import type { SerializedSaveState } from './serialize'
 
+/** v3-Character-Shape (vor M15): trug noch `weaponTier`, kein `specialUnlocked`. */
+type CharacterV3 = Omit<Character, 'specialUnlocked'> & { weaponTier: number }
+
+/** v3-Save-Shape: `currencies` hatte noch `gil`, Party noch `weaponTier` statt `specialUnlocked`. */
+interface SerializedSaveStateV3 extends Omit<SerializedSaveState, 'version' | 'party' | 'currencies'> {
+  version: 3
+  party: CharacterV3[]
+  currencies: { gil: string; reunionEssence: string }
+}
+
 /** v2-Character-Shape (vor dem Gruppenlevel): jede Figur trug ihr eigenes `level`/`exp`. */
-type CharacterV2 = Character & { level: number; exp: number }
+type CharacterV2 = CharacterV3 & { level: number; exp: number }
 
 /** v2-Save-Shape: Party mit Charakter-Leveln, noch ohne `partyLevel`/`partyExp`. */
-interface SerializedSaveStateV2 extends Omit<SerializedSaveState, 'version' | 'party' | 'partyLevel' | 'partyExp'> {
+interface SerializedSaveStateV2 extends Omit<SerializedSaveStateV3, 'version' | 'party' | 'partyLevel' | 'partyExp'> {
   version: 2
   party: CharacterV2[]
 }
@@ -49,7 +61,7 @@ function migrateV1toV2(data: SerializedSaveStateV1): SerializedSaveStateV2 {
  * denn dort erhielt jede Figur ohnehin die volle Wellen-Summe. Die Neuzugänge steigen damit
  * beim Laden auf den Stand der Party auf - dieselbe Wirkung wie im laufenden Spiel.
  */
-function migrateV2toV3(data: SerializedSaveStateV2): SerializedSaveState {
+function migrateV2toV3(data: SerializedSaveStateV2): SerializedSaveStateV3 {
   const leader = data.party.reduce<CharacterV2 | null>(
     (best, c) => (best === null || c.level > best.level ? c : best),
     null,
@@ -67,15 +79,40 @@ function migrateV2toV3(data: SerializedSaveStateV2): SerializedSaveState {
   }
 }
 
+/**
+ * v3 -> v4 (M15, 30.07.2026): Gil und die Waffen-Tier-Leiter sind gestrichen
+ * (oekonomie-waehrungen.md "Gil ist gestrichen"). `weaponTier` fällt weg, der alte
+ * Special-Gate `weaponTier >= 1` wird verlustfrei auf den neuen permanenten
+ * `specialUnlocked`-Flag abgebildet - wer die Waffe schon gekauft hatte, behält den
+ * Special (kein Rückschritt durch die Migration), alle anderen lösen den Zonen-Trigger
+ * beim nächsten Fortschritt regulär aus (`ui/gameStore.svelte.ts` `withSpecialTrigger`).
+ */
+function migrateV3toV4(data: SerializedSaveStateV3): SerializedSaveState {
+  const { gil: _gil, ...currencies } = data.currencies
+  const party = data.party.map((c) => {
+    const { weaponTier, ...rest } = c
+    return { ...rest, specialUnlocked: weaponTier >= 1 }
+  })
+  return {
+    ...data,
+    version: 4,
+    party,
+    currencies,
+  }
+}
+
 export function migrate(
-  data: SerializedSaveState | SerializedSaveStateV2 | SerializedSaveStateV1,
+  data: SerializedSaveState | SerializedSaveStateV3 | SerializedSaveStateV2 | SerializedSaveStateV1,
 ): SerializedSaveState {
   if ((data as { version: number }).version === SAVE_VERSION) return data as SerializedSaveState
   if ((data as { version: number }).version === 1) {
-    return migrateV2toV3(migrateV1toV2(data as SerializedSaveStateV1))
+    return migrateV3toV4(migrateV2toV3(migrateV1toV2(data as SerializedSaveStateV1)))
   }
   if ((data as { version: number }).version === 2) {
-    return migrateV2toV3(data as SerializedSaveStateV2)
+    return migrateV3toV4(migrateV2toV3(data as SerializedSaveStateV2))
+  }
+  if ((data as { version: number }).version === 3) {
+    return migrateV3toV4(data as SerializedSaveStateV3)
   }
   // Kein weiterer Vorgänger vorhanden - ein unbekannter/höherer Versionsstand ist ein
   // fremder/korrupter Save. Sichtbare Warnung statt stillem Überschreiben (Architektur §6, M10).

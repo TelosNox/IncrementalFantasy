@@ -4,7 +4,7 @@
 import type Decimal from 'break_eternity.js'
 import type { BestiaryEntry, Character } from '../core/entities'
 
-export const SAVE_VERSION = 3
+export const SAVE_VERSION = 4
 
 export interface SaveFlags {
   autoAttackUnlocked: boolean
@@ -19,15 +19,15 @@ export interface SaveFlags {
 }
 
 /**
- * Gil/Reunion-Essenz akkumulieren unbegrenzt über den ganzen Run (bzw. über
- * Reunions hinweg) und sind deshalb BigNumber (Architektur §6, Anti-Pattern
- * #10). EXP dagegen steht als `partyExp` direkt im SaveState (feinspec §4.1:
- * pro Level gedeckelt durch exp_to_next, nie groß) - ein zusätzliches
- * `currencies.exp` wäre eine redundante, leicht divergierende Kopie derselben
- * Daten und wird hier bewusst nicht übernommen.
+ * Reunion-Essenz akkumuliert unbegrenzt über Reunions hinweg und ist deshalb BigNumber
+ * (Architektur §6, Anti-Pattern #10). Gil ist am 30.07.2026 gestrichen (M15,
+ * oekonomie-waehrungen.md "Gil ist gestrichen") - EXP ist seither die einzige
+ * Run-Währung und steht als `partyExp` direkt im SaveState (feinspec §4.1: pro Level
+ * gedeckelt durch exp_to_next, nie groß) - ein zusätzliches `currencies.exp` wäre eine
+ * redundante, leicht divergierende Kopie derselben Daten und wird hier bewusst nicht
+ * übernommen.
  */
 export interface SaveCurrencies {
-  gil: Decimal
   reunionEssence: Decimal
 }
 

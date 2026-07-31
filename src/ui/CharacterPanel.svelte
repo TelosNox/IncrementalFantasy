@@ -65,12 +65,6 @@
   {/if}
 
   <ActionPopup {unit} />
-
-  {#if game.canBuyWeapon(unit.id)}
-    <button class="buy-weapon" disabled={!game.canAffordWeapon(unit.id)} onclick={() => game.buyWeapon(unit.id)}>
-      Buy weapon ({game.weaponCostGil} Gil)
-    </button>
-  {/if}
 </div>
 
 <style>
@@ -180,22 +174,5 @@
     font-size: 12px;
     min-width: 52px;
     text-align: right;
-  }
-
-  .buy-weapon {
-    margin-top: 4px;
-    padding: 8px;
-    background: transparent;
-    color: var(--game-gold);
-    border: 1px dashed var(--game-gold);
-    font-weight: 600;
-    font-size: 12px;
-    cursor: pointer;
-  }
-
-  .buy-weapon:disabled {
-    color: var(--game-text);
-    border-color: var(--game-border);
-    cursor: default;
   }
 </style>

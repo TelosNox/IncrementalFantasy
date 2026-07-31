@@ -197,8 +197,14 @@ EXP-Faktor  f(u):  f = 1 für u <= PLATEAU
 
 - **Plateau breit genug** (~+2–3 Level), damit „ein bis zwei Zonen zurück, dann geht es" bezahlbar bleibt. Das ist der legitime Ventil-Gebrauch und schützt Leitplanke A3.
 - **Sturz steil genug**, damit blindes Idle den Kapitel-Boss nicht in einer Stunde umlegt.
-- ⚠️ Ob beides gleichzeitig geht, ist **nicht gesetzt**.
-- ⚠️ Der EXP-**Bedarf** steigt bereits mit `1,22^(L-1)`; die Ertragsdämpfung **kompoundiert** damit und kann Progression zu Schlamm machen.
+- ✓ **Gemessen (M15, `06_Implementierungsplan_Kapitel1.md` Umsetzungsentscheidung 50/52):** Beides geht gleichzeitig. Startwerte: Plateau 2,5 Level, exponentieller Decay 0,72/Überschuss-Level, Floor 0,03 (nie 0). Typ V (§12) braucht dadurch 67,3 statt 53,2 min (Faktor 4,99× statt 3,4× gegenüber Typ M), M/T bleiben nahezu unverändert bei 13,5/43,7 min.
+
+  | Typ | Gesamtzeit (M15, gedämpft) | Verhältnis zu M | zuvor (ungedämpft, §7.4) |
+  |-----|:---------------------------:|:-----------------:|:--------------------------:|
+  | **M** | ~13,5 min | 1,0× (Referenz) | ~13,3 min |
+  | **T** | ~43,7 min | ~3,24× | ~42,8 min |
+  | **V** | ~67,3 min | ~4,99× | ~53,2 min |
+- Der EXP-**Bedarf** steigt bereits mit `1,22^(L-1)`; die Ertragsdämpfung kompoundiert damit gezielt bei Typ V (der einzige Typ, der spürbar überlevelt farmt) – M/T sind kaum betroffen, weil sie kaum Reserve-Level anhäufen.
 
 Ein Level für die gesamte Party – Begründung, Playtest-Befund und die verworfenen Alternativen stehen in `stats-kampfwerte.md` §4.1. Für die UI heißt das: **ein** Level-/EXP-Anzeiger für die Gruppe statt vier pro Charakter-Panel (`ui-layout.md`).
 
@@ -739,9 +745,9 @@ Die sensibelsten Hebel:
 - **Zeitstrafe bei Niederlage** (5 s) – wirkt jetzt zusammen mit der Gasthaus-Totzeit; beide Zeitkosten sind gemeinsam zu betrachten, nicht einzeln.
 - **Zonen-Rückkehr:** ob die freie Auswahl ausreicht oder ob es eine Empfehlung/Markierung braucht („hier kommst du gerade sicher durch"). Reine Ventil-Funktion steht, die **Lesbarkeit** ist offen.
 - ~~Waffen-Tier-Kurve / Gil-Preis~~ und ~~zweiter Gil-Sink~~ → **beide erledigt durch Streichung**: Gil und die Tier-Leiter existieren nicht mehr (§6.4, `oekonomie-waehrungen.md`). Die Frage nach dem zweiten Sink stand zweimal dokumentiert und war nie zu lösen – sie war kein Balance-Detail, sondern das Symptom einer Währung, die keine Entscheidung tragen kann.
-- **NEU und jetzt der sensibelste Hebel überhaupt: die EXP-Dämpfung (§3.6)** – Plateaubreite und Sturzsteilheit. Sie muss gleichzeitig den schwachen Spieler durchlassen (A3) und Idle-Overpowern verhindern (B4). ⚠️ Ob beides zusammen geht, ist ungemessen. Weil Gil weg ist, ist EXP die **einzige** Run-Währung – diese Kurve trägt jetzt allein, was vorher zwei Ökonomien trugen.
-- **Das aus den Waffen-Tiers entfallende ATK/HP/MAG-Wachstum** muss in die Level-Kurve wandern (`stats-kampfwerte.md` §4), sonst fehlt es schlicht.
-- **Zielzeiten** (§12 B2): ~30 min für M, ~90 min für T sind **Konzept-Vorgaben ohne Messung**; das Zielband für den schwachen Spieler (T′) ist noch festzulegen.
+- ~~Die EXP-Dämpfung (§3.6) – Plateaubreite und Sturzsteilheit.~~ **Erledigt** (M15, s. §3.6/§12 B2) – Startwerte gemessen, A3 und B4 gleichzeitig erfüllt.
+- ~~Das aus den Waffen-Tiers entfallende ATK/HP/MAG-Wachstum~~ **Erledigt** (M15) – in die Level-Kurve gefaltet, `stats-kampfwerte.md` §4.
+- **Zielzeiten** (§12 B2): ~30 min für M, ~90 min für T bleiben durch M15 nahezu unberührt (Simulationszeit ändert sich für M/T kaum, s. §12 B2). Das Zielband für den schwachen Spieler (T′) ist weiterhin **offen** – das ist eine Playtest-/E2-Frage, keine Simulationszahl.
 
 **Erledigt durch diese Revision** (vormals hier offen): der Limit-Reset-Fehler bei jedem Zonenstart – das Esper-Modell (§3.4) macht die frühere Persistenz-Anforderung gegenstandslos, statt sie nachzurüsten.
 
@@ -781,7 +787,7 @@ Der Abstand muss **existieren** (sonst lohnt aktives Spiel nicht, Anti-Pattern #
   | **T′** – schwach, manuell + Farmen | **offen: Zielband festzulegen** | muss **endlich** bleiben – das ist der Spieler, den A3 schützt |
   | **V** – reines Idle | so hoch, dass es **niemand freiwillig abwartet** (Größenordnung Wochen) | ergibt sich aus der EXP-Dämpfung (§3.6) |
 
-  **Alle Werte sind Zielvorgaben, keine gemessene Baseline.** §7.4 bleibt ungültig, bis neu simuliert wird.
+  **Gemessen (M15, `06_Implementierungsplan_Kapitel1.md` Umsetzungsentscheidung 52, gegen `tests/chapter-playthrough.test.ts`):** M 13,5 min / T 43,7 min (3,24×) / V 67,3 min (4,99×) Simulationszeit – M/T praktisch unverändert gegenüber der alten, ungedämpften Baseline (§7.4: 13,3/42,8 min), V spürbar langsamer (zuvor 53,2 min/3,4×) durch die EXP-Dämpfung (§3.6). Die M/T-Zielzeiten (Echtzeit inkl. Menüs) bleiben damit erreichbar; **T′ ist weiterhin offen** (Playtest-Frage). Der V-Korridor in den Testkriterien ist entsprechend auf 2,5–5,5× angehoben (vorher 2,5–4,5×).
 
   ⚠️ **Die Lücke zwischen T (~90 min) und V (Wochen) ist Faktor ~200.** Der Spieler, der ein Gate manuell *versucht* und nicht schafft (T′), darf nicht in den V-Kanal gedrückt werden – dann hört er auf. **Genau deshalb muss die EXP-Dämpfung ein breites Plateau haben** (§3.6): Ein bis zwei Zonen zurückzugehen muss ihn in wenigen Vielfachen der Referenz durchbringen. Das Zielband für T′ zu bestimmen, ist Teil der Neu-Balancierung.
 

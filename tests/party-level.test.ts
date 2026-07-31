@@ -60,7 +60,9 @@ describe('feinspec §3.6 - EXP fliesst in EINEN Party-Topf', () => {
   it('die Levelrate bleibt gegenueber den Charakter-Leveln unveraendert (jede Figur bekam vorher schon die volle Summe)', () => {
     // Zone 1 zehnmal gewonnen -> derselbe Stand, den zuvor jede einzelne Figur erreicht haette.
     const zone = ZONES.find((z) => z.zone === 1)!
-    const reward = zoneReward(zone)
+    // partyLevel 1 an Zone 1 ist am/unter dem erwarteten Level (§1a) - Daempfungsfaktor 1,
+    // die feste Wellen-Summe bleibt damit ueber alle 10 Wiederholungen unveraendert wie vor M15.
+    const reward = zoneReward(zone, 1)
     let level = 1
     let exp = 0
     for (let i = 0; i < 10; i++) {

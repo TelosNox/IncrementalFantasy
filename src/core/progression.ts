@@ -3,9 +3,17 @@
 // damit beide dieselbe Level-Up-Regel verwenden (Architektur §7: eine Ökonomie).
 
 import { MONSTERS } from '../content/monsters'
+import { ZONES } from '../content/zones'
 import { deriveCharacterMaxHp, deriveCharacterMaxMp } from './battle'
 import type { Character, Zone } from './entities'
-import { applyExpGain, hpGainPostVictory, innGain, mpGainPostVictory, scaleEnemyStat } from './formulas'
+import {
+  applyExpGain,
+  expDampingFactor,
+  hpGainPostVictory,
+  innGain,
+  mpGainPostVictory,
+  scaleEnemyStat,
+} from './formulas'
 import type { ExpGainResult } from './formulas'
 
 /**
@@ -51,20 +59,57 @@ export function applyInnRecovery(
 
 export interface ZoneReward {
   exp: number
-  gil: number
+}
+
+/** feinspec §3.6/§6.2/§6.3 - ungedaempfte Wellen-Summe (vor der Level-x-Zone-Daempfung §1a). */
+function rawZoneExp(zone: Zone): number {
+  let exp = 0
+  for (const ref of zone.waves[0]) {
+    exp += scaleEnemyStat(MONSTERS[ref.monster].reward.exp, zone.zone)
+  }
+  return exp
 }
 
 /**
- * feinspec §3.6/§6.2/§6.3 - Summe aus EXP/Gil aller Monster einer Zonen-Welle, zonen-skaliert.
- * Die Summe geht als **ein** Betrag in den Party-Topf (stats-kampfwerte.md §4.1).
+ * oekonomie-waehrungen.md §1a - "erwartetes Level je Zone, aus der Zonen-Kurve abgeleitet,
+ * nicht als Tabelle gepflegt": eine Referenz-Vorwaertssimulation ueber die echten
+ * Zonen-/Monster-Content-Daten und die echte EXP-Kurve, GENAU EIN ungedaempfter Sieg je
+ * Zone (die Kapitel-Grundannahme "~1 Levelaufstieg pro Zone", feinspec §2). Das Ergebnis ist
+ * das Level, mit dem eine exakt im Plan liegende Party an einer Zone ankommt - keine von Hand
+ * gepflegte Zahl, sondern eine reine Funktion der bestehenden Konstanten/Content-Tabellen.
+ * Einmal berechnet und gecacht (Zonen-/Monster-Content ist zur Laufzeit unveraenderlich).
  */
-export function zoneReward(zone: Zone): ZoneReward {
+let expectedLevelCache: number[] | null = null
+
+function computeExpectedLevels(): number[] {
+  const levels: number[] = []
+  let level = 1
   let exp = 0
-  let gil = 0
-  for (const ref of zone.waves[0]) {
-    const monster = MONSTERS[ref.monster]
-    exp += scaleEnemyStat(monster.reward.exp, zone.zone)
-    gil += scaleEnemyStat(monster.reward.gil, zone.zone)
+  for (const z of ZONES) {
+    levels[z.zone] = level
+    const leveled = applyExpGain(level, exp, rawZoneExp(z))
+    level = leveled.level
+    exp = leveled.exp
   }
-  return { exp, gil }
+  return levels
+}
+
+export function expectedLevelForZone(zoneIndex: number): number {
+  if (!expectedLevelCache) expectedLevelCache = computeExpectedLevels()
+  const clamped = Math.min(Math.max(zoneIndex, 1), expectedLevelCache.length - 1)
+  return expectedLevelCache[clamped]
+}
+
+/**
+ * feinspec §3.6/§6.2/§6.3 - Summe aus EXP aller Monster einer Zonen-Welle, zonen-skaliert und
+ * über die Level-x-Zone-Dämpfung (§1a) auf `partyLevel` bezogen. Die Summe geht als **ein**
+ * Betrag in den Party-Topf (stats-kampfwerte.md §4.1). `gil` ist seit dem 30.07.2026 gestrichen
+ * (oekonomie-waehrungen.md, "Gil ist gestrichen") - EXP ist die einzige Run-Währung.
+ */
+export function zoneReward(zone: Zone, partyLevel: number): ZoneReward {
+  const raw = rawZoneExp(zone)
+  const factor = expDampingFactor(partyLevel, expectedLevelForZone(zone.zone))
+  // §1a "nie auf 0" gilt fuer den tatsaechlichen Ertrag, nicht nur den abstrakten Faktor -
+  // sonst waere die staerkste Daempfungsstufe bei kleinen Zonen-EXP-Werten ein stiller Deadlock.
+  return { exp: Math.max(1, Math.round(raw * factor)) }
 }

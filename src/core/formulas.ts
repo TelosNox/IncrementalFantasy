@@ -147,6 +147,36 @@ export interface ExpGainResult {
 }
 
 /**
+ * feinspec §3.6/oekonomie-waehrungen.md §1a (M15, 30.07.2026) - EXP-Daempfung ueber
+ * Level x Zone. Ersetzt den zuvor unbegrenzten Ertrag: Idle-Farmen einer Zone, in der
+ * die Party laengst ueberlevelt ist, war im zweiten Playtest die staerkste Spielweise
+ * (EXP/Kill sinkt zwar mit der Zonen-Tiefe, EXP/SEKUNDE steigt aber, weil die Kill-Zeit
+ * schneller kollabiert als der Ertrag). Plateau + Sturz, NIE 0 (A3 darf nie aushebeln).
+ *
+ * Startwerte (Umsetzungsentscheidung M15, s. 06_Implementierungsplan_Kapitel1.md):
+ * - PLATEAU ~2-3 Level (breit genug, damit "1-2 Zonen zurueck" fuer den schwachen
+ *   Spieler bezahlbar bleibt, feinspec §12 A3).
+ * - DECAY exponentiell pro Ueberschuss-Level, FLOOR > 0 (nie ganz auf 0, sonst waere
+ *   eine Zone ein Deadlock statt eines Ventils).
+ */
+export const EXP_DAMPING_PLATEAU = 2.5
+export const EXP_DAMPING_DECAY = 0.72
+export const EXP_DAMPING_FLOOR = 0.03
+
+/**
+ * oekonomie-waehrungen.md §1a - "erwartetes Level je Zone, aus der Zonen-Kurve
+ * ABGELEITET, nicht als Tabelle gepflegt". Implementiert in `progression.ts`
+ * (`expectedLevelForZone`), weil die Ableitung die Zonen-/Monster-Content-Daten
+ * braucht (Importzyklus-Grund, s. dort) - hier nur der reine Daempfungsfaktor,
+ * der lediglich `partyLevel`/`expectedLevel` als Zahlen kennt.
+ */
+export function expDampingFactor(partyLevel: number, expectedLevel: number): number {
+  const excess = Math.max(0, partyLevel - expectedLevel - EXP_DAMPING_PLATEAU)
+  if (excess <= 0) return 1
+  return Math.max(EXP_DAMPING_FLOOR, Math.pow(EXP_DAMPING_DECAY, excess))
+}
+
+/**
  * §3.6 EXP/Gruppenlevel: Level-Up sobald exp >= exp_to_next(L), Überschuss wird übertragen.
  * Angewandt auf den Party-Topf (`SaveState.partyLevel`/`partyExp`), nicht mehr je Figur -
  * die Rate ist dieselbe wie zuvor, weil schon vorher jede Figur die volle Wellen-Summe erhielt
@@ -167,7 +197,7 @@ export function zoneScaleFactor(zoneIndex: number): number {
   return Math.pow(ZONE_GROWTH, zoneIndex - 1)
 }
 
-/** §3.7 Zonen-skalierter Monster-Stat (ATK/DEF/EXP/Gil - ohne Size-Modifikator). */
+/** §3.7 Zonen-skalierter Monster-Stat (ATK/DEF/EXP - ohne Size-Modifikator). */
 export function scaleEnemyStat(base: number, zoneIndex: number): number {
   return Math.round(base * zoneScaleFactor(zoneIndex))
 }

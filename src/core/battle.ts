@@ -3,7 +3,6 @@
 // docs/spec/assets/sim/sim_chapter1.py, der validierten Referenzsimulation.
 
 import type { Character, ControlMode, Monster, MonsterTrait } from './entities'
-import { weaponStatMod } from '../content/weapons'
 import {
   LIMIT_MAX,
   SHOCK_WINDOW,
@@ -56,15 +55,15 @@ export function isAlive(unit: BattleUnit): boolean {
 }
 
 /**
- * feinspec §4.1/§6.4 - maximale HP einer Figur aus Gruppenlevel + Waffen-Tier.
+ * feinspec §4.1/stats-kampfwerte.md §4 - maximale HP einer Figur aus dem Gruppenlevel.
  * `partyLevel` = das gemeinsame Level der ganzen Party (stats-kampfwerte.md §4.1); die Figur
- * selbst traegt keins mehr, weshalb es hier explizit hereingereicht wird.
+ * selbst traegt keins mehr, weshalb es hier explizit hereingereicht wird. Das fruehere
+ * Waffen-Tier-Wachstum ist seit M15 in `character.growth` gefaltet (`content/characters.ts`).
  * `boostMult` = prestige-reunion.md permanenter Reunion-Boost (M9, default 1 = kein Boost,
  * z.B. fuer Zonen-1-Erststart oder headless Tests ohne Reunion-Kontext).
  */
 export function deriveCharacterMaxHp(character: Character, partyLevel: number, boostMult = 1): number {
-  const hpAfterLevel = deriveStat(character.base.hp, character.growth.hp, partyLevel)
-  return Math.round(hpAfterLevel * weaponStatMod(character.weaponTier).hp * boostMult)
+  return Math.round(deriveStat(character.base.hp, character.growth.hp, partyLevel) * boostMult)
 }
 
 /** feinspec §4.1 - maximale MP einer Figur aus dem Gruppenlevel (MP-Sonderfall, s. formulas.ts). Reunion-Boost s. oben. */
@@ -73,7 +72,7 @@ export function deriveCharacterMaxMp(character: Character, partyLevel: number, b
 }
 
 /**
- * feinspec §4.1/§6.4 - Party-Kampfeinheit aus Gruppenlevel + Waffen-Tier ableiten. Reunion-Boost s. oben.
+ * feinspec §4.1 - Party-Kampfeinheit aus dem Gruppenlevel ableiten. Reunion-Boost s. oben.
  * `limitAllowed` = Zone.limitAllowed (§3.4/§4.3) - in Kap. 1 nur an den drei Gates true.
  *
  * Verbindlich (Playtest-Fund, §4.1): HP/MP sind Übertragswerte, keine abgeleiteten Maxima.
@@ -93,7 +92,6 @@ export function createPartyUnit(
   const defAfterLevel = deriveStat(character.base.def, character.growth.def, partyLevel)
   const spdAfterLevel = deriveStat(character.base.spd, character.growth.spd, partyLevel)
 
-  const mod = weaponStatMod(character.weaponTier)
   const maxHp = deriveCharacterMaxHp(character, partyLevel, boostMult)
   const maxMp = deriveCharacterMaxMp(character, partyLevel, boostMult)
 
@@ -110,8 +108,8 @@ export function createPartyUnit(
     hp: Math.min(maxHp, Math.max(0, Math.round(character.hp))),
     maxMp,
     mp: Math.min(maxMp, Math.max(0, Math.round(character.mp))),
-    atk: Math.round(atkAfterLevel * mod.atk * boostMult),
-    mag: Math.round(magAfterLevel * mod.mag * boostMult),
+    atk: Math.round(atkAfterLevel * boostMult),
+    mag: Math.round(magAfterLevel * boostMult),
     def: defAfterLevel,
     spd: spdAfterLevel,
     atb: 0,
@@ -127,7 +125,9 @@ export function createPartyUnit(
     defending: false,
     limitAllowed,
     controlMode: character.controlMode,
-    canSpecial: zoneIndex >= character.special.unlockedFromZone,
+    // feinspec §4.1/§5.1 (M15) - permanenter Zonen-Trigger statt Zonen-Vergleich pro Kampf;
+    // `zoneIndex` bleibt Funktionsparameter (Gegner-Skalierung), gate spielt hier keine Rolle mehr.
+    canSpecial: character.specialUnlocked,
     specialId: character.special.id,
     specialMpCost: character.special.mpCost,
   }

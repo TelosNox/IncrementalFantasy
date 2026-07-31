@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest'
 import { CHARACTERS } from '../src/content/characters'
 import { GATE_MONSTER_IDS, MONSTERS } from '../src/content/monsters'
 import { ZONES } from '../src/content/zones'
-import { weaponTierForLevel } from '../src/content/weapons'
 import {
   createEnemyUnit,
   createPartyUnit,
@@ -60,6 +59,17 @@ function freshCharacterState(id: CharacterId): Character {
   // Vereinfachung des Harness: `controlMode` wird pro Kampf ohnehin ueber `mode`
   // erzwungen (s. `runBattle`), der gespeicherte Wert ist daher irrelevant.
   return { ...CHARACTERS[id], controlMode: 'auto' }
+}
+
+/**
+ * feinspec §4.1/§5.1/§6.4 (M15) - permanenter Zonen-Trigger statt Gil-Kauf, identisch zu
+ * `ui/gameStore.svelte.ts` `withSpecialTrigger` (hier dupliziert statt importiert, da dieses
+ * Modul svelte-frei bleibt - selbe bewusste Duplikation wie `BARREL_JOIN_ZONE`/`REGION3_JOIN_ZONE`
+ * oben). Einmal true, bleibt es true (F1: derselbe Codepfad-Effekt wie im Spiel).
+ */
+function withSpecialTrigger(character: Character, frontierZone: number): Character {
+  if (character.specialUnlocked || frontierZone < character.special.unlockedFromZone) return character
+  return { ...character, specialUnlocked: true }
 }
 
 /**
@@ -155,26 +165,22 @@ function syncFromUnits(party: Record<string, Character>, roster: CharacterId[], 
 
 /**
  * feinspec §3.6/§3.5 - Sieg: EXP auf den PARTY-Topf anwenden (stats-kampfwerte.md §4.1, ein
- * Level fuer alle - deshalb EINE Gutschrift statt einer je Figur), dann Sieg-Erholung
- * (+25% HP/MP, Kanal 1; kein Auto-Heal mehr, M11). Gibt Gil und den neuen Levelstand zurueck.
+ * Level fuer alle - deshalb EINE Gutschrift statt einer je Figur; über Level-x-Zone gedämpft,
+ * §1a/M15), dann Sieg-Erholung (+25% HP/MP, Kanal 1; kein Auto-Heal mehr, M11).
  */
 function applyWin(
   party: Record<string, Character>,
   roster: CharacterId[],
   zoneIndex: number,
   progress: PartyProgress,
-): number {
-  const reward = zoneReward(findZone(zoneIndex))
+): void {
+  const reward = zoneReward(findZone(zoneIndex), progress.level)
   const leveled = applyVictoryExp(progress.level, progress.exp, reward.exp)
   progress.level = leveled.level
   progress.exp = leveled.exp
   for (const id of roster) {
-    party[id] = {
-      ...applyVictoryRecovery(party[id], progress.level),
-      weaponTier: weaponTierForLevel(progress.level),
-    }
+    party[id] = applyVictoryRecovery(party[id], progress.level)
   }
-  return reward.gil
 }
 
 /** stats-kampfwerte.md §4.1 - der EINE Level-/EXP-Stand der Party (im Spiel `SaveState.partyLevel/partyExp`). */
@@ -216,7 +222,6 @@ interface ZoneRow {
 interface PlaythroughSummary {
   rows: ZoneRow[]
   totalMinutes: number
-  totalGil: number
   /** stats-kampfwerte.md §4.1 - ein Levelstand fuer die ganze Party, nicht einer je Figur. */
   partyLevel: number
   /** D5 - Limit-Zündungen je Gate-Zone (nur Typ M feuert je Limit, s. `resolveOptimalAction`). */
@@ -238,7 +243,6 @@ function playChapter(mode: PlayerType, maxGrindPerZone = 4000): PlaythroughSumma
   // stats-kampfwerte.md §4.1 - ein gemeinsamer Level-/EXP-Stand fuer die ganze Party.
   const progress: PartyProgress = { level: 1, exp: 0 }
   let totalSeconds = 0
-  let totalGil = 0
   let lastClear = 0
   const rows: ZoneRow[] = []
   const gateLimitFires: Record<number, number> = {}
@@ -257,6 +261,13 @@ function playChapter(mode: PlayerType, maxGrindPerZone = 4000): PlaythroughSumma
       party.airis = joinCharacterState('airis', progress.level)
     }
 
+    // feinspec §4.1/§5.1/§6.4 (M15) - permanenter Zonen-Trigger statt Gil-Kauf, ausgewertet an
+    // derselben Stelle wie die Roster-Beitritte oben (vor dem ersten Kampf DIESER Zone), analog
+    // zu `ui/gameStore.svelte.ts` `#onWin`.
+    for (const id of roster) {
+      party[id] = withSpecialTrigger(party[id], zoneIndex)
+    }
+
     let retries = 0
     let grindWins = 0
     let winningLimitFires = 0
@@ -266,7 +277,7 @@ function playChapter(mode: PlayerType, maxGrindPerZone = 4000): PlaythroughSumma
       syncFromUnits(party, roster, battle.units)
 
       if (battle.win) {
-        totalGil += applyWin(party, roster, zoneIndex, progress)
+        applyWin(party, roster, zoneIndex, progress)
         // D5 (feinspec §12) misst den siegreichen Kampf an DIESER Zone - nicht
         // fehlgeschlagene Vorversuche, und nicht die zwischendurch gefarmte Vorzone.
         winningLimitFires = battle.limitFires
@@ -285,7 +296,7 @@ function playChapter(mode: PlayerType, maxGrindPerZone = 4000): PlaythroughSumma
         totalSeconds += farm.timeSeconds
         syncFromUnits(party, roster, farm.units)
         if (farm.win) {
-          totalGil += applyWin(party, roster, lastClear, progress)
+          applyWin(party, roster, lastClear, progress)
           grindWins += 1
         } else {
           totalSeconds += RETRY_PENALTY
@@ -306,7 +317,7 @@ function playChapter(mode: PlayerType, maxGrindPerZone = 4000): PlaythroughSumma
     if (isGateZone(zoneIndex)) gateLimitFires[zoneIndex] = winningLimitFires / roster.length
   }
 
-  return { rows, totalMinutes: totalSeconds / 60, totalGil, partyLevel: progress.level, gateLimitFires }
+  return { rows, totalMinutes: totalSeconds / 60, partyLevel: progress.level, gateLimitFires }
 }
 
 describe('feinspec §12 - Abnahmekriterien der Neu-Balancierung (M11)', () => {
@@ -344,15 +355,22 @@ describe('feinspec §12 - Abnahmekriterien der Neu-Balancierung (M11)', () => {
     // treffen" nur einen kleinen Unterschied - der grosse Hebel (Limit/Specials/Heal/Suppress) ist
     // ausschliesslich Typ M vorbehalten. Gemessen (Umsetzungsentscheidung M11 #13, nach dem
     // §3.9/§4.7-Nachtrag zur Zielvorauswahl): T ≈2,8x, V ≈3,4x.
-    // Korridor hier auf den gemessenen Bereich (mit Puffer) angehoben, spec-seitig vermerkt
-    // (feinspec §12 B2/§11) statt den Unterschied stillschweigend wegzuinterpretieren.
-    it('B2: Zielkorridor (M11-Revision) T ≈ 1,3-3,5x M, V ≈ 2,5-4,5x M', () => {
+    //
+    // Umsetzungsentscheidung M15 #1 (30.07.2026, s. 06_Implementierungsplan_Kapitel1.md) - die
+    // EXP-Daempfung (§3.6/§1a) macht Tieffarmen gezielt teurer, ausschliesslich fuer V spuerbar
+    // (M/T farmen kaum, bleiben nahe der alten Werte: gemessen M 13,5 min, T 43,7 min/3,24x - beide
+    // innerhalb des bisherigen Korridors). V braucht jetzt 67,3 min/4,99x statt zuvor 53,2 min/3,4x -
+    // die Wand faellt spuerbar langsamer durch reines Warten (B4), ohne A1/A2 zu verletzen (V bleibt
+    // unter 20 Grind-Wiederholungen je Zone, s. C3/A2 unten). Obergrenze fuer V daher von 4,5x auf
+    // 5,5x angehoben (mit Puffer über dem gemessenen 4,99x) statt die Daempfung kuenstlich zu
+    // schwaechen, nur um eine Zahl zu halten, die vor der Daempfung galt.
+    it('B2 (M15-Revision): Zielkorridor T ≈ 1,3-3,5x M, V ≈ 2,5-5,5x M', () => {
       const tRatio = t.totalMinutes / m.totalMinutes
       const vRatio = v.totalMinutes / m.totalMinutes
       expect(tRatio).toBeGreaterThan(1.3)
       expect(tRatio).toBeLessThan(3.5)
       expect(vRatio).toBeGreaterThan(2.5)
-      expect(vRatio).toBeLessThan(4.5)
+      expect(vRatio).toBeLessThan(5.5)
     })
 
     it('B3 (M11-Revision): beide Abstände (M->T und T->V) existieren tatsächlich', () => {
@@ -420,10 +438,16 @@ describe('feinspec §12 - Abnahmekriterien der Neu-Balancierung (M11)', () => {
     // Gates (Z30: 16 statt 11, dafuer weniger in Region 2) - im Sinne von C4 die gewollte
     // Richtung, und V's Gesamtzeit bleibt mit 53,2 min unveraendert gegenueber der §7.4-Baseline
     // (53,0). Die 15 war eine runde Zahl, kein gemessener Schwellwert.
-    it('C3: Typ V liegt an jedem Gate bei höchstens 18 Retries', () => {
+    //
+    // Umsetzungsentscheidung M15 #1 (s. B2-Kommentar oben) - die EXP-Daempfung trifft Z18
+    // (Fort Knoxious) am staerksten (V farmt dort am tiefsten unter sein Level zurueck): gemessen
+    // 19 statt zuvor 10 Retries. Grenze auf 20 angehoben (knapper Puffer statt erneut einer runden
+    // Zahl) - bleibt zugleich innerhalb von A2 (≤20 Grind-Siege je Zonenstufe), die Wand ist also
+    // haerter, aber weiterhin kein Stau.
+    it('C3 (M15-Revision): Typ V liegt an jedem Gate bei höchstens 20 Retries', () => {
       for (const z of gates) {
         const row = v.rows.find((r) => r.zone === z)!
-        expect(row.retries).toBeLessThanOrEqual(18)
+        expect(row.retries).toBeLessThanOrEqual(20)
       }
     })
 
@@ -463,7 +487,6 @@ describe('feinspec §12 - Abnahmekriterien der Neu-Balancierung (M11)', () => {
       const again = playChapter('T')
       expect(again.totalMinutes).toBe(t.totalMinutes)
       expect(again.partyLevel).toBe(t.partyLevel)
-      expect(again.totalGil).toBe(t.totalGil)
     })
   })
 })
@@ -523,7 +546,7 @@ describe('feinspec §7.1/§4.7 - Blandzilla (Z8) ist ohne Limit nicht zuverlaess
     const zone = findZone(8)
     const claude: Character = {
       ...CHARACTERS.claude,
-      weaponTier: weaponTierForLevel(partyLevel),
+      specialUnlocked: true,
       controlMode: 'manual',
     }
     const partyUnits = [createPartyUnit(claude, partyLevel, 8, 1, zone.limitAllowed)]

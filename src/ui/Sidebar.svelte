@@ -81,11 +81,6 @@
     <div class="exp-label">{game.partyExp} / {game.partyExpToNext} EXP</div>
   </div>
 
-  <div class="currency">
-    <span class="currency-label">Gil</span>
-    <span class="currency-value">{game.save.currencies.gil.toString()}</span>
-  </div>
-
   {#if game.save.reunionCount > 0 || game.save.currencies.reunionEssence.gt(0)}
     <div class="currency">
       <span class="currency-label">Reunion Essence</span>

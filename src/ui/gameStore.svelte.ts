@@ -44,17 +44,6 @@ import {
 /** feinspec §6.3/§0 - M8 deckt Kapitel 1 komplett ab (Zone 1-30, Vaultron-Kapitel-Boss). Reunion (M9) folgt danach. */
 export const CHAPTER1_MAX_ZONE = 30
 
-/** feinspec §7.1 Schritt 2 - ab Zone 3 kann Claudes Waffe gekauft werden (Special/MP werden sichtbar). */
-const WEAPON_UNLOCK_ZONE = 3
-
-/**
- * Playtest-Baseline-Gil-Preis (feinspec §6.4/§11 - erster konkreter Ansatz,
- * nicht final) - gilt gleichermaßen für jede Figur (M7-Vereinfachung analog
- * zu M6: eine offene Stellschraube laut §11 "Waffen-Tier-Kurve über Tier 1
- * hinaus", noch keine finale Balance).
- */
-const WEAPON_COST_GIL = 8
-
 /** feinspec §7.1 Schritt 3/gambits.md §6 - ab Zone 5 schaltet die Auto-Attack-Regel + der Auto/Manual-Schalter frei. */
 const AUTO_ATTACK_UNLOCK_ZONE = 5
 
@@ -73,10 +62,9 @@ const CALLOUT_DURATION_SECONDS = 3.0
 
 /**
  * prestige-reunion.md "schwacher, aber wiederholbarer permanenter Boost" (M9-Baseline,
- * offene Playtest-Stellschraube wie WEAPON_COST_GIL & Co.): +5%/Zyklus auf ATK/MAG/HP/MP
- * (dieselben Stats, die `weaponStatMod` skaliert), linear statt gedeckelt/kurvig - ein Cap
- * "steigt mit Fortschritt" (prestige-reunion.md) ist erst relevant, sobald mehrfaches
- * Durchspielen tatsaechlich beobachtet wird.
+ * offene Playtest-Stellschraube): +5%/Zyklus auf ATK/MAG/HP/MP, linear statt
+ * gedeckelt/kurvig - ein Cap "steigt mit Fortschritt" (prestige-reunion.md) ist erst
+ * relevant, sobald mehrfaches Durchspielen tatsaechlich beobachtet wird.
  */
 const REUNION_BOOST_PER_CYCLE = 0.05
 
@@ -94,6 +82,17 @@ function findZone(zoneIndex: number): Zone {
 /** feinspec §5.1 - vor `manualToggleUnlocked` ist jede Figur faktisch manuell, ohne Schalter. */
 function freshCharacter(id: string, controlMode: ControlMode): Character {
   return { ...CHARACTERS[id], controlMode }
+}
+
+/**
+ * feinspec §4.1/§5.1/§6.4 (M15, 30.07.2026) - permanenter Zonen-Trigger statt Gil-Kauf: Claude
+ * bei Zone 3, jede spaeter hinzustoßende Figur bei ihrer eigenen `unlockedFromZone` (Barrel Z10,
+ * Tofa/Air is... Z19 - identisch mit ihrer Beitritts-Zone, "mit Beitritt" per Data-Zufall bei
+ * Barrel einen Zug spaeter). Einmal true, bleibt es true - auch ueber die Reunion (s. `reunion()`).
+ */
+function withSpecialTrigger(character: Character, frontierZone: number): Character {
+  if (character.specialUnlocked || frontierZone < character.special.unlockedFromZone) return character
+  return { ...character, specialUnlocked: true }
 }
 
 /**
@@ -122,7 +121,7 @@ function freshSaveState(): SaveState {
     partyLevel: 1,
     partyExp: 0,
     roster: ['claude'],
-    currencies: { gil: new Decimal(0), reunionEssence: new Decimal(0) },
+    currencies: { reunionEssence: new Decimal(0) },
     bestiary: {},
     reunionCount: 0,
     flags: {
@@ -304,29 +303,9 @@ export class GameStore {
     return character
   }
 
-  canBuyWeapon(id: string): boolean {
-    const character = this.save.party.find((c) => c.id === id)
-    if (!character || character.weaponTier >= 1) return false
-    // feinspec §7.1 Schritt 2 - für Claude gilt weiterhin die Zonen-Schwelle aus
-    // Region 1; jede später hinzustoßende Figur (Barrel ab Z9) ist per
-    // Roster-Beitritt bereits hinter ihrer eigenen Freischalt-Zone, daher
-    // reicht dort "ist in der Party" als Bedingung.
-    if (id === CLAUDE.id) return this.save.currentZone >= WEAPON_UNLOCK_ZONE
-    return true
-  }
-
-  canAffordWeapon(_id: string): boolean {
-    return this.save.currencies.gil.gte(WEAPON_COST_GIL)
-  }
-
-  get weaponCostGil(): number {
-    return WEAPON_COST_GIL
-  }
-
   canUseSpecial(unit: BattleUnit): boolean {
     if (this.battle.awaitingPlayerChoice !== unit) return false
-    if (unit.canSpecial !== true) return false
-    return this.#character(unit.id).weaponTier >= 1
+    return unit.canSpecial === true
   }
 
   canFireLimit(unit: BattleUnit): boolean {
@@ -445,7 +424,7 @@ export class GameStore {
    * erlittenen Schaden zurückzuschreiben - `Character.hp/mp` stand danach noch auf dem Stand vom
    * Kampfbeginn, was im Spiel wie eine Gratis-Heilung aussah. §4.1 verlangt das Rückschreiben bei
    * JEDEM Verlassen eines Kampfes (Sieg/Niederlage/Zonenwechsel), nicht nur bei Sieg/Niederlage.
-   * Der Zonenwechsel kostet weiterhin den investierten Kampf (keine EXP/Gil, s. `#onWin`/`#onLoss`
+   * Der Zonenwechsel kostet weiterhin den investierten Kampf (kein EXP, s. `#onWin`/`#onLoss`
    * fuer die Vergleichsfaelle), laesst den erlittenen Schaden aber stehen.
    */
   selectZone(zoneIndex: number): void {
@@ -470,12 +449,13 @@ export class GameStore {
   }
 
   /**
-   * prestige-reunion.md (M9) - Reset: Zonen-Fortschritt/Level/Gil/Ausrüstung (Waffentier); Erhalt:
-   * Roster, Bestiarium, Rollout-Flags (reine UI-Lesbarkeit, kein Grund sie erneut zu verstecken).
+   * prestige-reunion.md (M9) - Reset: Zonen-Fortschritt/Level; Erhalt: Roster, Bestiarium,
+   * Rollout-Flags (reine UI-Lesbarkeit, kein Grund sie erneut zu verstecken), UND (M15,
+   * 30.07.2026) der permanente `specialUnlocked`-Zustand je Figur - "der gelernte Special bleibt"
+   * (ausruestung-gil.md §0) ist damit wirklich permanent, statt sich am naechsten Zonen-Trigger
+   * wiederherzustellen. `freshCharacter()` setzt alles andere auf CHARACTERS-Ausgangswerte zurück,
+   * daher wird der alte `specialUnlocked`-Stand VOR dem Reset gesichert und danach uebertragen.
    * Ertrag: Reunion-Essenz + `gambitsUnlocked` + der permanente `reunionBoostMult`-Stufenanstieg.
-   * `freshCharacter()` setzt Level/Waffentier ohnehin auf CHARACTERS-Ausgangswerte zurück - "der
-   * gelernte Special bleibt" (feinspec §6.4) ist damit automatisch erfüllt, sobald Zone/Waffe wie
-   * beim Erstlauf wieder erreicht werden.
    */
   openReunionModal(): void {
     this.reunionModalOpen = true
@@ -491,7 +471,13 @@ export class GameStore {
     this.reunionModalOpen = false
     const reunionCount = this.save.reunionCount + 1
     const mode: ControlMode = this.save.flags.manualToggleUnlocked ? 'auto' : 'manual'
-    const party = this.save.roster.map((id) => freshCharacter(id, mode))
+    // M15 - `specialUnlocked` ist permanent (ausruestung-gil.md §0): vor dem Reset sichern,
+    // damit `freshCharacter()`s Rueckfall auf den CHARACTERS-Ausgangswert es nicht verliert.
+    const specialUnlockedById = new Map(this.save.party.map((c) => [c.id, c.specialUnlocked]))
+    const party = this.save.roster.map((id) => {
+      const fresh = freshCharacter(id, mode)
+      return specialUnlockedById.get(id) ? { ...fresh, specialUnlocked: true } : fresh
+    })
 
     this.save = {
       ...this.save,
@@ -502,7 +488,6 @@ export class GameStore {
       partyLevel: 1,
       partyExp: 0,
       currencies: {
-        gil: new Decimal(0),
         reunionEssence: this.save.currencies.reunionEssence.add(REUNION_ESSENCE_GAIN),
       },
       reunionCount,
@@ -557,22 +542,6 @@ export class GameStore {
     writeSave(this.save)
     this.#triggerCallout(`Save imported – Zone ${this.save.currentZone}.`)
     return { ok: true }
-  }
-
-  /** feinspec §7.1 Schritt 2 - der erste Gil-Kauf einer Figur: Special + MP-Leiste werden sichtbar. */
-  buyWeapon(id: string): void {
-    if (!this.canBuyWeapon(id) || !this.canAffordWeapon(id)) return
-    this.#dismissCallout()
-    const gil = this.save.currencies.gil.sub(WEAPON_COST_GIL)
-    const character = this.#character(id)
-    const party = this.save.party.map((c) => (c.id === id ? { ...c, weaponTier: 1 } : c))
-    this.save = {
-      ...this.save,
-      party,
-      currencies: { ...this.save.currencies, gil },
-      flags: { ...this.save.flags, mpVisible: true },
-    }
-    this.#triggerCallout(`${character.name} equipped a weapon – Special & MP online!`)
   }
 
   /** gambits.md §3/§6 - Auto/Manual-Umschalter je Figur, erst ab `manualToggleUnlocked` sichtbar. */
@@ -691,17 +660,16 @@ export class GameStore {
   }
 
   /**
-   * feinspec §3.6/§3.8 (M11) - Sieg: HP/MP-Stand aus dem Kampf übernehmen, EXP/Gil gutschreiben,
-   * Sieg-Erholung (+25% HP/MP, §3.5) anwenden, Bestiarium fortschreiben. Zonen-Rückkehr (§3.8a):
-   * nur das Erreichen der bisherigen Wand (`maxZoneReached`) schiebt die Wand weiter (inkl.
-   * Roster-/Flag-Freischaltungen); ein Sieg beim Farmen einer bereits geschafften Zone wiederholt
-   * dieselbe Zone unbegrenzt, ohne etwas zu verlieren.
+   * feinspec §3.6/§3.8 (M11) - Sieg: HP/MP-Stand aus dem Kampf übernehmen, EXP gutschreiben
+   * (über Level-x-Zone gedämpft, §1a/M15), Sieg-Erholung (+25% HP/MP, §3.5) anwenden,
+   * Bestiarium fortschreiben. Zonen-Rückkehr (§3.8a): nur das Erreichen der bisherigen Wand
+   * (`maxZoneReached`) schiebt die Wand weiter (inkl. Roster-/Flag-Freischaltungen); ein Sieg beim
+   * Farmen einer bereits geschafften Zone wiederholt dieselbe Zone unbegrenzt, ohne etwas zu verlieren.
    */
   #onWin(): void {
     const boostMult = this.reunionBoostMult
     const zone = findZone(this.save.currentZone)
-    const reward = zoneReward(zone)
-    const gil = this.save.currencies.gil.add(reward.gil)
+    const reward = zoneReward(zone, this.save.partyLevel)
 
     // stats-kampfwerte.md §4.1 - die Wellen-Summe geht EINMAL in den Party-Topf, nicht je Figur.
     const leveled = applyVictoryExp(this.save.partyLevel, this.save.partyExp, reward.exp)
@@ -723,7 +691,6 @@ export class GameStore {
         party,
         partyLevel,
         partyExp: leveled.exp,
-        currencies: { ...this.save.currencies, gil },
         bestiary,
       }
       this.phase = 'chapter-complete'
@@ -760,6 +727,16 @@ export class GameStore {
         party = [...party, joinCharacter('tofa', mode, partyLevel, boostMult), joinCharacter('airis', mode, partyLevel, boostMult)]
         this.#triggerCallout('Tofa and Air is... join the party – full roster online!')
       }
+
+      // feinspec §4.1/§5.1/§6.4 (M15) - permanenter Zonen-Trigger statt Gil-Kauf: Claude bei Zone
+      // 3, jede Figur bei ihrer eigenen `unlockedFromZone`. Einmal true, bleibt es true (§reunion()).
+      const unlockedBefore = new Set(party.filter((c) => c.specialUnlocked).map((c) => c.id))
+      party = party.map((c) => withSpecialTrigger(c, nextZone))
+      const newlyUnlocked = party.filter((c) => c.specialUnlocked && !unlockedBefore.has(c.id))
+      if (newlyUnlocked.length > 0) {
+        if (!flags.mpVisible) flags = { ...flags, mpVisible: true }
+        this.#triggerCallout(`${newlyUnlocked.map((c) => c.name).join(', ')} special unlocked – MP online!`)
+      }
     } else {
       // feinspec §3.8a - Zonen-Rückkehr: eine bereits geschaffte Zone farmen wiederholt sie.
       nextZone = this.save.currentZone
@@ -774,7 +751,6 @@ export class GameStore {
       currentZone: nextZone,
       maxZoneReached,
       flags,
-      currencies: { ...this.save.currencies, gil },
       bestiary,
     }
 

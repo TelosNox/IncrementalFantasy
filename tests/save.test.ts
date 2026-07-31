@@ -17,8 +17,7 @@ function sampleSaveState(): SaveState {
     partyExp: 12,
     roster: ['claude', 'barrel'],
     currencies: {
-      gil: new Decimal(3140),
-      reunionEssence: new Decimal(0),
+      reunionEssence: new Decimal(140),
     },
     bestiary: {
       blando: {
@@ -59,21 +58,19 @@ describe('Architektur §6 - Save-Round-Trip (serialize -> deserialize)', () => {
     expect(restored.reunionCount).toBe(original.reunionCount)
     expect(restored.flags).toEqual(original.flags)
     expect(restored.inn).toEqual(original.inn)
-    expect(restored.currencies.gil.eq(original.currencies.gil)).toBe(true)
     expect(restored.currencies.reunionEssence.eq(original.currencies.reunionEssence)).toBe(true)
   })
 
-  it('serialisiert Gil/Reunion-Essenz als String, nicht als natives JSON-number (Anti-Pattern #10)', () => {
+  it('serialisiert Reunion-Essenz als String, nicht als natives JSON-number (Anti-Pattern #10)', () => {
     const parsed = JSON.parse(serializeToJson(sampleSaveState()))
-    expect(typeof parsed.currencies.gil).toBe('string')
     expect(typeof parsed.currencies.reunionEssence).toBe('string')
   })
 
-  it('übersteht sehr große Gil-Werte ohne Präzisionsverlust (BigNumber ab Tag 1)', () => {
+  it('übersteht sehr große Reunion-Essenz-Werte ohne Präzisionsverlust (BigNumber ab Tag 1)', () => {
     const original = sampleSaveState()
-    original.currencies.gil = new Decimal('1e500')
+    original.currencies.reunionEssence = new Decimal('1e500')
     const restored = deserializeFromJson(serializeToJson(original))
-    expect(restored.currencies.gil.eq(original.currencies.gil)).toBe(true)
+    expect(restored.currencies.reunionEssence.eq(original.currencies.reunionEssence)).toBe(true)
   })
 })
 
@@ -123,15 +120,15 @@ describe('Architektur §6 - Migrations-Grundgerüst', () => {
   })
 
   // stats-kampfwerte.md §4.1 - der eigentliche Grund fuer v3: aus vier Charakter-Leveln wird eins.
-  it('migriert v2 nach v3: das hoechste Charakter-Level wird zum Gruppenlevel, level/exp entfallen an der Figur', () => {
+  it('migriert v2 nach v3/v4: das hoechste Charakter-Level wird zum Gruppenlevel, level/exp/weaponTier entfallen an der Figur', () => {
     const v2 = {
       version: 2,
       chapter: 1,
       currentZone: 20,
       maxZoneReached: 20,
       party: [
-        { ...CLAUDE, level: 20, exp: 7 },
-        { ...BARREL, level: 12, exp: 3 },
+        { ...CLAUDE, weaponTier: 1, level: 20, exp: 7 },
+        { ...BARREL, weaponTier: 0, level: 12, exp: 3 },
       ],
       roster: ['claude', 'barrel'],
       currencies: { gil: '100', reunionEssence: '0' },
@@ -155,9 +152,54 @@ describe('Architektur §6 - Migrations-Grundgerüst', () => {
     // Claude auf Barrels Stand zurueckzustufen (kein stiller Fortschrittsverlust).
     expect(migrated.partyLevel).toBe(20)
     expect(migrated.partyExp).toBe(7)
+    expect((migrated as unknown as { currencies: { gil?: string } }).currencies.gil).toBeUndefined()
     for (const c of migrated.party) {
       expect(c).not.toHaveProperty('level')
       expect(c).not.toHaveProperty('exp')
+      expect(c).not.toHaveProperty('weaponTier')
     }
+    // Claude hatte die Waffe schon gekauft (weaponTier >= 1) - der Special bleibt erhalten.
+    expect(migrated.party.find((c) => c.id === 'claude')!.specialUnlocked).toBe(true)
+    expect(migrated.party.find((c) => c.id === 'barrel')!.specialUnlocked).toBe(false)
+  })
+
+  // M15 (30.07.2026) - Gil und die Waffen-Tier-Leiter sind gestrichen; `weaponTier >= 1`
+  // wird verlustfrei auf den neuen permanenten `specialUnlocked`-Flag abgebildet.
+  it('migriert v3 nach v4: Gil entfaellt, weaponTier>=1 wird verlustfrei zu specialUnlocked', () => {
+    const v3 = {
+      version: 3,
+      chapter: 1,
+      currentZone: 9,
+      maxZoneReached: 9,
+      party: [
+        { ...CLAUDE, weaponTier: 1 },
+        { ...BARREL, weaponTier: 0 },
+      ],
+      partyLevel: 8,
+      partyExp: 3,
+      roster: ['claude', 'barrel'],
+      currencies: { gil: '250', reunionEssence: '0' },
+      bestiary: {},
+      reunionCount: 0,
+      flags: {
+        autoAttackUnlocked: true,
+        mpVisible: true,
+        manualToggleUnlocked: true,
+        defenseUnlocked: false,
+        materiaUnlocked: false,
+        gambitsUnlocked: false,
+      },
+      inn: { queued: false },
+    } as unknown as SerializedSaveState
+
+    const migrated = migrate(v3)
+
+    expect(migrated.version).toBe(SAVE_VERSION)
+    expect((migrated as unknown as { currencies: { gil?: string } }).currencies.gil).toBeUndefined()
+    const claude = migrated.party.find((c) => c.id === 'claude')!
+    const barrel = migrated.party.find((c) => c.id === 'barrel')!
+    expect(claude).not.toHaveProperty('weaponTier')
+    expect(claude.specialUnlocked).toBe(true)
+    expect(barrel.specialUnlocked).toBe(false)
   })
 })
