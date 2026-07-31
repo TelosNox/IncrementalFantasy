@@ -16,7 +16,25 @@
 
 ## Verfügbarkeit, Wiederholbarkeit & Boost
 
-- **Verfügbar ab Kapitelende** (sobald man die Kapitel-Wand erreicht) – man muss die Wand nicht schlagen, um zu reunionen.
+- **Verfügbar erst nach dem Sieg über den Kapitel-Boss (revidiert 31.07.2026).** Der Boss ist **Pflicht** – Reunion wird nicht schon beim *Erreichen* der Wand angeboten.
+
+  **Was hier vorher stand:** „Verfügbar ab Kapitelende (sobald man die Kapitel-Wand erreicht) – man muss die Wand nicht schlagen, um zu reunionen." Implementiert als `canReunion = currentZone >= 30` (`ui/gameStore.svelte.ts`), ausdrücklich als *Ausweg für Spieler, die die Wand nicht schaffen*.
+
+  **Warum revidiert:** Der Ausweg war **redundant**. Das Ventil gegen Anti-Pattern #1 ist nicht die Umgehung der Wand, sondern **Kriterium A2** (`feinspec-kapitel1.md` §12): Für jede Zone existiert eine Zahl N ≤ 20 wiederholter Siege in der Vorzone, nach der sie auch für einen vollautomatischen Spieler gewinnbar ist. Wer „heftig gelevelt hat", schafft den Boss also – ohne einen einzigen manuellen Eingriff. Die Umgehung schützte damit gegen eine Wand, die es nach A2 gar nicht gibt, und machte im Gegenzug den Kapitel-Boss zu **optionalem Inhalt**: Der effizienteste Camper-Pfad wäre gewesen, Zone 30 zu erreichen, sofort zu reunionen und Vaultron nie anzufassen.
+
+  ⚠️ **Bedingung, unter der das sicher ist – und der Prüfstein dieser Entscheidung: A2 muss an Zone 30 halten.** Fällt sie, ist der Pflicht-Boss eine Wand ohne Ventil und damit exakt der Fehler vom 24.07.2026.
+
+  *Verworfene mildere Alternative:* Reunion beim Erreichen weiter erlauben, aber geringer bezahlen (reduzierte Essenz). Erhält den Notausgang, fügt aber eine zweite Ertragsrate hinzu, um eine Absicherung zu bewahren, die A2 unnötig macht – und lässt den Boss optional. Mehr Mechanik für weniger Klarheit.
+
+  **Das Prinzip dahinter (und die eigentliche Begründung):**
+
+  > **Zeit erzeugt Überlevelung, und Überlevelung senkt den erforderlichen Skill drastisch — aber nicht auf null.** Genau das *ist* die Skill↔Zeit-Wahlfreiheit. Sie gewährt nur keine vollständige Passivität; das tut kein Incremental, sonst müsste man es gar nicht spielen.
+
+  Die Wahlfreiheit geht durch den Pflicht-Boss also **nicht verloren** — sie war nie „Wand überspringen", sondern „Wand billiger machen". Was bleibt, ist ein Minimum an Bedienung: **Zonenwahl.** Niederlage zahlt nichts (`niederlage-offline.md` §1), wer also stur an der Wand weiterprobiert, wird nie stärker; wer zurückgeht und farmt, kommt durch. Konkret heißt das für den Boss: **erforderlicher Kampf-Skill = null** (A2 garantiert Gewinnbarkeit für den vollautomatischen Typ V), **erforderliche Bedienung = Zonenwahl.**
+
+  Konsistent mit `gegner-encounter.md` §7: Die Kapitel-Wand ist ausdrücklich eine **grindbare Idle-Wand**, kein Pflicht-Prüfstein. Können kauft **Tempo** (M ≈ 13,5 min gegen V ≈ 67 min), nicht **Zugang**.
+
+  *Nebeneffekt:* „Zone 30 erreichen" und „Vaultron besiegen" fallen zu **einer** Ziellinie zusammen. Vorher waren es zwei, und die Abnahmekriterien haben sie vermischt (A1 sprach von *erreichen*, B2/B4/B5 vom Boss).
 - **Wiederholbar:** dasselbe Kapitel kann mehrfach gelaufen werden. Das erlaubt einen **Grind-Pfad** für Spieler, die eine Wand nicht manuell schaffen (Skill↔Zeit).
 - **Boost:** jede Reunion gibt einen **schwachen, aber wiederholbaren permanenten Boost**, voraussichtlich **gedeckelt pro Stufe** (Cap steigt mit Fortschritt), damit endloses Grinden früher Kapitel nicht trivialisiert.
 - **1. Reunion = Sonderfall:** schaltet zusätzlich die Gambits frei („Graduierung zur Automatik").

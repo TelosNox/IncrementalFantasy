@@ -207,3 +207,46 @@ Bisher deckte §12 nur M/T/V ab, und **V ist nicht reines Idle**: Der Harness mo
 **Reihenfolge unverändert:** M15a → M16 → M17 → Kapitel-2-Feinspec.
 
 Geänderte Dokumente: `spec/feinspec-kapitel1.md` (§12), `spec/oekonomie-waehrungen.md` (§1a), `06_Implementierungsplan_Kapitel1.md` (M15a, Entscheidungen 53–55), dieses Dokument.
+
+---
+
+## ⚠️ Konzept-Review von M15a (31.07.2026) – Mechanismus steht, Beleg fehlt
+
+**M15a ist umgesetzt** (Commit `59eb32b`): `EXP_DAMPING_CUTOFF = 6`, der Ertrag fällt jenseits von sechs Überschuss-Leveln hart auf 0 statt auf 1, Typ K ist als `simulateCamper` im Harness, Suite 116/116 grün.
+
+**Eine Forderung des vorigen Reviews war falsch – die Umsetzung hat es korrekt widerlegt.** Ich hatte eine Kalibrierung von `expectedLevelForZone` verlangt, weil sie für Zone 30 L15 liefert, echtes Spiel aber bei L21–23 ende. Der Vergleichswert war die **alte, ungedämpfte Vor-M15-Baseline**; das gedämpfte Spiel endet bei **L20**, Überschuss also 2,5 gegen einen Cutoff von 6. Die Kalibrierung war unnötig, eine zusätzliche Konstante wäre unbegründete Komplexität gewesen. *Bleibt gültig aus jenem Befund: Reguläre Spieler farmen am Kapitelende bereits im gedämpften Bereich (~44 % Ertrag) – Plateau und normales Pacing hängen an derselben Konstante (Entscheidung 54b).*
+
+**Aber B5 ist unbelegt: die Abnahme-Simulation hat zwei Fehler mit demselben Ursprung.** `frontier` wird auf die Zone gesetzt, die gerade **gescheitert** ist, während der Vorstoß der Folgesession bei `frontier + 1` beginnt:
+
+- **Vaultron wird nie besiegt.** Scheitert der Vorstoß an Zone 30, campt die nächste Session dort (gemessen: 0 Siege, sie ist nicht gewinnbar), der Vorstoß startet bei 31, und `if (zone > 30) return success` meldet Erfolg. Die dritte „Session" ist Buchführung.
+- **Wände lassen sich überspringen.** Ergibt das Campen keine Siege, rückt der Vorstoß trotzdem vor – sichtbar, sobald man das Spielverhalten nachbildet: Session 2 campt Zone 18 mit 0 Siegen, danach fallen 19–29.
+
+**Ursache dahinter ist ein Fehlschluss in Entscheidung 58:** „ein Kampf bei gegebenem Party-Level ist entweder gewinnbar oder nicht". Seit M11 tragen HP/MP zwischen Kämpfen über – Determinismus heißt „gleicher **Zustand** → gleiches Ergebnis", und der Zustand enthält HP/MP. Der Code beweist es selbst, indem er nach jeder Niederlage `fullyHeal` aufruft. Und das Spiel behebt Erschöpfung **von allein**: Niederlage → Zeitstrafe → automatisches Gasthaus → Retry derselben Zone. `playChapter()` modelliert das korrekt, `simulateCamper` nicht.
+
+**Einordnung: Test-Korrektheit, kein Design-Fehler.** Cutoff 6 und der Verzicht auf die Kalibrierung bleiben gültig. Beide Fehler lassen den Camper **schneller** erscheinen als er ist, der wahre Session-Wert liegt also vermutlich ≥ 3 und B5 dürfte halten – **belegt ist es nicht.** Zu korrigieren: `frontier` bleibt die letzte geschaffte Zone, die Wand muss tatsächlich gewonnen werden, Erfolg erfordert einen echten Sieg in Zone 30, Vorstoß mit Gasthaus-Retry wie im Spiel, und als Camping-Session zählt nur eine mit Siegen.
+
+*Wiederkehrendes Muster, dritte Instanz nach dem 24.07. und M15:* **Ein Kriterium ist erst erfüllt, wenn die Simulation, die es prüft, das Spiel abbildet – nicht eine bequemere Variante davon.** Am 24.07. farmte der Harness an einer Zone, die es nicht gab; in M15 fehlte der Camper ganz; in M15a gewinnt er den Boss nicht, der als besiegt gilt.
+
+Geänderte Dokumente: `spec/feinspec-kapitel1.md` (§12 B5), `spec/oekonomie-waehrungen.md` (§1a), `06_Implementierungsplan_Kapitel1.md` (M15a-Abnahme, Entscheidungen 59–60), dieses Dokument.
+
+### Nachtrag derselben Session: der Kapitel-Boss wird Pflicht
+
+**Beobachtung des Nutzers:** „Reunion wird angeboten, ohne dass der Boss besiegt ist." Zutreffend und bis dahin so gewollt – `canReunion = currentZone >= 30` ([gameStore.svelte.ts](../src/ui/gameStore.svelte.ts)), dokumentiert als Ausweg für Spieler, die die Wand nicht schaffen.
+
+**Damit gab es zwei Ziellinien, und die Abnahmekriterien haben sie vermischt:** A1 sprach wörtlich von *erreichen*, B2/B4/B5 vom Boss, und `playChapter()` verlangt einen Sieg in jeder Zone – die Zielzeiten messen also die teurere Linie, während der Spieler früher aussteigen konnte.
+
+**Entschieden: der Boss ist Pflicht.** Begründung des Nutzers: wer den Boss auch nach heftigem Leveln nicht tötet, ist nicht die Zielgruppe. **Das trägt**, weil das Ventil gegen Anti-Pattern #1 nicht die Umgehung der Wand ist, sondern **A2** – ≤ 20 Farm-Siege in der Vorzone machen jede Zone auch vollautomatisch gewinnbar. Der Ausweg war redundant und machte den Boss im Gegenzug zu *optionalem Inhalt*: Der effizienteste Camper-Pfad wäre gewesen, Zone 30 zu erreichen, sofort zu reunionen und Vaultron nie anzufassen.
+
+**Das Prinzip, das die Entscheidung eigentlich trägt** (Formulierung des Nutzers, treffender als mein „A2 macht den Ausweg redundant"):
+
+> **Zeit erzeugt Überlevelung, und Überlevelung senkt den erforderlichen Skill drastisch – aber nicht auf null.** Das *ist* die Skill↔Zeit-Wahlfreiheit. Sie gewährt nur keine vollständige Passivität; das tut kein Incremental, sonst müsste man es gar nicht spielen.
+
+Die Wahlfreiheit geht also **nicht verloren** – ich hatte sie fälschlich als Kosten gebucht. Sie war nie „Wand überspringen", sondern „Wand billiger machen". Was bleibt, ist ein Minimum an Bedienung: **Zonenwahl.** Erforderlicher Kampf-Skill für den Boss = **null** (A2 garantiert Gewinnbarkeit für Typ V), erforderliche Bedienung = **Zonenwahl**. Können kauft **Tempo** (13,5 gegen 67 min), nicht **Zugang** – konsistent mit `gegner-encounter.md` §7 („grindbare Idle-Wand, kein Pflicht-Prüfstein").
+
+⚠️ **Prüfstein dieser Entscheidung: A2 muss an Zone 30 halten.** Fällt sie, ist der Pflicht-Boss eine Wand ohne Ventil – exakt der Fehler vom 24.07.
+
+*Verworfen (mildere Alternative):* Reunion beim Erreichen weiter erlauben, aber geringer bezahlen. Erhält den Notausgang, fügt eine zweite Ertragsrate hinzu, um eine Absicherung zu bewahren, die A2 unnötig macht – und lässt den Boss optional.
+
+**Nebeneffekt:** Die zwei Ziellinien fallen zu einer zusammen, A1 ist auf „besiegen" korrigiert, und die `simulateCamper`-Korrektur ist damit eindeutig – *vorher* lag der gefundene Bug („Erfolg ohne Sieg in Zone 30") näher an der damals geltenden Reunion-Linie als meine eigene Korrekturforderung.
+
+Umsetzung: `canReunion` verlangt einen Sieg in Zone 30 (eigenes Flag, nicht `currentZone > 30`), zusammen mit den `simulateCamper`-Korrekturen. Entscheidungen 61–62 in `06_Implementierungsplan_Kapitel1.md`.

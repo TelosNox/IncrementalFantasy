@@ -105,7 +105,9 @@ Rechnung: Bei L20 in Zone 3 greift der Floor (0,03 × Rohwert 12 = 0,36), `Math.
 | **6** | **3** ✓ | 3, 15, 29 |
 | 4 | 4 | 3, 7, 15, 29 |
 
-**Umgesetzt und gemessen** (`tests/chapter-playthrough.test.ts` `simulateCamper`, `EXP_DAMPING_CUTOFF = 6`, `expectedLevelForZone` unverändert): **3 Sessions**, Camp-Zonen **1, 16, 30** – erfüllt B5 (≥3), volle Testsuite (116/116) ohne Regression bei A1–A2/B1–B3/C1–C4/D5. Die Prognose „ohne Kalibrierung wären nur 8–10 gefahrlos" hat sich **nicht** bestätigt – der Cutoff allein reicht, weil der reale Überschuss am Kapitelende (2,5) viel kleiner ist als angenommen (s. Punkt 2 oben).
+**Umgesetzt** (`EXP_DAMPING_CUTOFF = 6`, `expectedLevelForZone` unverändert): Der Cutoff-Mechanismus steht, die volle Testsuite (116/116) zeigt keine Regression bei A1–A2/B1–B3/C1–C4/D5. Die Prognose „ohne Kalibrierung wären nur 8–10 gefahrlos" hat sich **nicht** bestätigt – der Cutoff allein reicht, weil der reale Überschuss am Kapitelende (2,5) viel kleiner ist als vom Review angenommen (s. Punkt 2 oben).
+
+⚠️ **B5 selbst ist weiterhin unbelegt.** Der gemessene Wert „3 Sessions, Zonen 1/16/30" stammt aus einer Simulation, die **Vaultron nie besiegt** und Wände überspringen lässt (zwei Fehler mit demselben Ursprung, `06_Implementierungsplan_Kapitel1.md` Entscheidung 59/60). Beide wirken **zugunsten** des Ergebnisses, der wahre Wert liegt daher vermutlich ≥ 3 – **aber gemessen ist er nicht.** Nachzumessen mit korrigierter Sonde.
 
 ✓ **Bestätigt:** „Plateau breit genug für den schwachen Spieler" (A3) und „Sturz steil genug gegen Camping" (B5) gehen gleichzeitig, auch für Typ K – gemessen, kein offener Punkt mehr.
 

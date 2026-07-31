@@ -776,7 +776,7 @@ Alle Kriterien werden gegen vier klar getrennte Spielweisen geprüft. Sie sind d
 
 ### A – Durchspielbarkeit (harte Gates, nicht verhandelbar)
 
-- **A1** Alle drei Typen erreichen Zone 30. **V darf langsamer sein, aber nie blockiert.**
+- **A1** Alle vier Typen **besiegen** Zone 30 (Vaultron). **V und K dürfen langsamer sein, aber nie blockiert.** *Präzisiert 31.07.2026: Vorher stand „erreichen“ – und das war die billigere von zwei Ziellinien, während B2/B4/B5 den Boss meinten. Seit der Boss Pflicht ist (`prestige-reunion.md`), fallen Erreichen und Besiegen zu **einer** Ziellinie zusammen.*
 - **A2 (Ventil, formal):** Für **jede** Zone Z gilt: Es existiert eine Anzahl N wiederholter Siege in Zone Z−1, nach der Z für Typ V gewinnbar ist – mit **N ≤ 20**. Braucht eine Zone mehr, ist sie keine Wand mehr, sondern ein Stau. *Dies ist die formale Fassung von Anti-Pattern #1 und der wichtigste Test der ganzen Liste.*
 - **A3** Kein Spielzustand ist erreichbar, aus dem heraus kein Fortschritt mehr möglich ist – insbesondere nicht bei sehr wenig HP. *(Der frühere Zusatz „und 0 Gil" ist mit der Streichung von Gil gegenstandslos; das Gasthaus kostet weiterhin Zeit, §3.8b. **Neu relevant:** Die EXP-Dämpfung in §3.6 darf A3 nicht aushebeln – der Ertrag fällt nie auf null, und das Plateau muss breit genug bleiben, dass Zurückgehen den schwachen Spieler wirklich durchbringt.)*
 
@@ -805,7 +805,9 @@ Der Abstand muss **existieren** (sonst lohnt aktives Spiel nicht, Anti-Pattern #
   *Herkunft:* Der Nutzer hat den Camper als reales Verhalten benannt („startet das Spiel und lässt es während der Arbeitszeit laufen"). Weiterkommen ist ausdrücklich in Ordnung — nicht in Ordnung ist, **nach dem ersten Start direkt den Boss zu schaffen**; es soll mindestens einen Umzug in eine deutlich höhere Zone plus erneutes Campen erfordern. Die Mindestforderung war 2; festgeschrieben sind **3**, damit die nächste Balance-Änderung nicht sofort auf 1 zurückfällt.
 
   ⚠️ **Nach M15 verletzt** — gemessen: **eine** 8-h-Session an **Zone 3** (der allerersten Wand) bringt L2 → L20, danach fallen Zonen 4–30 inklusive Vaultron ohne weiteres Farmen. Ursache: `oekonomie-waehrungen.md` §1a („Warum ein absoluter Floor das Leck ist").
-  ✓ **Behoben in M15a** (`EXP_DAMPING_CUTOFF = 6`, `core/formulas.ts`/`core/progression.ts`): gemessen gegen `tests/chapter-playthrough.test.ts` (`simulateCamper`) braucht Typ K jetzt **3 Camping-Sessions** (Zonen 1, 16, 30) bis Vaultron fällt — erfüllt die Mindestforderung. Eine zusätzlich befürchtete Kalibrierung von `expectedLevelForZone` erwies sich als unnötig (06_Implementierungsplan_Kapitel1.md, Umsetzungsentscheidung 57).
+  **Mechanismus gebaut in M15a** (`EXP_DAMPING_CUTOFF = 6`, `core/formulas.ts`/`core/progression.ts`): Der Ertrag fällt jenseits von sechs Überschuss-Leveln hart auf 0 statt auf 1. Eine zusätzlich befürchtete Kalibrierung von `expectedLevelForZone` erwies sich als unnötig – der reale Überschuss am Kapitelende ist 2,5, nicht 6–8 (`06_Implementierungsplan_Kapitel1.md` Umsetzungsentscheidung 57; der Review hatte gegen die ungedämpfte Vor-M15-Baseline verglichen).
+
+  ⚠️ **B5 ist trotzdem noch nicht belegt.** Der Abnahmewert „3 Sessions, Zonen 1/16/30" stammt aus einer Simulation, die **Vaultron nie besiegt** (der Erfolgs-Zweig feuert, sobald die Vorstoß-Phase bei `frontier + 1 > 30` startet) und in der **Wände übersprungen** werden können. Beide Fehler haben denselben Ursprung und wirken **zugunsten** des Ergebnisses – der wahre Wert liegt vermutlich ≥ 3, B5 dürfte halten, **gemessen ist es nicht.** Details und Korrekturliste: `06_Implementierungsplan_Kapitel1.md` Entscheidung 59/60.
 - **B3** Beide Abstände müssen **existieren** – M < T und T < V. Eine Aussage über ihr Größenverhältnis wird bewusst **nicht** mehr getroffen (s. u.).
 
 ### Warum der Korridor nicht zu öffnen war (aufgelöst 30.07.2026)
