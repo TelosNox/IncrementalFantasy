@@ -80,7 +80,34 @@ Also **kein** gleichmäßiger Abfall ab dem ersten Level über Erwartung, sonder
 
 ✓ **Gemessen (M15-Umsetzung, s. `06_Implementierungsplan_Kapitel1.md` Umsetzungsentscheidung 50/52):** Plateau (2,5 Level) und Sturz (Decay 0,72/Überschuss-Level, Floor 0,03) gehen gleichzeitig – A2 (V ≤ 20 Grind-Siege je Zonenstufe) hält bei gemessen 19 als höchstem Wert, kein Konzept-Rückkanal nötig. `zoneReward()` erzwingt zusätzlich `Math.max(1, …)` auf den tatsächlichen Ganzzahl-Ertrag, damit die stärkste Dämpfungsstufe bei kleinen Zonen-EXP-Werten nicht auf 0 rundet (A3 bliebe sonst im Kleinen doch verletzt).
 ✓ **„Erwartetes Level je Zone" ist implementiert als Referenz-Vorwärtssimulation** (`core/progression.ts` `expectedLevelForZone`), nicht als Tabelle: eine Party, die exakt einen ungedämpften Sieg pro Zone einfährt, reine Funktion der bestehenden Zonen-/Monster-Content-Daten und der EXP-Kurve – bricht nicht bei Balance-Änderungen.
-⚠️ **Weiterhin offen:** Ob reines, zonenwahlfreies Camping (kein `maxZoneReached`-Fortschritt, unendliches Warten an einer einzigen Zone) tatsächlich „Größenordnung Wochen" braucht, ist nicht gemessen – der Test-Harness modelliert nur die drei definierten Spielertypen M/T/V (`feinspec-kapitel1.md` §12), nicht diesen Extremfall. B4 („Boss fällt nicht durch reines Warten") gilt für die gemessenen Typen als erfüllt.
+### ✗ Nachtrag 31.07.2026: der Camping-Fall war das Leck – und der A3-Schutz war die Ursache
+
+Der oben als „weiterhin offen" markierte Fall ist nachgemessen worden (Konzept-Review, Sonde gegen die echten Module). **Er ist verletzt, und zwar deutlich:** Eine **einzige** 8-Stunden-Session an **Zone 3** – der allerersten Wand – bringt die Party von L2 auf **L20**; danach fallen Zonen 4 bis 30 inklusive Vaultron ohne weiteres Farmen. Kriterium dafür ist jetzt **B5** (`feinspec-kapitel1.md` §12) mit dem neuen Spielertyp **K (Camper)**.
+
+**Die Ursache ist ausgerechnet `Math.max(1, …)`** – die Zeile, die A3 „im Kleinen" schützen sollte:
+
+> **Die Dämpfung skaliert den Ertrag pro Sieg – nicht die Siege pro Stunde.** Und die wachsen unbegrenzt, weil eine überlevelte Party einen frühen Kampf in ein bis zwei Sekunden beendet.
+
+Rechnung: Bei L20 in Zone 3 greift der Floor (0,03 × Rohwert 12 = 0,36), `Math.max(1, …)` macht daraus **1 EXP pro Sieg**. Bei ~1.800 Siegen/Stunde sind das **~14.400 EXP in acht Stunden**, während der ganze Aufstieg L2 → L20 nur rund 3.900 kostet. Ein absoluter Floor ist gegen eine unbegrenzte Siegrate wertlos.
+
+**Zwei Korrekturen, beide nötig (Umsetzung: M15a):**
+
+1. **Harte Null jenseits eines Abstands.** Jenseits von `CUTOFF` Überschuss-Leveln muss der Ertrag **0** sein, nicht 1. **A3 bleibt geschützt – nicht durch den Floor, sondern durch das Plateau:** Ein bis zwei Zonen zurückzugehen zahlt weiter voll, und nur das ist der legitime Ventil-Gebrauch. *Ein harter Deckel war oben verworfen worden, weil er den unendlichen Zeit-Kanal nähme. Der Einwand greift hier nicht: Dieser Deckel sitzt weit **jenseits** des Rückfallbereichs, nicht in ihm.*
+2. **`L_erw` an echtem Spiel kalibrieren.** `expectedLevelForZone` liefert für Zone 30 **L15**, echtes Spiel endet bei **L21–23** – gutes Spiel liegt chronisch 6–8 Level über der „Erwartung". Das Plateau absorbiert damit einen Teil der **normalen Progression**, und ein knapper `CUTOFF` würde reguläre Spieler am Kapitelende auf 0 setzen. Die Vorwärtssimulation aus Entscheidung 50 ist strukturell richtig (keine Tabelle), aber **falsch kalibriert**: „ein ungedämpfter Sieg pro Zone" ist kein realer Durchlauf.
+
+**Gemessene Wirkung des Cutoffs** (Typ K, sonst unveränderte Konstanten):
+
+| `CUTOFF` | Camping-Sessions bis Vaultron | Camp-Zonen |
+|---|---|---|
+| ohne (Stand M15) | **1** ✗ | 3 |
+| 10 | 2 | 3, 17 |
+| 8 | 2 | 3, 16 |
+| **6** | **3** ✓ | 3, 15, 29 |
+| 4 | 4 | 3, 7, 15, 29 |
+
+Zielwert **4–6 nach der Kalibrierung**. Ohne Kalibrierung wären nur 8–10 gefahrlos – und die erfüllen B5 nicht. Die beiden Korrekturen hängen also zusammen und dürfen nicht getrennt umgesetzt werden.
+
+⚠️ **Weiterhin offen:** Ob „Plateau breit genug für den schwachen Spieler" (A3) und „Sturz steil genug gegen Camping" (B5) *gleichzeitig* gehen, ist für Typ K **nicht** bestätigt – M15 hat es nur für V gezeigt. Das ist der Prüfpunkt von M15a.
 
 ## 2. Erster Zyklus (bis zur 1. Reunion)
 

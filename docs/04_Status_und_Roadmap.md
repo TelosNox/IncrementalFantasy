@@ -160,7 +160,8 @@ Run-Entscheidungen bleiben: **MP-Budget, Zielwahl/Fokus, Zonenwahl, Gasthaus-Tim
 
 **M15 → M16 → M17 → Kapitel-2-Feinspec** (`06_Implementierungsplan_Kapitel1.md`):
 
-- **M15 Ökonomie-Umbau** – der Blocker: Gil weg, EXP-Dämpfung, Special-Trigger, Zielzeiten neu simulieren.
+- **M15 Ökonomie-Umbau** – ✅ umgesetzt (31.07.2026, Commit `0ba6883`), aber **nicht abgeschlossen** → M15a.
+- **M15a Camping-Leck** – siehe Konzept-Review unten.
 - **M16 Zielwahl muss zählen** – Heiler in Region 2; Konter nur als *temporärer* Bosszustand („fordernd, nicht strafend"). Inhaltsdesign, keine Deadlock-Sicherung – das erledigt M15 allein.
 - **M17 Mechanik-Einführung** – Popup + Codex, vor der Kapitel-2-Feinspec, damit Kapitel-2-Mechaniken in ein bestehendes Framework rutschen.
 
@@ -169,3 +170,40 @@ Run-Entscheidungen bleiben: **MP-Budget, Zielwahl/Fokus, Zonenwahl, Gasthaus-Tim
 Geänderte Dokumente: `03_Konzept_Gerüst.md`, `06_Implementierungsplan_Kapitel1.md`, `spec/oekonomie-waehrungen.md`, `spec/ausruestung-gil.md`, `spec/charaktere-party.md`, `spec/prestige-reunion.md`, `spec/stats-kampfwerte.md`, `spec/gegner-encounter.md`, `spec/kampf-analyse-shock.md`, `spec/niederlage-offline.md`, `spec/ui-layout.md`, `spec/feinspec-kapitel1.md`.
 
 Ladehinweis (CLAUDE.md): `03_Konzept_Gerüst.md` + betroffene `spec/*.md`, `02_Leitfaden_Kernmechaniken.md` als Prüfinstanz; für technische Umsetzung zusätzlich `05_Architektur.md`.
+
+---
+
+## ⚠️ Konzept-Review von M15 (31.07.2026) – Camping-Leck gefunden
+
+**M15 ist umgesetzt** (Commit `0ba6883`: Gil entfernt, Waffen-Tier-Leiter ins Gruppenlevel gefaltet, `specialUnlocked` per Zonen-Trigger, EXP-Dämpfung über Level × Zone, Migration v3→v4, Suite grün). **Abgeschlossen ist er nicht** – der Review hat ein Leck gefunden, das die Umsetzung nicht sehen konnte, weil der Pacing-Harness den betreffenden Fall nicht modelliert.
+
+### Der neue Spielertyp: K (Camper)
+
+Der Nutzer hat ihn als reales Verhalten benannt: *„Er startet das Spiel und lässt es während der Arbeitszeit laufen. Danach kommt er weiter."* Anforderung: Weiterkommen ist in Ordnung – **nach dem ersten Start direkt den Boss zu schaffen** nicht. Es soll mindestens einen Umzug in eine deutlich höhere Zone plus erneutes Campen erfordern.
+
+Bisher deckte §12 nur M/T/V ab, und **V ist nicht reines Idle**: Der Harness modelliert für V ausdrücklich eine Zonenwahl (bei Niederlage einen Schritt zurück). Der Fall „eine Zone einstellen und laufen lassen" – genau der aus dem zweiten Playtest – blieb dadurch ungemessen. K ist jetzt vierter Typ, Kriterium **B5**: **≥ 3 Camping-Sessions an deutlich verschiedenen Zonen** bis Vaultron.
+
+### Der Befund: B5 nach M15 verletzt
+
+**Eine einzige 8-Stunden-Session an Zone 3** – der allerersten Wand – bringt L2 → **L20**; danach fallen Zonen 4 bis 30 inklusive Vaultron ohne weiteres Farmen.
+
+**Die Ursache ist ausgerechnet der A3-Schutz aus Umsetzungsentscheidung 50:**
+
+> **Die Dämpfung skaliert den Ertrag pro Sieg – nicht die Siege pro Stunde.** Und die wachsen unbegrenzt, weil eine überlevelte Party einen frühen Kampf in ein bis zwei Sekunden beendet.
+
+`Math.max(1, …)` garantiert 1 EXP pro Sieg. Bei ~1.800 Siegen/h sind das ~14.400 EXP in acht Stunden, während der ganze Aufstieg L2 → L20 nur rund 3.900 kostet. Ein **absoluter** Floor ist gegen eine unbegrenzte Siegrate wirkungslos.
+
+### Fix: zwei Korrekturen, die zusammengehören (M15a)
+
+1. **Harte Null jenseits `CUTOFF` Überschuss-Leveln** statt `Math.max(1, …)`. A3 wird vom **Plateau** getragen, nicht vom Floor – 1–2 Zonen zurück zahlt weiter voll. *Ein harter Deckel war am 30.07. verworfen worden; der Einwand („nimmt den unendlichen Zeit-Kanal") greift hier nicht, weil dieser Deckel weit jenseits des Rückfallbereichs sitzt.*
+2. **`expectedLevelForZone` kalibrieren.** Sie liefert für Zone 30 **L15**, echtes Spiel endet bei **L21–23**. Das Plateau absorbiert deshalb einen Teil der **normalen Progression**, und ein knapper Cutoff würde reguläre Spieler treffen. Gemessen: Cutoff **6** ergibt 3 Sessions (Zonen 3, 15, 29); ohne Kalibrierung wären nur 8–10 gefahrlos, und die erfüllen B5 nicht.
+
+### Drei weitere Notizen aus dem Review
+
+- **B4s Haken hält, aber die Begründung war falsch.** Entscheidung 52 argumentiert „A2/C3 erzwingen einen Abschluss in endlicher Zeit" – das ist ein Argument *gegen* B4. B4 hält, weil **Niederlage nichts zahlt**: Wer gar nichts bedient, wird nie stärker.
+- **Die Kriterien sind zum Messwert hin bewegt worden** (B2 4,5 → 5,5×, C3 18 → 20, A2 hält mit 19/20). Einzeln begründet, zusammen ohne Spielraum – die nächste Balance-Änderung, die V um 5 % verschiebt, bricht A2.
+- **Der Review selbst hat einen Fehlschluss produziert** und ihn korrigiert: Er hielt A2 und die „Wochen"-Zeile zunächst für widersprüchlich und konstruierte daraus eine Grundsatzwahl. Falsch – V und K sind verschiedene Spieler, A2 begrenzt nur V. Festgehalten als Umsetzungsentscheidung 55, damit die nächste Session es nicht wiederholt. *Lehre: Bevor aus zwei Kriterien ein Widerspruch abgeleitet wird, prüfen, ob sie überhaupt dasselbe Verhalten beschreiben.*
+
+**Reihenfolge unverändert:** M15a → M16 → M17 → Kapitel-2-Feinspec.
+
+Geänderte Dokumente: `spec/feinspec-kapitel1.md` (§12), `spec/oekonomie-waehrungen.md` (§1a), `06_Implementierungsplan_Kapitel1.md` (M15a, Entscheidungen 53–55), dieses Dokument.

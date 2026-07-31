@@ -483,7 +483,7 @@ Am laufenden Dev-Server gemessen, nicht aus dem Code abgeleitet (die Vorgabe „
 
 - ✓ Kein `gil`/`weaponTier` mehr im Code, im Save oder in den Content-Daten; Migration (v3→v4, Entscheidung 51) lädt Altstände verlustfrei.
 - ✓ Der Special ist nach einer Reunion **ab Zone 1 verfügbar** und bleibt es (permanentes `specialUnlocked`, Entscheidung 49) – der alte Widerspruch ist weg.
-- ✓ **B4:** Typ V (reiner Idle-Test-Typ, §12) fällt Vaultron nicht mehr durch Tieffarmen billiger als zuvor – im Gegenteil, spürbar teurer (Entscheidung 52). Die separate B2-Zeile „reines Idle, Größenordnung Wochen" bleibt offen (s. Entscheidung 52).
+- ✓ **B4:** Typ V fällt Vaultron nicht mehr durch Tieffarmen billiger als zuvor – im Gegenteil, spürbar teurer (Entscheidung 52). ⚠️ **Die Begründung in Entscheidung 52 ist allerdings ein Fehlschluss** (s. Konzept-Review 31.07.2026 unter M15a); B4 hält aus einem anderen Grund. **Und der Fall, den die offene B2-Zeile meinte, ist inzwischen gemessen und verletzt** → **B5**, M15a.
 - ✓ **A3 hält weiter:** über den Test-Harness bestätigt, kein Deadlock, EXP-Ertrag nie 0 (`Math.max(1, …)` in `zoneReward()`).
 - Zielzeiten M ≈ 30 min / T ≈ 90 min (Echtzeit inkl. Menüs, §7.4 „Einordnung in Echtzeit") **unverändert erreichbar** – die Simulationszeit für M/T ändert sich durch M15 kaum (Entscheidung 52); **T′-Zielband bleibt offen** (Playtest-Frage, kein Simulationswert).
 
@@ -498,6 +498,48 @@ Am laufenden Dev-Server gemessen, nicht aus dem Code abgeleitet (die Vorgabe „
 50. **EXP-Dämpfung: `expectedLevelForZone` als Referenz-Vorwärtssimulation, Plateau/Decay/Floor als Startwerte.** `core/progression.ts` `expectedLevelForZone(zone)` berechnet (einmalig, gecacht) das Level, mit dem eine Party ankäme, die **genau einen ungedämpften Sieg pro Zone** einfährt – reine Funktion der bestehenden `ZONES`/`MONSTERS`-Content-Daten und der `expToNext`-Kurve, keine von Hand gepflegte Tabelle (erfüllt die Spec-Vorgabe wörtlich). Der Dämpfungsfaktor (`core/formulas.ts` `expDampingFactor`) nutzt `PLATEAU = 2,5` Level, exponentiellen `DECAY = 0,72` je Überschuss-Level, `FLOOR = 0,03` (nie 0 – zusätzlich in `zoneReward()` nochmals als `Math.max(1, …)` auf den tatsächlichen Ganzzahl-Ertrag erzwungen, sonst würde die stärkste Dämpfungsstufe bei kleinen Zonen-EXP-Werten auf 0 runden und A3 im Kleinen doch aushebeln).
 51. **Migration v3 → v4:** `currencies.gil` entfällt ersatzlos, `Character.weaponTier` entfällt, `specialUnlocked` wird **verlustfrei aus `weaponTier >= 1` rekonstruiert** (`save/migrate.ts` `migrateV3toV4`) – wer die Waffe schon gekauft hatte, behält den Special, alle anderen lösen den Zonen-Trigger beim nächsten Fortschritt regulär aus.
 52. **Neu simulierte Zielzeiten (Ziel 5) – B2/C3 an die gemessene, gewollt härtere V-Ökonomie angepasst.** Gemessen gegen `tests/chapter-playthrough.test.ts`: **M 13,5 min / T 43,7 min (3,24×) / V 67,3 min (4,99×)** Simulationszeit (gegen die alte, ungedämpfte Baseline M 13,3 / T 42,8 / V 53,2 min, §7.4) – M/T bleiben praktisch unverändert (sie farmen kaum überlevelt), V wird spürbar langsamer, weil Tieffarmen jetzt schlechter bezahlt. §12 B2s V-Obergrenze von 4,5× auf **5,5×** angehoben (Puffer über dem gemessenen 4,99×), §12 C3s Gate-Retry-Obergrenze für V von 18 auf **20** (Puffer über dem gemessenen Maximum 19 an Zone 18) – beide Male mit Puffer statt exakt am Messwert, aus demselben Grund wie Entscheidung 43. **Zielband T′ (schwacher Spieler) bleibt offen** – das erfordert eine gespielte/Playtest-Einschätzung, keine Simulationszahl, und ist damit nicht Teil dieser Umsetzung. **Ebenso offen:** ob reines, zonenwahlfreies Camping vor Vaultron tatsächlich „Größenordnung Wochen" braucht (§12 B2s separate V-Zeile) – der Harness modelliert nur die drei definierten Spielertypen (§12 „Die drei Spielertypen"), nicht diesen Extremfall; B4 („Boss fällt nicht durch reines Warten") ist dagegen erfüllt, da A2/C3 einen Abschluss in endlicher, gemessener Zeit weiterhin erzwingen.
+
+---
+
+## M15a – Camping-Leck schließen (Konzept-Review 31.07.2026)
+
+**M15 ist damit inhaltlich nicht abgeschlossen.** Eigener Abschnitt statt Nacharbeit im M15-Text, weil hier ein neues Kriterium (**B5**) und ein neuer Spielertyp (**K**) dazukommen.
+
+**Der Befund.** Der Konzept-Review hat den Fall nachgemessen, den Entscheidung 52 ausdrücklich als „nicht modelliert" markiert hatte — den **Camper**: eine Zone einstellen und das Spiel während der Arbeitszeit laufen lassen. Ergebnis: **eine einzige 8-h-Session an Zone 3** (der allerersten Wand) bringt L2 → **L20**, danach fallen Zonen 4–30 inklusive Vaultron ohne weiteres Farmen. Der Nutzer hat den Camper als reales Verhalten bestätigt und die Anforderung gesetzt: mindestens ein Umzug in eine deutlich höhere Zone plus erneutes Campen.
+
+**Die Ursache ist der A3-Schutz aus Entscheidung 50 selbst.** `Math.max(1, …)` in `zoneReward()` garantiert **1 EXP pro Sieg** — und die Dämpfung skaliert den Ertrag *pro Sieg*, nicht die *Siege pro Stunde*. Bei ~1.800 Siegen/h in Zone 3 sind das ~14.400 EXP in acht Stunden, während L2 → L20 nur rund 3.900 kostet. Ein **absoluter** Floor ist gegen eine unbegrenzte Siegrate wirkungslos.
+
+**Ziel**
+
+1. **Harte Null jenseits `CUTOFF` Überschuss-Leveln** statt `Math.max(1, …)`. A3 wird vom **Plateau** getragen, nicht vom Floor: 1–2 Zonen zurück zahlt weiter voll.
+2. **`expectedLevelForZone` kalibrieren.** Die Vorwärtssimulation ist strukturell richtig (keine Tabelle), aber „ein ungedämpfter Sieg pro Zone" ergibt für Zone 30 **L15**, während echtes Spiel bei **L21–23** endet. Referenz muss ein **gemessener** Durchlauf sein. **Punkt 1 und 2 gehören zusammen** — ein knapper Cutoff auf der unkalibrierten Kurve würde reguläre Spieler am Kapitelende auf 0 EXP setzen.
+3. **Typ K in den Harness** aufnehmen (feinspec §12), sonst bleibt B5 dauerhaft ungemessen.
+4. **B4-Begründung korrigieren** (s. Entscheidung 53).
+
+**Spec-Referenzen:** `spec/feinspec-kapitel1.md` §12 (Typ K, B4, B5), `spec/oekonomie-waehrungen.md` §1a („Nachtrag 31.07.2026").
+
+**Abnahme**
+
+- **B5:** Typ K braucht **≥ 3** Camping-Sessions (Referenz 8 h) an deutlich verschiedenen Zonen bis Vaultron.
+- **A3 unverändert:** 1–2 Zonen Rückfall bleibt voll bezahlt; kein Zustand ohne Fortschrittsmöglichkeit.
+- **Keine Regression bei M/T/V:** A2/B1/B2/C1–C4 halten weiter.
+- Reguläre Spieler laufen am Kapitelende **nicht** in den Cutoff.
+
+**Messwerte des Reviews** (Sonde gegen die echten Module, sonst unveränderte Konstanten) — als Startpunkt, nicht als Vorgabe:
+
+| `CUTOFF` | Sessions | Camp-Zonen |
+|---|---|---|
+| ohne (M15) | **1** ✗ | 3 |
+| 10 | 2 | 3, 17 |
+| 8 | 2 | 3, 16 |
+| **6** | **3** ✓ | 3, 15, 29 |
+| 4 | 4 | 3, 7, 15, 29 |
+
+**Umsetzungsentscheidungen (Konzept-Review, vorab):**
+
+53. **Entscheidung 52s B4-Begründung ist ein Fehlschluss und wird ersetzt.** Dort steht: „B4 ist erfüllt, da A2/C3 einen Abschluss in endlicher, gemessener Zeit weiterhin erzwingen." B4 verlangt aber, dass der Boss **nicht** billig fällt, wenn niemand eingreift — „der Abschluss ist endlich" ist ein Argument **dagegen**. B4 hält aus einem anderen Grund: **Niederlage zahlt nichts** (§3.8c), also wird ein Spieler, der gar nichts bedient, nie stärker; es gibt keinen Kanal „warten und irgendwann gewinnen". Der operative Test ist deshalb B5, nicht B4.
+54. **Zwei Risiken aus dem Review, die M15 nicht als solche notiert hat.** (a) **Die Kriterien sind zum Messwert hin bewegt worden:** B2s V-Obergrenze 4,5 → 5,5×, C3 18 → 20, und A2 hält mit **19 von 20**. Jede Änderung ist einzeln begründet, zusammen ist an dieser Stelle aber **kein Spielraum mehr** — die nächste Balance-Änderung, die V um 5 % verschiebt, bricht A2. (b) **Plateau und normale Progression hängen an derselben Konstante**, solange `L_erw` unkalibriert ist (Ziel 2): Wer am Plateau dreht, um Camping zu bestrafen, verschiebt zugleich das reguläre Pacing.
+55. **Korrektur eines Fehlschlusses des Reviews selbst** — festgehalten, damit die nächste Session ihn nicht wiederholt: Der Review hat zunächst behauptet, A2 („V ≤ 20 Grind-Siege je Zonenstufe") und die B2-Zeile „reines Idle braucht Wochen" widersprächen sich, und daraus eine Grundsatzwahl konstruiert („A2 aufgeben oder Wochen streichen"). Das war falsch. **Typ V ist nicht reines Idle** — der Harness modelliert für V ausdrücklich eine Zonenwahl (`tests/chapter-playthrough.test.ts`, Kommentar „Zonen-Rückkehr ist eine explizite, hier nachgebildete Spielerentscheidung"). V farmt pro Niederlage *einen* Kampf und wird von A2 begrenzt; der Camper farmt an einer selbstgewählten Zone **unbegrenzt** und ist von A2 gar nicht berührt. Es sind zwei verschiedene Spieler, kein Widerspruch — und deshalb lässt sich das Camping-Leck ohne jeden Eingriff in A2 oder das Ventil schließen. *Lehre: Bevor aus zwei Kriterien ein Widerspruch abgeleitet wird, ist zu prüfen, ob sie überhaupt dasselbe Verhalten beschreiben.*
 
 ---
 

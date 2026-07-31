@@ -757,15 +757,22 @@ Die sensibelsten Hebel:
 
 **Zweck:** Die Konzeptphase liefert bewusst **keine neuen Zahlen** – sie liefert die Eigenschaften, die die Zahlen erfüllen müssen. Die Umsetzung findet die Werte und prüft sie gegen diese Liste. Grund: Die alte Baseline war nicht falsch berechnet, sondern gegen das falsche Modell gemessen (§9). Ein Kriterium ist deshalb nur dann eins, wenn es **falsifizierbar** ist und sagt, **wo** es geprüft wird.
 
-### Die drei Spielertypen
+### Die vier Spielertypen
 
-Alle Kriterien werden gegen drei klar getrennte Spielweisen geprüft. Sie sind die neue Messgrundlage und ersetzen das frühere Begriffspaar „Auto vs. manuell an Gates":
+Alle Kriterien werden gegen vier klar getrennte Spielweisen geprüft. Sie sind die Messgrundlage und ersetzen das frühere Begriffspaar „Auto vs. manuell an Gates":
 
 | Typ | Verhalten | Rolle |
 |-----|-----------|-------|
 | **M – Manuell** | wählt Aktionen *und* Ziele selbst, nutzt Specials/Heal/Suppress/Limit/Defend | Referenz (schnellster Pfad) |
 | **T – Teilautomatisch** | setzt pro Kampf nur das **Fokusziel**, sonst Auto | der erwartete Normalfall |
-| **V – Vollautomatisch** | greift **gar nicht** ein, kein Fokusziel | Idle-Versprechen |
+| **V – Vollautomatisch** | greift im Kampf **gar nicht** ein, **wählt aber Zonen** – bei Niederlage einen Schritt zurück, dann wieder vor | Idle-Versprechen |
+| **K – Camper** *(neu 31.07.2026)* | greift im Kampf gar nicht ein und **wählt eine Zone, die er stundenlang stehen lässt** (Spiel läuft während der Arbeitszeit); erst danach stößt er vor | der reale Idle-Extremfall |
+
+**Warum K dazukommt.** V ist **nicht** reines Idle: Der Harness modelliert für V ausdrücklich eine **Zonenwahl** („bei Niederlage die letzte geschaffte Zone einmal farmen", `tests/chapter-playthrough.test.ts`). Damit blieb der Fall, den der zweite Playtest tatsächlich gefunden hat — *eine* Zone wählen und laufen lassen — dauerhaft ungemessen. Genau dort saß nach M15 noch ein Leck (§12 B5, `oekonomie-waehrungen.md` §1a).
+
+**Was K von V unterscheidet, ist nicht „weniger Eingriff", sondern die Farm-Menge.** V farmt pro Niederlage *einen* Kampf und wird deshalb von A2 begrenzt. K farmt an einer selbstgewählten Zone **unbegrenzt** und ist von A2 überhaupt nicht berührt. Wer K härter stellen will, muss deshalb A2 nicht anfassen — das ist der Grund, warum das Leck ohne Risiko für das Ventil zu schließen ist.
+
+**Ein völlig passiver Spieler ist kein eigener Typ** und braucht keinen: Niederlage zahlt nichts (§3.8c). Wer an einer Wand stur weiterprobiert, wird niemals stärker. Es existiert also kein Kanal „gar nichts tun und irgendwann gewinnen" — mindestens die Zonenwahl muss bedient werden. *Das ist der tragende Grund für B4, nicht die in `06_Implementierungsplan_Kapitel1.md` Entscheidung 52 genannte Begründung (s. dort).*
 
 ### A – Durchspielbarkeit (harte Gates, nicht verhandelbar)
 
@@ -791,7 +798,13 @@ Der Abstand muss **existieren** (sonst lohnt aktives Spiel nicht, Anti-Pattern #
 
   ⚠️ **Die Lücke zwischen T (~90 min) und V (Wochen) ist Faktor ~200.** Der Spieler, der ein Gate manuell *versucht* und nicht schafft (T′), darf nicht in den V-Kanal gedrückt werden – dann hört er auf. **Genau deshalb muss die EXP-Dämpfung ein breites Plateau haben** (§3.6): Ein bis zwei Zonen zurückzugehen muss ihn in wenigen Vielfachen der Referenz durchbringen. Das Zielband für T′ zu bestimmen, ist Teil der Neu-Balancierung.
 
-- **B4 (neu) Der Kapitel-Boss darf nicht durch reines Warten fallen.** Es gibt keine Farmdauer unterhalb der V-Größenordnung, nach der Typ V den Boss ohne einen einzigen manuellen Eingriff besiegt. *Hintergrund: Im zweiten Playtest fiel er nach ausgedehntem Tieffarmen idle – „eine reine Stat-Wand kann nie eine Können-Wand sein" (`gegner-encounter.md` §7). Überpowerbar muss er bleiben; nur nicht in einer Stunde.*
+- **B4 Der Kapitel-Boss darf nicht durch reines Warten fallen.** **Erfüllt, aber anders begründet als in der Umsetzung angenommen:** Niederlage zahlt nichts (§3.8c), also wird ein Spieler, der *nichts* bedient, nie stärker. Es gibt keinen Kanal „warten und irgendwann gewinnen". *Die Begründung in `06_Implementierungsplan_Kapitel1.md` Entscheidung 52 („A2/C3 erzwingen einen Abschluss in endlicher, gemessener Zeit") ist ein Fehlschluss — dass der Abschluss endlich ist, wäre ein Argument **gegen** B4, nicht dafür.* Der operative Test ist nicht B4, sondern **B5**.
+
+- **B5 (neu 31.07.2026, aus dem Camper-Befund) Der Camper braucht mindestens drei Camping-Sessions an deutlich verschiedenen Zonen.** Gemessen als: Typ **K** stellt eine Zone ein, lässt sie eine realistische Session (Referenz: **8 h**) laufen, stößt danach vor, so weit es ohne Farmen geht — und wiederholt das. **Bis Vaultron fällt, müssen ≥ 3 solche Sessions an klar getrennten Zonen nötig sein.**
+
+  *Herkunft:* Der Nutzer hat den Camper als reales Verhalten benannt („startet das Spiel und lässt es während der Arbeitszeit laufen"). Weiterkommen ist ausdrücklich in Ordnung — nicht in Ordnung ist, **nach dem ersten Start direkt den Boss zu schaffen**; es soll mindestens einen Umzug in eine deutlich höhere Zone plus erneutes Campen erfordern. Die Mindestforderung war 2; festgeschrieben sind **3**, damit die nächste Balance-Änderung nicht sofort auf 1 zurückfällt.
+
+  ⚠️ **Nach M15 verletzt.** Gemessen: **eine** 8-h-Session an **Zone 3** (der allerersten Wand) bringt L2 → L20, danach fallen Zonen 4–30 inklusive Vaultron ohne weiteres Farmen. Ursache und Fix: `oekonomie-waehrungen.md` §1a („Warum ein absoluter Floor das Leck ist"), Umsetzung als **M15a**.
 - **B3** Beide Abstände müssen **existieren** – M < T und T < V. Eine Aussage über ihr Größenverhältnis wird bewusst **nicht** mehr getroffen (s. u.).
 
 ### Warum der Korridor nicht zu öffnen war (aufgelöst 30.07.2026)
