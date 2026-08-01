@@ -417,13 +417,27 @@ Am laufenden Dev-Server gemessen, nicht aus dem Code abgeleitet (die Vorgabe „
 - **Analyse-Popup erst am ersten Gegner, bei dem Zielwahl zählt**, nicht bei Regionsbeginn.
 - Optional, pro Boss dosierbar: **temporärer, telegrafierter Konter-Zustand** (Angreifen schadet dem Angreifer). **Nur temporär, nur Boss/Miniboss** – als Dauer-Trait ausdrücklich verworfen. Leitlinie **fordernd, nicht strafend**: Autoplay verliert HP, stirbt nicht zwangsläufig.
 
-**Abnahme:** Der Abstand M↔T wächst messbar gegenüber M15; Analyse hat ab ihrem ersten Auftritt einen ablesbaren Nutzen (E4).
+**Abnahme (Kriterium ersetzt am 01.08.2026, Konzept-Review nach der Umsetzung):**
+
+- **Mindestens zwei benannte Encounter**, in denen Zielwahl über Ausgang oder Dauer des Kampfes entscheidet – davon **einer spätestens am Ende von Region 2**, also dort, wo Analyse aufgeht.
+- Jeder dieser Encounter hat eine **Antwort, die nicht ausgehen kann** (§5a „Rätsel-Takt statt Steuer").
+- Analyse liefert an diesen Gegnern eine Information, die die Kampfanzeige **nicht ohnehin hergibt** (E4).
+
+*Ersetzt wurde „Der Abstand M↔T wächst messbar gegenüber M15". Grund: Das Maß passt nicht zum Meilenstein. M↔T misst den Skill-Ertrag über **alle 30 Zonen**; M16 ändert davon zwei Encounter, kann die Kennzahl also konstruktionsbedingt nur um wenige Prozent bewegen. Die Messung bestätigte das (+3 %, s. u.), und sie war zusätzlich **nicht monoton** – ein Konter-Deckel von 3 statt 2 senkte den Abstand wieder (Entscheidung 72). Ein Kriterium, das nur durch Drehen am schärfsten nichtlinearen Hebel des Kapitels zu erfüllen wäre, erzeugt Druck genau in die Richtung, die die Leitlinie „fordernd, nicht strafend" verbietet. Der M↔T-Abstand bleibt die richtige Kennzahl für den §12-Korridor als Ganzes – nur nicht die Abnahme eines einzelnen Inhalts-Meilensteins.*
 
 **Einordnung:** Das ist **Inhaltsdesign, keine Deadlock-Sicherung** – die EXP-Dämpfung aus M15 erledigt das Idle-Overpowern allein. Deshalb ist M16 dosierbar und nicht tragend.
 
 **Umgesetzt:** Neues Monster **Bandbox** (Trait `heal`, `content/monsters.ts`), platziert in Zone 12/13 direkt nach dem Panzer (`content/zones.ts`); heilt statt anzugreifen (`core/tick.ts` `resolveEnemyAction`). **Vaultron** (Zone 30) trägt neu `counterStance: true` – während der bereits vorhandenen "Mako core charging…"-Aktion kontert jeder Treffer bis zu einem Deckel (`core/battle.ts` `dealDamage`, `COUNTER_MAX_HITS`). Die Referenz-Policy für "aufmerksames manuelles Spiel" (`core/gambits.ts` `resolveOptimalAction`) bekommt dafür `smartTarget`: tötet einen Heiler immer zuerst und weicht einem aktiven Konter-Fenster aus, solange ein anderes Ziel lebt.
 
-**Abnahme gemessen:** `npm test` 120/120 und `npm run check` sauber. Neuer Regressionstest in `tests/chapter-playthrough.test.ts` prüft direkt die Abnahme-Formulierung ("Abstand M↔T wächst messbar gegenüber M15"): M15-Baseline-Abstand war 43,7 − 13,5 = **30,2 min** (Umsetzungsentscheidung M15 #52); gemessen nach M16: **M 13,8 / T 45,0 min → Abstand 31,2 min** (V 69,1 min, alle §12-Kriterien A–D weiterhin grün, inkl. B2/C3/A2). Der Zuwachs ist real und reproduzierbar, aber **bewusst moderat** (~3 %, nicht vervielfacht) – s. Umsetzungsentscheidung unten zur Konter-Dosierung.
+**Abnahme gemessen:** `npm test` 120/120 und `npm run check` sauber. Alle §12-Kriterien A–D weiterhin grün (inkl. A2/B2/C3). Gemessene Laufzeiten nach M16: **M 13,8 / T 45,0 / V 69,1 min**.
+
+⚠️ **Zum alten M↔T-Kriterium (nicht mehr die Abnahme, s. o.):** M15-Baseline 43,7 − 13,5 = **30,2 min**, nach M16 **31,2 min**. Der Konzept-Review vom 01.08.2026 wertet die +1 min **nicht** als Beleg: Variante (a) derselben Messreihe lag bei 30,2 („im Rauschen"), und ein Deckel von 3 ergab 30,8 – die Bewegung durch eine Verschlechterung hat dieselbe Größenordnung wie die durch die Verbesserung. Der zugehörige Regressionstest in `tests/chapter-playthrough.test.ts` prüft damit eine Zahl, die er nicht tragen kann; er ist auf die neue Abnahme umzustellen (Zielwahl-Wirkung je Encounter statt Kapitel-Kennzahl) – **offener Punkt für die nächste Umsetzungs-Session.**
+
+**Offene Punkte aus dem Konzept-Review (01.08.2026)** – die drei Spec-Korrekturen in `spec/gegner-encounter.md` §5a sind nachgezogen, die Umsetzung steht aus:
+
+1. **Analyse braucht am Heiler eine exklusive Information** (Heilmenge/Takt) – „der heilt" liest der Spieler an der HP-Leiste ab, dafür ist Analyse nicht nötig. Ohne das ist E4 nicht belegt.
+2. **Vaultrons Ausweichziele können ausgehen** – zwei Adds, aber das Konter-Fenster wiederholt sich alle drei Aktionen. Antwort, die nicht ausgehen kann, nötig.
+3. **Bandbox braucht ein eigenes Sprite, bevor M17 den Lehr-Popup setzt** – der erste Zielwahl-Lehrgegner darf nicht wie der Füllgegner neben ihm aussehen (Entscheidung 75, Platzhalter `blando_64.png`). **Blocker für M17**, nicht bloß offener Content-Punkt.
 
 **Umsetzungsentscheidungen (M16): Nr. 68–75 → [`07_Umsetzungsentscheidungen.md`](07_Umsetzungsentscheidungen.md)**
 

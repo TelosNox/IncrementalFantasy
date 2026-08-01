@@ -1,6 +1,6 @@
 # Gegner-Katalog (Parodie-Monster)
 
-**Status:** 11 einfache Monster beschrieben (englischbasierte Namen für internationale Lesbarkeit); Visuals folgen später (über `assets/generate_characters.py` im Pixel-Stil, s. `charaktere-visuals.md`). Bandbox (#11) kam mit M16 (01.08.2026) dazu und hat noch kein Sprite (Platzhalter: Blando-Sprite, `ui/sprites.ts`).
+**Status:** 11 einfache Monster beschrieben (englischbasierte Namen für internationale Lesbarkeit); Visuals folgen später (über `assets/generate_characters.py` im Pixel-Stil, s. `charaktere-visuals.md`). Bandbox (#11) kam mit M16 (01.08.2026) dazu und hat noch kein Sprite (Platzhalter: Blando-Sprite, `ui/sprites.ts`). ⚠️ **Dieses eine Sprite ist ein Blocker für M17, kein gewöhnlicher Content-Nachzug** (Konzept-Review 01.08.2026): Bandbox ist der **erste Zielwahl-Lehrgegner des Kapitels** und steht in derselben Welle wie der Standard-Füllgegner, dessen Sprite er borgt. Ein Popup, das „such dir das richtige Ziel" lehrt, zeigt dann auf zwei identische Kartons – die Lehrwirkung fällt aus, bevor sie eingeführt wird. **Vor dem M17-Popup zu erledigen.**
 **Rahmen:** ergänzt `gegner-encounter.md` (Archetypen §5) und `../03_Konzept_Gerüst.md` §4.
 **Prüfinstanz:** `../02_Leitfaden_Kernmechaniken.md`.
 
