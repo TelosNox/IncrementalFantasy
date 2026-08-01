@@ -130,9 +130,10 @@ Roster-Rhythmus: **Region 1 Claude allein → Region 2 Barrel** (man ist nicht a
 - **Limit** lädt → manueller Wand-Brecher am **Region-Miniboss** (analog Braver vs. Guard Scorpion).
 - **★ Schlüsselmoment:** Freischaltung der **Default-Attack-Regel** – erste Automatik, Trash wird idle-bar.
 
-**Region 2 – Bargain Bazaar** – Barrel stößt dazu; neue Mechanik: Analyse:
+**Region 2 – Bargain Bazaar** – Barrel stößt dazu; neue Mechanik: **Zielwahl** (geändert 01.08.2026, vorher: Analyse):
 - Barrels Spezial: **Unterdrückung** (verlangsamt Gegner-ATB).
-- **Analyse** zeigt Grundstats (ATK/DEF/HP); eine Schwäche wird sichtbar, ist aber **noch nicht nutzbar** (Köder).
+- **Zielwahl entscheidet hier erstmals einen Kampf** – der Heiler-Gegner Bandbox macht „welcher zuerst" zur Frage (`gegner-encounter.md` §5a). Das ist die eingeführte Mechanik der Region, weil sie **bedienbar** ist.
+- **Das Bestiarium** füllt sich still beim Erst-Kill und zeigt eine sichtbare Schwäche als **Köder** auf Region 3/Kapitel 2 – aber **Analyse ist keine Kapitel-1-Mechanik** und wird hier nicht eingeführt (`kampf-analyse-shock.md` §5, Beschluss 01.08.2026).
 - ~~Gil → erste Waffen-/Ausrüstungs-Verbesserungen~~ → **entfallen (30.07.2026).**
 
 **Region 3 – MegaCorp Tower** – Tofa + Air is... (volle Gruppe); neue Mechanik: Shock:

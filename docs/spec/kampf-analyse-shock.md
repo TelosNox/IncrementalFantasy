@@ -64,7 +64,8 @@ MP ist der **Limiter**, der die Gambit-Tiefe überhaupt erst erzeugt: Ohne Koste
 ## 5. Analyse & Bestiarium
 
 - Jede Gegner-Art wird beim **ersten Sieg blind** besiegt und ist **danach automatisch analysiert** (Bestiariums-Eintrag).
-- **Optionale aktive Analyse** als Abkürzung für aktive Spieler.
+- **Vorzeitige Analyse ist nur per Materia möglich – also ab Kapitel 2.** Die frühere Formulierung „optionale aktive Analyse als Abkürzung" ist damit terminiert: In Kapitel 1 gibt es **keinen** Weg, eine Art vor dem ersten Sieg zu lesen.
+- **Das Bestiarium beschreibt die Gegner-ART, nie eine konkrete Instanz** (Entscheidung 01.08.2026). Deshalb **keine absoluten Zahlen** auf der Karte: Stats erscheinen als **relative Balken** gegen `STAT_MAX`, Verhalten als **Tags/qualitative Beschreibung** („heilt seine Gruppe", „schwer zu treffen"). Begründung: Derselbe Gegner tritt über viele Zonen mit unterschiedlich skalierten Werten auf (§3.7 `scaleEnemyStat`, `gegner-encounter.md`). Eine absolute Zahl auf einer Typ-Karte ist deshalb **nie für alle Instanzen wahr** – sie ist entweder falsch oder braucht einen Zonenbezug, den eine Typ-Karte nicht haben sollte. Dieselbe Logik wie beim Zahlenverbot in den Einführungs-Popups (`ui-layout.md`): eine nicht vorhandene Zahl kann nicht falsch sein.
 - Kein Chore (pro Art nur einmal); **Wissen persistiert über Reunion**.
 - Analyse schaltet **weakness-basierte Gambit-Bedingungen** frei → Synergie-Loop (§2).
 
@@ -74,7 +75,22 @@ MP ist der **Limiter**, der die Gambit-Tiefe überhaupt erst erzeugt: Ohne Koste
 
 **Beschluss (Kopplung, keine Streichung):** Mit dem **Heiler-Gegner in Region 2** (`gegner-encounter.md` §5a) bekommt Analyse ab ihrem ersten Auftritt einen Nutzen – man liest, *welcher* Gegner zuerst muss. Bleibt dieser Schritt aus, gehört Analyse nach Kapitel 2, wo Element-Wahl ihre Befunde nutzbar macht.
 
-**Folge für die Einführung:** Das Analyse-Popup erscheint **erst am ersten Gegner, bei dem Zielwahl zählt** – nicht bei Regionsbeginn. Ein Werkzeug einzuführen, das nichts tut, ist schlechter, als es später einzuführen: Der Spieler lernt, dass Erklärungen sich nicht lohnen.
+### Beschluss 01.08.2026: Analyse ist eine Mechanik ab Kapitel 2 (der Fallback ist eingetreten)
+
+Der Kopplungsversuch oben ist **gescheitert**, und zwar an zwei unabhängigen Stellen:
+
+1. **Der Heiler macht Zielwahl wertvoll, nicht Analyse.** „Dieser Gegner heilt" liest der Spieler an der wieder steigenden HP-Leiste ab (`gegner-encounter.md` §5a). ATK/DEF/HP ändern die Antwort „erst den Heiler" nicht.
+2. **Die Rettung – Heilmenge und Takt als exklusive Zahl – ist mit der Typ-Karten-Regel oben unvereinbar.** Sie war der einzige Kandidat für eine Information, die die Kampfanzeige nicht hergibt, und sie ist genau die absolute Instanz-Zahl, die dort nicht hingehört.
+
+**Folge:** In Kapitel 1 gibt es **keine bedienbare Analyse-Mechanik**. Das Bestiarium füllt sich weiterhin **still beim Erst-Kill** – als Sammel-/Nachschlage-Objekt und als Köder (Kindlebales Feuer-Schwäche, sichtbar aber ungenutzt). Es wird **nicht beworben**: Das Einführungs-Popup „Analyse & Bestiarium" entfällt aus der Kapitel-1-Liste (`ui-layout.md`).
+
+**Analyse wird in Kapitel 2 eingeführt**, zusammen mit Materia und Element-Wahl – dort, wo eine enthüllte Schwäche eine Entscheidung trägt und die vorzeitige Analyse als Materia überhaupt existiert. Erst dann ist sie ein Werkzeug statt einer Anzeige.
+
+**Verworfen:** E4 qualitativ umzuformulieren („Analyse enthüllt die Rolle im Pulk"). Das hätte die Mechanik in Kapitel 1 gehalten, aber der Ertrag – erkennen, wer der Heiler ist – ist nach zwei Sekunden Zuschauen ohnehin da. Ein Werkzeug einzuführen, das nichts tut, ist schlechter, als es später einzuführen: Der Spieler lernt sonst, dass die Erklärungen des Spiels sich nicht lohnen.
+
+**Der Erstkontakt bleibt bewusst ein Rätsel (Konzept-Entscheidung 01.08.2026).** Wissen entsteht aus dem Sieg, nicht vor ihm – der erste Kampf gegen eine Art wird blind bestritten, die Analyse zahlt sich ab der **Wiederbegegnung** aus. Das ist kein Timing-Fehler, sondern die Belohnungsrichtung des Systems: Erkunden zuerst, Optimieren danach. Verworfen wurde die Gegenposition, Lehrgegner vorab freizuschalten, damit die Information „im Entscheidungsmoment" vorliegt (`gegner-encounter.md` §5a, Befund 2) – sie hätte den einzigen Moment entwertet, in dem das Spiel den Spieler etwas herausfinden lässt, und den Bestiariums-Eintrag von einer Belohnung zu einer Vorab-Bedienungsanleitung gemacht.
+
+**Erledigt sich mit der Typ-Karten-Regel:** Der frühere Streit, ob die Heilmenge auf der Karte zonen-skaliert angezeigt werden muss (`gegner-encounter.md` §5a, Befund 1), ist gegenstandslos – die Zeile entfällt ersatzlos. Das ist die mildere Lösung: Statt eine falsche Zahl zu reparieren, verschwindet die Fehlerklasse „absolute Zahl auf einer Typ-Karte" dauerhaft.
 
 ## 6. Shock
 

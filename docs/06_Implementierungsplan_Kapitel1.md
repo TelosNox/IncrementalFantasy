@@ -421,7 +421,7 @@ Am laufenden Dev-Server gemessen, nicht aus dem Code abgeleitet (die Vorgabe „
 
 - **Mindestens zwei benannte Encounter**, in denen Zielwahl über Ausgang oder Dauer des Kampfes entscheidet – davon **einer spätestens am Ende von Region 2**, also dort, wo Analyse aufgeht.
 - Jeder dieser Encounter hat eine **Antwort, die nicht ausgehen kann** (§5a „Rätsel-Takt statt Steuer").
-- Analyse liefert an diesen Gegnern eine Information, die die Kampfanzeige **nicht ohnehin hergibt** (E4).
+- ~~Analyse liefert an diesen Gegnern eine Information, die die Kampfanzeige **nicht ohnehin hergibt**.~~ **Gestrichen am 01.08.2026 (M17-Klärung).** Das Bestiarium beschreibt die Gegner-*Art* und enthält deshalb **keine absoluten Zahlen** – die einzige exklusive Information (Heilmenge/Takt) war genau so eine. Analyse ist damit keine Kapitel-1-Mechanik mehr, sondern wird in Kapitel 2 mit Materia eingeführt (`spec/kampf-analyse-shock.md` §5). Der Heiler muss nur noch die beiden Kriterien darüber erfüllen.
 
 *Ersetzt wurde „Der Abstand M↔T wächst messbar gegenüber M15". Grund: Das Maß passt nicht zum Meilenstein. M↔T misst den Skill-Ertrag über **alle 30 Zonen**; M16 ändert davon zwei Encounter, kann die Kennzahl also konstruktionsbedingt nur um wenige Prozent bewegen. Die Messung bestätigte das (+3 %, s. u.), und sie war zusätzlich **nicht monoton** – ein Konter-Deckel von 3 statt 2 senkte den Abstand wieder (Entscheidung 72). Ein Kriterium, das nur durch Drehen am schärfsten nichtlinearen Hebel des Kapitels zu erfüllen wäre, erzeugt Druck genau in die Richtung, die die Leitlinie „fordernd, nicht strafend" verbietet. Der M↔T-Abstand bleibt die richtige Kennzahl für den §12-Korridor als Ganzes – nur nicht die Abnahme eines einzelnen Inhalts-Meilensteins.*
 
@@ -437,7 +437,7 @@ Am laufenden Dev-Server gemessen, nicht aus dem Code abgeleitet (die Vorgabe „
 
 **Offene Punkte aus dem Konzept-Review (01.08.2026)** – die drei Spec-Korrekturen in `spec/gegner-encounter.md` §5a sind nachgezogen:
 
-1. ✅ **Analyse braucht am Heiler eine exklusive Information** (Heilmenge/Takt) – „der heilt" liest der Spieler an der HP-Leiste ab, dafür ist Analyse nicht nötig. Umgesetzt: `ui/BestiaryModal.svelte` zeigt bei Trait `heal` zusätzlich Heilmenge und Takt (§5a).
+1. ✅ **Analyse braucht am Heiler eine exklusive Information** – **Anforderung zurückgenommen am 01.08.2026 (M17-Klärung).** Das Bestiarium beschreibt die Gegner-*Art*, nicht die zonen-skalierte Instanz, und enthält deshalb **keine absoluten Zahlen**; Heilmenge/Takt war der einzige Kandidat und verstößt genau dagegen. Damit ist **Analyse keine Kapitel-1-Mechanik** mehr (Beschluss `spec/kampf-analyse-shock.md` §5), das Einführungs-Popup „Analyse & Bestiarium" entfällt (`spec/ui-layout.md`, jetzt **13** statt 14 Einträge), und der Skalierungs-Streit ist gegenstandslos. **Rückstand für die nächste Umsetzungs-Session:** die Zeile „7 HP / ~2.0s" aus `ui/BestiaryModal.svelte` entfernen (ggf. durch einen zahlenfreien Tag ersetzen).
 2. ✅ **Vaultrons Ausweichziele können ausgehen** – zwei Adds, aber das Konter-Fenster wiederholt sich alle drei Aktionen. Umgesetzt: `core/gambits.ts` `resolveOptimalAction` verteidigt jetzt, wenn kein konter-freies Ziel mehr lebt (§5a, Variante a).
 3. ✅ **Bandbox braucht ein eigenes Sprite, bevor M17 den Lehr-Popup setzt** – der erste Zielwahl-Lehrgegner darf nicht wie der Füllgegner neben ihm aussehen (Entscheidung 75, Platzhalter `blando_64.png`). Umgesetzt: `assets/generate_monsters.py` `bandbox()`, eingebunden in `ui/sprites.ts`. **Blocker für M17 ist damit aus dem Weg.**
 
@@ -451,7 +451,7 @@ Am laufenden Dev-Server gemessen, nicht aus dem Code abgeleitet (die Vorgabe „
 
 **Umfang** (vollständige Spec: `spec/ui-layout.md`, „Mechanik-Einführung"):
 
-- Blockierendes Popup mit Pause, **aktiv wegzuklicken**; nur für **bedienbare** Mechaniken (14 Einträge, kanonische Liste in der Spec).
+- Blockierendes Popup mit Pause, **aktiv wegzuklicken**; nur für **bedienbare** Mechaniken (**13** Einträge, kanonische Liste in der Spec – „Analyse & Bestiarium" am 01.08.2026 gestrichen, s. M16-Punkt 1).
 - **Selbstvorstellungen** der vier Figuren – 2–3 witzige Sätze, aus denen die Stärke hervorgeht (`spec/charaktere-party.md`). **Claude stellt sich vor dem allerersten Kampf vor**, getrennt vom Mechanik-Popup in Zone 3.
 - **Keine konkreten Zahlen in Erklärtexten** – qualitativ formulieren. Wir ändern in M15 praktisch alle diese Werte.
 - **Codex** zum Nachlesen; **ab Durchlauf 2 stumm** (Flag je Mechanik, übersteht die Reunion).

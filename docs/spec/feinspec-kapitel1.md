@@ -22,7 +22,7 @@
 
 ## 0. Geltungsbereich: Was Kapitel 1 enthält – und was bewusst nicht
 
-**Enthalten (der komplette erste Spielabschnitt):** Kern-Loop (Auto-Battle → EXP), ATB, manueller Klicker-Auftakt, Auto-Attack-Regel, Waffen-Specials der 4 Figuren, Limit als Wand-Brecher, MP als Limiter, Analyse/Bestiarium, Shock (neutral, langsam), Niederlage/Retry, Mechanik-Einführungen (Popup + Codex), die 1. Reunion.
+**Enthalten (der komplette erste Spielabschnitt):** Kern-Loop (Auto-Battle → EXP), ATB, manueller Klicker-Auftakt, Auto-Attack-Regel, Waffen-Specials der 4 Figuren, Limit als Wand-Brecher, MP als Limiter, Zielwahl, Bestiarium (still, ohne Analyse-Mechanik – §1.3), Shock (neutral, langsam), Niederlage/Retry, Mechanik-Einführungen (Popup + Codex), die 1. Reunion.
 
 **Nicht mehr enthalten:** Gil und Ausrüstungskauf (gestrichen 30.07.2026, §6.4), Offline-Ernte (stillgelegt seit M11, §3.8e).
 
@@ -52,6 +52,8 @@ Der Kampf in seiner vollen Kapitel-1-Form: alle vier Figuren, drei Gegner. Ein *
 ![Analyse – Bestiarium](assets/mockups/03_analyse_bestiarium.png)
 
 Beim ersten Sieg über eine Art wird sie automatisch analysiert. Die Karte zeigt Grundstats (HP/ATK/DEF/SPD) und eine sichtbare **Schwäche** – hier Kindlebales Feuer, explizit markiert als **erst ab Kapitel 2 nutzbar** (Köder). Wissen bleibt über Reunion erhalten.
+
+**Präzisiert am 01.08.2026 (`kampf-analyse-shock.md` §5):** Das Bestiarium beschreibt die Gegner-**Art**, nicht die zonen-skalierte Instanz – Stats erscheinen als **relative Balken**, Verhalten als **Tags**, **niemals absolute Zahlen**. In Kapitel 1 ist es ein **stilles** Sammel- und Köder-Objekt: Es füllt sich beim Erst-Kill, wird aber nicht durch ein Einführungs-Popup beworben. **Analyse als bedienbare Mechanik gehört nach Kapitel 2** (Materia/Element-Wahl); erst dort trägt sie eine Entscheidung.
 
 ### 1.4 Die 1. Reunion
 
@@ -583,7 +585,7 @@ if flags.materiaUnlocked and figur.materiaActions: + "Magic ▸"     # Unterlist
 | **Fort Knoxious** (R2-Gate, Z18, 1,5×) | 160 | 12 | 14 | 70 | 70 | 60 | armor |
 | **Vaultron** (Kapitel-Boss, Z30, 2×) | 240 | 14 | 16 | 70 | 140 | 120 | boss + counterStance (M16) |
 
-**Bandbox** (M16) – Heiler-Gegner, `gegner-encounter.md` §5a: heilt statt anzugreifen das verletzteste lebende Gruppenmitglied um `2,5×ATK` (`ENEMY_HEAL_MULT`, `core/formulas.ts`), ist niemand verletzt greift er wie ein normales Monster an. Kein Gil-Wert (Gil ist gestrichen, s. §6.4). Kein FF7-Vorbild, neu für diesen Meilenstein (`gegner-katalog.md`).
+**Bandbox** (M16) – Heiler-Gegner, `gegner-encounter.md` §5a: heilt statt anzugreifen das verletzteste lebende Gruppenmitglied um `1,2×ATK` (`ENEMY_HEAL_MULT`, `core/formulas.ts`; Startwert 2,5 im Live-Playtest gesenkt, s. Umsetzungsentscheidung 76), ist niemand verletzt greift er wie ein normales Monster an. Kein Gil-Wert (Gil ist gestrichen, s. §6.4). Kein FF7-Vorbild, neu für diesen Meilenstein (`gegner-katalog.md`).
 
 *Boss-Namen/Visualisierung & Sprite-Größen (Miniboss 1,5×, Boss 2×): `gegner-katalog.md` + `charaktere-visuals.md`. Sprites in `assets/bosses/`.*
 
@@ -718,7 +720,7 @@ Die drei Kapitel-1-Bosse (maßstabsgetreu, Minibosse 1,5× / Kapitel-Boss 2×) �
 |---------------------------|---------------------------|
 | #1 Wände ohne Ventil | ⚠️ **Dieser Haken war falsch.** „Grind-Kämpfe leveln weiter" beschrieb den Test-Harness, nicht das Spiel: An einer Wand floss real **gar nichts** (EXP/Gil nur bei Sieg, kein Weg zurück in eine geschaffte Zone, Determinismus ⇒ identische Wiederholung). Erst die Zonen-Rückkehr (§3.8a) stellt das Ventil her. Der Haken darf erst nach der Neu-Simulation wieder gesetzt werden. **Lehre:** Ein Leitplanken-Haken ist erst gültig, wenn die zugehörige Mechanik im *Spiel* geprüft wurde – nicht in der Simulation, die sie voraussetzt. |
 | #2 Zu früh automatisieren | ✓ Klicker → **stumpfe** Auto-Attack (früh, Zone 5) → **jede** klügere Aktion (Special/Heal/Suppress/Limit) bleibt manuell bis zur 1. Reunion, die erst die **programmierbaren** Gambits bringt (Playtest-Korrektur nach M7) |
-| #3 Nur Zahlenwachstum | ✓ Feature-Rampup: Klicker→Limit→Analyse→Shock→volle Party |
+| #3 Nur Zahlenwachstum | ✓ Feature-Rampup: Klicker→Limit→**Zielwahl**→Shock→volle Party *(Analyse ersetzt am 01.08.2026 – sie ist keine Kapitel-1-Mechanik mehr, `kampf-analyse-shock.md` §5)* |
 | #4 Komplexität ohne Onboarding | ✓ genau eine neue Mechanik je Region; Materia bewusst vertagt |
 | #5 Dominante Einseitigkeit | ⚠️ **Im Playtest invertiert:** Ein Spieler mit geschlossenem Tab kam per Offline-Projektion an einem Gate vorbei, an dem ein aktiv spielender feststeckte – Offline war *strikt besser* als Aktiv. Ursache war dieselbe wie bei #1 (Offline war das einzige Ventil, §3.8e). Nach Stilllegung des Offline-Progress und Einführung der Zonen-Rückkehr neu zu bewerten. |
 | #6 Sinnlose Resets | ✓ Reunion behält Charaktere/Specials/Bestiarium, gibt Gambits+Boost |
@@ -751,7 +753,7 @@ Die sensibelsten Hebel:
 - ~~Die EXP-Dämpfung (§3.6) – Plateaubreite und Sturzsteilheit.~~ **Erledigt** (M15, s. §3.6/§12 B2) – Startwerte gemessen, A3 und B4 gleichzeitig erfüllt.
 - ~~Das aus den Waffen-Tiers entfallende ATK/HP/MAG-Wachstum~~ **Erledigt** (M15) – in die Level-Kurve gefaltet, `stats-kampfwerte.md` §4.
 - **Zielzeiten** (§12 B2): ~30 min für M, ~90 min für T bleiben durch M15 nahezu unberührt (Simulationszeit ändert sich für M/T kaum, s. §12 B2). Das Zielband für den schwachen Spieler (T′) ist weiterhin **offen** – das ist eine Playtest-/E2-Frage, keine Simulationszahl.
-- **Heiler-Heilmenge** (`ENEMY_HEAL_MULT = 2,5×ATK`, M16) und **Vaultron-Konter** (`COUNTER_MAX_HITS = 2` Konter je Fenster, volle Schadensformel) – beides Startwerte, gegen `tests/chapter-playthrough.test.ts` justiert (s. `07_Umsetzungsentscheidungen.md` M16-Umsetzungsentscheidungen). Der Konter-Deckel ist der empfindlichste neue Hebel: schon 3 statt 2 Konter je Fenster kippte den gemessenen M↔T-Abstand wieder, ohne selbst A2/B2/C3 zu verletzen – ein Zeichen, dass hier noch kein stabiles Plateau gefunden ist, nur ein erster Startwert.
+- **Heiler-Heilmenge** (`ENEMY_HEAL_MULT = 1,2×ATK`, M16; Startwert 2,5 nach Browser-Playtest gesenkt, s. Umsetzungsentscheidung 76 – bei 2,5 hielt die Selbstheilung gegen zwei fokussierende Angreifer mit, „erst den Heiler" zahlte sich nicht aus) und **Vaultron-Konter** (`COUNTER_MAX_HITS = 2` Konter je Fenster, volle Schadensformel) – beides Startwerte, gegen `tests/chapter-playthrough.test.ts` justiert (s. `07_Umsetzungsentscheidungen.md` M16-Umsetzungsentscheidungen). Der Konter-Deckel ist der empfindlichste neue Hebel: schon 3 statt 2 Konter je Fenster kippte den gemessenen M↔T-Abstand wieder, ohne selbst A2/B2/C3 zu verletzen – ein Zeichen, dass hier noch kein stabiles Plateau gefunden ist, nur ein erster Startwert.
 
 **Erledigt durch diese Revision** (vormals hier offen): der Limit-Reset-Fehler bei jedem Zonenstart – das Esper-Modell (§3.4) macht die frühere Persistenz-Anforderung gegenstandslos, statt sie nachzurüsten.
 

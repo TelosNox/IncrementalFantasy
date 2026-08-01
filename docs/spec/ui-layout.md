@@ -271,16 +271,17 @@ Kanonische Liste für Kapitel 1 (Reihenfolge = Auftritt):
 | 6 | Gasthaus | erstmals verfügbar |
 | 7 | Limit | erstes Gate (Blandzilla) |
 | 8 | **Barrel stellt sich vor** | Beitritt Zone 9 |
-| 9 | Zielwahl / Fokusziel | erster Heiler-Gegner (Region 2) |
-| 10 | Analyse & Bestiarium | erster Heiler-Gegner (**nicht** früher – `kampf-analyse-shock.md` §5) |
-| 11 | Defend & Telegraf | erste telegrafierte Groß-Attacke |
-| 12 | **Tofa + Air is… stellen sich vor** | Beitritt Zone 19 |
-| 13 | Shock | Region 3 |
-| 14 | Reunion | Erreichen der Kapitel-Wand |
+| 9 | Zielwahl / Fokusziel | **Erstkontakt** mit dem ersten Heiler-Gegner (Region 2) |
+| 10 | Defend & Telegraf | erste telegrafierte Groß-Attacke |
+| 11 | **Tofa + Air is… stellen sich vor** | Beitritt Zone 19 |
+| 12 | Shock | Region 3 |
+| 13 | Reunion | Erreichen der Kapitel-Wand |
 
-**Nr. 5 und 11 sind die wichtigsten** – Zonen-Rückkehr und Defend/Zielwahl sind genau die Mechaniken, die den spielenden vom idlenden Spieler trennen. Beide sind heute stumm.
+**Gestrichen am 01.08.2026: „Analyse & Bestiarium".** Analyse ist keine Kapitel-1-Mechanik mehr – ohne Element-Wahl liefert sie nichts, was der Spieler nicht ohnehin sieht, und die einzige exklusive Information (Heilmenge/Takt) verstößt gegen die Typ-Karten-Regel des Bestiariums. Sie wird in **Kapitel 2** mit Materia eingeführt (`kampf-analyse-shock.md` §5). Das Bestiarium füllt sich in Kapitel 1 weiterhin still beim Erst-Kill; es ist Sammel-Objekt und Köder, keine beworbene Mechanik. Damit sind es **13 Einführungen**, und die Liste enthält nur noch Dinge, die der Spieler auch benutzen kann – dieselbe Regel wie oben („nur für bedienbare Mechaniken"), diesmal auf eine Mechanik angewandt, die bedienbar *aussah*.
 
-### Selbstvorstellungen (1, 8, 12)
+**Nr. 5 und 10 sind die wichtigsten** – Zonen-Rückkehr und Defend/Zielwahl sind genau die Mechaniken, die den spielenden vom idlenden Spieler trennen. Beide sind heute stumm.
+
+### Selbstvorstellungen (1, 8, 11)
 
 Die Figuren stellen sich **selbst** vor, mit 2–3 witzigen Sätzen, aus denen ihre **Stärke** hervorgeht – kein Datenblatt in dritter Person. Details und Entwurfszeilen: `charaktere-party.md`. Der Special ist dabei **keine** neue Mechanik (Nr. 4 hat sie eingeführt) – erklärt wird die **Rolle**.
 
