@@ -51,7 +51,22 @@
 - Es trägt zugleich den Vorbereitungs-Loop, den der Ressourcen-Übertrag erzeugt: In einer sicheren Zone bankt man MP (und heilt nebenbei über die Sieg-Erholung), um an der Wand ausgeben zu können.
 - **Bewusst manuell.** Ein automatischer Rückfall bei Niederlage ist als spätere Komfortstufe denkbar, aber erst muss die Handlung existieren, bevor man sie automatisiert (Anti-Pattern #2).
 
-**Lesbarkeit ist Teil der Mechanik:** Ein Ventil, das der Spieler nicht bemerkt, ist keins. Der HP-Verlauf ist dafür das eingebaute Signal (`feinspec-kapitel1.md` §3.8d) – sinkt die Leiste über mehrere Kämpfe, drückt man zu hart. Ob das reicht oder die Zonen-Auswahl zusätzlich markieren muss, wo man sicher durchkommt, ist offen.
+**Lesbarkeit ist Teil der Mechanik:** Ein Ventil, das der Spieler nicht bemerkt, ist keins. Der HP-Verlauf ist dafür das eingebaute Signal (`feinspec-kapitel1.md` §3.8d) – sinkt die Leiste über mehrere Kämpfe, drückt man zu hart.
+
+**Präzisiert nach dem Playtest (02.08.2026): Das HP-Signal löst zuerst das *Gasthaus* aus, nicht den Rückweg – und das ist richtig so.** Wörtlich: *„Die HP waren verdammt low, und das ist der Trigger, dann doch ins Gasthaus zu gehen. Wenn die HP nicht reichen, kann man zurückgehen oder einfach heilen und versuchen, ob man es schafft. Beides sind gangbare Wege."*
+
+Daraus folgt eine **Eskalationsleiter, billig vor teuer** – kein Fehlsignal:
+
+1. **Heilen** (Gasthaus, kostet nur Zeit). Das ist keine Ausweichhandlung: HP und MP **tragen über Kämpfe hinweg**, wer mit einem Viertel Leiste an die Wand geht, verliert unter Umständen genau deshalb. Voll geheilt ist es ein *anderer* Kampf. Dieselbe Logik trägt den Vorbereitungs-Loop weiter oben (in sicherer Zone MP banken).
+2. **Zurückgehen und farmen** (kostet Zeit *und* Fortschrittsgefühl), wenn Stufe 1 nicht gereicht hat.
+
+**Der Determinismus begrenzt Stufe 1 von selbst:** Ein zweiter vollgeheilter Versuch verläuft bitgenau wie der erste. „Heilen → scheitern → heilen" ist damit nach *einem* vollgeheilten Versuch erschöpft, nicht unbegrenzt – die Wiederholung liefert dieselbe Niederlage und ist als solche lesbar.
+
+> ⚠️ **Was offen bleibt, ist enger als zunächst angenommen:** nicht „findet der Spieler den Rückweg?", sondern nur **der Übergang von Stufe 1 zu Stufe 2** – merkt er, dass auch der vollgeheilte Versuch nicht reicht, und wechselt er dann die Zone? *(Eine frühere Fassung dieses Absatzes erklärte das Heilen zur falschen Handlung und die Schleife zur Sackgasse – beides zu stark: Es übersah den Ressourcen-Übertrag, der Stufe 1 zu einem echten Weg macht.)*
+>
+> **Für Spielertyp T′** (`abnahme-kapitel1.md` B2) heißt das: Er ist **T mit Zeitzuschlag**, sobald er die Leiter hinaufgeht – der Zuschlag sind ein bis zwei Gasthaus-Zyklen plus das Farmen. Unbegrenzt wird er nur, wenn er Stufe 2 gar nicht erwägt. **Sein Zielband ist damit bezifferbar** (Farmzeit über das Plateau, s. `oekonomie-waehrungen.md` §1a), und es hängt nicht mehr an einem noch zu entwerfenden Signal.
+>
+> **Unabhängig davon bleibt bestehen:** Die **EXP-Dämpfung ist unsichtbar**. Wer zu tief zurückgeht, bekommt wenig bis (jenseits des Cutoffs) gar nichts, ohne Erklärung – das betrifft Stufe 2, nicht Stufe 1. Geführt unter `../03_Konzept_Gerüst.md` §16.
 
 ## 4. Offline-Modell – stillgelegt
 

@@ -121,6 +121,14 @@ Rechnung: Bei L20 in Zone 3 greift der Floor (0,03 × Rohwert 12 = 0,36), `Math.
 
 ✓ **Bestätigt:** „Plateau breit genug für den schwachen Spieler" (A3) und „Sturz steil genug gegen Camping" (B5) gehen gleichzeitig, auch für Typ K – gemessen, kein offener Punkt mehr.
 
+### ✓ Die Dämpfung bekommt eine Oberfläche (02.08.2026)
+
+Bis hierher war die gesamte Dämpfung **für den Spieler unsichtbar** – sie trägt seit M15 das Balancing, aber wer zu tief zurückging, bekam wenig und jenseits des Cutoffs **gar nichts, ohne jede Erklärung**. Das ist der einzige Ort im Spiel, an dem ein korrekt arbeitendes System wie ein Defekt aussieht, und es verletzte die Leitplanke „ein Ventil, das der Spieler nicht sieht, ist keins".
+
+**Beschlossen:** Zonen ohne Ertrag werden als **„erschöpft"** markiert – **binär**, in der Zonenwahl und an der aktuell bespielten Zone, plus eine einmalige Meldung im Kipp-Moment. Vollständige Festlegung samt Begründung der Binarität: `ui-layout.md`, Abschnitt „Erschöpfte Zonen".
+
+**Wichtig für künftiges Balancing:** Die Anzeige hängt am **Ist-Ertrag**, nicht am Konstantenwert `EXP_DAMPING_CUTOFF`. Verschiebt sich der Cutoff, bleibt die Aussage wahr – es ist keine Zahl nachzuziehen.
+
 ## 2. Erster Zyklus (bis zur 1. Reunion)
 
 Aktiv ist nur **EXP** (plus **MP** als Kampf-Ressource). **AP + Materia-Prestige** kommen ab **Kapitel 2**; **Reunion-Essenz** ab der **1. Reunion**. Die Ökonomie eskaliert also gestaffelt mit den Systemen.

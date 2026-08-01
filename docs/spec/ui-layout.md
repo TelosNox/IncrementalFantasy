@@ -293,6 +293,42 @@ Die Figuren stellen sich **selbst** vor, mit 2–3 witzigen Sätzen, aus denen i
 
 **Erledigte Einführungen überstehen die Reunion** (Flag je Mechanik, `prestige-reunion.md` Erhalt-Liste). Sonst bestraft die Reunion den Spieler mit Wiederholung – und die volle Party ab Zone 1 würde drei Selbstvorstellungen direkt hintereinander auslösen. Der Codex bleibt selbstverständlich zugänglich.
 
+## Erschöpfte Zonen (beschlossen 02.08.2026)
+
+**Anforderung (Nutzer):** *„Der Spieler soll erkennen, ob er noch Fortschritt machen kann, oder nicht."*
+
+**Eine Zone heißt „erschöpft", wenn ein Sieg dort keine EXP mehr bringt** – der Zustand jenseits von `EXP_DAMPING_CUTOFF` (`oekonomie-waehrungen.md` §1a). Das ist der einzige Ort im Spiel, an dem ein korrekt arbeitendes System aus Spielersicht wie ein Defekt aussieht: Man kämpft, man gewinnt, und es passiert nichts.
+
+**Binär, nicht abgestuft.** Angezeigt wird ausschließlich *zahlt / zahlt nicht*, keine Ertragsstufen und keine Zahl. Drei Gründe:
+
+- **Die Anforderung ist binär** – „ob", nicht „wie viel".
+- **Eine Skala macht aus der Zonenwahl eine Rechenaufgabe.** „Welche Zone bringt am meisten?" ist Ertragsmaximierung; die Zonenwahl soll aber eine **Entscheidung** bleiben („komme ich hier noch weiter?"). Das ist dasselbe Prinzip, aus dem der Essenz-Ertrag nicht mit Verweildauer skaliert (`prestige-reunion.md`, Ertragsregel): Sobald es eine ausrechenbare beste Antwort gibt, spielt der falsch, der nicht rechnet.
+- **Binär überlebt jedes Rebalancing.** Der Cutoff darf sich verschieben – „hier bekommst du nichts" bleibt wahr. Eine Skala müsste jedes Mal neu kalibriert werden. Dieselbe Logik wie beim Zahlenverbot in den Einführungen.
+
+**Zwei Orte, ein Vokabular** – der Marker hängt an der Zone, nicht am Bildschirm:
+
+1. **In der Zonenwahl**, an jedem betroffenen Eintrag – damit die Erkenntnis **vor** der Entscheidung steht, nicht nach zehn ertraglosen Kämpfen.
+2. **An der aktuell bespielten Zone**, dauerhaft. Nötig, weil eine Zone im Farmen **hineinkippt**: Man wird beim Farmen stärker, und irgendwann trägt genau die Zone nicht mehr, in der man steht – ohne dass man die Zonenwahl je geöffnet hätte.
+
+**Darstellung:** vorhandenes Vokabular, kein neues. Erschöpfte Zonen erscheinen **gedämpft + dünne Schrift** mit dem Zusatz **„erschöpft"** – dieselbe Zustandskodierung wie nicht ausführbare Aktionen im Aktions-Popup (sichtbar, aber sofort als „bringt gerade nichts" lesbar). **Anwählbar bleiben sie** – das Verbot wäre eine Bevormundung, die Information genügt.
+
+**Der Kipp-Moment wird einmal gemeldet.** Beim ersten ertraglosen Sieg in einer Zone eine kurze Meldung im Parodie-Ton („Diese Gegner lehren dich nichts mehr"), danach nur noch der stille Marker. Ohne diese Meldung bemerkt der farmende Spieler den Übergang nicht – mit ihr bei jedem Kampf wäre sie Lärm.
+
+**Was hier ausdrücklich nicht steht:** eine Aussage darüber, ob der Spieler eine Zone *gewinnen* kann. Der Marker beschreibt den **Ertrag**, nie die Erfolgsaussicht – Prognosen entwerten das Ausprobieren (`../03_Konzept_Gerüst.md` §16).
+
+## Bester Versuch am Gate (beschlossen 02.08.2026)
+
+**An einem Gate, das der Spieler schon einmal verloren hat, steht sein bester bisheriger Versuch** – wie weit er den Boss heruntergebracht hat (Rest-HP in Prozent). Nutzer-Entscheidung: *„Einen Boss-Fail zu markieren finde ich gut. Dann gibt es eine Grundlage, an der man sich messen kann."*
+
+**Warum das die Sichtbarkeits-Bedingung der Gate-Regel erfüllt** (`../03_Konzept_Gerüst.md` §15): Die Regel verlangt, dass die Umwandlung von Zeit in Zugang **ablesbar** ist. Der Bestwert tut das rein **rückblickend** – er sagt nichts darüber, ob der nächste Versuch gelingt, sondern nur, dass sich seit dem letzten etwas verändert hat. Damit fällt er nicht unter die Gegenkraft „eine Erfolgsprognose entwertet das Ausprobieren" (§16): Prognostiziert wird nichts.
+
+- **Rückblickend, nicht vorhersagend.** Keine Einschätzung wie „schaffbar/zu schwer" – nur die eigene Bestleistung.
+- **Kein Verstoß gegen das Zahlenverbot** (§Einführungen): Verboten sind **Balance-Werte in Erklärtexten** („25 % MP pro Sieg"), weil sie beim Neubalancieren zur Falschaussage werden. Der Bestwert ist eine **Tatsache über den eigenen Lauf** und kann durch kein Balancing falsch werden.
+- **Nur nach einer Niederlage sichtbar**, nie vor dem ersten Versuch – sonst kündigt die Anzeige einen Misserfolg an, den es noch nicht gibt.
+- **Fällt bei der Reunion zurück** (s. `prestige-reunion.md`): Nach dem Reset steht die Party auf Level 1; ein Bestwert aus einem stärkeren Durchlauf wäre unerreichbar und würde entmutigen statt messen.
+
+⚠️ **Zu beobachten (E2, gespielt):** Ob der Wert motiviert oder demoralisiert, ist offen. Wer dreimal bei 38 / 39 / 40 % landet, sieht sehr deutlich, dass er kaum vorankommt – die Anzeige kann die Wand größer machen, statt sie näherzubringen. Bewusst trotzdem beschlossen: gar kein Signal ist die schlechtere Ausgangslage.
+
 ## Nicht jetzt
 
 Das übrige UI-Design (Shop-/Materia-/Prestige-Panels, Farben-Feinschliff, Responsive/Portrait) folgt später. **Ausnahme:** die **Steuer-UI oben** (Aktions-Popup + Modus-Schalter) ist bereits spezifiziert, da sie fürs Kampfgefühl zentral ist und in die Implementierung geht. Der übrige Bereich bleibt vorerst **reservierter Platz**, damit Kulissen und Sprite-Platzierung ihn einkalkulieren.
