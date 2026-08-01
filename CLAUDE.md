@@ -78,6 +78,15 @@ Um den Kontext schlank zu halten, gilt beim **Spezifizieren eines einzelnen Syst
 Der Block „Schnittstellen zu anderen Systemen" oben in jeder `spec/`-Datei macht Abhängigkeiten explizit.
 `docs/spec/README.md` enthält die Übersicht. Verbindliche Prüfinstanz bleibt in jedem Fall `docs/02_Leitfaden_Kernmechaniken.md`.
 
+### Kontextkosten (verbindlich)
+
+Der Nutzer startet **pro Thema eine frische Session**. Damit überlebt nur, was hier steht – und Kontextkosten fallen bei ihm als Limit an, nicht bei mir. Vier Regeln, alle aus der Session vom 01.08.2026 (wenige Prompts, 5h-Limit erreicht):
+
+- **Themenwechsel melden, nicht still weiterarbeiten.** Hat die nächste Frage nichts mit der vorigen zu tun, sage ich es: eine neue Session ist billiger, weil jeder Werkzeugaufruf den ganzen bisherigen Verlauf erneut mitschickt. Der Nutzer kann diese Regel selbst nicht zuverlässig ziehen – sie wird mitten in der Arbeit fällig.
+- **Die großen Dateien nie ganz lesen:** `06_Implementierungsplan_Kapitel1.md`, `07_Umsetzungsentscheidungen.md`, `spec/feinspec-kapitel1.md`. Gezielt suchen oder Abschnitt laden.
+- **Vor einer Wegwerf-Messung** die Signaturen prüfen, die sie benutzt; die Sonde nach dem Messen löschen. Jeder Fehlschlag legt einen langen Stacktrace dauerhaft in den Kontext.
+- **Wenige große Edits statt vieler kleiner** – jeder Edit spiegelt die geänderte Datei teils komplett zurück.
+
 ## Git-Workflow (verbindlich)
 
 - **Es wird direkt auf `main` gearbeitet und committet.** Keine Feature-Branches, kein PR-Workflow – das ist eine bewusste Entscheidung für dieses Solo-Projekt und gilt bis auf Weiteres.
