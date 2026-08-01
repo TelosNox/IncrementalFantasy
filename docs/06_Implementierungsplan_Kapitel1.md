@@ -445,7 +445,7 @@ Am laufenden Dev-Server gemessen, nicht aus dem Code abgeleitet (die Vorgabe „
 
 ---
 
-## M17 – Mechanik-Einführung: Popup + Codex
+## M17 – Mechanik-Einführung: Popup + Codex ✅
 
 **Ziel:** Rund vierzehn Mechaniken kommen in ~30 Minuten stumm ins Spiel. **Eine Mechanik, die der Spieler nicht bemerkt, benutzt er nicht** – wer Defend und Zielwahl nie wahrnimmt, spielt zwangsläufig vollautomatisch. Damit ist die stumme Einführung mitverantwortlich für die Idle-Konvergenz, die M15/M16 behandeln.
 
@@ -459,6 +459,10 @@ Am laufenden Dev-Server gemessen, nicht aus dem Code abgeleitet (die Vorgabe „
 **Abnahme:** E4 und E5 aus feinspec §12 – ein Spieler kann die Mechaniken und die Rolle jeder Figur benennen und weiß nach seiner ersten Niederlage von der Zonen-Rückkehr.
 
 **Reihenfolge: nach M15, aber vor der Kapitel-2-Feinspec.** Nach M15, weil die Auslöser an Zonennummern und Freischaltzeitpunkten hängen, die M15 ändert – vorher gebaut heißt zweimal gebaut. Vor Kapitel 2, weil dort Materia, AP, Slots und der Gambit-Editor dazukommen: Steht das Framework, rutschen sie hinein statt wieder stumm zu erscheinen.
+
+**Umgesetzt (01.08.2026):** `content/introductions.ts` (13 Einführungen, Reihenfolge = Auftritt), `save/schema.ts`/`save/migrate.ts` (v5→v6, `introsSeen` mit Migrations-Heuristik für Alt-Saves), `ui/gameStore.svelte.ts` (`activeIntro`/`#queueIntro`/`closeIntro`, Pause-Guard in `advance()`, 13 Hooks an bestehenden Flag-Flip-Stellen), `ui/IntroPopup.svelte` (blockierendes Popup, kein Backdrop-Close), `ui/Codex.svelte` (Nachlese-Liste, Sidebar-Button). `npm test` 133/133, `npm run check` 0 Fehler/Warnungen. Details/Begründungen: Umsetzungsentscheidungen 81–89.
+
+**Umsetzungsentscheidungen (M17): Nr. 81–89 → [`07_Umsetzungsentscheidungen.md`](07_Umsetzungsentscheidungen.md)**
 
 ---
 

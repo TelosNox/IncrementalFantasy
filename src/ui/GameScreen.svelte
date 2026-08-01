@@ -6,6 +6,7 @@
   import Sidebar from './Sidebar.svelte'
   import DebugResetButton from './DebugResetButton.svelte'
   import CorruptSaveModal from './CorruptSaveModal.svelte'
+  import IntroPopup from './IntroPopup.svelte'
 
   onMount(() => {
     game.start()
@@ -27,6 +28,7 @@
      (erst wenn es ein echtes Publikum gibt, s. Architektur §6a). -->
 <DebugResetButton />
 <CorruptSaveModal />
+<IntroPopup />
 
 <style>
   /* ui-layout.md: Stage ~78%, Bottom-Leiste ~20% Höhe, Seitenleiste ~22% Breite. */

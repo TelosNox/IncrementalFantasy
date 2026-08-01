@@ -4,7 +4,7 @@
 import type Decimal from 'break_eternity.js'
 import type { BestiaryEntry, Character } from '../core/entities'
 
-export const SAVE_VERSION = 5
+export const SAVE_VERSION = 6
 
 export interface SaveFlags {
   autoAttackUnlocked: boolean
@@ -62,5 +62,13 @@ export interface SaveState {
   reunionCount: number
   flags: SaveFlags
   inn: SaveInnState
+  /**
+   * ui-layout.md "Mechanik-Einführung" (M17) - je gesehene Einführung (`content/introductions.ts`
+   * `IntroId`) ein Eintrag. Lose als `Record<string, boolean>` statt `IntroId` typisiert (wie
+   * `bestiary` lose auf Monster-IDs statt einem Content-Enum haengt) - der Save-Layer soll nicht
+   * von `content/` importieren. Uebersteht die Reunion wie `bestiary`/`roster` (kein expliziter
+   * Reset in `reunion()`, s. `ui/gameStore.svelte.ts`).
+   */
+  introsSeen: Record<string, boolean>
   // "offline" entfaellt - Offline-Progress stillgelegt (feinspec §3.8e, M11)
 }

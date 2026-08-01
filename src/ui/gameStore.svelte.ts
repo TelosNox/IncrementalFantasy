@@ -13,6 +13,7 @@
 
 import Decimal from 'break_eternity.js'
 import { CHARACTERS, CLAUDE } from '../content/characters'
+import type { IntroId } from '../content/introductions'
 import { MONSTERS } from '../content/monsters'
 import { ZONES } from '../content/zones'
 import {
@@ -134,6 +135,7 @@ function freshSaveState(): SaveState {
       gambitsUnlocked: false,
     },
     inn: { queued: false },
+    introsSeen: {},
   }
 }
 
@@ -207,6 +209,14 @@ export class GameStore {
   selectedMonsterId = $state<string | null>(null)
   /** M9 - Reunion-Modal (Sidebar-Button öffnet, s. `ReunionModal.svelte`). */
   reunionModalOpen = $state(false)
+  /**
+   * ui-layout.md "Mechanik-Einführung" (M17) - aktuell offenes, blockierendes Einführungs-Popup
+   * (s. `IntroPopup.svelte`). Nicht-null pausiert `advance()` komplett (s. dort).
+   */
+  activeIntro = $state<IntroId | null>(null)
+  /** M17 - Codex-Modal (Sidebar-Button öffnet, s. `Codex.svelte`). */
+  codexOpen = $state(false)
+  selectedIntroId = $state<IntroId | null>(null)
 
   #frameHandle = 0
   #lastTimestamp = 0
@@ -215,6 +225,8 @@ export class GameStore {
   #autosave: AutosaveHandle | null = null
   /** feinspec §3.8b (M11) - welche Zone nach Abschluss des Gasthaus-Aufenthalts gespielt wird. */
   #innNextZone: number | null = null
+  /** ui-layout.md "Mechanik-Einführung" (M17) - FIFO fuer Popups, die im selben Tick ausgeloest werden (z. B. Barrel-Beitritt + Special-Unlock derselben Zonen-Grenze). */
+  #introQueue: IntroId[] = []
 
   /**
    * Playtest-Fund (Gasthaus ohne sichtbares Heil-Feedback): Während `phase === 'inn'`
@@ -299,6 +311,17 @@ export class GameStore {
     return this.save.chapterBossDefeated
   }
 
+  /**
+   * ui-layout.md "Mechanik-Einführung" (M17) - Claude stellt sich vor dem allerersten Kampf vor
+   * (charaktere-party.md: "getrennt vom Mechanik-Popup"), ATB/Attack folgt direkt im ersten Kampf.
+   * Beide werden hier unconditional angestoßen - `#queueIntro` selbst ist idempotent (No-op, falls
+   * `introsSeen` das schon traegt, z. B. nach Laden eines bestehenden Saves).
+   */
+  constructor() {
+    this.#queueIntro('claude_intro')
+    this.#queueIntro('atb_attack')
+  }
+
   #character(id: string): Character {
     const character = this.save.party.find((c) => c.id === id)
     if (!character) throw new Error(`Figur ${id} ist nicht in der Party`)
@@ -328,6 +351,51 @@ export class GameStore {
   #dismissCallout(): void {
     this.calloutMessage = null
     this.#calloutRemaining = 0
+  }
+
+  /**
+   * ui-layout.md "Mechanik-Einführung" (M17) - stellt ein Einführungs-Popup in die Warteschlange,
+   * genau einmal pro `IntroId` (No-op, wenn `introsSeen[id]` schon `true` ist). `introsSeen` wird
+   * SOFORT gesetzt (nicht erst bei `closeIntro()`), damit derselbe Trigger im selben Tick nicht
+   * doppelt queued - der Effekt (genau ein Popup) ist identisch, das Flag ist nur der Türsteher.
+   */
+  #queueIntro(id: IntroId): void {
+    if (this.save.introsSeen[id]) return
+    this.save = { ...this.save, introsSeen: { ...this.save.introsSeen, [id]: true } }
+    if (this.activeIntro === null) {
+      this.activeIntro = id
+    } else {
+      this.#introQueue.push(id)
+    }
+  }
+
+  /** ui-layout.md "Mechanik-Einführung" (M17) - aktives Popup weggeklickt; naechstes aus der Warteschlange (falls vorhanden). */
+  closeIntro(): void {
+    this.activeIntro = this.#introQueue.shift() ?? null
+  }
+
+  /**
+   * kampf-analyse-shock.md §5/ui-layout.md "Mechanik-Einführung" (M17) - Encounter-basierte
+   * Trigger (nicht zonen-hartkodiert, konsistent mit Umsetzungsentscheidung 70/M16): das erste
+   * Gate (Limit) und der erste Heiler-Gegner (Zielwahl) lösen beim tatsächlichen Kontakt aus,
+   * also beim Battle-Spawn fuer die betroffene Zone - nicht beim bloßen Erreichen der Zonennummer.
+   */
+  #checkZoneIntros(zone: Zone): void {
+    if (zone.isGate) this.#queueIntro('limit')
+    if (zone.waves[0].some((ref) => MONSTERS[ref.monster].trait === 'heal')) this.#queueIntro('target_select')
+  }
+
+  /** M17 - Codex-Modal öffnen/schließen und Auswahl setzen (`ui/Codex.svelte`). */
+  openCodex(): void {
+    this.codexOpen = true
+  }
+
+  closeCodex(): void {
+    this.codexOpen = false
+  }
+
+  selectIntro(id: IntroId): void {
+    this.selectedIntroId = id
   }
 
   /** feinspec §5.1 Schritt 3/4 - Spieler wählt "Attack", die Uhr läuft danach weiter. */
@@ -436,7 +504,9 @@ export class GameStore {
     this.#dismissCallout()
     const party = syncPartyFromBattle(this.save.party, this.battle.party)
     this.save = { ...this.save, party, currentZone: zoneIndex }
-    this.battle = spawnBattle(findZone(zoneIndex), party, this.save.partyLevel, this.reunionBoostMult)
+    const zone = findZone(zoneIndex)
+    this.battle = spawnBattle(zone, party, this.save.partyLevel, this.reunionBoostMult)
+    this.#checkZoneIntros(zone)
   }
 
   /** feinspec §3.8b (M11) - "nach diesem Kampf ins Gasthaus" umschalten; greift erst nach Kampfende. */
@@ -545,6 +615,7 @@ export class GameStore {
     this.corruptSaveNotice = null
     this.phase = 'battle'
     this.battle = spawnBattle(zone, this.save.party, this.save.partyLevel, this.reunionBoostMult)
+    this.#checkZoneIntros(zone)
     writeSave(this.save)
     this.#triggerCallout(`Save imported – Zone ${this.save.currentZone}.`)
     return { ok: true }
@@ -622,6 +693,12 @@ export class GameStore {
 
   /** Ein Zeitschritt der Kampfuhr (feinspec §5/§5.1) - von `start()`s rAF-Loop getrieben, öffentlich für Tests. */
   advance(deltaSeconds: number): void {
+    // ui-layout.md "Mechanik-Einführung" (M17) - "blockierend, mit Pause": ein offenes
+    // Einführungs-Popup haelt ALLES an (Kampf-Tick, Retry-/Gasthaus-Timer, Callout-Timer), nicht
+    // nur den Kampf. Es gibt keinen Fall, in dem im Hintergrund weiterlaufen soll, waehrend der
+    // Spieler den Text noch nicht weggeklickt hat.
+    if (this.activeIntro) return
+
     if (this.calloutMessage) {
       this.#calloutRemaining -= deltaSeconds
       if (this.#calloutRemaining <= 0) this.#dismissCallout()
@@ -648,6 +725,7 @@ export class GameStore {
       if (this.battle.bossAoeTriggered && !this.save.flags.defenseUnlocked) {
         this.save = { ...this.save, flags: { ...this.save.flags, defenseUnlocked: true } }
         this.#triggerCallout('Defend online – brace for the next telegraphed hit!')
+        this.#queueIntro('defend')
       }
       if (result === 'win') return this.#onWin()
       if (result === 'loss') return this.#onLoss()
@@ -701,6 +779,7 @@ export class GameStore {
         chapterBossDefeated: true,
       }
       this.phase = 'chapter-complete'
+      this.#queueIntro('reunion')
       writeSave(this.save)
       return
     }
@@ -718,6 +797,7 @@ export class GameStore {
         flags = { ...flags, autoAttackUnlocked: true, manualToggleUnlocked: true }
         party = party.map((c) => ({ ...c, controlMode: 'auto' }))
         this.#triggerCallout('Auto-Attack online – the party fights on its own now.')
+        this.#queueIntro('auto_attack')
       }
 
       // feinspec §6.3 Z9-10 - Barrel stößt zu Beginn der Region 2 zur Party.
@@ -725,6 +805,7 @@ export class GameStore {
         roster = [...roster, 'barrel']
         party = [...party, joinCharacter('barrel', flags.manualToggleUnlocked ? 'auto' : 'manual', partyLevel, boostMult)]
         this.#triggerCallout('Barrel joins the party – suppressing fire incoming!')
+        this.#queueIntro('barrel_intro')
       }
 
       // feinspec §6.3 Z19-20 - Tofa+Air is... stoßen zu Beginn der Region 3 zur Party (volle 4er-Party).
@@ -733,6 +814,8 @@ export class GameStore {
         const mode = flags.manualToggleUnlocked ? 'auto' : 'manual'
         party = [...party, joinCharacter('tofa', mode, partyLevel, boostMult), joinCharacter('airis', mode, partyLevel, boostMult)]
         this.#triggerCallout('Tofa and Air is... join the party – full roster online!')
+        this.#queueIntro('tofa_airis_intro')
+        this.#queueIntro('shock')
       }
 
       // feinspec §4.1/§5.1/§6.4 (M15) - permanenter Zonen-Trigger statt Gil-Kauf: Claude bei Zone
@@ -743,6 +826,7 @@ export class GameStore {
       if (newlyUnlocked.length > 0) {
         if (!flags.mpVisible) flags = { ...flags, mpVisible: true }
         this.#triggerCallout(`${newlyUnlocked.map((c) => c.name).join(', ')} special unlocked – MP online!`)
+        this.#queueIntro('special_mp')
       }
     } else {
       // feinspec §3.8a - Zonen-Rückkehr: eine bereits geschaffte Zone farmen wiederholt sie.
@@ -764,7 +848,9 @@ export class GameStore {
     if (this.save.inn.queued) {
       this.#enterInn(false, nextZone)
     } else {
-      this.battle = spawnBattle(findZone(nextZone), party, partyLevel, boostMult)
+      const zone = findZone(nextZone)
+      this.battle = spawnBattle(zone, party, partyLevel, boostMult)
+      this.#checkZoneIntros(zone)
     }
   }
 
@@ -774,6 +860,7 @@ export class GameStore {
     this.save = { ...this.save, party }
     this.phase = 'retry'
     this.retryRemaining = RETRY_PENALTY
+    this.#queueIntro('zone_return')
   }
 
   /**
@@ -793,6 +880,7 @@ export class GameStore {
     this.innElapsed = 0
     this.#innNextZone = nextZone
     this.save = { ...this.save, inn: { queued: false } }
+    this.#queueIntro('inn')
   }
 
   /** feinspec §3.8b (M11) - 10s Totzeit, danach 5%/s auf HP+MP gleichzeitig; endet automatisch bei voller Heilung. */
@@ -819,6 +907,7 @@ export class GameStore {
     this.#innNextZone = null
     this.phase = 'battle'
     this.battle = spawnBattle(zone, this.save.party, this.save.partyLevel, this.reunionBoostMult)
+    this.#checkZoneIntros(zone)
     writeSave(this.save)
   }
 }

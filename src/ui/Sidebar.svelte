@@ -1,8 +1,10 @@
 <script lang="ts">
   import { game } from './gameStore.svelte'
   import { MONSTERS } from '../content/monsters'
+  import { INTRO_ORDER } from '../content/introductions'
   import BestiaryModal from './BestiaryModal.svelte'
   import ReunionModal from './ReunionModal.svelte'
+  import Codex from './Codex.svelte'
 
   const regionName = $derived(
     game.save.currentZone <= 8 ? 'Reactor Row' : game.save.currentZone <= 18 ? 'Bargain Bazaar' : 'MegaCorp Tower',
@@ -10,6 +12,8 @@
   const regionIndex = $derived(game.save.currentZone <= 8 ? 1 : game.save.currentZone <= 18 ? 2 : 3)
   const bestiaryCount = $derived(Object.keys(game.save.bestiary).length)
   const catalogSize = $derived(Object.keys(MONSTERS).length)
+  const introsSeenCount = $derived(Object.keys(game.save.introsSeen).length)
+  const introsTotal = $derived(INTRO_ORDER.length)
 
   // feinspec §3.8a (M11) - Zonen-Rückkehr: das eigentliche Ventil. Nur zwischen Kämpfen bedienbar.
   const zoneNavEnabled = $derived(game.phase === 'battle')
@@ -92,6 +96,11 @@
     Bestiary <span class="count">({bestiaryCount}/{catalogSize})</span>
   </button>
 
+  <!-- ui-layout.md "Mechanik-Einführung" §Codex (M17) - dauerhaft nachlesbare Liste der Einführungen. -->
+  <button class="bestiary-button" onclick={() => game.openCodex()}>
+    Codex <span class="count">({introsSeenCount}/{introsTotal})</span>
+  </button>
+
   {#if game.canReunion}
     <button class="reunion-button" onclick={() => game.openReunionModal()}>
       ✦ Reunion available
@@ -116,6 +125,7 @@
 
 <BestiaryModal />
 <ReunionModal />
+<Codex />
 
 <style>
   .sidebar {

@@ -39,6 +39,7 @@ function sampleSaveState(): SaveState {
       gambitsUnlocked: false,
     },
     inn: { queued: false },
+    introsSeen: { claude_intro: true },
   }
 }
 
@@ -59,6 +60,7 @@ describe('Architektur §6 - Save-Round-Trip (serialize -> deserialize)', () => {
     expect(restored.reunionCount).toBe(original.reunionCount)
     expect(restored.flags).toEqual(original.flags)
     expect(restored.inn).toEqual(original.inn)
+    expect(restored.introsSeen).toEqual(original.introsSeen)
     expect(restored.currencies.reunionEssence.eq(original.currencies.reunionEssence)).toBe(true)
   })
 
@@ -237,5 +239,80 @@ describe('Architektur §6 - Migrations-Grundgerüst', () => {
     expect(migrated.version).toBe(SAVE_VERSION)
     expect(migrated.chapterBossDefeated).toBe(false)
     expect(migrated.currentZone).toBe(30)
+  })
+
+  // M17 (01.08.2026) - `introsSeen` darf einen fortgeschrittenen Alt-Save nicht nachträglich
+  // mit 13 Popups überfluten; die Heuristik leitet "bereits gesehen" aus genau den Signalen ab,
+  // die im Live-Code (`ui/gameStore.svelte.ts`) den jeweiligen Trigger auch auslösen würden.
+  it('migriert v5 nach v6: introsSeen wird aus Fortschritt/Flags/Roster/Bestiarium abgeleitet, nicht leer gelassen', () => {
+    const v5 = {
+      version: 5,
+      chapter: 1,
+      currentZone: 20,
+      maxZoneReached: 20,
+      chapterBossDefeated: false,
+      party: [{ ...CLAUDE }, { ...BARREL }],
+      partyLevel: 15,
+      partyExp: 3,
+      roster: ['claude', 'barrel', 'tofa', 'airis'],
+      currencies: { reunionEssence: '0' },
+      bestiary: { blando: { monsterId: 'blando', discovered: true, weaknessRevealed: null, weaknessUsable: false, persistsThroughReunion: true } },
+      reunionCount: 1,
+      flags: {
+        autoAttackUnlocked: true,
+        mpVisible: true,
+        manualToggleUnlocked: true,
+        defenseUnlocked: true,
+        materiaUnlocked: false,
+        gambitsUnlocked: true,
+      },
+      inn: { queued: false },
+    } as unknown as SerializedSaveState
+
+    const migrated = migrate(v5)
+
+    expect(migrated.version).toBe(SAVE_VERSION)
+    expect(migrated.introsSeen).toEqual({
+      claude_intro: true,
+      atb_attack: true,
+      zone_return: true,
+      inn: true,
+      auto_attack: true,
+      special_mp: true,
+      defend: true,
+      barrel_intro: true,
+      tofa_airis_intro: true,
+      shock: true,
+      target_select: true,
+      limit: true,
+      reunion: true,
+    })
+  })
+
+  it('migriert v1 (ganz frischer Save) nach v6: introsSeen bleibt leer - alle 13 Einführungen stehen noch aus', () => {
+    const v1 = {
+      version: 1,
+      chapter: 1,
+      currentZone: 1,
+      party: [],
+      roster: ['claude'],
+      currencies: { gil: '0', reunionEssence: '0' },
+      bestiary: {},
+      reunionCount: 0,
+      flags: {
+        autoAttackUnlocked: false,
+        mpVisible: false,
+        manualToggleUnlocked: false,
+        defenseUnlocked: false,
+        materiaUnlocked: false,
+        gambitsUnlocked: false,
+      },
+      offline: { lastSeen: 1732300000 },
+    } as unknown as SerializedSaveState
+
+    const migrated = migrate(v1)
+
+    expect(migrated.version).toBe(SAVE_VERSION)
+    expect(migrated.introsSeen).toEqual({})
   })
 })

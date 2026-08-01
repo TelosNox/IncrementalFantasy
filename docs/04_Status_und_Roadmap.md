@@ -163,7 +163,7 @@ Run-Entscheidungen bleiben: **MP-Budget, Zielwahl/Fokus, Zonenwahl, Gasthaus-Tim
 - **M15 Ökonomie-Umbau** – ✅ umgesetzt (31.07.2026, Commit `0ba6883`), aber **nicht abgeschlossen** → M15a.
 - **M15a Camping-Leck** – siehe Konzept-Review unten.
 - **M16 Zielwahl muss zählen** – Heiler in Region 2; Konter nur als *temporärer* Bosszustand („fordernd, nicht strafend"). Inhaltsdesign, keine Deadlock-Sicherung – das erledigt M15 allein.
-- **M17 Mechanik-Einführung** – Popup + Codex, vor der Kapitel-2-Feinspec, damit Kapitel-2-Mechaniken in ein bestehendes Framework rutschen.
+- **M17 Mechanik-Einführung** – ✅ umgesetzt (01.08.2026). Popup + Codex, vor der Kapitel-2-Feinspec, damit Kapitel-2-Mechaniken in ein bestehendes Framework rutschen. Details: `06_Implementierungsplan_Kapitel1.md`/`07_Umsetzungsentscheidungen.md` Nr. 81–89.
 
 **Alle Balance-Zahlen von Kapitel 1 bleiben unvalidiert.** §7.4 bleibt ungültig; die Zielzeiten oben sind **Vorgaben, keine Messung**. Diese Session hat bewusst **keine neuen Zahlen** geschrieben – eine zweite reparierte Zahlenreihe wäre derselbe Fehler wie am 24.07.
 

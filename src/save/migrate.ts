@@ -5,6 +5,7 @@
 // Waffen-Tier-Leiter, Special-Unlock wird zum permanenten `specialUnlocked`-Flag.
 // v4 -> v5: der Kapitel-Boss ist Pflicht (Umsetzungsentscheidung 61), `canReunion`
 // haengt jetzt an `chapterBossDefeated` statt `currentZone >= 30`.
+// v5 -> v6: M17 (Mechanik-Einführung) fügt `introsSeen` hinzu.
 // Ältere Stände laufen die Kette der Reihe nach durch; künftige Schritte werden
 // hier nur noch angehängt.
 
@@ -12,8 +13,13 @@ import type { Character } from '../core/entities'
 import { SAVE_VERSION } from './schema'
 import type { SerializedSaveState } from './serialize'
 
+/** v5-Save-Shape (vor M17): kein `introsSeen`. */
+interface SerializedSaveStateV5 extends Omit<SerializedSaveState, 'version' | 'introsSeen'> {
+  version: 5
+}
+
 /** v4-Save-Shape (vor dem Pflicht-Boss): kein `chapterBossDefeated`. */
-interface SerializedSaveStateV4 extends Omit<SerializedSaveState, 'version' | 'chapterBossDefeated'> {
+interface SerializedSaveStateV4 extends Omit<SerializedSaveStateV5, 'version' | 'chapterBossDefeated'> {
   version: 4
 }
 
@@ -117,7 +123,7 @@ function migrateV3toV4(data: SerializedSaveStateV3): SerializedSaveStateV4 {
  * muss den Kampf (einmalig) gewinnen, um weiter zu reunionen. Kein stiller Fortschritt,
  * aber auch kein Rückschritt: `currentZone`/`maxZoneReached` bleiben unangetastet.
  */
-function migrateV4toV5(data: SerializedSaveStateV4): SerializedSaveState {
+function migrateV4toV5(data: SerializedSaveStateV4): SerializedSaveStateV5 {
   return {
     ...data,
     version: 5,
@@ -125,21 +131,68 @@ function migrateV4toV5(data: SerializedSaveStateV4): SerializedSaveState {
   }
 }
 
+/**
+ * v5 -> v6 (M17, 01.08.2026): `ui-layout.md` "Mechanik-Einführung" führt je Mechanik ein
+ * blockierendes Popup ein, das nur beim ersten Mal erscheint (`introsSeen`, s. `schema.ts`).
+ * Ein frischer v1-Save (leere Party, Zone 1) bekommt zu Recht ein leeres `introsSeen` - er
+ * soll ja alle 13 Einführungen sehen. Ein bereits fortgeschrittener Alt-Save darf dagegen
+ * NICHT nachträglich mit 13 Popups überflutet werden, nur weil das Feature neu ist - die
+ * Heuristik unten leitet "bereits gesehen" aus genau den Signalen ab, die im Live-Code den
+ * jeweiligen Trigger auch tatsächlich auslösen (Flags, Roster, Zonenfortschritt,
+ * Bestiarium-Eintrag), s. `ui/gameStore.svelte.ts` für die Live-Trigger-Stellen.
+ */
+function migrateV5toV6(data: SerializedSaveStateV5): SerializedSaveState {
+  const introsSeen: Record<string, boolean> = {}
+  const started = data.currentZone > 1 || data.maxZoneReached > 1
+  if (started) {
+    introsSeen.claude_intro = true
+    introsSeen.atb_attack = true
+    introsSeen.zone_return = true
+    introsSeen.inn = true
+  }
+  if (data.flags.autoAttackUnlocked) introsSeen.auto_attack = true
+  if (data.flags.mpVisible) introsSeen.special_mp = true
+  if (data.flags.defenseUnlocked) introsSeen.defend = true
+  if (data.roster.includes('barrel')) introsSeen.barrel_intro = true
+  if (data.roster.includes('tofa')) {
+    introsSeen.tofa_airis_intro = true
+    introsSeen.shock = true
+  }
+  if (data.maxZoneReached >= 12 || 'bandbox' in data.bestiary) introsSeen.target_select = true
+  if (data.maxZoneReached >= 8) introsSeen.limit = true
+  if (data.reunionCount > 0) introsSeen.reunion = true
+
+  return {
+    ...data,
+    version: 6,
+    introsSeen,
+  }
+}
+
 export function migrate(
-  data: SerializedSaveState | SerializedSaveStateV4 | SerializedSaveStateV3 | SerializedSaveStateV2 | SerializedSaveStateV1,
+  data:
+    | SerializedSaveState
+    | SerializedSaveStateV5
+    | SerializedSaveStateV4
+    | SerializedSaveStateV3
+    | SerializedSaveStateV2
+    | SerializedSaveStateV1,
 ): SerializedSaveState {
   if ((data as { version: number }).version === SAVE_VERSION) return data as SerializedSaveState
   if ((data as { version: number }).version === 1) {
-    return migrateV4toV5(migrateV3toV4(migrateV2toV3(migrateV1toV2(data as SerializedSaveStateV1))))
+    return migrateV5toV6(migrateV4toV5(migrateV3toV4(migrateV2toV3(migrateV1toV2(data as SerializedSaveStateV1)))))
   }
   if ((data as { version: number }).version === 2) {
-    return migrateV4toV5(migrateV3toV4(migrateV2toV3(data as SerializedSaveStateV2)))
+    return migrateV5toV6(migrateV4toV5(migrateV3toV4(migrateV2toV3(data as SerializedSaveStateV2))))
   }
   if ((data as { version: number }).version === 3) {
-    return migrateV4toV5(migrateV3toV4(data as SerializedSaveStateV3))
+    return migrateV5toV6(migrateV4toV5(migrateV3toV4(data as SerializedSaveStateV3)))
   }
   if ((data as { version: number }).version === 4) {
-    return migrateV4toV5(data as SerializedSaveStateV4)
+    return migrateV5toV6(migrateV4toV5(data as SerializedSaveStateV4))
+  }
+  if ((data as { version: number }).version === 5) {
+    return migrateV5toV6(data as SerializedSaveStateV5)
   }
   // Kein weiterer Vorgänger vorhanden - ein unbekannter/höherer Versionsstand ist ein
   // fremder/korrupter Save. Sichtbare Warnung statt stillem Überschreiben (Architektur §6, M10).
