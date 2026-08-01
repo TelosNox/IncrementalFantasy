@@ -485,6 +485,10 @@ export class GameStore {
       ...this.save,
       currentZone: 1,
       maxZoneReached: 1,
+      // prestige-reunion.md "Boss-Sieg faellt zurueck", Umsetzungsentscheidung 66 (01.08.2026) -
+      // der Pflicht-Boss muss im neuen Durchlauf erneut besiegt werden, sonst bleibt canReunion
+      // ab Durchlauf 2 dauerhaft wahr und zahlt Essenz ohne Kampf aus.
+      chapterBossDefeated: false,
       party,
       // prestige-reunion.md - das Gruppenlevel ist der eine Wert, der zurueckfaellt (statt vier).
       partyLevel: 1,
