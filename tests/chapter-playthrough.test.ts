@@ -14,7 +14,7 @@ import type { Character, ControlMode, Zone } from '../src/core/entities'
 import { resolveOptimalAction } from '../src/core/gambits'
 import { battleTick, createBattleState, DT, type BattleState } from '../src/core/tick'
 import { INN_DEAD_TIME, INN_RATE, LIMIT_MAX, RETRY_PENALTY } from '../src/core/formulas'
-import { applyVictoryExp, applyVictoryRecovery, zoneReward } from '../src/core/progression'
+import { applyVictoryExp, applyVictoryRecovery, expectedLevelForZone, zoneReward } from '../src/core/progression'
 
 // M11 (Ventil-Kette & Ressourcen-Ökonomie) - Pacing-Harness gemäß feinspec §12.
 // Ersetzt die alte M7-Baseline vollständig (F2: der alte Harness farmte bei jeder
@@ -489,21 +489,6 @@ describe('feinspec §12 - Abnahmekriterien der Neu-Balancierung (M11)', () => {
       expect(vRatio).toBeLessThan(5.5)
     })
 
-    // gegner-encounter.md §5a/§7, Meilenstein-Plan M16 - Abnahme: "Der Abstand M<->T wächst
-    // messbar gegenüber M15". Referenzwert 30,2 min ist die M15-Baseline (Umsetzungsentscheidung
-    // M15 #52: M 13,5 / T 43,7 min -> Differenz 43,7 - 13,5 = 30,2). Gemessener Typ: dieselben
-    // M/T-Objekte wie oben (M = `resolveOptimalAction`/`smartTarget`, T = `resolvePartyAction`
-    // mit einmaligem Fokus aus `chooseFocusIndex`) - beide Hebel aus M16 (Heiler-Zielwahl,
-    // Vaultron-Konter) wirken NUR über diese beiden Pfade unterschiedlich: den Heiler tötet auch T
-    // zuerst (chooseFocusIndex kennt jetzt den 'heal'-Trait), das breitet den Abstand zu V, nicht
-    // zu T - der Konter dagegen kann nur M ausweichen (`smartTarget` reagiert mitten im Kampf, T
-    // legt seinen Fokus nur einmal zu Kampfbeginn fest, s. dortiger Kommentar), das ist der Hebel,
-    // der hier tatsächlich gemessen wird.
-    it('M16: Abstand M<->T wächst gegenüber der M15-Baseline (30,2 min)', () => {
-      const m15BaselineGapMinutes = 30.2
-      expect(t.totalMinutes - m.totalMinutes).toBeGreaterThan(m15BaselineGapMinutes)
-    })
-
     it('B3 (M11-Revision): beide Abstände (M->T und T->V) existieren tatsächlich', () => {
       // Die urspruengliche Erwartung "M->T < T->V" unterstellt einen groesseren T-Vorteil, als
       // die reine Fokusziel-Wahl gegen die Kapitel-Wand liefert (s. B2-Kommentar oben) - dort
@@ -685,6 +670,105 @@ describe('feinspec §3.8c - Niederlage heilt nicht (M11)', () => {
     const hpAtDefeat = party.claude.hp
     // Keine Erholung, keine Heilung - der Stand aus dem Kampf ist der Stand danach.
     expect(hpAtDefeat).toBe(Math.max(0, Math.round(battle.units[0].hp)))
+  })
+})
+
+/**
+ * gegner-encounter.md §5a/§7, Meilenstein-Plan M16 - Abnahme (Kriterium ersetzt 01.08.2026,
+ * s. Warnhinweis dort): "Mindestens zwei benannte Encounter, in denen Zielwahl über Ausgang
+ * oder Dauer des Kampfes entscheidet". Ersetzt den frueheren M↔T-Kapitel-Kennzahl-Test (der
+ * pruefte, wie stark M16 den GESAMTEN Kapitel-Abstand verschiebt - ein Mass, das zwei
+ * geaenderte Encounter unter 30 Zonen konstruktionsbedingt kaum bewegen koennen, s. dortiger
+ * Kommentar-Verlauf). Geprueft wird stattdessen direkt am jeweiligen Encounter, mit sonst
+ * identischem Setup (Level `expectedLevelForZone`, gleiche Party, gleicher Encounter) und
+ * NUR der Zielwahl als Variable - deckungsgleich mit dem Stil der Blandzilla-Tests unten.
+ */
+function runFixedFocusBattle(
+  zoneIndex: number,
+  roster: CharacterId[],
+  partyLevel: number,
+  focusIndex: number | null,
+  maxSeconds = 1200,
+): { win: boolean; timeSeconds: number } {
+  const zone = findZone(zoneIndex)
+  const partyUnits = roster.map((id) => {
+    const character = withSpecialTrigger({ ...joinCharacterState(id, partyLevel), controlMode: 'auto' }, zoneIndex)
+    return createPartyUnit(character, partyLevel, zoneIndex, 1, zone.limitAllowed)
+  })
+  const enemyUnits = zone.waves[0].map((ref) => createEnemyUnit(MONSTERS[ref.monster], zoneIndex, ref.size))
+  const state: BattleState = createBattleState(partyUnits, enemyUnits)
+  state.focusTargetIndex = focusIndex
+
+  let t = 0
+  while (t < maxSeconds) {
+    const result = battleTick(state, DT)
+    if (result === 'win') return { win: true, timeSeconds: t }
+    if (result === 'loss') return { win: false, timeSeconds: t }
+    t += DT
+  }
+  return { win: false, timeSeconds: t }
+}
+
+/** Wie oben, aber `manual`/`resolveOptimalAction` statt eines starren Fokus - die einzige Policy, die
+ * ein telegrafiertes Konter-Fenster auch MITTEN im Kampf noch meidet (`gambits.ts` `smartTarget`). */
+function runAwareBattle(
+  zoneIndex: number,
+  roster: CharacterId[],
+  partyLevel: number,
+  maxSeconds = 1200,
+): { win: boolean; timeSeconds: number } {
+  const zone = findZone(zoneIndex)
+  const partyUnits = roster.map((id) => {
+    const character = withSpecialTrigger({ ...joinCharacterState(id, partyLevel), controlMode: 'manual' }, zoneIndex)
+    return createPartyUnit(character, partyLevel, zoneIndex, 1, zone.limitAllowed)
+  })
+  const enemyUnits = zone.waves[0].map((ref) => createEnemyUnit(MONSTERS[ref.monster], zoneIndex, ref.size))
+  const state: BattleState = createBattleState(partyUnits, enemyUnits)
+
+  let t = 0
+  while (t < maxSeconds) {
+    const result = battleTick(state, DT)
+    if (result === 'win') return { win: true, timeSeconds: t }
+    if (result === 'loss') return { win: false, timeSeconds: t }
+    if (result === 'paused') {
+      const unit = state.awaitingPlayerChoice as BattleUnit
+      resolveOptimalAction(unit, state)
+      unit.atb = 0
+      state.awaitingPlayerChoice = null
+      continue
+    }
+    t += DT
+  }
+  return { win: false, timeSeconds: t }
+}
+
+describe('M16 (Abnahme ersetzt 01.08.2026) - Zielwahl entscheidet Ausgang/Dauer je Encounter', () => {
+  // `content/zones.ts` Zone 12/13: wave(['kindlebale', ...], ['bandbox', ...]) - Bandbox steht
+  // bewusst an Array-Position 1 (§5a: "kein Fokus -> naechststehend" trifft ihn NICHT automatisch).
+  it('Bandbox (Zone 12): den Heiler zuerst anzugreifen gewinnt spuerbar schneller als ihn zu ignorieren', () => {
+    const level = expectedLevelForZone(12)
+    const roster: CharacterId[] = ['claude', 'barrel']
+    const killHealerFirst = runFixedFocusBattle(12, roster, level, 1) // Bandbox
+    const ignoreHealer = runFixedFocusBattle(12, roster, level, 0) // Kindlebale, Bandbox haelt ihn am Leben
+
+    expect(killHealerFirst.win).toBe(true)
+    expect(ignoreHealer.win).toBe(true)
+    expect(killHealerFirst.timeSeconds).toBeLessThan(ignoreHealer.timeSeconds)
+  })
+
+  // `content/zones.ts` Zone 30: wave(['vaultron', ...], ['blando', ...], ['blando', ...]) -
+  // Vaultron an Position 0. Ein starrer Fokus auf Vaultron (nie auf die Blando-Adds ausweichen)
+  // kassiert jedes Konter-Fenster in voller Wucht (`gegner-encounter.md` §5a/§7); die
+  // aufmerksame Policy weicht aus/verteidigt (s. `resolveOptimalAction`/`mustAvoidCounterByDefending`
+  // in `gambits.ts`). Zielwahl entscheidet hier nicht nur die Dauer, sondern den Ausgang.
+  it('Vaultron (Zone 30): dem Konter-Fenster auszuweichen entscheidet über Sieg oder Niederlage', () => {
+    const level = expectedLevelForZone(30)
+    const roster: CharacterId[] = ['claude', 'barrel', 'tofa', 'airis']
+    const aware = runAwareBattle(30, roster, level)
+    const blind = runFixedFocusBattle(30, roster, level, 0) // stur auf Vaultron, ignoriert die Adds
+
+    expect(aware.win).toBe(true)
+    expect(blind.win).toBe(false)
   })
 })
 

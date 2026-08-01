@@ -6,6 +6,7 @@
   import { game } from './gameStore.svelte'
   import { MONSTERS, MONSTER_INSPIRED_BY } from '../content/monsters'
   import { ENEMY_SPRITES } from './sprites'
+  import { atbInterval, enemyHealAmount } from '../core/formulas'
 
   const catalog = $derived(Object.keys(MONSTERS))
   const discovered = $derived(Object.keys(game.save.bestiary))
@@ -17,6 +18,17 @@
   // dem Kapitel-1-Katalog (feinspec §6.2: höchste HP/ATK/DEF/SPD über alle
   // Monster inkl. Gates).
   const STAT_MAX = { hp: 250, atk: 16, def: 16, spd: 180 }
+
+  // gegner-encounter.md §5a (Korrektur aus dem Konzept-Review 01.08.2026) - "der heilt" liest der
+  // Spieler ohnehin an der HP-Leiste ab; Analyse muss am Heiler eine Information liefern, die die
+  // Kampfanzeige NICHT hergibt (E4). Heilmenge/Takt geben die Rechnung "kommt mein Schaden pro
+  // Sekunde gegen die Heilung an?" her. Aus den unskalierten Basiswerten wie die übrigen Bars
+  // oben (keine Zonen-Skalierung im Bestiarium).
+  const healInfo = $derived(
+    monster?.trait === 'heal'
+      ? { amount: enemyHealAmount(monster.base.atk), interval: atbInterval(monster.base.spd) }
+      : null,
+  )
 </script>
 
 {#if game.bestiaryOpen}
@@ -68,6 +80,13 @@
               {#if !selected.weaknessUsable}
                 <div class="teaser">! Usable from Chapter 2 (Element Materia → Shock-affine)</div>
               {/if}
+            {/if}
+
+            {#if healInfo}
+              <div class="weakness-row">
+                <span class="weakness-label">Heals:</span>
+                <span class="weakness-tag">{healInfo.amount} HP / ~{healInfo.interval.toFixed(1)}s</span>
+              </div>
             {/if}
           </div>
         </div>

@@ -1,6 +1,6 @@
 # Gegner-Katalog (Parodie-Monster)
 
-**Status:** 11 einfache Monster beschrieben (englischbasierte Namen für internationale Lesbarkeit); Visuals folgen später (über `assets/generate_characters.py` im Pixel-Stil, s. `charaktere-visuals.md`). Bandbox (#11) kam mit M16 (01.08.2026) dazu und hat noch kein Sprite (Platzhalter: Blando-Sprite, `ui/sprites.ts`). ⚠️ **Dieses eine Sprite ist ein Blocker für M17, kein gewöhnlicher Content-Nachzug** (Konzept-Review 01.08.2026): Bandbox ist der **erste Zielwahl-Lehrgegner des Kapitels** und steht in derselben Welle wie der Standard-Füllgegner, dessen Sprite er borgt. Ein Popup, das „such dir das richtige Ziel" lehrt, zeigt dann auf zwei identische Kartons – die Lehrwirkung fällt aus, bevor sie eingeführt wird. **Vor dem M17-Popup zu erledigen.**
+**Status:** 11 einfache Monster beschrieben (englischbasierte Namen für internationale Lesbarkeit); Visuals folgen später (über `assets/generate_characters.py` im Pixel-Stil, s. `charaktere-visuals.md`). ✅ **Bandbox (#11, M16) hat seit 01.08.2026 ein eigenes Sprite** (`assets/generate_monsters.py` `bandbox()`, eingebunden in `ui/sprites.ts`) – der frühere Platzhalter (Blando-Sprite) war ein Blocker für M17 (Konzept-Review 01.08.2026): Bandbox ist der **erste Zielwahl-Lehrgegner des Kapitels** und stand in derselben Welle wie der Standard-Füllgegner, dessen Sprite er borgte.
 **Rahmen:** ergänzt `gegner-encounter.md` (Archetypen §5) und `../03_Konzept_Gerüst.md` §4.
 **Prüfinstanz:** `../02_Leitfaden_Kernmechaniken.md`.
 
@@ -29,7 +29,7 @@ Jedes Monster ist bewusst **einfach** und trägt **ein** klar lesbares kampfrele
 | 8 | **Boolinen** | Untote (Restorative-Schwäche) | **Untot**: Heilung schadet ihm (Heil-Materia offensiv!), saugt selbst HP · (neu: Untot/Sustain) | Weißes Bettlaken-Gespenst, dunkle Augenlöcher, schwebt leicht durchscheinend über dem Boden. |
 | 9 | **Funkus** | Grashtrike / Zenene | **Vergiftet** (Schaden über Zeit), zwingt zu Defensive · Status-Gegner | Dicker mürrischer Pilz mit giftgrüner Sporen-Gaswolke über dem Hut. |
 | 10 | **Jellyphase** | Ghost / fliegende Gegner | **Physisch immun**, nur Magie/MAG wirkt; erzwingt Build-Flexibilität · (neu: Physisch-Immun) | Durchscheinende bläulich-wabbelige Schwebequalle, baumelnde Tentakel; ATK „phast" sichtbar hindurch. |
-| 11 | **Bandbox** *(M16, 01.08.2026)* | kein direktes FF7-Vorbild | **Heilt Verbündete** (verletzteste zuerst) statt anzugreifen; macht Zielwahl erstmals folgenreich · Heiler-Gegner | *(noch offen – Platzhalter: Blando-Sprite)*. Naheliegende Richtung: Karton-Familie wie Blando, aber mit aufgemaltem rotem Kreuz/Verbandsmotiv, unterscheidbare Silhouette (z. B. schmaler, mit „Griff"-Ausbuchtung) statt reiner Recolor. |
+| 11 | **Bandbox** *(M16, 01.08.2026)* | kein direktes FF7-Vorbild | **Heilt Verbündete** (verletzteste zuerst) statt anzugreifen; macht Zielwahl erstmals folgenreich · Heiler-Gegner | ✅ Umgesetzt (`assets/generate_monsters.py` `bandbox()`): Karton-Familie wie Blando, aber schmaler + „Griff"-Ausbuchtung durchbricht die Silhouette oben + Verbandskreuz statt Tape-Streifen – kein reiner Recolor. |
 
 ## Debüt: Zyklus 1 (bis 1. Reunion) vs. Kapitel 2+
 

@@ -75,6 +75,19 @@ function smartTarget(state: BattleState): BattleUnit | null {
 }
 
 /**
+ * gegner-encounter.md §5a (Konzept-Review 01.08.2026, Regel "Antwort, die nicht ausgehen kann"):
+ * Vaultrons Ausweichziele (die zwei Blando-Adds) sind endlich - sind sie tot, findet
+ * `smartTarget` kein konter-freies Ziel mehr und faellt auf den fokussierten (konternden)
+ * Gegner zurueck. Empfehlung (a) aus der Spec: Defend als zweite, immer verfuegbare Antwort -
+ * der Konter haengt an `dealDamage` (s. `battle.ts`), ein verteidigender Zug greift gar nicht
+ * an und loest ihn folglich nie aus.
+ */
+function mustAvoidCounterByDefending(state: BattleState): boolean {
+  const alive = state.enemies.filter(isAlive)
+  return alive.length > 0 && alive.every((e) => e.counterActive)
+}
+
+/**
  * Die einzige Auto-Regel vor der 1. Reunion: Angriff, sonst nichts (kein
  * Special, kein Heal, kein Suppress, kein Limit - diese sind bis zur 1.
  * Reunion nur über die manuelle Steuerung erreichbar). Trägt idle-fähig durch
@@ -113,16 +126,25 @@ export function resolvePartyAction(actor: BattleUnit, state: BattleState): void 
  * Mensch selbst per Klick, s. `setFocusTarget`).
  */
 export function resolveOptimalAction(actor: BattleUnit, state: BattleState): void {
+  actor.defending = false // Defend (M8) haelt nur bis zur naechsten eigenen Aktion
   const targets = state.enemies.filter(isAlive)
   if (!targets.length) return
 
   // Limit hat Vorrang, sobald voll (feinspec §3.4: Aufsparen ist eine
   // Entscheidung, aber an einem Gate ohne Shock-Fenster gibt es keinen Grund,
-  // ein volles Limit weiter zu banken).
+  // ein volles Limit weiter zu banken). Limit umgeht `dealDamage` (s. dort) und
+  // loest den Konter nie aus - unabhaengig vom Konter-Fenster sicher.
   if (actor.limitAllowed && actor.limit >= LIMIT_MAX) {
     const target = strongest(targets)
     target.hp -= limitFireDamage(actor.atk, target.def)
     actor.limit = 0
+    return
+  }
+
+  // gegner-encounter.md §5a - kein konter-freies Ziel mehr uebrig: verteidigen statt in den
+  // garantierten Konter zu laufen (s. `mustAvoidCounterByDefending`).
+  if (mustAvoidCounterByDefending(state)) {
+    actor.defending = true
     return
   }
 

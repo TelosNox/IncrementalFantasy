@@ -39,6 +39,18 @@ def blando():
     s.blk(19,27,26,21,'box','boxT','boxR',6)
     s.r(30,27,4,21,'tape'); s.p([[30,27],[33,24],[39,24],[36,27]],'tape'); s.r(19,27,26,1,'boxR')
     eyes(s,24,36,35); s.r(27,43,10,1,'eye'); return s.img
+# gegner-katalog.md #11 (M16-Nacharbeit, 01.08.2026) - Bandbox: gleiche Karton-Familie wie Blando,
+# aber bewusst KEIN reiner Recolor (Konzept-Review-Anforderung: der erste Zielwahl-Lehrgegner darf
+# nicht wie sein Füllgegner-Nachbar aussehen). Schmaler (18px statt 26px Front) + Griff-Ausbuchtung
+# durchbricht die Silhouette oben (Blando ist ein reiner Quader) + Verbandskreuz statt Tape-Streifen.
+def bandbox():
+    s=P(); s.shadow(30,rx=13)
+    s.blk(23,26,18,22,'box','boxT','boxR',5)
+    s.r(28,19,2,7,'boxR'); s.r(38,19,2,7,'boxR'); s.r(28,18,12,2,'boxR')
+    eyes(s,27,35,29)
+    s.r(26,35,14,11,'cream')
+    s.r(31,37,4,7,'red'); s.r(28,39,10,3,'red')
+    return s.img
 def kindlebale():
     s=P(); s.shadow(32)
     s.blk(16,24,32,26,'straw','strawT','strawD',5)
@@ -102,14 +114,14 @@ def jellyphase():
     for x in [19,25,31,37,43]: s.line(bez((x,40),(x+2,48),(x-2,52),(x+1,56)),'jellyD',2)
     s.r(27,33,3,4,'eye'); s.r(36,33,3,4,'eye'); return s.img
 
-MON={'blando':blando,'kindlebale':kindlebale,'safeguard':safeguard,'caffiend':caffiend,'shortfuse':shortfuse,'mitoslime':mitoslime,'pilferret':pilferret,'boolinen':boolinen,'funkus':funkus,'jellyphase':jellyphase}
+MON={'blando':blando,'bandbox':bandbox,'kindlebale':kindlebale,'safeguard':safeguard,'caffiend':caffiend,'shortfuse':shortfuse,'mitoslime':mitoslime,'pilferret':pilferret,'boolinen':boolinen,'funkus':funkus,'jellyphase':jellyphase}
 OUT=os.path.join(os.path.dirname(__file__),'monsters'); os.makedirs(OUT,exist_ok=True)
 order=list(MON.keys())
-sheet=Image.new('RGBA',(256*5,256*2),(0,0,0,0))
+sheet=Image.new('RGBA',(256*6,256*2),(0,0,0,0))
 for i,n in enumerate(order):
     im=MON[n]()
     save_png(im,os.path.join(OUT,f'{n}_64.png'))
     up=upscale(im,4); save_png(up,os.path.join(OUT,f'{n}_256.png'))
-    sheet.paste(up,((i%5)*256,(i//5)*256))
+    sheet.paste(up,((i%6)*256,(i//6)*256))
 save_png(sheet,os.path.join(OUT,'_sheet_256.png'))
 print('done',order)

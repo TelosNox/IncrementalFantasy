@@ -13,6 +13,7 @@ import kindlebaleSprite from '../assets/monsters/kindlebale_64.png'
 import shortfuseSprite from '../assets/monsters/shortfuse_64.png'
 import funkusSprite from '../assets/monsters/funkus_64.png'
 import pilferretSprite from '../assets/monsters/pilferret_64.png'
+import bandboxSprite from '../assets/monsters/bandbox_64.png'
 import blandzillaSprite from '../assets/bosses/blandzilla_base.png'
 import fortKnoxiousSprite from '../assets/bosses/fort_knoxious_base.png'
 import vaultronSprite from '../assets/bosses/vaultron_base.png'
@@ -32,10 +33,7 @@ export const ENEMY_SPRITES: Record<string, string> = {
   shortfuse: shortfuseSprite,
   funkus: funkusSprite,
   pilferret: pilferretSprite,
-  // M16 (01.08.2026) - Bandbox hat noch kein eigenes Sprite (kein FF7-Vorbild, s.
-  // `content/monsters.ts` MONSTER_INSPIRED_BY); Platzhalter reuses Blando (beide Karton-Familie)
-  // bis `gegner-katalog.md`/`assets/generate_monsters.py` ein eigenes Asset liefern.
-  bandbox: blandoSprite,
+  bandbox: bandboxSprite,
   blandzilla: blandzillaSprite,
   fort_knoxious: fortKnoxiousSprite,
   vaultron: vaultronSprite,

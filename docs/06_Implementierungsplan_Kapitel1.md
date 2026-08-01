@@ -431,13 +431,15 @@ Am laufenden Dev-Server gemessen, nicht aus dem Code abgeleitet (die Vorgabe „
 
 **Abnahme gemessen:** `npm test` 120/120 und `npm run check` sauber. Alle §12-Kriterien A–D weiterhin grün (inkl. A2/B2/C3). Gemessene Laufzeiten nach M16: **M 13,8 / T 45,0 / V 69,1 min**.
 
-⚠️ **Zum alten M↔T-Kriterium (nicht mehr die Abnahme, s. o.):** M15-Baseline 43,7 − 13,5 = **30,2 min**, nach M16 **31,2 min**. Der Konzept-Review vom 01.08.2026 wertet die +1 min **nicht** als Beleg: Variante (a) derselben Messreihe lag bei 30,2 („im Rauschen"), und ein Deckel von 3 ergab 30,8 – die Bewegung durch eine Verschlechterung hat dieselbe Größenordnung wie die durch die Verbesserung. Der zugehörige Regressionstest in `tests/chapter-playthrough.test.ts` prüft damit eine Zahl, die er nicht tragen kann; er ist auf die neue Abnahme umzustellen (Zielwahl-Wirkung je Encounter statt Kapitel-Kennzahl) – **offener Punkt für die nächste Umsetzungs-Session.**
+⚠️ **Zum alten M↔T-Kriterium (nicht mehr die Abnahme, s. o.):** M15-Baseline 43,7 − 13,5 = **30,2 min**, nach M16 **31,2 min**. Der Konzept-Review vom 01.08.2026 wertet die +1 min **nicht** als Beleg: Variante (a) derselben Messreihe lag bei 30,2 („im Rauschen"), und ein Deckel von 3 ergab 30,8 – die Bewegung durch eine Verschlechterung hat dieselbe Größenordnung wie die durch die Verbesserung.
 
-**Offene Punkte aus dem Konzept-Review (01.08.2026)** – die drei Spec-Korrekturen in `spec/gegner-encounter.md` §5a sind nachgezogen, die Umsetzung steht aus:
+✅ **Regressionstest umgestellt (01.08.2026):** Der alte M↔T-Test in `tests/chapter-playthrough.test.ts` ist entfernt; an seiner Stelle prüft `describe('M16 (Abnahme ersetzt 01.08.2026) ...')` je einen Encounter direkt – Bandbox (Zone 12): Heiler zuerst schlagen gewinnt spürbar schneller als ihn zu ignorieren; Vaultron (Zone 30): dem Konter-Fenster auszuweichen entscheidet über Sieg oder Niederlage. Der M↔T-Abstand bleibt als §12-B2-Korridor-Messung bestehen (unverändert grün), trägt aber keine M16-eigene Abnahme mehr.
 
-1. **Analyse braucht am Heiler eine exklusive Information** (Heilmenge/Takt) – „der heilt" liest der Spieler an der HP-Leiste ab, dafür ist Analyse nicht nötig. Ohne das ist E4 nicht belegt.
-2. **Vaultrons Ausweichziele können ausgehen** – zwei Adds, aber das Konter-Fenster wiederholt sich alle drei Aktionen. Antwort, die nicht ausgehen kann, nötig.
-3. **Bandbox braucht ein eigenes Sprite, bevor M17 den Lehr-Popup setzt** – der erste Zielwahl-Lehrgegner darf nicht wie der Füllgegner neben ihm aussehen (Entscheidung 75, Platzhalter `blando_64.png`). **Blocker für M17**, nicht bloß offener Content-Punkt.
+**Offene Punkte aus dem Konzept-Review (01.08.2026)** – die drei Spec-Korrekturen in `spec/gegner-encounter.md` §5a sind nachgezogen:
+
+1. ✅ **Analyse braucht am Heiler eine exklusive Information** (Heilmenge/Takt) – „der heilt" liest der Spieler an der HP-Leiste ab, dafür ist Analyse nicht nötig. Umgesetzt: `ui/BestiaryModal.svelte` zeigt bei Trait `heal` zusätzlich Heilmenge und Takt (§5a).
+2. ✅ **Vaultrons Ausweichziele können ausgehen** – zwei Adds, aber das Konter-Fenster wiederholt sich alle drei Aktionen. Umgesetzt: `core/gambits.ts` `resolveOptimalAction` verteidigt jetzt, wenn kein konter-freies Ziel mehr lebt (§5a, Variante a).
+3. ✅ **Bandbox braucht ein eigenes Sprite, bevor M17 den Lehr-Popup setzt** – der erste Zielwahl-Lehrgegner darf nicht wie der Füllgegner neben ihm aussehen (Entscheidung 75, Platzhalter `blando_64.png`). Umgesetzt: `assets/generate_monsters.py` `bandbox()`, eingebunden in `ui/sprites.ts`. **Blocker für M17 ist damit aus dem Weg.**
 
 **Umsetzungsentscheidungen (M16): Nr. 68–75 → [`07_Umsetzungsentscheidungen.md`](07_Umsetzungsentscheidungen.md)**
 
