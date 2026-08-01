@@ -4,6 +4,7 @@
 
 import type { Character, ControlMode, Monster, MonsterTrait } from './entities'
 import {
+  COUNTER_MAX_HITS,
   LIMIT_MAX,
   SHOCK_WINDOW,
   applyShockBuildup,
@@ -44,6 +45,12 @@ export interface BattleUnit {
   /** feinspec §3.4 - Esper-Modell: nur in Gate-/Boss-Encountern (Zone.limitAllowed) laedt/zuendet Limit ueberhaupt. */
   limitAllowed: boolean
   trait?: MonsterTrait
+  /** gegner-encounter.md §5a/§7 (M16) - Faehigkeit zur Konter-Haltung (Content-Flag, s. `Monster.counterStance`). */
+  counterStance?: boolean
+  /** M16 - true waehrend des telegrafierten Konter-Fensters (s. `dealDamage`/`tick.ts`). */
+  counterActive?: boolean
+  /** M16 - Anzahl bereits erfolgter Konter im aktuellen Fenster; deckelt die Wucht (s. `dealDamage`). */
+  counterHits?: number
   controlMode?: ControlMode
   canSpecial?: boolean
   specialId?: string
@@ -161,6 +168,9 @@ export function createEnemyUnit(monster: Monster, zoneIndex: number, sizeMod = 1
     defending: false,
     limitAllowed: false, // Gegner zuenden kein Limit - irrelevantes Feld, konsistent gesetzt.
     trait: monster.trait,
+    counterStance: monster.counterStance ?? false,
+    counterActive: false,
+    counterHits: 0,
   }
 }
 
@@ -177,6 +187,21 @@ export function dealDamage(attacker: BattleUnit, target: BattleUnit, rawAtk: num
   }
   if (attacker.side === 'party' && attacker.limitAllowed) {
     attacker.limit = Math.min(LIMIT_MAX, attacker.limit + limitGainOnDealt(dmg))
+  }
+  // gegner-encounter.md §5a/§7 (M16) - Konter-Fenster: jeder Treffer waehrend `counterActive`
+  // schlaegt mit voller Wucht zurueck (gleiche Formel wie ein regulaerer Gegner-Treffer), aber
+  // hoechstens `COUNTER_MAX_HITS`-mal je Fenster (s. dort - ein Einmal-Konter differenzierte M/T
+  // in der Messung kaum, unbegrenzte Konter rissen A2/B2/C3 fuer Typ V/T). Blindes Auto (Fokus
+  // bleibt auf dem Boss stehen) kassiert so bis zum Deckel, Ausweichen (Typ M, `smartTarget`)
+  // umgeht das Fenster komplett. Nur ueber `dealDamage` (Attack/Special) - Limit-Zuenden ist
+  // bewusst ausgenommen.
+  if (target.side === 'enemy' && target.counterActive && (target.counterHits ?? 0) < COUNTER_MAX_HITS) {
+    target.counterHits = (target.counterHits ?? 0) + 1
+    attacker.hp -= physicalDamage(target.atk, attacker.def)
+    // Deckel erreicht -> Haltung fuer den Rest des Fensters beenden (auch die UI-Anzeige, s.
+    // `Stage.svelte` "(retaliates if struck!)", haengt an diesem Flag - sonst wuerde sie weiter
+    // Konter versprechen, obwohl keiner mehr erfolgt: Nachvollziehbarkeit, gegner-encounter.md §6a).
+    if (target.counterHits >= COUNTER_MAX_HITS) target.counterActive = false
   }
   return dmg
 }

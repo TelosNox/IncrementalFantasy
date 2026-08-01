@@ -57,8 +57,13 @@ export const ZONES: Zone[] = [
   zone(9, wave(['blando', 1.0], ['caffiend', 1.0])),
   zone(10, wave(['blando', 1.0], ['caffiend', 1.0])),
   zone(11, wave(['safeguard', 1.0])),
-  zone(12, wave(['kindlebale', 1.0], ['blando', 1.0])),
-  zone(13, wave(['kindlebale', 1.0], ['blando', 1.0])),
+  // M16 (01.08.2026) - Heiler-Gegner (Bandbox) nach Region 2 vorgezogen (gegner-encounter.md
+  // §5a): ersetzt den bisherigen Blando-Fuellgegner. Reihenfolge im Array ist Absicht - Kindlebale
+  // zuerst, Bandbox zweitens, damit die Standardregel ("kein Fokus -> naechststehend", §3.9) OHNE
+  // Zielwahl NICHT automatisch den Heiler zuerst trifft. Nur wer bewusst auf Bandbox fokussiert
+  // (Klick/Popup), bricht die Heilung sofort; ignoriert, zieht sich der Kampf spuerbar in die Laenge.
+  zone(12, wave(['kindlebale', 1.0], ['bandbox', 1.0])),
+  zone(13, wave(['kindlebale', 1.0], ['bandbox', 1.0])),
   zone(14, wave(['caffiend', 1.0], ['caffiend', 1.0], ['blando', 1.0])),
   zone(15, wave(['caffiend', 1.0], ['caffiend', 1.0], ['blando', 1.0])),
   // M11-Rebalance: Safeguard-Groesse leicht gesenkt (Panzer+Flitzer war fuer manuelles

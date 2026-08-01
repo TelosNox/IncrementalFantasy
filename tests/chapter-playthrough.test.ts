@@ -101,11 +101,17 @@ function weakestIndex(units: BattleUnit[]): number {
  * T's Fokuswahl zu Kampfbeginn: gegen einen telegrafierten AoE-Verursacher (`boss`/`bomb`)
  * ist "erst die Adds klein hauen" eine Falle - die AoE tickt unabhaengig vom Zielfokus
  * weiter, jede zusaetzliche Sekunde am Leben kostet die ganze Party. Ein aufmerksamer
- * Spieler erkennt das und fokussiert die Gefahr zuerst; sonst ist "schwaechstes Ziel"
- * (weniger gleichzeitige Angreifer) die vernuenftige Wahl.
+ * Spieler erkennt das und fokussiert die Gefahr zuerst. Ein Heiler-Gegner (M16,
+ * gegner-encounter.md §5a) ist derselbe Fall aus der Gegenrichtung: ignoriert, haelt er den
+ * Rest am Leben, jede zusaetzliche Sekunde Heilung verlaengert den Kampf - "erst den Heiler"
+ * ist die naheliegende Wahl. Sonst ist "schwaechstes Ziel" (weniger gleichzeitige Angreifer)
+ * die vernuenftige Wahl. T setzt dieses EINE Fokusziel nur zu Kampfbeginn (§3.9 "nur das
+ * Fokusziel") und reagiert danach nicht mehr - anders als M (`resolveOptimalAction`
+ * `smartTarget`), das z.B. ein telegrafiertes Konter-Fenster auch MITTEN im Kampf noch meidet.
+ * Genau das ist der Hebel, an dem M16 den Abstand M<->T vergroessert (s. Meilenstein-Plan).
  */
 function chooseFocusIndex(units: BattleUnit[]): number {
-  const dangerous = units.findIndex((u) => u.trait === 'boss' || u.trait === 'bomb')
+  const dangerous = units.findIndex((u) => u.trait === 'boss' || u.trait === 'bomb' || u.trait === 'heal')
   return dangerous !== -1 ? dangerous : weakestIndex(units)
 }
 
@@ -481,6 +487,21 @@ describe('feinspec §12 - Abnahmekriterien der Neu-Balancierung (M11)', () => {
       expect(tRatio).toBeLessThan(3.5)
       expect(vRatio).toBeGreaterThan(2.5)
       expect(vRatio).toBeLessThan(5.5)
+    })
+
+    // gegner-encounter.md §5a/§7, Meilenstein-Plan M16 - Abnahme: "Der Abstand M<->T wächst
+    // messbar gegenüber M15". Referenzwert 30,2 min ist die M15-Baseline (Umsetzungsentscheidung
+    // M15 #52: M 13,5 / T 43,7 min -> Differenz 43,7 - 13,5 = 30,2). Gemessener Typ: dieselben
+    // M/T-Objekte wie oben (M = `resolveOptimalAction`/`smartTarget`, T = `resolvePartyAction`
+    // mit einmaligem Fokus aus `chooseFocusIndex`) - beide Hebel aus M16 (Heiler-Zielwahl,
+    // Vaultron-Konter) wirken NUR über diese beiden Pfade unterschiedlich: den Heiler tötet auch T
+    // zuerst (chooseFocusIndex kennt jetzt den 'heal'-Trait), das breitet den Abstand zu V, nicht
+    // zu T - der Konter dagegen kann nur M ausweichen (`smartTarget` reagiert mitten im Kampf, T
+    // legt seinen Fokus nur einmal zu Kampfbeginn fest, s. dortiger Kommentar), das ist der Hebel,
+    // der hier tatsächlich gemessen wird.
+    it('M16: Abstand M<->T wächst gegenüber der M15-Baseline (30,2 min)', () => {
+      const m15BaselineGapMinutes = 30.2
+      expect(t.totalMinutes - m.totalMinutes).toBeGreaterThan(m15BaselineGapMinutes)
     })
 
     it('B3 (M11-Revision): beide Abstände (M->T und T->V) existieren tatsächlich', () => {

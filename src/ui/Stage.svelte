@@ -321,12 +321,16 @@
             </div>
           {/if}
           {#if enemy.trait === 'boss' && enemy.actionsDone % 3 === 2}
+            <!-- gegner-encounter.md §5a/§7 (M16) - derselbe Telegraf traegt jetzt auch den
+                 Konter-Hinweis: `counterActive` ist genau in diesem Fenster wahr (s. `tick.ts`)
+                 und wird vom ersten erlittenen Treffer verbraucht - der Zusatztext verschwindet
+                 dann, obwohl "charging" bis zur AoE weiterlaeuft. -->
             <div
               class="telegraph charging"
               style:left="calc({placed.slot.x} * var(--s))"
               style:bottom="calc({hudBottom(placed.slot, placed.size, false) + 21} * var(--s))"
             >
-              ⚡ Mako core charging…
+              ⚡ Mako core charging…{enemy.counterActive ? ' (retaliates if struck!)' : ''}
             </div>
           {/if}
         {/if}

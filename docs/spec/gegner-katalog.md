@@ -1,6 +1,6 @@
 # Gegner-Katalog (Parodie-Monster)
 
-**Status:** 10 einfache Monster beschrieben (englischbasierte Namen für internationale Lesbarkeit); Visuals folgen später (über `assets/generate_characters.py` im Pixel-Stil, s. `charaktere-visuals.md`).
+**Status:** 11 einfache Monster beschrieben (englischbasierte Namen für internationale Lesbarkeit); Visuals folgen später (über `assets/generate_characters.py` im Pixel-Stil, s. `charaktere-visuals.md`). Bandbox (#11) kam mit M16 (01.08.2026) dazu und hat noch kein Sprite (Platzhalter: Blando-Sprite, `ui/sprites.ts`).
 **Rahmen:** ergänzt `gegner-encounter.md` (Archetypen §5) und `../03_Konzept_Gerüst.md` §4.
 **Prüfinstanz:** `../02_Leitfaden_Kernmechaniken.md`.
 
@@ -29,17 +29,18 @@ Jedes Monster ist bewusst **einfach** und trägt **ein** klar lesbares kampfrele
 | 8 | **Boolinen** | Untote (Restorative-Schwäche) | **Untot**: Heilung schadet ihm (Heil-Materia offensiv!), saugt selbst HP · (neu: Untot/Sustain) | Weißes Bettlaken-Gespenst, dunkle Augenlöcher, schwebt leicht durchscheinend über dem Boden. |
 | 9 | **Funkus** | Grashtrike / Zenene | **Vergiftet** (Schaden über Zeit), zwingt zu Defensive · Status-Gegner | Dicker mürrischer Pilz mit giftgrüner Sporen-Gaswolke über dem Hut. |
 | 10 | **Jellyphase** | Ghost / fliegende Gegner | **Physisch immun**, nur Magie/MAG wirkt; erzwingt Build-Flexibilität · (neu: Physisch-Immun) | Durchscheinende bläulich-wabbelige Schwebequalle, baumelnde Tentakel; ATK „phast" sichtbar hindurch. |
+| 11 | **Bandbox** *(M16, 01.08.2026)* | kein direktes FF7-Vorbild | **Heilt Verbündete** (verletzteste zuerst) statt anzugreifen; macht Zielwahl erstmals folgenreich · Heiler-Gegner | *(noch offen – Platzhalter: Blando-Sprite)*. Naheliegende Richtung: Karton-Familie wie Blando, aber mit aufgemaltem rotem Kreuz/Verbandsmotiv, unterscheidbare Silhouette (z. B. schmaler, mit „Griff"-Ausbuchtung) statt reiner Recolor. |
 
 ## Debüt: Zyklus 1 (bis 1. Reunion) vs. Kapitel 2+
 
 Vor der 1. Reunion gibt es noch keine Materia/Elemente/Magie. **Shock baut sich auf neutralen Gegnern trotzdem auf** (nur langsamer, s. `kampf-analyse-shock.md` §6), daher funktioniert der frühe Kampf.
 
-- **Zyklus 1:** Blando, Caffiend, Pilferret, Shortfuse, Funkus, Safeguard (als zäher Gegner; volle Schwäche-Pointe erst Kap. 2). **Kindlebale als Teaser** in Region 2 (Schwäche sichtbar, Auszahlung mit Feuer-Materia in Kap. 2).
+- **Zyklus 1:** Blando, Caffiend, Pilferret, Shortfuse, Funkus, Safeguard (als zäher Gegner; volle Schwäche-Pointe erst Kap. 2). **Kindlebale als Teaser** in Region 2 (Schwäche sichtbar, Auszahlung mit Feuer-Materia in Kap. 2). **Bandbox** (M16) ebenfalls Region 2, direkt nach Safeguard.
 - **Kapitel 2+** (brauchen Materia/Elemente/Magie/„Alle"): **Jellyphase** (physisch immun → ohne Magie unschaffbar), **Boolinen** (Heilung-als-Schaden braucht zielbare Heil-Materia), **Mitoslime** (Split-Pointe zündet mit „Alle").
 
 ## Lehr-Rollout (Vorschlag, an Regionen koppelbar)
 
-Blando (Basis) → Kindlebale (Element/Shock-Teaser) → Caffiend (Suppress) + Safeguard (DEF/Schwäche) → Shortfuse (Telegraf/Defense) → Mitoslime (AoE) → Funkus (Status) → Pilferret (Ressourcen-Druck) → Jellyphase (Magie erzwungen) → Boolinen (Heilung offensiv). Genaue Zuordnung zu Zonen/Regionen: später in `progression-regionen.md`.
+Blando (Basis) → Caffiend (Suppress) + Safeguard (DEF/Schwäche) → **Bandbox (Zielwahl/Heiler, M16)** → Kindlebale (Element/Shock-Teaser) → Shortfuse (Telegraf/Defense) → Mitoslime (AoE) → Funkus (Status) → Pilferret (Ressourcen-Druck) → Jellyphase (Magie erzwungen) → Boolinen (Heilung offensiv). Genaue Zuordnung zu Zonen/Regionen: später in `progression-regionen.md`.
 
 ## Bosse & Gates (Kapitel 1)
 
@@ -49,7 +50,7 @@ Die drei Kapitel-1-Gates sind **aufgemotzte Varianten bestehender Monster-Famili
 |------|---------------|---------------|-----------------|:---:|
 | **Blandzilla** | Guard Scorpion (erster Boss / Limit-Moment) | Blando (Karton) | Miniboss R1 – lehrt das **Limit** als Wand-Brecher; telegrafiert durch „Atmen" | 1,5× |
 | **Fort Knoxious** | zäher Wächter am Wall-Market-Ausgang | Safeguard (Tresor) | R2-Gate – **hohe DEF**, Panzer-Duo; „hier will ich später Schwäche/Magie" | 1,5× |
-| **Vaultron** | Konzern-Mecha beim Turm-Finale (Shinra-HQ) | Safeguard (Tresor) | Kapitel-Boss – **telegrafierte Groß-Attacke** (Mako-Kern lädt sichtbar) | 2× |
+| **Vaultron** | Konzern-Mecha beim Turm-Finale (Shinra-HQ) | Safeguard (Tresor) | Kapitel-Boss – **telegrafierte Groß-Attacke** (Mako-Kern lädt sichtbar), **während der Ladung telegrafierter Konter** (M16, §5a/§7) | 2× |
 
 Größenvergleich (maßstabsgetreu, Minibosse 1,5× / Kapitel-Boss 2×):
 
@@ -63,7 +64,7 @@ Größenvergleich (maßstabsgetreu, Minibosse 1,5× / Kapitel-Boss 2×):
 
 ![Fort Knoxious](assets/bosses/fort_knoxious_x4.png)
 
-**Vaultron** *(Vault + Voltron).* Der ultimative Firmen-Tresor, zum Kampf-Mecha zusammengefaltet: mehrere Tresor-Segmente zu einer **aufrechten Mecha-Silhouette** gestapelt – Kopf = Tresortür mit leuchtendem Zahlenrad als Zyklopen-Auge, Rumpf = wuchtiger Panzerschrank auf stämmigen Metallbeinen. Konzern-Details: eine **MegaCorp-Prägung** auf der Brust und Geldschein-Einwurfschlitze. Merkmal-Telegraf für die AoE: an den Schultern lädt sich ein **glühender Mako-Kern** sichtbar auf und wird kurz vor der Über-Attacke greller → das Fenster zum Verteidigen/Heilen/Limit.
+**Vaultron** *(Vault + Voltron).* Der ultimative Firmen-Tresor, zum Kampf-Mecha zusammengefaltet: mehrere Tresor-Segmente zu einer **aufrechten Mecha-Silhouette** gestapelt – Kopf = Tresortür mit leuchtendem Zahlenrad als Zyklopen-Auge, Rumpf = wuchtiger Panzerschrank auf stämmigen Metallbeinen. Konzern-Details: eine **MegaCorp-Prägung** auf der Brust und Geldschein-Einwurfschlitze. Merkmal-Telegraf für die AoE: an den Schultern lädt sich ein **glühender Mako-Kern** sichtbar auf und wird kurz vor der Über-Attacke greller → das Fenster zum Verteidigen/Heilen/Limit. Dasselbe Fenster ist seit M16 auch das Konter-Fenster (§5a/§7) – wer Vaultron währenddessen angreift, kassiert zurück; die beiden anwesenden Blando-Adds sind das Ausweichziel.
 
 ![Vaultron](assets/bosses/vaultron_x4.png)
 

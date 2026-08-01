@@ -58,11 +58,20 @@ Konkrete Beispiel-Monster (10, mit Merkmal + Visual-Richtung) und vier ergänzen
 
 **Beschluss:** Der **Heiler-Gegner wird nach Region 2 vorgezogen** – dorthin, wo laut Rollout auch die Analyse aufgeht. Damit hat Analyse ab ihrem ersten Auftritt einen Nutzen („welcher muss zuerst"), und Zielwahl entscheidet Kämpfe statt sie zu beschleunigen. Weitere Kandidaten in derselben Rolle: Buffer, der die Front verstärkt.
 
+**Umgesetzt in M16 (01.08.2026): Bandbox** (`content/monsters.ts`, Trait `heal`), Zone 12/13 – direkt nach dem Panzer (Safeguard, Zone 11), gepaart mit Kindlebale statt eines reinen Blando-Füllgegners. Heilt das verletzteste lebende Gruppenmitglied um `2,5×ATK`; ist niemand verletzt, greift er wie ein normales Monster an (`tick.ts` `resolveEnemyAction`). Die Standardregel „kein Fokus → nächststehend" (§3.9) trifft in dieser Welle **nicht** automatisch den Heiler (er steht im Array an zweiter Stelle) – nur wer bewusst auf ihn fokussiert, bricht die Heilung sofort; ignoriert, zieht sich der Kampf spürbar in die Länge. Kein FF7-Vorbild (`gegner-katalog.md`).
+
 **Einordnung – das ist Inhaltsdesign, keine Deadlock-Sicherung.** Ursprünglich war eine erzwingende Boss-Mechanik als *Gate* gedacht, damit der Kapitel-Boss nicht rein durch Farmen fällt. Diese Begründung ist **entfallen**: Die EXP-Dämpfung über Level × Zone (`oekonomie-waehrungen.md` §1a) erledigt das Idle-Overpowern allein. Gegner-Mechaniken bleiben trotzdem nötig – aber weil gutes Spiel sonst nur „schneller draufhauen" heißt, nicht weil ohne sie ein Deadlock entstünde. **Folge: pro Gegner dosierbar statt Systemzwang.**
 
 **Leitlinie: fordernd, nicht strafend.** Autoplay soll an solchen Gegnern *langsam* verlieren (mehr Schaden nehmen, länger brauchen), nicht *garantiert* sterben. Im Idle-Genre wird strafend schnell als unfair gelesen.
 
 **Konter-Zustand — nur temporär, nur bei Bossen/Minibossen.** „Angreifen schadet dem Angreifer" ist als **Dauer-Trait ausdrücklich verworfen**: schwer verständlich und auf Dauer nervig. Als *temporärer, telegrafierter* Zustand eines Bosses ist es etwas kategorisch anderes – ein Rätsel-Takt statt einer Steuer. Autoplay verliert dort HP, stirbt aber nicht zwangsläufig; damit erfüllt es „fordernd, nicht strafend".
+
+**Umgesetzt in M16 (01.08.2026), nur bei Vaultron.** Konkretisierung der Konzept-Vorgabe:
+
+- **Nur der Kapitel-Boss, dosierbar.** Weder Blandzilla (lehrt Limit) noch Fort Knoxious (lehrt DEF/Panzer) tragen den Konter – ein einzelner, gut beobachtbarer Fall statt drei gleichzeitig neuer Mechaniken.
+- **Wiederverwendeter Telegraf.** Kein neuer UI-Zustand nötig: Vaultrons AoE-Trait feuert alle drei Aktionen; die Aktion unmittelbar davor (bisher ein normaler Einzelziel-Treffer) wird jetzt zur Konter-Ladung – exakt die Aktion, die die Stage bereits als „⚡ Mako core charging…" anzeigt (`ui/Stage.svelte`, seit M8). Netto ersetzt der Konter einen sonst garantierten Treffer, statt reinen Zusatzschaden hinzuzufügen.
+- **Deckel statt Dauerschaden.** Jeder Treffer während des Fensters kontert mit voller Schadensformel, aber höchstens zweimal je Fenster (`COUNTER_MAX_HITS`, `core/formulas.ts`) – ungedeckelt riss die Messung A2/B2/C3 für Typ V/T (die dem Konter nicht ausweichen), ein Einmal-Konter war umgekehrt im Rauschen der M↔T-Messung nicht sichtbar. Details: `06_Implementierungsplan_Kapitel1.md` M16-Umsetzungsentscheidungen.
+- **Ausweichen ist eine echte Zielwahl-Entscheidung.** Vaultrons Welle (Zone 30) führt zwei Blando als Adds mit – ein Spieler, der das Fenster erkennt, weicht auf sie aus, statt stur weiter auf Vaultron zu schlagen. Das macht den Konter zum zweiten Zielwahl-Lehrgegner des Kapitels (nach dem Heiler in §5a), diesmal mit Timing statt Reihenfolge als Dreh- und Angelpunkt.
 
 ## 6. Gegner-Aktionen (getaktet & telegrafiert)
 

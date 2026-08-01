@@ -578,9 +578,12 @@ if flags.materiaUnlocked and figur.materiaActions: + "Magic ▸"     # Unterlist
 | Shortfuse | 45 | 6 | 3 | 90 | 8 | 7 | bomb |
 | Funkus | 60 | 7 | 4 | 85 | 10 | 8 | poison |
 | Pilferret | 38 | 6 | 3 | 150 | 7 | 6 | drain |
+| **Bandbox** (M16, 01.08.2026) | 40 | 6 | 2 | 100 | 9 | – | heal |
 | **Blandzilla** (R1-Miniboss, Z8, 1,5×) | 130 | 11 | 4 | 90 | 40 | 35 | baseline |
 | **Fort Knoxious** (R2-Gate, Z18, 1,5×) | 160 | 12 | 14 | 70 | 70 | 60 | armor |
-| **Vaultron** (Kapitel-Boss, Z30, 2×) | 240 | 14 | 16 | 70 | 140 | 120 | boss |
+| **Vaultron** (Kapitel-Boss, Z30, 2×) | 240 | 14 | 16 | 70 | 140 | 120 | boss + counterStance (M16) |
+
+**Bandbox** (M16) – Heiler-Gegner, `gegner-encounter.md` §5a: heilt statt anzugreifen das verletzteste lebende Gruppenmitglied um `2,5×ATK` (`ENEMY_HEAL_MULT`, `core/formulas.ts`), ist niemand verletzt greift er wie ein normales Monster an. Kein Gil-Wert (Gil ist gestrichen, s. §6.4). Kein FF7-Vorbild, neu für diesen Meilenstein (`gegner-katalog.md`).
 
 *Boss-Namen/Visualisierung & Sprite-Größen (Miniboss 1,5×, Boss 2×): `gegner-katalog.md` + `charaktere-visuals.md`. Sprites in `assets/bosses/`.*
 
@@ -595,7 +598,7 @@ if flags.materiaUnlocked and figur.materiaActions: + "Magic ▸"     # Unterlist
 | **8** | 1 | **Blandzilla** | **Miniboss → Limit als Wand-Brecher** |
 | 9–10 | 2 | Blando + Caffiend | Barrel dazu; Speed spürbar → Suppress |
 | 11 | 2 | Safeguard (solo) | Panzer: „hier will ich später Schwäche" |
-| 12–13 | 2 | Kindlebale + Blando | Analyse enthüllt Feuer-Schwäche (Köder) |
+| 12–13 | 2 | Kindlebale + Bandbox (M16) | Analyse enthüllt Feuer-Schwäche (Köder); erster Heiler-Gegner - Zielwahl entscheidet erstmals den Kampf (§5a) |
 | 14–15 | 2 | 2× Caffiend + Blando | Speed-Druck |
 | 16–17 | 2 | Safeguard + Caffiend | zäh + flink; ohne Shock ~30 s (bewusst) |
 | **18** | 2 | **Fort Knoxious** + Caffiend | **R2-Gate** |
@@ -606,7 +609,7 @@ if flags.materiaUnlocked and figur.materiaActions: + "Magic ▸"     # Unterlist
 | 27 | 3 | 2× Shortfuse | Doppelbombe → Defense/Heilung-Test |
 | 28 | 3 | Funkus + Caffiend + Blando | 3er-Welle |
 | 29 | 3 | 2× Shortfuse + Blando | Eskalation vor der Wand |
-| **30** | 3 | **Vaultron** + 2× Blando | **Kapitel-Wand: telegrafierte AoE** |
+| **30** | 3 | **Vaultron** + 2× Blando | **Kapitel-Wand: telegrafierte AoE + telegrafierter Konter (M16, §5a/§7)** |
 
 ### 6.4 Waffen-Tiers — **gestrichen** (30.07.2026)
 
@@ -748,6 +751,7 @@ Die sensibelsten Hebel:
 - ~~Die EXP-Dämpfung (§3.6) – Plateaubreite und Sturzsteilheit.~~ **Erledigt** (M15, s. §3.6/§12 B2) – Startwerte gemessen, A3 und B4 gleichzeitig erfüllt.
 - ~~Das aus den Waffen-Tiers entfallende ATK/HP/MAG-Wachstum~~ **Erledigt** (M15) – in die Level-Kurve gefaltet, `stats-kampfwerte.md` §4.
 - **Zielzeiten** (§12 B2): ~30 min für M, ~90 min für T bleiben durch M15 nahezu unberührt (Simulationszeit ändert sich für M/T kaum, s. §12 B2). Das Zielband für den schwachen Spieler (T′) ist weiterhin **offen** – das ist eine Playtest-/E2-Frage, keine Simulationszahl.
+- **Heiler-Heilmenge** (`ENEMY_HEAL_MULT = 2,5×ATK`, M16) und **Vaultron-Konter** (`COUNTER_MAX_HITS = 2` Konter je Fenster, volle Schadensformel) – beides Startwerte, gegen `tests/chapter-playthrough.test.ts` justiert (s. `06_Implementierungsplan_Kapitel1.md` M16-Umsetzungsentscheidungen). Der Konter-Deckel ist der empfindlichste neue Hebel: schon 3 statt 2 Konter je Fenster kippte den gemessenen M↔T-Abstand wieder, ohne selbst A2/B2/C3 zu verletzen – ein Zeichen, dass hier noch kein stabiles Plateau gefunden ist, nur ein erster Startwert.
 
 **Erledigt durch diese Revision** (vormals hier offen): der Limit-Reset-Fehler bei jedem Zonenstart – das Esper-Modell (§3.4) macht die frühere Persistenz-Anforderung gegenstandslos, statt sie nachzurüsten.
 

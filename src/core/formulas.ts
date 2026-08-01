@@ -22,6 +22,29 @@ export const INN_RATE = 0.05
 export const EXP_BASE = 20
 export const EXP_GROWTH = 1.22
 
+/**
+ * gegner-encounter.md §5a (M16) - Heiler-Gegner: Heilmenge relativ zu seinem eigenen ATK,
+ * analog zu Air is...' Heal Wind (2,2×MAG, feinspec §6.1). Startwert, s. §11 offene
+ * Playtest-Stellschraube - gegen `tests/chapter-playthrough.test.ts` validiert.
+ */
+export const ENEMY_HEAL_MULT = 2.5
+
+/** §5a - Heilmenge eines Heiler-Gegners fuer einen Verbuendeten. */
+export function enemyHealAmount(atk: number): number {
+  return Math.round(atk * ENEMY_HEAL_MULT)
+}
+
+/**
+ * gegner-encounter.md §5a/§7 (M16) - Konter-Fenster: Deckel gegen einen Schadens-Teufelskreis.
+ * "Jeder Treffer kontert, unbegrenzt" liess laengere Vaultron-Kaempfe (mehr Ticks im Fenster)
+ * spiralfoermig noch laenger werden und riss A2/B2/C3 (Typ V/T ohne Ausweichmoeglichkeit) -
+ * gemessen gegen `tests/chapter-playthrough.test.ts`, s. Umsetzungsentscheidung M16. Der Deckel
+ * haelt die Wucht linear (max. 2 Konter je Fenster, volle Schadensformel), statt sie ueber einen
+ * Bruchteils-Multiplikator zu daempfen - so bleibt der einzelne Konter spuerbar (fordernd), ohne
+ * dass ein besonders langes Fenster unbegrenzt eskaliert.
+ */
+export const COUNTER_MAX_HITS = 2
+
 /*
  * Bewusst KEINE Regions-Stufe auf die Gegner-Basiswerte. feinspec §3.7 sah mit der Umstellung
  * auf das Gruppenlevel ein `REGION_STEP` (x1,5 ab Z9, x1,4 ab Z19) vor, um den Roster-Sprung

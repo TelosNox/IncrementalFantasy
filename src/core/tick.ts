@@ -5,7 +5,7 @@
 import type { BattleUnit } from './battle'
 import { aoeParty, isAlive } from './battle'
 import { resolvePartyAction } from './gambits'
-import { LIMIT_MAX, atbFillPerTick, limitGainOnTaken, physicalDamage } from './formulas'
+import { LIMIT_MAX, atbFillPerTick, enemyHealAmount, limitGainOnTaken, physicalDamage } from './formulas'
 
 /** feinspec §2 - Tick-Auflösung des Simulations-/Loop-Takts. */
 export const DT = 0.1
@@ -67,12 +67,38 @@ function resolveEnemyAction(actor: BattleUnit, state: BattleState): void {
     return
   }
 
+  // gegner-encounter.md §5a (M16) - Heiler heilt statt anzugreifen: das verletzteste lebende
+  // Gruppenmitglied (sich selbst eingeschlossen), gemessen am HP-Anteil. Ist niemand verletzt,
+  // faellt der Zug auf den normalen Angriff unten zurueck (kein wirkungsloser Leerlauf-Zug).
+  if (actor.trait === 'heal') {
+    const allies = state.enemies.filter(isAlive)
+    const hurt = allies.filter((e) => e.hp < e.maxHp)
+    if (hurt.length) {
+      const target = hurt.reduce((lowest, e) => (e.hp / e.maxHp < lowest.hp / lowest.maxHp ? e : lowest))
+      target.hp = Math.min(target.maxHp, target.hp + enemyHealAmount(actor.atk))
+      return
+    }
+  }
+
   if (actor.trait === 'boss') {
     actor.actionsDone += 1
-    if (actor.shockTimer <= 0 && actor.actionsDone % 3 === 0) {
-      state.bossAoeTriggered = true
-      aoeParty(state.party, Math.round(actor.atk * 1.8))
+    // gegner-encounter.md §5a/§7 (M16) - Konter-Telegraf: EINE Aktion vor der AoE laedt der Boss
+    // auf statt zu handeln (dieselbe Aktion, die die UI bereits als "Mako core charging..."
+    // anzeigt, s. `Stage.svelte` - der Telegraf existierte schon, `counterActive` haengt sich nur
+    // dran). Waehrenddessen kontert der erste erlittene Treffer (`battle.ts` `dealDamage`). Nur
+    // fuer Monster mit `counterStance` (in Kapitel 1 nur Vaultron) - dosierbar pro Boss.
+    if (actor.counterStance && actor.actionsDone % 3 === 2) {
+      actor.counterActive = true
+      actor.counterHits = 0
       return
+    }
+    if (actor.actionsDone % 3 === 0) {
+      actor.counterActive = false
+      if (actor.shockTimer <= 0) {
+        state.bossAoeTriggered = true
+        aoeParty(state.party, Math.round(actor.atk * 1.8))
+        return
+      }
     }
   }
 

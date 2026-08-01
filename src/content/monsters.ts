@@ -70,6 +70,22 @@ export const FUNKUS: Monster = {
   sprite: 'monsters/funkus_64.png',
 }
 
+// gegner-encounter.md §5a (M16, 01.08.2026) - Heiler-Gegner, nach Region 2 vorgezogen: der erste
+// Gegner, bei dem die Reihenfolge der Ziele ueber den Kampfverlauf entscheidet ("erst den
+// Heiler"). Neu fuer M16 (kein Eintrag in `gegner-katalog.md` vor diesem Meilenstein) - dort
+// nachgetragen. Platziert in Zone 12/13 (`content/zones.ts`), direkt nach dem Panzer (Safeguard,
+// Zone 11): Flitzer -> Panzer -> Heiler ist die im Rollout ohnehin vorgesehene Archetyp-Reihenfolge.
+export const BANDBOX: Monster = {
+  id: 'bandbox',
+  name: 'Bandbox',
+  base: { hp: 40, atk: 6, def: 2, spd: 100 },
+  reward: { exp: 9 },
+  trait: 'heal',
+  weaknessTag: null,
+  shockAffinity: 'neutral',
+  sprite: 'monsters/bandbox_64.png',
+}
+
 export const PILFERRET: Monster = {
   id: 'pilferret',
   name: 'Pilferret',
@@ -114,6 +130,10 @@ export const VAULTRON: Monster = {
   weaknessTag: null,
   shockAffinity: 'neutral',
   sprite: 'bosses/vaultron_base.png',
+  // gegner-encounter.md §5a/§7 (M16) - temporaerer, telegrafierter Konter (nur waehrend der
+  // bereits vorhandenen "Mako core charging..."-Aktion vor der AoE, s. `tick.ts`). Dosierbar pro
+  // Boss: bewusst NUR der Kapitel-Boss, nicht Blandzilla/Fort Knoxious.
+  counterStance: true,
 }
 
 export const MONSTERS: Record<string, Monster> = {
@@ -124,6 +144,7 @@ export const MONSTERS: Record<string, Monster> = {
   shortfuse: SHORTFUSE,
   funkus: FUNKUS,
   pilferret: PILFERRET,
+  bandbox: BANDBOX,
   blandzilla: BLANDZILLA,
   fort_knoxious: FORT_KNOXIOUS,
   vaultron: VAULTRON,
@@ -144,6 +165,7 @@ export const MONSTER_INSPIRED_BY: Record<string, string> = {
   shortfuse: 'Bomb (Self-Destruct)',
   funkus: 'Grashtrike / Zenene',
   pilferret: 'Vice',
+  bandbox: 'kein direktes FF7-Vorbild - neu fuer M16 (Zielwahl-Lehrgegner)',
   blandzilla: 'Guard Scorpion',
   fort_knoxious: 'Wall Market gate guard',
   vaultron: 'Shinra HQ mecha finale',

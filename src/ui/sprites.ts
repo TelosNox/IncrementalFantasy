@@ -32,6 +32,10 @@ export const ENEMY_SPRITES: Record<string, string> = {
   shortfuse: shortfuseSprite,
   funkus: funkusSprite,
   pilferret: pilferretSprite,
+  // M16 (01.08.2026) - Bandbox hat noch kein eigenes Sprite (kein FF7-Vorbild, s.
+  // `content/monsters.ts` MONSTER_INSPIRED_BY); Platzhalter reuses Blando (beide Karton-Familie)
+  // bis `gegner-katalog.md`/`assets/generate_monsters.py` ein eigenes Asset liefern.
+  bandbox: blandoSprite,
   blandzilla: blandzillaSprite,
   fort_knoxious: fortKnoxiousSprite,
   vaultron: vaultronSprite,

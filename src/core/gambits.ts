@@ -56,6 +56,25 @@ function mostThreatening(units: BattleUnit[]): BattleUnit {
 }
 
 /**
+ * gegner-encounter.md §5a/§7 (M16) - "aufmerksames manuelles Spiel" (nur `resolveOptimalAction`,
+ * s. Docblock unten): ein Heiler-Gegner wird immer zuerst getötet (sonst hält er den Rest am
+ * Leben), und ein Ziel im telegrafierten Konter-Fenster wird gemieden, solange ein anderes lebt
+ * (§3.9-Fokus bleibt dabei unangetastet - nur DIESE Referenz-Policy weicht ab, die sichtbare
+ * Vorauswahl im Aktions-Popup kennt weiterhin keine Ausnahmen, feinspec §3.9). Fällt ohne Heiler/
+ * Konter-Fenster auf die normale Fokusziel-Regel zurück.
+ */
+function smartTarget(state: BattleState): BattleUnit | null {
+  const alive = state.enemies.filter(isAlive)
+  if (!alive.length) return null
+  const healer = alive.find((e) => e.trait === 'heal')
+  if (healer) return healer
+  const focused = resolvePartyTarget(state)
+  if (focused && !focused.counterActive) return focused
+  const safe = alive.filter((e) => !e.counterActive)
+  return safe.length ? safe[0] : focused
+}
+
+/**
  * Die einzige Auto-Regel vor der 1. Reunion: Angriff, sonst nichts (kein
  * Special, kein Heal, kein Suppress, kein Limit - diese sind bis zur 1.
  * Reunion nur über die manuelle Steuerung erreichbar). Trägt idle-fähig durch
@@ -81,13 +100,17 @@ export function resolvePartyAction(actor: BattleUnit, state: BattleState): void 
  * Pacing-Simulation (`tests/chapter-playthrough.test.ts`), um zu validieren,
  * dass manuelles Spiel (Spielertyp "M", feinspec §12) einen echten Unterschied
  * macht. Normale Angriffe/Claudes Cross Slash/Tofas Shock Strike nutzen dieselbe
- * Fokusziel-Regel wie Auto (§3.9) - sie haben keinen eigenen taktischen Zweck, der
- * eine Abweichung rechtfertigt. Nur Barrel (Suppress: höchster Schadensdurchsatz
- * ATK*SPD, §3.9/§4.7 M11-Nachtrag) und Limit (§3.4: explizit "stärkstes Ziel")
- * wählen ihr Ziel weiterhin pro Einsatz unabhängig vom Fokus - beide haben einen im
- * Spec benannten eigenen Zweck (unterdrücken/finishen), der die Abweichung begründet.
- * Diese Ausnahmen gelten NUR hier, in der Referenz-Policy - die sichtbare Vorauswahl
- * im Aktions-Popup (`ui/gameStore.svelte.ts`) kennt seit M11 keine Ausnahmen mehr.
+ * Fokusziel-Regel wie Auto (§3.9, ueber `smartTarget`) - sie haben keinen eigenen
+ * taktischen Zweck, der eine Abweichung rechtfertigt. Nur Barrel (Suppress: höchster
+ * Schadensdurchsatz ATK*SPD, §3.9/§4.7 M11-Nachtrag) und Limit (§3.4: explizit
+ * "stärkstes Ziel") wählen ihr Ziel weiterhin pro Einsatz unabhängig vom Fokus - beide
+ * haben einen im Spec benannten eigenen Zweck (unterdrücken/finishen), der die
+ * Abweichung begründet. `smartTarget` (M16) toetet einen Heiler-Gegner immer zuerst und
+ * meidet ein telegrafiertes Konter-Fenster, solange ein anderes Ziel lebt - die Referenz
+ * fuer den Zielwahl-Vorteil aus gegner-encounter.md §5a/§7. Diese Ausnahmen gelten NUR
+ * hier, in der Referenz-Policy - die sichtbare Vorauswahl im Aktions-Popup
+ * (`ui/gameStore.svelte.ts`) kennt seit M11 keine Ausnahmen mehr (dort entscheidet der
+ * Mensch selbst per Klick, s. `setFocusTarget`).
  */
 export function resolveOptimalAction(actor: BattleUnit, state: BattleState): void {
   const targets = state.enemies.filter(isAlive)
@@ -104,7 +127,7 @@ export function resolveOptimalAction(actor: BattleUnit, state: BattleState): voi
   }
 
   if (!actor.canSpecial) {
-    const target = resolvePartyTarget(state)
+    const target = smartTarget(state)
     if (target) dealDamage(actor, target, actor.atk)
     return
   }
@@ -124,7 +147,7 @@ export function resolveOptimalAction(actor: BattleUnit, state: BattleState): voi
   }
 
   if (actor.name === 'Tofa') {
-    const tgt = resolvePartyTarget(state)
+    const tgt = smartTarget(state)
     if (tgt && actor.mp >= actor.specialMpCost! && tgt.shockTimer <= 0 && tgt.shock < SHOCK_MAX) {
       actor.mp -= actor.specialMpCost!
       dealDamage(actor, tgt, actor.atk, 45)
@@ -150,7 +173,7 @@ export function resolveOptimalAction(actor: BattleUnit, state: BattleState): voi
   if (actor.name === 'Claude') {
     // feinspec §3.9/§6.1 - Cross Slash hat keinen eigenen taktischen Zweck (anders als
     // Suppress/Shock Strike/Heal) und folgt daher wie ein normaler Angriff der Fokusziel-Regel.
-    const tgt = resolvePartyTarget(state)
+    const tgt = smartTarget(state)
     if (tgt && actor.mp >= actor.specialMpCost!) {
       actor.mp -= actor.specialMpCost!
       dealDamage(actor, tgt, Math.round(actor.atk * 3.0))
@@ -158,6 +181,6 @@ export function resolveOptimalAction(actor: BattleUnit, state: BattleState): voi
     }
   }
 
-  const target = resolvePartyTarget(state)
+  const target = smartTarget(state)
   if (target) dealDamage(actor, target, actor.atk)
 }

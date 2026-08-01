@@ -62,11 +62,13 @@ describe('§6.2 Monster- & Gate-Basiswerte', () => {
     expect(VAULTRON.trait).toBe('boss')
   })
 
-  it('genau 7 reguläre Monster + 3 Gates/Bosse', () => {
+  it('genau 8 reguläre Monster + 3 Gates/Bosse', () => {
+    // M16 (01.08.2026) - Bandbox (Heiler-Gegner, gegner-encounter.md §5a) als achtes reguläres
+    // Monster dazugekommen, ersetzt die vorherigen 7.
     const gates = Object.values(MONSTERS).filter((m) => GATE_MONSTER_IDS.has(m.id))
     const regular = Object.values(MONSTERS).filter((m) => !GATE_MONSTER_IDS.has(m.id))
     expect(gates).toHaveLength(3)
-    expect(regular).toHaveLength(7)
+    expect(regular).toHaveLength(8)
   })
 
   it('Kindlebales Feuer-Schwäche ist als Teaser hinterlegt (Katalog-Ebene)', () => {

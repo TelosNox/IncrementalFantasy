@@ -65,6 +65,12 @@ export type MonsterTrait =
   | 'poison'
   | 'drain'
   | 'boss'
+  /**
+   * gegner-encounter.md §5a (M16, 01.08.2026) - heilt statt anzugreifen (s. `tick.ts`
+   * `resolveEnemyAction`). Macht Zielwahl erstmals folgenreich: ignoriert, haelt der Heiler
+   * seine Verbuendeten am Leben; zuerst getoetet, faellt der Rest wie gewohnt.
+   */
+  | 'heal'
 
 export interface MonsterBaseStats {
   hp: number
@@ -87,6 +93,12 @@ export interface Monster {
   weaknessTag: string | null // z.B. "fire" - in Kapitel 1 reiner Teaser, nicht nutzbar
   shockAffinity: 'neutral' // Kapitel 1: nur neutral; weitere Werte erst mit Element-Materia (Kap. 2)
   sprite: string
+  /**
+   * gegner-encounter.md §5a/§7 (M16) - temporaerer, telegrafierter Konter-Zustand: NUR fuer
+   * Bosse/Minibosse, pro Boss dosierbar (hier nur Vaultron). Ausdruecklich KEIN Dauer-Trait
+   * (waere strafend statt fordernd) - s. `tick.ts` `resolveEnemyAction`.
+   */
+  counterStance?: boolean
 }
 
 export interface EncounterMonsterRef {
