@@ -69,5 +69,5 @@
 
 - Höhe/Dauer der Zeitstrafe **im Zusammenspiel mit der Gasthaus-Totzeit** – beide Zeitkosten wirken jetzt hintereinander und sind gemeinsam zu bewerten. Ohne Offline-Progress ist das echte Wartezeit am Bildschirm.
 - Gasthaus-Rate und Totzeit: das Verhältnis entscheidet, ob „durchhalten" oder „heilen" die klügere Wahl ist.
-- Braucht die Zonen-Auswahl eine Empfehlung/Markierung, oder reicht das HP-Signal?
+- Braucht die Zonen-Auswahl eine Empfehlung/Markierung, oder reicht das HP-Signal? **Zusammengeführt (02.08.2026):** Diese Frage und die Sichtbarkeits-Bedingung der **Gate-Regel** (`../03_Konzept_Gerüst.md` §15) sind derselbe Bedarf – *der Spieler muss sehen, dass sich sein Zustand gegenüber der Wand verbessert* –, einmal für den Rückweg (Ventil) und einmal für den Vorstoß (Gate). Gemeinsam zu beantworten, geführt in `03_Konzept_Gerüst.md` §16.
 - Ausgestaltung des Offline-Boosts (Aufladekurve, Wirkdauer, Deckel) – erst nach der Neu-Balancierung des Kern-Loops.

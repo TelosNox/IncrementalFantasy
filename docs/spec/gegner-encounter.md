@@ -143,14 +143,16 @@ Warum „höchste HP" die bessere Regel ist:
 
   **Merksatz aus dem Playtest:** *Eine reine Stat-Wand kann nie eine Können-Wand sein.* Stats sind farmbar, Farmen ist Zeit – also ist jede Stat-Wand eine Zeitwand, egal wie hoch man sie stellt. Wer will, dass Können zählt, braucht **Mechanik** (§5a), nicht mehr HP.
 
+  **Übergeordnete Gate-Regel (02.08.2026, `../03_Konzept_Gerüst.md` §15):** *Ein Gate muss nicht passiv erreichbar sein – aber passiv wird es leichter.* Können kauft Tempo, Zeit kauft Zugang. Daraus folgt für die Encounter-Planung, dass die **Strecke vor einem Gate keinen eigenen Mechanik-Beat braucht**: Dort findet die Umwandlung von Zeit in Zugang statt. **Was sie braucht, ist Ablesbarkeit** – der Spieler muss sehen, dass er der Wand näher kommt, sonst wirkt die Strecke wie Anti-Pattern #1.
+
 ## 8. Belohnungen (deterministisch, kein RNG)
 
 Kills geben automatisch **EXP** (AP ab Kapitel 2; Gil gestrichen 30.07.2026) – der EXP-Ertrag ist nach Level × Zone gedämpft (`oekonomie-waehrungen.md` §1a). **Erst-Clear bestimmter Gegner/Bosse** → garantierte Materia-/Skill-Freischaltung. Keine Zufalls-Farmdrops.
 
 ## Rollout über den ersten Zyklus
 
-- **Region 1:** Standard + Miniboss (Limit). Noch keine Analyse/Schwächen.
-- **Region 2:** Analyse an; **Panzer + Flitzer + Heiler** treten auf. Panzer/Flitzer zeigen, warum man Schwächen/Kontrolle bald will; der **Heiler gibt Analyse und Zielwahl ab dem ersten Auftritt einen Zweck** (§5a).
+- **Region 1:** Standard + Miniboss (Limit). Noch keine Schwächen-Nutzung.
+- **Region 2:** **Zielwahl** an; **Panzer + Flitzer + Heiler** treten auf. Panzer/Flitzer zeigen, warum man Schwächen/Kontrolle bald will; der **Heiler gibt der Zielwahl ab dem ersten Auftritt einen Zweck** (§5a). *Analyse ist hier **nicht** mehr dabei – sie ist seit dem 01.08.2026 eine Kapitel-2-Mechanik (`kampf-analyse-shock.md` §5); das Bestiarium füllt sich still beim Erst-Kill.*
 - **Region 3:** Shock an; **Schwäche-Gegner + Nuker** (Heilung/Defense wird nötig) → Kapitel-Wand.
 
 ---

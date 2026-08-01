@@ -74,7 +74,7 @@ Bewusst kleines Set; die Reihenfolge ist eine **Feature-Kaskade** (jede Materia 
 | **Alle** | Support | Beat 3 – Regions-Boss (garantiert) | Einzelziel → Rundum; erster Kombo-„Aha", Idle-Durchsatz |
 | **MP-Regen** | Independent | Beat 4 – Milestone (z. B. erste Materia auf Cap) | mehr MP/Kampf → mehr Aktionen, dichteres Spiel; **selbstsättigend** |
 | **Heilung** | Magie | Beat 5 – Nebenquest/Challenge (oder Shop) | Heil-Aktion für alle Figuren → defensive Gambit-Sets, MP-Tradeoff |
-| **Stehlen** | — | **gestrichen** | Gil fließt ohnehin automatisch; kein sinnvoller Nutzen |
+| **Stehlen** | — | **gestrichen** | ohne Gil gibt es nichts zu stehlen; Materia-Erwerb läuft deterministisch über Erst-Clears und das Essenz-Menü (§8) |
 | **HP-Absorb** | Support | Nebenquest / spätere Region | Schaden heilt anteilig; Sustain-Tradeoff statt flachem Stat |
 | **MP-Turbo** | Support | Shop / spätere Region | mehr MP-Kosten, mehr Wirkung; Risiko/Ertrag |
 | **Konter** | Kommando (passiv-aktiv) | Milestone/Boss | Auto-Gegenangriff bei Treffer; nutzt getaktete Gegner-Aktionen |

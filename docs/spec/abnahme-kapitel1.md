@@ -43,11 +43,23 @@ Der Abstand muss **existieren** (sonst lohnt aktives Spiel nicht, Anti-Pattern #
   | **M** – ordentlich, manuell | **~30 min** (Referenz) | Konzept-Vorgabe: die 1. Reunion ist das Onboarding und muss früh kommen, sonst hört der Spieler vor allem Interessanten auf |
   | **T** – idle, Gates manuell | **~90 min** (~3×) | Schätzung der Konzept-Session, keine Messung |
   | **T′** – schwach, manuell + Farmen | **offen: Zielband festzulegen** | muss **endlich** bleiben – das ist der Spieler, den A3 schützt |
-  | **V** – reines Idle | so hoch, dass es **niemand freiwillig abwartet** (Größenordnung Wochen) | ergibt sich aus der EXP-Dämpfung (§3.6) |
+  | **V** – idle, **wählt aber Zonen** | **~65–70 min** (Korridor **2,5–5,5×** M) | gemessen (s. u.); korrigiert 02.08.2026, s. Kasten |
+  | **K** – Camper, bleibt stehen | **nicht in Zeit gemessen**, sondern in **Camping-Sessions**: ≥ 3 an klar getrennten Zonen (**B5**) | ergibt sich aus der EXP-Dämpfung + `EXP_DAMPING_CUTOFF` (§3.6) |
+
+  > **Korrektur 02.08.2026 – „Größenordnung Wochen" stand bei V und meinte K.** Die V-Zeile lautete: *„reines Idle – so hoch, dass es niemand freiwillig abwartet (Größenordnung Wochen)"*. Beides ist falsch geworden, als **K** am 31.07.2026 dazukam, und niemand hat die Zeile danach nachgeprüft:
+  >
+  > 1. **V ist nicht „reines Idle"** – das sagt die Typ-Tabelle oben ausdrücklich. V **wählt Zonen** (bei Niederlage zurück, dann wieder vor). Genau deshalb wurde K überhaupt eingeführt.
+  > 2. **Die Zielzeit widersprach der Messung im selben Abschnitt** (V = 67,3 min = 4,99×) und dem daraus abgeleiteten Testkorridor (2,5–5,5×). Ein Kriterium, das der eigene Test nicht erfüllen kann, ist kein Kriterium.
+  >
+  > **Der Adressat von „niemand wartet das freiwillig ab" ist K, nicht V** – und für ihn ist es in **B5** sauber gefasst (≥ 3 Sessions), samt Mechanismus (Cutoff). *Sachlicher Grund für die Trennung:* V bedient das **Minimum** – die Zonenwahl. Das ist exakt die Handlung, die das Ventil-Prinzip verlangt und die die **Gate-Regel** (`../03_Konzept_Gerüst.md` §15) als Preis für Zugang vorsieht: *nicht passiv erreichbar, aber passiv leichter.* Wer sie ausführt, hat den Zugang gekauft; ihn dafür in einen Wochen-Kanal zu stellen, würde dieselbe Handlung einmal belohnen und einmal bestrafen. K führt sie gerade **nicht** aus – er bleibt stehen – und darf deshalb langsam sein.
+  >
+  > **Keine Zahl ändert sich dadurch:** Messung, Testkorridor, B5 und der Cutoff bleiben unverändert. Korrigiert wird nur die Zeile, die seit dem 31.07.2026 den falschen Spielertyp beschrieb.
 
   **Gemessen (M15, `07_Umsetzungsentscheidungen.md` Umsetzungsentscheidung 52, gegen `tests/chapter-playthrough.test.ts`):** M 13,5 min / T 43,7 min (3,24×) / V 67,3 min (4,99×) Simulationszeit – M/T praktisch unverändert gegenüber der alten, ungedämpften Baseline (§7.4: 13,3/42,8 min), V spürbar langsamer (zuvor 53,2 min/3,4×) durch die EXP-Dämpfung (§3.6). Die M/T-Zielzeiten (Echtzeit inkl. Menüs) bleiben damit erreichbar; **T′ ist weiterhin offen** (Playtest-Frage). Der V-Korridor in den Testkriterien ist entsprechend auf 2,5–5,5× angehoben (vorher 2,5–4,5×).
 
-  ⚠️ **Die Lücke zwischen T (~90 min) und V (Wochen) ist Faktor ~200.** Der Spieler, der ein Gate manuell *versucht* und nicht schafft (T′), darf nicht in den V-Kanal gedrückt werden – dann hört er auf. **Genau deshalb muss die EXP-Dämpfung ein breites Plateau haben** (§3.6): Ein bis zwei Zonen zurückzugehen muss ihn in wenigen Vielfachen der Referenz durchbringen. Das Zielband für T′ zu bestimmen, ist Teil der Neu-Balancierung.
+  ⚠️ **T′ ist der einzige unbestimmte Typ – und der gefährdetste.** *(Umformuliert 02.08.2026: Hier stand „Die Lücke zwischen T (~90 min) und V (Wochen) ist Faktor ~200." Diese Lücke gibt es nicht – sie war die Folge der falschen V-Zielzeit, s. Kasten oben. Gemessen liegen T und V mit 43,7 zu 67,3 min **dicht beieinander**, und der V-Kanal ist damit kein Abgrund mehr, in den man fallen kann.)*
+
+  **Die Sorge selbst bleibt aber gültig, nur mit anderem Mechanismus:** Der Spieler, der ein Gate manuell *versucht* und nicht schafft (T′), hat weder M's Tempo noch V's Gleichmut – er farmt, weil er muss. **Genau deshalb muss die EXP-Dämpfung ein breites Plateau haben** (§3.6): Ein bis zwei Zonen zurückzugehen muss ihn in wenigen Vielfachen der Referenz durchbringen. Das Zielband für T′ zu bestimmen, ist Teil der Neu-Balancierung – **es ist die letzte offene Zeile dieser Tabelle.**
 
 - **B4 Der Kapitel-Boss darf nicht durch reines Warten fallen.** **Erfüllt, aber anders begründet als in der Umsetzung angenommen:** Niederlage zahlt nichts (§3.8c), also wird ein Spieler, der *nichts* bedient, nie stärker. Es gibt keinen Kanal „warten und irgendwann gewinnen". *Die Begründung in `07_Umsetzungsentscheidungen.md` Entscheidung 52 („A2/C3 erzwingen einen Abschluss in endlicher, gemessener Zeit") ist ein Fehlschluss — dass der Abschluss endlich ist, wäre ein Argument **gegen** B4, nicht dafür.* Der operative Test ist nicht B4, sondern **B5**.
 
@@ -82,7 +94,7 @@ Die Erstfassung von B3 verlangte, der Sprung M→T müsse der *kleinere* sein: E
 
 **Ausdrücklich verworfen:** Typ T zusätzliche Fähigkeiten zu geben (z. B. Defend ohne volle manuelle Steuerung), um den Abstand künstlich zu vergrößern. Das würde die Typgrenzen verwischen und genau den M-Vorsprung abtragen, auf dem die M7-Korrektur beruht („Auto bleibt stumpf, damit aktives Spiel über das *ganze* Kapitel lohnt").
 
-**Was stattdessen zu beobachten ist:** nicht der Abstand T↔V, sondern der **Absolutwert von V**. Mit ≈3,4× liegt reines Idle knapp über der früher als vertretbar geltenden Baseline (3,25×) – und ohne Offline-Progress ist das echte Zeit am Bildschirm. Der eigentliche Prüfstein dafür ist **E2** (gespielt beurteilen), nicht die Rechnung.
+**Was stattdessen zu beobachten ist:** nicht der Abstand T↔V, sondern der **Absolutwert von V**. *(Die hier genannten ≈3,4× sind die **Vor-M15-Zahl**; seit der EXP-Dämpfung sind es **4,99×** ≈ 67 min – s. Messung in B2. Die Aussage wird dadurch nicht schwächer, sondern stärker.)* **Ohne Offline-Progress ist das echte Zeit am Bildschirm** – 67 Minuten Zuschauen, nicht 67 Minuten Abwesenheit. Der eigentliche Prüfstein dafür ist **E2** (gespielt beurteilen), nicht die Rechnung. *Zugleich das stärkste Argument, die Offline-Wiedereinführung als **aufladbaren Boost** (`niederlage-offline.md` §4) nicht mehr lange liegen zu lassen: Ihre Vorbedingung „erst nach der Neu-Balancierung des Kern-Loops" ist mit M15/M15a erfüllt.*
 
 ### C – Wo die Wände sitzen
 

@@ -18,7 +18,7 @@
 
 - **Lineare Hauptspine** aus FF7-Parodie-Regionen; jede Region = Zonen-Cluster mit **Boss-Gate** (Vorbild Trimps: „push bis zur Wand"). Ein **Kapitel** = Spanne von Regionen bis zu einem Reunion-Punkt.
 - **Eine neue Mechanik pro Region** (Vorbild Grass Cutting), am Gate freigeschaltet – horizontaler Rampup (C1).
-- **Reunion ab Kapitelende, wiederholbar** (s. §5) → Re-Traversal beschleunigt, und wer eine Wand nicht manuell schafft, **grindet sich per Reunion einen Vorteil** (Skill↔Zeit).
+- **Reunion nach dem Kapitel-Boss, wiederholbar** (s. §5) → Re-Traversal beschleunigt. *(Hier stand: „wer eine Wand nicht manuell schafft, grindet sich per Reunion einen Vorteil". Das ist seit dem Pflicht-Boss zirkulär – der Grind-Pfad durch eine Wand ist die **Zonen-Rückkehr**, nicht die Reunion; `prestige-reunion.md`.)*
 - **Optionale Seitenzweige = Nebenquests** (Vorbild Increlution/Journey to Ascension): gesperrte Köder → später Boost/Shortcut. Überwiegend über die Zyklen alles machbar; wenige **bedeutende exklusive Entscheidungen** möglich (TBD).
 - **Manuelle Prüfsteine** nur **selten** an ausgewählten Bossen (telegrafiert, überlegt-nicht-twitch, s. `gambits.md` §4). Die *frühen* Kapitel-Wände sind bewusst **grindbare Idle-Wände**, kein Pflicht-Manuell.
 - **„Grindbar" setzt einen Ort zum Grinden voraus** – die **Zonen-Rückkehr** (§2). Der erste Playtest hat gezeigt, dass diese Selbstverständlichkeit fehlte: Ohne sie ist in einer deterministischen Engine jede Wand entweder sofort schaffbar oder für immer verschlossen, und der ganze Absatz oben eine leere Behauptung (`niederlage-offline.md` §3).
@@ -61,13 +61,15 @@ Grobe Gesamtstruktur, parodistisch an FF7 angelehnt: **~15 Regionen** in **5 Kap
 ## 2. Aktions-Repertoire des Spielers (bis zur 1. Reunion)
 
 **Im Kampf (bei ATB-Bereitschaft):**
-- **Angriff** (ganz zu Beginn manuell, dann Default-Automatik) – kostenlos, gibt MP zurück.
+- **Angriff** (ganz zu Beginn manuell, dann Default-Automatik) – kostenlos. *(Der frühere **Attack-Refund** – „Angriff gibt MP zurück" – ist gestrichen; MP wächst in Kapitel 1 gar nicht mehr im Kampf, `feinspec-kapitel1.md` §3.5.)*
 - **Waffen-Spezialfähigkeit** (manuell) – rollen-spezifisch, kostet **MP** (s. §4-Tabelle). Wird über die **Waffe** freigeschaltet.
 - **Limit** (manuell) – aufgeladener Wand-Brecher, ab Region 1.
 - **Manuelle Übernahme** an/aus – ATB pausiert/verlangsamt zur überlegten Auswahl.
 
-**Analyse (ab Region 2):**
-- Gegner analysieren → zeigt **Grundstats (ATK/DEF/HP)**; eine **Schwäche** kann sichtbar werden, ist aber **noch nicht nutzbar** (Skill/Shock fehlt) → Köder auf Region 3.
+**Zielwahl (ab Region 2):**
+- Ein **gruppenweites Fokusziel** pro Kampf; am Heiler-Gegner **Bandbox** entscheidet es erstmals den Kampf statt ihn nur zu beschleunigen (`gegner-encounter.md` §5a).
+
+**~~Analyse (ab Region 2)~~ → entfallen (01.08.2026).** Analyse ist **keine Kapitel-1-Mechanik** mehr, sondern geht mit Materia und Element-Wahl in **Kapitel 2** auf (`kampf-analyse-shock.md` §5). In Kapitel 1 füllt sich das **Bestiarium still beim Erst-Kill** – Sammelobjekt und Köder (Kindlebales Feuer-Schwäche, sichtbar aber ungenutzt), ohne Bedienung und ohne Einführungs-Popup.
 
 **Zwischen den Kämpfen (revidiert nach dem ersten Playtest):**
 - **Zonen-Rückkehr:** jede bereits geschaffte Zone ist jederzeit frei anwählbar. Dort farmt man **EXP** unbegrenzt weiter – aber **nach Level × Zone gedämpft** (`oekonomie-waehrungen.md` §1a). **Das ist das Ventil des ganzen Spiels** – ohne es ist eine verlorene Zone in einer deterministischen Engine ein permanenter Stopp (`niederlage-offline.md` §3). *Die Dämpfung kam am 30.07.2026 dazu, weil Tieffarmen sonst die **beste** Strategie ist statt der Notausgang.*
@@ -90,7 +92,7 @@ Der **erste Zyklus ist der handnahste**; danach sinkt der Manuell-Anteil, weil G
 |-------|----------------|---------------------|
 | Klicker-Auftakt | sehr hoch (~alles) | nur Angriff selbst wählen; ATB lernen |
 | Nach Default-Attack | niedrig für Trash | Trash idle; manuell nur Spezial/Limit |
-| Analyse-Region | niedrig–mittel | Grundstats lesen; Schwäche als Fernziel merken |
+| Zielwahl-Region | niedrig–mittel | Fokusziel setzen (Heiler zuerst); Schwäche im Bestiarium als Fernziel merken |
 | Shock-Region | mittel | Schwäche+Shock manuell ausnutzen; Trash idle |
 | Kapitel-Wand | niedrig (grindbar) | pushen/grinden; manuell = schnellerer Weg |
 | **Nach 1. Reunion** | fällt strukturell | Optimierung via Gambits automatisiert |
@@ -99,7 +101,7 @@ Der **erste Zyklus ist der handnahste**; danach sinkt der Manuell-Anteil, weil G
 
 ## 4. Waffen-Spezialfähigkeiten (Rollen-Signatur)
 
-Die Spezialfähigkeit definiert jede Figur schon **vor** dem Materia-Build-System. Freischaltung über die Waffe. Specials sind **ausschließlich MP-gegated (kein Cooldown)**. **MP existiert von Anfang an, wird dem Spieler aber erst mit der ersten MP-Spezial sichtbar** (Region 1) und bleibt danach **dauerhaft angezeigt (auch nach Reunion)** – der Attack-Refund-Loop trägt die Ressource. Details in `charaktere-party.md`.
+Die Spezialfähigkeit definiert jede Figur schon **vor** dem Materia-Build-System. Freischaltung über einen **Zonen-Trigger**, danach permanent (nicht mehr über die Waffe – `ausruestung-gil.md` §0). Specials sind **ausschließlich MP-gegated (kein Cooldown)**. **MP existiert von Anfang an, wird dem Spieler aber erst mit der ersten MP-Spezial sichtbar** (Region 1) und bleibt danach **dauerhaft angezeigt (auch nach Reunion)**. **MP wächst in Kapitel 1 nicht im Kampf nach** (Attack-Refund gestrichen, `feinspec-kapitel1.md` §3.5) – es ist ein Budget pro Kampf, das sich nur zwischen den Kämpfen füllt (Sieg-Erholung + Gasthaus). Details in `charaktere-party.md`.
 
 | Figur | Region | Spezialfähigkeit | Rolle |
 |-------|--------|------------------|-------|
@@ -114,9 +116,13 @@ Roster-Rhythmus: **Region 1 Claude allein → Region 2 Barrel** (man ist nicht a
 
 ## 5. Reunion ab Kapitelende (wiederholbar)
 
-- **Verfügbar, sobald man das Kapitelende erreicht** (die Kapitel-Wand). Man **muss** die Wand nicht zwingend schlagen, um zu reunionen.
+- **Verfügbar erst nach dem Sieg über den Kapitel-Boss (revidiert 31.07.2026).** Der Boss ist **Pflicht**; Reunion wird nicht schon beim *Erreichen* der Wand angeboten.
+
+  *Was hier vorher stand:* „Verfügbar, sobald man das Kapitelende erreicht – man muss die Wand nicht zwingend schlagen." Der Ausweg war **redundant**: Kriterium A2 garantiert, dass jede Zone nach ≤ 20 Grind-Siegen in der Vorzone auch vollautomatisch gewinnbar ist. Die Umgehung schützte gegen eine Wand, die es nach A2 nicht gibt, und machte im Gegenzug den Kapitel-Boss zu optionalem Inhalt. Volle Begründung, verworfene Alternative und der Prüfstein („A2 muss an Zone 30 halten"): `prestige-reunion.md`.
+
+  Die Skill↔Zeit-Wahlfreiheit bleibt: Sie hieß nie „Wand überspringen", sondern „Wand billiger machen". Erforderlicher Kampf-Skill = null, erforderliche **Bedienung** = Zonenwahl.
 - **Wiederholbar:** Man kann Kapitel 1 mehrfach laufen. Jede Reunion gibt einen **schwachen, aber wiederholbaren permanenten Boost** (voraussichtlich **gedeckelt** pro Stufe; Cap steigt mit Fortschritt) → sauberer Grind-Pfad.
-- **Zwei Wege durch die Wand:** manuell gut spielen (früher durch) **oder** per Reunion-Grind stärker werden (später, aber sicher durch). Skill↔Zeit.
+- **Zwei Wege durch die Wand:** manuell gut spielen (früher durch) **oder** per Grind/Reunion stärker werden (später, aber sicher durch). Skill↔Zeit – die kompakte Fassung steht als **Gate-Regel** in `../03_Konzept_Gerüst.md` §15: *nicht passiv erreichbar, aber passiv leichter.* Sie ist zugleich die Begründung dafür, dass die Zonen unmittelbar **vor** einem Gate bewusst ohne neuen Mechanik-Beat auskommen (in Kapitel 1: Z20–29).
 - **★★ Die 1. Reunion schaltet zusätzlich die programmierbaren Gambits frei** (+ erster Boost) – die „Graduierung zur Automatik".
 - Voller Reset-/Persistenz-Umfang: siehe `prestige-reunion.md`.
 
@@ -126,7 +132,7 @@ Roster-Rhythmus: **Region 1 Claude allein → Region 2 Barrel** (man ist nicht a
 
 **Region 1 – Reactor Row** (Reaktor-Slums, Parodie-Midgar), nur Claude:
 - Manueller **Klicker**: nur Angriff. → ATB + Angriff lernen.
-- **Waffe** schaltet Claudes **Spezial** (großer Schaden) frei → **MP werden sichtbar** (existierten bereits, ab jetzt dauerhaft angezeigt; Spezial kostet MP, Angriff gibt MP zurück).
+- **Zonen-Trigger** (Zone 3) schaltet Claudes **Spezial** `Overcommit` (großer Schaden) frei → **MP werden sichtbar** (existierten bereits, ab jetzt dauerhaft angezeigt). Der Spezial kostet MP; nachwachsen tut es im Kampf **nicht** – MP ist ein Budget pro Kampf.
 - **Limit** lädt → manueller Wand-Brecher am **Region-Miniboss** (analog Braver vs. Guard Scorpion).
 - **★ Schlüsselmoment:** Freischaltung der **Default-Attack-Regel** – erste Automatik, Trash wird idle-bar.
 
@@ -142,7 +148,7 @@ Roster-Rhythmus: **Region 1 Claude allein → Region 2 Barrel** (man ist nicht a
 
 **Kapitelende – die erste Wand & 1. Reunion:**
 - Kapitel-Boss = **grindbare Wand** (manuell schneller, Idle per Grind auch schaffbar).
-- **Reunion verfügbar** (ab Erreichen der Wand). **★★ 1. Reunion:** Reset (Zonen/Level/Ausrüstung), erhält Charaktere/Bestiarium; Ertrag **Reunion-Essenz** → **Gambits freigeschaltet** + erster Boost. Wiederholbar für weiteren Grind.
+- **Reunion verfügbar – nach dem Sieg über den Boss** (§5, revidiert 31.07.2026). **★★ 1. Reunion:** Reset (Zonen/Level/Ausrüstung), erhält Charaktere/Bestiarium; Ertrag **Reunion-Essenz** → **Gambits freigeschaltet** + erster Boost. Wiederholbar für weiteren Grind.
 
 **Ausblick Zyklus 2 (kurz):** Der Spieler **automatisiert** seine gelernte Strategie via Gambits; Kapitel 1 läuft im Re-Traversal schneller/idle; er pusht in Kapitel 2 – wo als nächste Stufe **Materia & Slots** (Build-Layer, Magie, AP) aufgehen, später MP-Regen-Ausbau und Resistenzen.
 

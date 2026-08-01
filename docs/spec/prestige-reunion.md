@@ -38,7 +38,11 @@
   Konsistent mit `gegner-encounter.md` §7: Die Kapitel-Wand ist ausdrücklich eine **grindbare Idle-Wand**, kein Pflicht-Prüfstein. Können kauft **Tempo** (M ≈ 13,5 min gegen V ≈ 67 min), nicht **Zugang**.
 
   *Nebeneffekt:* „Zone 30 erreichen" und „Vaultron besiegen" fallen zu **einer** Ziellinie zusammen. Vorher waren es zwei, und die Abnahmekriterien haben sie vermischt (A1 sprach von *erreichen*, B2/B4/B5 vom Boss).
-- **Wiederholbar:** dasselbe Kapitel kann mehrfach gelaufen werden. Das erlaubt einen **Grind-Pfad** für Spieler, die eine Wand nicht manuell schaffen (Skill↔Zeit).
+- **Wiederholbar:** dasselbe Kapitel *kann* mehrfach gelaufen werden – das ist eine Eigenschaft, **keine beworbene Mechanik** und kein Ziel, auf das jemand hinspielt.
+
+  **Was hier vorher stand (korrigiert 02.08.2026):** „Das erlaubt einen **Grind-Pfad** für Spieler, die eine Wand nicht manuell schaffen (Skill↔Zeit)." Diese Begründung ist **zirkulär geworden**, seit Reunion den Boss-Sieg voraussetzt: Wer an Vaultron scheitert, kann nicht reunionen, um Vaultron zu schaffen. Für die Kapitel-1-Wand ist der Grind-Pfad die **Zonen-Rückkehr** (`niederlage-offline.md` §3) – und nur die.
+
+  **Sie fällt ersatzlos weg, nicht durch eine neue Begründung.** *(Nutzer-Entscheidung 02.08.2026:)* Wer die erste Reunion nicht erreicht, ist nicht die Zielgruppe – ein Mindestanspruch an den Spieler ist zulässig. Eine zusätzliche Absicherung **unterhalb** von A1/A2 ist ausdrücklich kein Designziel; die beiden Kriterien bleiben als Garantie bestehen und genügen. Das ist dieselbe Logik, mit der der Pflicht-Boss begründet ist („die Umgehung schützte gegen eine Wand, die es nach A2 gar nicht gibt") – hier nur konsequent zu Ende geführt.
 - **Boost:** jede Reunion gibt einen **schwachen, aber wiederholbaren permanenten Boost**, voraussichtlich **gedeckelt pro Stufe** (Cap steigt mit Fortschritt), damit endloses Grinden früher Kapitel nicht trivialisiert.
 - **1. Reunion = Sonderfall:** schaltet zusätzlich die Gambits frei („Graduierung zur Automatik").
 - **Voller Roster ab Zone 1 (Folge des Gruppenlevels):** Da Charaktere erhalten bleiben und das Gruppenlevel auf 1 zurückfällt, steht ab Durchlauf 2 die komplette Party bereits in Region 1 – wo Durchlauf 1 mit Claude allein begann. Region 1 fühlt sich dadurch spürbar leichter an. **Das ist gewollt und die eigentliche Prestige-Belohnung** („der bekannte Teil fliegt vorbei"), kein Balancing-Leck. Eine Gegen-Stufe der Gegnerkurve bei Zone 9/19 war dafür vorgesehen, ist aber gegen die Engine gemessen und verworfen worden (`feinspec-kapitel1.md` §3.7): Sie hätte Durchlauf 1 unspielbar gemacht, ohne für Durchlauf 2 nötig zu sein. Wie leicht sich Region 1 im zweiten Durchlauf tatsächlich anfühlt, ist damit weiterhin **gespielt zu beurteilen**, nicht gerechnet.
@@ -59,6 +63,16 @@
 
 Das spiegelt den Bogen des ganzen Spiels: **Die Meta-Ebene beginnt auf Schienen und wird zum Entscheidungsraum**, so wie der Kampf von manuell zu planerisch wird.
 
+### Ertragsregel (verbindlich, 02.08.2026)
+
+> **Essenz-Ertrag skaliert mit erreichtem Fortschritt, nicht mit aufgewendeter Zeit.** Tiefer kommen zahlt mehr; **länger bleiben nicht.**
+
+**Das Spielerbild, aus dem sie folgt:** *Ein Spieler löst die Reunion aus, weil er den Zeitpunkt für angemessen hält – nicht, weil er ausgerechnet hat, dass sich weiteres Warten lohnt.* Sobald der Ertrag an Verweildauer, Gruppenlevel oder Farm-Menge hängt, ist die Reunion keine Zeitpunkt-Entscheidung mehr, sondern eine Optimierungsaufgabe mit **einer richtigen Antwort** – und der Spieler, der sie nicht ausrechnet, spielt falsch.
+
+**Warum das kein Geschmacksurteil ist:** Es ist die **Exklusivitäts-Regel** (`oekonomie-waehrungen.md` §1), angewandt auf die **Quelle** statt auf die Sinks. Eine Währung trägt nur dann eine Entscheidung, wenn Zeit ihre Knappheit nicht auflösen kann. Bisher war das für die Essenz nur über die Kadenz gesichert („entsteht pro Reunion, nicht pro Zeiteinheit") – eine zeit- oder level-skalierende **Ertragsformel** hätte genau diese Sicherung von innen ausgehebelt, so wie ein farmbarer Gil-Preis jede Kaufentscheidung aufgelöst hat.
+
+**Zulässig bleibt die Skalierung mit Fortschritt** – ein Kapitel-2-Durchlauf zahlt mehr als ein Kapitel-1-Durchlauf. Das belohnt Vorstoß, nicht Ausharren.
+
 ### Kostenregel (verbindlich)
 
 **Preise hängen an der Zahl der bisherigen Käufe, nicht an einem festen Betrag.** Sonst öffnet sich mit steigendem Essenz-Ertrag die Schere: Der Spieler verdient laufend mehr, feste Preise werden relativ immer billiger, die Entscheidung löst sich auf. Genau diese Inflationsfalle hat Gil erledigt – bei Essenz wirkt sie langsamer, aber sie wirkt. Zusammen mit dem **gedeckelten Boost pro Stufe** (§Verfügbarkeit) hält das die Knappheit.
@@ -70,5 +84,5 @@ _Reunion-Auslöser/-Kosten, Essenz-Ertrag & -Sinks, Freischalt-Baum (Gambits/Bon
 ## Offene Detailfragen
 
 - Auslöser: rein spielergewählt ab Meilenstein vs. weiche Schwelle.
-- Essenz-Ertragskurve und Reihenfolge des Freischalt-Baums.
+- Essenz-Ertragskurve: **Form entschieden** (Ertragsregel oben – Fortschritt ja, Zeit nein), **Höhe offen**. Reihenfolge des Freischalt-Baums offen.
 - Umfang der Kristallisation (welche Boni permanent).

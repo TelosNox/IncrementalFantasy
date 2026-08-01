@@ -103,7 +103,7 @@ Manual-only (Klicker) → Default-Attack-Regel → mehr Gambit-Slots/Bedingungen
 
 - Welche Bedingungstypen in welcher Reunion-Stufe; Slot-Anzahl je Stufe.
 - Preset-Umfang für den Casual-Einstieg.
-- „Wechselkurs" Skill↔Zeit an **Idle-Wänden**: wie viel schneller ist manuell (spürbar, aber Idle darf sich nicht bestraft anfühlen).
+- ~~„Wechselkurs" Skill↔Zeit an **Idle-Wänden**: wie viel schneller ist manuell?~~ **Festgelegt und gemessen** (`abnahme-kapitel1.md` B2): M 13,5 / T 43,7 / V 67,3 min, Zielkorridor für V **2,5–5,5×** der manuellen Referenz. Der Tausch ist damit **Tempo, nicht Zugang** – V kommt durch, nur später. Offen bleibt allein **T′** (der schwache Spieler, der manuell versucht und farmen muss) und die *gespielte* Beurteilung des Absolutwerts (Kriterium E2) – ohne Offline-Progress sind V's ~67 min echte Bildschirmzeit.
 - **Manuelle Prüfsteine:** Häufigkeit, Platzierung und Schwierigkeitsgrad (selten, überlegt-nicht-twitch, klar telegrafiert).
 - Ab wann ist eine Limit-Auto-Regel verfügbar (früh als Sicherheitsnetz vs. später).
 - ~~Ergonomie der manuellen Übernahme (Auslöser, Pause-Verhalten)~~ → **entschieden:** Modus je Figur, globale Wait-Pause, Aktions-Popup (s. §3); Darstellung in `ui-layout.md`.

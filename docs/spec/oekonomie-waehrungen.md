@@ -59,7 +59,7 @@ Querschnitts-Dokument: jede Währung gehört zu genau einem System (Tabelle). Ba
 - **Kosten steigen mit dem Besitz, nicht mit dem Einkommen:** Preise auf der Meta-Ebene hängen an der **Zahl der bisherigen Käufe**, nicht an einem festen Betrag. Sonst öffnet sich mit steigendem Ertrag die Schere und die Entscheidung löst sich auf – dieselbe Inflationsfalle, die Gil erledigt hat. Zusammen mit dem gedeckelten Boost pro Stufe (`prestige-reunion.md`) hält das die Exklusivität.
 - **Deterministisch & dosiert:** kein RNG, kontrollierter Zufluss (Knappheit schützt Entscheidungen).
 - **MP ist eine Kampf-Ressource, keine Ökonomie-Währung** (separat, `kampf-analyse-shock.md`). **Revidiert:** MP wächst seit dem ersten Playtest **nicht mehr im Kampf** nach – es ist ein Budget pro Kampf, das sich nur zwischen den Kämpfen füllt (Sieg-Erholung + Gasthaus, `feinspec-kapitel1.md` §3.5). Damit wird MP zur echten Vorrats-Entscheidung: In einer leichten Zone nicht auszugeben, ist selbst ein Zug.
-- **Zeit ist die dritte Kostenart – neben EXP und Gil.** Zeitstrafe bei Niederlage und Gasthaus-Aufenthalt kosten ausschließlich Zeit. Das ist bewusst so gewählt: Zeitkosten können nie in einen Deadlock laufen (im Gegensatz zu einem Gil-Preis, den man sich nicht leisten kann) und sind mit dem Idle-Charakter des Spiels konsistent.
+- **Zeit ist die zweite Kostenart – neben EXP.** Zeitstrafe bei Niederlage und Gasthaus-Aufenthalt kosten ausschließlich Zeit. Das ist bewusst so gewählt: Zeitkosten können nie in einen Deadlock laufen (im Gegensatz zu einem Preis, den man sich nicht leisten kann – der Grund, aus dem das Gasthaus schon vor der Gil-Streichung auf Zeit umgestellt wurde) und sind mit dem Idle-Charakter des Spiels konsistent.
 
 ## 1a. EXP-Ertrag: Dämpfung über Level × Zone (neu, 30.07.2026)
 
@@ -67,7 +67,17 @@ Querschnitts-Dokument: jede Währung gehört zu genau einem System (Tabelle). Ba
 
 **Die Ursache ist die Rate, nicht die Menge.** Der EXP-Bedarf wächst mit `1,22^(L-1)`, der Ertrag pro Kill nur mit `g^(zone-1)` (g = 1,07) – Leveln müsste sich also *verlangsamen*. Was es umdreht, ist die **Kill-Zeit**: In einer alten Zone ist die Party massiv überlevelt, ein Kill dauert Bruchteile, und EXP **pro Sekunde** ist dort höher als an der Front.
 
-**Regel:** Der EXP-Ertrag einer Zone wird gedämpft, sobald das **Gruppenlevel über dem erwarteten Level dieser Zone** liegt. Nie auf null.
+**Regel:** Der EXP-Ertrag einer Zone wird gedämpft, sobald das **Gruppenlevel über dem erwarteten Level dieser Zone** liegt.
+
+> ⚠️ **Diese Regel lautete ursprünglich „Nie auf null" – das gilt seit M15a nur noch im Rückfallbereich.** Jenseits von `EXP_DAMPING_CUTOFF` (= 6) Überschuss-Leveln ist der Ertrag **hart 0**. Grund: Die Dämpfung skaliert den Ertrag **pro Sieg**, nicht die Siege pro Stunde – gegen eine unbegrenzte Siegrate ist jeder Floor > 0 wertlos (Rechnung und Messreihe im Nachtrag unten). Der Schutz gegen Anti-Pattern #1 hängt seither am **Plateau**, nicht am Floor: Ein bis zwei Zonen zurückzugehen zahlt weiter voll, und nur das ist der legitime Ventil-Gebrauch. Wer die Regel zitiert, muss beide Hälften zitieren.
+>
+> **Präzisierte Ventil-Definition (Nutzer-Entscheidung 02.08.2026) – und der Grund, warum die harte Null kein Verstoß gegen Anti-Pattern #1 ist:**
+>
+> > Ein Ventil verlangt **nicht**, dass an jeder Stelle etwas fließt. Es verlangt, dass es an jeder Stelle eine **Handlung** gibt, nach der wieder etwas fließt.
+>
+> Dass ein **völlig inaktiver** Spieler an einer Grenze auf 0 fällt, ist ausdrücklich in Ordnung – er sitzt sechs Level über der Erwartung einer Zone, die er längst hinter sich lassen könnte. Das Ventil ist hier nicht der Ertrag, sondern die **Zonenwahl**: eine Zone vor, und der Ertrag ist wieder voll. Anti-Pattern #1 verbietet die Sackgasse, nicht die Null.
+>
+> **Die Bedingung, unter der das trägt:** Es muss immer eine erreichbare Zone mit Ertrag geben. Wer an der Front steht und dort 6 Level über Erwartung liegt, hat keine höhere Zone – für ihn ist die Handlung „die Wand schlagen", und dass er das kann, garantiert **Kriterium A2** (≤ 20 Grind-Siege in der Vorzone, auch vollautomatisch). **Fällt A2, wird aus der harten Null doch eine Sackgasse.** Damit hängen der Pflicht-Boss (`prestige-reunion.md`) und der Cutoff am selben Prüfstein.
 
 **Warum Level × Zone und nicht Abstand zur Front:** Ein Taper nach Abstand zu `maxZoneReached` verschiebt nur das Fenster mit – wer Zone 7 erreicht hat, farmt eben Zone 5, und die ist bei seinem Level längst trivial. Der Exploit wandert, er verschwindet nicht. Level × Zone ist **absolut** statt relativ, `maxZoneReached` kommt in der Formel gar nicht vor (eine Regel weniger), und die Reunion setzt die Dämpfung durch den Level-Reset automatisch zurück.
 

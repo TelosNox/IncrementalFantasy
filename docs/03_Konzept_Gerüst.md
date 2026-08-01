@@ -30,7 +30,7 @@ Der Kampf ist nie bloßer Zahlenvergleich (das wäre die D2-Schwäche): Seine Te
 Das Rückgrat des Spiels sind zwei sich ergänzende Progressions-Achsen. Das ersetzt jede „Disc"-Struktur.
 
 **Horizontal – Regionen (vertiefen den Kampf).**
-Die Welt gliedert sich in Parodie-Regionen, je eine Folge von Zonen mit Boss-Gate am Ende. Entlang der Regionen wird das Kampfsystem gestaffelt eingeführt (Feature-Rampup, C1/C2, gegen Anti-Pattern #4 „Komplexität ohne Onboarding"): erst Basis-Angriffe + Limits, dann Analyse/Bestiarium, dann Shock, später Schockanfälligkeit/Resistenzen.
+Die Welt gliedert sich in Parodie-Regionen, je eine Folge von Zonen mit Boss-Gate am Ende. Entlang der Regionen wird das Kampfsystem gestaffelt eingeführt (Feature-Rampup, C1/C2, gegen Anti-Pattern #4 „Komplexität ohne Onboarding"): erst Basis-Angriffe + Limits, dann Zielwahl, dann Shock; **Analyse/Bestiarium folgt ab Kapitel 2** (s. §4), später Schockanfälligkeit/Resistenzen.
 
 **Vertikal – Reunion (vertieft die Automatik).**
 Das account-weite Prestige („Reunion", thematisch Lebensstrom/Wiedergeburt) schaltet **schrittweise die Gambit-Automatik** frei und verstärkt sie. Von Reset zu Reset wird das Spiel klüger-idle und trägt weiter.
@@ -42,8 +42,10 @@ Diese Zwei-Achsigkeit ist bewusst gewählt: horizontale Tiefe (Kampf) und vertik
 ## 4. Kampfsystem (der horizontale Rampup)
 
 - **Auto-Attack (immer aktiv):** Die Party greift von Beginn an selbstständig an – das Idle-Grundversprechen (A6) ist ab Minute 1 da.
-- **Limits (aktiver Hook, A2):** Jede Figur lädt im Kampf eine Leiste; wer aktiv spielt, zündet die Limit-Ultimate im richtigen Moment. Belohnt aktives Spiel, ohne Idle zu entwerten (§3). (Später optional per Gambit automatisierbar.)
-- **Analyse & Bestiarium (C2 + E2 + F2):** Jede Gegner-Art wird beim ersten Sieg **blind** besiegt und ist danach automatisch analysiert (Eintrag ins Bestiarium). Optional/parallel **aktive Analyse** als Abkürzung für aktive Spieler. Kein Chore, weil pro Art nur einmal nötig. Bestiariums-Wissen bleibt über Reunion erhalten.
+- **Limits (aktiver Hook, A2):** Wer aktiv spielt, zündet die Limit-Ultimate im richtigen Moment. Belohnt aktives Spiel, ohne Idle zu entwerten (§3). (Später optional per Gambit automatisierbar.)
+  **Präzisiert (Esper-Modell, `spec/kampf-analyse-shock.md` §4):** Die Leiste existiert **nur in Gate-/Boss-Kämpfen**, startet dort bei 0 und lädt sich innerhalb des Kampfes auf – kein Übertrag. Ein überall verfügbarer Limit-Knopf war im Playtest „wie die Spezialattacke, nichts Besonderes"; zudem wäre er mit der Zonen-Rückkehr ein Vorab-Farm-Exploit. Der aktive Hook in regulären Zonen ist damit der **Special** (MP), nicht das Limit.
+- **Analyse & Bestiarium (C2 + E2 + F2):** Jede Gegner-Art wird beim ersten Sieg **blind** besiegt und ist danach automatisch analysiert (Eintrag ins Bestiarium). Kein Chore, weil pro Art nur einmal nötig. Bestiariums-Wissen bleibt über Reunion erhalten.
+  **Revidiert (01.08.2026, `spec/kampf-analyse-shock.md` §5):** **Analyse ist eine Mechanik ab Kapitel 2** – dort, wo Element-Wahl aus einer enthüllten Schwäche eine Entscheidung macht und die vorzeitige Analyse als Materia überhaupt existiert. In Kapitel 1 füllt sich das Bestiarium **still beim Erst-Kill** (Sammelobjekt und Köder), ohne bedienbare Mechanik. Die frühere „aktive Analyse als Abkürzung" ist damit terminiert: Vorzeitiges Lesen geht nur per Materia. Das Bestiarium beschreibt außerdem stets die Gegner-**Art**, nie eine Instanz – daher keine absoluten Zahlen auf der Karte.
 - **Shock:** Schwächen ausnutzen baut Shock auf → Shock-Fenster für erhöhten Schaden/Limits. Funktioniert auch idle (sobald Schwäche bekannt, nutzt die Auto-Battle sie), aktiv nur besser.
 - **Resistenzen (spätes Spiel):** Gegner mit Resistenzen erzwingen Build-/Set-Wechsel → reaktiviert Materia- und Gambit-Entscheidungen, hält das Endgame frisch (gegen Monotonie).
 
@@ -141,7 +143,7 @@ Neue Systeme, Materia und Skills kommen aus drei bewusst getrennten Quellen:
 
 ## 11. Fortschritts-Ökonomie: Währungen
 
-Fünf Währungen, jede mit **genau einer** Progressions-Achse (Absicherung gegen Wildwuchs, Anti-Pattern #9):
+**Vier Währungen** (ursprünglich fünf – Gil ist am 30.07.2026 gestrichen, s. u.), jede mit **genau einer** Progressions-Achse (Absicherung gegen Wildwuchs, Anti-Pattern #9):
 
 | Währung | Quelle | Verwendung | Ebene |
 |---------|--------|------------|-------|
@@ -185,10 +187,12 @@ Diese Bausteine sind eingeplant, aber **nicht Teil des Kern-Loops** und werden s
 
 - **Lesbarkeit zuerst:** jedes System braucht eine lesbare Oberfläche (Binär-Marker statt Zähler ist das Musterbeispiel) – Dauer-Schutz gegen die D1/D4-Spreadsheet-Gefahr.
 - **Gestaffelter Rollout:** nie alles auf einmal zeigen; Systeme entlang der drei Freischaltungs-Achsen einführen.
-- **Ventil-Prinzip:** an jeder Wand fließt weiter etwas (EXP, ab Kap. 2 AP) – Fortschritt stoppt nie ganz. **Aber gedämpft:** Tieffarmen darf nicht die beste Strategie sein (`spec/oekonomie-waehrungen.md` §1a).
+- **Ventil-Prinzip (präzisiert 02.08.2026):** Ein Ventil verlangt **nicht**, dass an jeder Stelle etwas fließt – sondern dass es an jeder Stelle eine **Handlung** gibt, nach der wieder etwas fließt. Dass ein völlig inaktiver Spieler an einer Grenze auf 0 EXP fällt, ist in Ordnung; seine Handlung ist die **Zonenwahl**. Anti-Pattern #1 verbietet die Sackgasse, nicht die Null. **Aber gedämpft:** Tieffarmen darf nicht die beste Strategie sein (`spec/oekonomie-waehrungen.md` §1a, dort auch die Bedingung: es muss immer eine erreichbare Zone mit Ertrag geben – garantiert über Kriterium A2).
+- **Gate-Regel (02.08.2026):** Ein Gate muss **nicht passiv erreichbar** sein – aber **passiv wird es leichter**. Können kauft **Tempo**, Zeit kauft **Zugang**; keins von beidem ist Pflicht. Daraus folgt ausdrücklich: **Die Strecke vor einem Gate darf leer sein**, denn dort findet die Umwandlung von Zeit in Zugang statt – ein zusätzlicher Mechanik-Beat würde sie nur überdecken. (Das ist zugleich die Antwort auf den Einwand, Kapitel 1 habe zwischen Zone 20 und 29 keinen neuen Beat: hat es nicht, und das ist die Mechanik, nicht ihr Fehlen.)
+  **Bedingung – und der Prüfstein der Regel:** Dass die Umwandlung stattfindet, muss **ablesbar** sein. Sonst ist eine korrekt arbeitende Wand von Anti-Pattern #1 nicht zu unterscheiden – derselbe Fehler wie bei der unsichtbaren Gegner-Heilung (`spec/gegner-encounter.md` §5a): Die Bilanz stimmte, sichtbar war sie nicht, und damit war die Lektion weg. Heute ist das einzige Signal auf einer solchen Strecke das steigende Gruppenlevel; ob das reicht, ist offen (§16).
 - **Automatik ist verdient:** stumpfe Auto-Attack sofort, strategische Gambits über Reunion.
-- **Beide Playstyles tragfähig:** aktiv (Limits, Live-Analyse) und idle müssen sich lohnen.
-- **Währungs-Disziplin:** bei fünf Währungen bleiben, jede mit klarer Einzelrolle.
+- **Beide Playstyles tragfähig:** aktiv (Limit-Timing an Gates, Zielwahl, MP-Einsatz) und idle müssen sich lohnen. *(„Live-Analyse" stand hier bis zum 01.08.2026 als Aktiv-Vorteil – Analyse ist keine Kapitel-1-Mechanik mehr, §4.)*
+- **Währungs-Disziplin:** bei den **vier** Währungen bleiben, jede mit klarer Einzelrolle. Eine fünfte kommt nur dazu, wenn sie die Exklusivitäts-Regel besteht (`spec/oekonomie-waehrungen.md` §1): Zeit darf ihre Knappheit nicht auflösen können.
 - **Knappheit schützen:** Slots/Kopien knapp halten – sonst sterben die Entscheidungen.
 - **Humor als Würze, nicht als Krücke:** Parodie-Ton auf soliden Mechaniken.
 
@@ -196,6 +200,7 @@ Diese Bausteine sind eingeplant, aber **nicht Teil des Kern-Loops** und werden s
 
 ## 16. Offene Detailfragen (nächste Iterationen, dann mit Zahlen)
 
+- **Ablesbarkeit von Ventil und Gate (eine Frage, nicht zwei).** Bisher getrennt geführt: „Braucht die Zonen-Auswahl eine Empfehlung/Markierung, oder reicht das HP-Signal?" (`spec/niederlage-offline.md`) und die Sichtbarkeits-Bedingung der Gate-Regel (§15). Beides ist derselbe Bedarf – *der Spieler muss sehen, dass sich sein Zustand gegenüber der Wand verbessert* – einmal für den Rückweg, einmal für den Vorstoß. Zusammen zu beantworten; die stärkste Gegenkraft ist, dass eine „Erfolgsprognose" das Ausprobieren entwertet.
 - Slot-Wachstumskurve (wie viele Slots wann – bestimmt die Entscheidungsdichte).
 - AP-Verteilung: volle Menge pro Materia vs. geteilter Pool (Balance-Hebel breite vs. fokussierte Builds).
 - Reunion-Auslöser: rein spielergewählt ab Meilenstein vs. weiche Schwelle.

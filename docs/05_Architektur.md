@@ -81,6 +81,8 @@ vite.config.ts
 
 ## 5. Ein Mechanismus für Pause/Resume **und** Offline-Ernte
 
+> ⚠️ **Status seit M11: Die Offline-Ernte ist stillgelegt, dieser Abschnitt beschreibt sie weiterhin als aktiv.** Entfernt ist ausschließlich der Fortschritt bei *geschlossener* Anwendung; bei offener Anwendung läuft das Spiel unverändert selbst weiter (`spec/niederlage-offline.md` §4). Der Absatz bleibt hier stehen, weil die Wiedereinführung vorgesehen ist – dann aber **nicht** als passiver Ertrag, sondern als **Boost, der sich in der Abwesenheit auflädt**. Was davon übernommen werden kann, ist die O(1)-Batch-Idee; was **nicht** mehr gilt, ist die Projektion wiederholter Zonen-Durchläufe: Genau sie war unbeabsichtigt die einzige funktionierende Implementierung des Ventils und hat abwesende Spieler an Gates vorbeigebracht, an denen anwesende feststeckten. **Kein Teil dieses Abschnitts ist derzeit umzusetzen.** Zusätzlich veraltet: `Gil`/`currencies.gil` in den Schritten unten und in §6 – die Währung ist am 30.07.2026 gestrichen (`spec/oekonomie-waehrungen.md`).
+
 **Kerneinsicht:** Weil Kampf komplett deterministisch ist (kein RNG, `stats-kampfwerte.md` §2), muss man Abwesenheit **nicht Tick für Tick nachsimulieren**. Ein Kampf-Durchlauf der aktuellen Zone (inklusive etwaiger Niederlage-Retry-Schleife) hat für den aktuellen Party-/Ausrüstungs-/Gambit-Zustand eine **feste Realzeit-Dauer** und einen **festen Ertrag**. Daraus lässt sich die Abwesenheit direkt hochrechnen, ohne Millionen Ticks abzuarbeiten.
 
 **Ablauf beim Zurückkommen** (gilt gleichermaßen für: Tab kurz weggeklickt, Browser geschlossen, Rechner aus, nächster Tag – ein einziger Codepfad):
@@ -165,8 +167,8 @@ Ein kleiner, unauffälliger **„⟳ Reset save"-Button** unten rechts (`ui/Debu
 |---|---|
 | Determinismus (kein RNG) | ✓ durchgängig erhalten – wird in §5 sogar aktiv als Performance-Hebel genutzt |
 | BigNumber ab Tag 1 (Anti-Pattern #10) | ✓ `break_eternity.js` von Anfang an, nicht erst wenn Zahlen groß werden |
-| Ventil-Prinzip (Anti-Pattern #1) | ✓ Offline-Projektion liefert an Wänden weiterhin Zeitstrafen-Zyklen statt stillen Stillstands, aber auch keinen unverdienten Fortschritt |
-| Aktiv ⟷ Idle-Balance (§3 Leitfaden) | ✓ ein gemeinsamer Sim-Kern für Live- und Offline-Loop verhindert zwei auseinanderdriftende Ökonomien; „Offline nie strikt besser" ist architektonisch erzwungen, nicht nur behauptet |
+| Ventil-Prinzip (Anti-Pattern #1) | ⚠️ **Haken zurückgezogen (M11).** Er hing an der Offline-Projektion; das Ventil ist seit M11 die **Zonen-Rückkehr** im Live-Loop (`spec/niederlage-offline.md` §3), nicht die Abwesenheits-Rechnung |
+| Aktiv ⟷ Idle-Balance (§3 Leitfaden) | ⚠️ **Haken zurückgezogen (M11).** Der gemeinsame Sim-Kern hat „Offline nie strikt besser" gerade **nicht** erzwungen – im Playtest kam ein abwesender Spieler an einem Gate vorbei, an dem ein anwesender feststeckte. Es gibt derzeit nur eine Ökonomie, die aktive |
 | Kein Server/Account | ✓ konsistent mit der „keine Monetarisierung"-Rahmenentscheidung |
 
 ---

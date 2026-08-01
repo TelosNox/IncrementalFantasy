@@ -39,13 +39,13 @@ MP ist der **Limiter**, der die Gambit-Tiefe überhaupt erst erzeugt: Ohne Koste
 
 **Sichtbarkeit:** MP **existiert von Anfang an**, wird dem Spieler aber erst mit der **ersten MP-Fähigkeit** (Waffen-Spezial, Region 1) sichtbar. Ab dann **dauerhaft angezeigt, auch nach Reunion** – ein einmal enthülltes System wieder zu verstecken ergäbe keinen Sinn.
 
-**Regeneration läuft über drei Kanäle (ohne Items):**
+**Regeneration – in Kapitel 1 nur *ein* Kanal (revidiert, `feinspec-kapitel1.md` §3.5):**
 
-1. **Prozentualer Refill nach jedem gewonnenen Kampf** – Basis-Nachschub. Prozentual statt Fixwert, damit es über die gesamte Skalierung sauber bleibt (gegen tote Zahlen #10).
-2. **Trickle über Zeit pro ATB-Tick** im Kampf – Sustain in langen (Boss-)Kämpfen. **Hier sitzt der Build-Hebel:** Materia/Ausrüstung/Affinität steigern die Regen-Rate.
-3. **Attack-Refund** – ein normaler Angriff gibt etwas MP zurück. Schließt den Loop „MP leer → Angriff → MP zurück → wieder zaubern" und macht die Auto-Attack strukturell unverzichtbar.
+1. **Prozentualer Refill nach jedem gewonnenen Kampf** (+ Gasthaus zwischen den Kämpfen) – Basis-Nachschub. Prozentual statt Fixwert, damit es über die gesamte Skalierung sauber bleibt (gegen tote Zahlen #10). **Das ist der einzige Kanal in Kapitel 1:** MP wächst im Kampf gar nicht nach, es ist ein **Budget pro Encounter**. Genau das macht In-Kampf-Heilung zu einer harten Obergrenze und Bosskämpfe zu Ausdauer-Rätseln – und „in einer leichten Zone nicht auszugeben" selbst zu einem Zug.
+2. **Trickle über Zeit pro ATB-Tick** – Sustain in langen (Boss-)Kämpfen. **Hier sitzt der Build-Hebel:** Materia/Ausrüstung/Affinität steigern die Regen-Rate. **Ab Kapitel 2**, über MP-Regen-Materia.
+3. ~~**Attack-Refund** – ein normaler Angriff gibt etwas MP zurück.~~ **Gestrichen.** Er hätte den Loop „MP leer → Angriff → MP zurück → wieder zaubern" geschlossen, hat aber genau die Budget-Knappheit aufgelöst, die MP zum Limiter macht. Die Auto-Attack bleibt auch ohne ihn der Fallback (§2).
 
-**Gestaffelter Rollout (C1/C2):** Früh nur Kanal 1 (simpel, lehrt die Ressource). Kanäle 2 und 3 sowie Regen-Materia gehen später über die Progressions-Achsen auf.
+**Gestaffelter Rollout (C1/C2):** Kapitel 1 nur Kanal 1 (simpel, lehrt die Ressource als Vorrat). Kanal 2 und Regen-Materia gehen später über die Progressions-Achsen auf – dass Kapitel 1 gar keinen In-Kampf-Regen hat, macht diese Materia zur spürbaren Belohnung statt zur Fußnote.
 
 **Idle-tauglich:** Die MP-Politik fahren die Gambits automatisch (z. B. „WENN MP hoch UND Gegner schwach DANN Feuga; SONST Attack"). Der Spieler autort die Strategie einmal, der Sim führt sie aus – kein Pro-Kampf-Micromanagement.
 
@@ -142,7 +142,10 @@ Der Informationsgehalt bleibt damit unverändert (der Füllgrad ist jederzeit ab
 
 ## 8. Rollout-Reihenfolge (grob; exakte Zuordnung in `progression-regionen.md`)
 
-Attack + Limit (nur an Gates) → Analyse/Bestiarium → Shock → MP-Regen-Ausbau → Schockanfälligkeit/Resistenzen.
+**Kapitel 1:** Attack + Limit (nur an Gates) → **Zielwahl** → Shock.
+**Ab Kapitel 2:** Analyse/Bestiarium (mit Materia/Element-Wahl) → MP-Regen-Ausbau → Schockanfälligkeit/Resistenzen.
+
+*Analyse stand bis zum 01.08.2026 an zweiter Stelle dieser Kette; sie ist nach Kapitel 2 verschoben (§5), Zielwahl hat ihren Platz als Region-2-Beat übernommen.*
 
 **Hinweis zum MP-Regen-Ausbau:** Der frühere Attack-Refund ist gestrichen (`feinspec-kapitel1.md` §3.5) – MP wächst in Kapitel 1 gar nicht mehr im Kampf. Genau das macht MP-Regen-Materia in Kapitel 2 zu einer spürbaren Belohnung statt zu einer Fußnote; der Ausbau-Schritt oben gewinnt dadurch an Gewicht.
 
@@ -154,4 +157,4 @@ Attack + Limit (nur an Gates) → Analyse/Bestiarium → Shock → MP-Regen-Ausb
 - MP-Werte: %-Erholung je Sieg, Gasthaus-Rate, Special-Kosten (~~Attack-Refund~~ gestrichen).
 - Shock: Aufbau-Rate, Schwelle, Fenster-Dauer und -Bonus.
 - Gegner-Aktionstakt und Telegraf-Vorlauf.
-- Limit: Laderaten und Payoff-Höhe – neu zu justieren gegen das Ziel „die Leiste wird in einem Gate-Kampf ein- bis zweimal voll". (Ein Cap gegen Über-Banking wird durch das Esper-Modell gegenstandslos: Es gibt nichts mehr zu banken.)
+- ~~Limit: Laderaten und Payoff-Höhe – neu zu justieren.~~ **Erledigt am 01.08.2026 (M17-Playtest):** Die Ladung hängt jetzt am **Anteil** statt am Betrag (Anteil der Ziel-maxHP beim Austeilen, der eigenen maxHP beim Einstecken, `feinspec-kapitel1.md` §3.4). Damit ist sie zonen- und levelstabil; dass die absolute Rate dreimal justiert wurde, war selbst der Beleg für die Drift. **Keine offene Stellschraube mehr** – offen bleibt nur die einmalige Verifikation an allen drei Gates. Payoff unverändert 4,5·ATK. (Ein Cap gegen Über-Banking ist durch das Esper-Modell gegenstandslos: Es gibt nichts mehr zu banken.)

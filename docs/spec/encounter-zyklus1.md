@@ -18,10 +18,12 @@
 | **Blando** | 40 | 8 | 2 | 100 | – (Baseline) |
 | **Caffiend** | 32 | 10 | 2 | 180 | handelt ~1,8× so oft → Suppress (Barrel) |
 | **Safeguard** | 75 | 9 | 12 | 70 | sehr hohe DEF → physisch zäh; Konter: **schocken** (ignoriert DEF) oder Burst/Limit |
-| **Kindlebale** | 55 | 8 | 3 | 90 | Feuer-Schwäche (Teaser, sichtbar via Analyse) |
+| **Kindlebale** | 55 | 8 | 3 | 90 | Feuer-Schwäche (Teaser, sichtbar im Bestiarium nach dem Erst-Kill) |
 | **Shortfuse** | 45 | 6 | 3 | 90 | Self-Destruct nach 3 Treffern → AoE ~2× Trefferschaden; feuer-immun |
 | **Funkus** | 60 | 7 | 4 | 85 | Angriff vergiftet: ~4 Schaden/Tick × 4 Ticks |
 | **Pilferret** | 38 | 6 | 3 | 150 | MP-Drain ~15 an einem Ziel, flieht nach ~4 eigenen Aktionen |
+
+*Nicht in dieser Tabelle: **Bandbox** (Heiler-Gegner, ab Z12, in M16 dazugekommen) – Werte und Heiltaktung stehen in `feinspec-kapitel1.md` §6.2, Design-Begründung in `gegner-encounter.md` §5a.*
 
 *Hinweis: Mit der Mitigations-Formel ist Safeguard (DEF 12) ~doppelt so zäh wie Blando, aber nicht unverwundbar. Gezielter Konter: **schocken** (ignoriert DEF im Fenster) – baut auch neutral auf, die volle Schwäche-Pointe kommt in Kap. 2.*
 
@@ -51,13 +53,15 @@ Lehrziel: Kern-Loop, Auto-Attack-Freischaltung, Limit. **Nur Blando** (+ Größe
 - Z5–7: 2–3× Blando (gemischte Größen)
 - **Z8 (Miniboss):** 1× **Blandzilla** → erzwingt den ersten manuellen Limit-Einsatz.
 
-## Region 2 – Bargain Bazaar (Barrel stößt dazu; Analyse)
+## Region 2 – Bargain Bazaar (Barrel stößt dazu; Zielwahl)
 
-Lehrziel: Analyse (Stats/Schwäche lesen), Kontrolle, Durability. Neu: **Caffiend** (ab Z9), **Safeguard** (ab Z11), **Kindlebale**-Teaser (ab Z12). Wellen 2–3.
+Lehrziel: **Zielwahl** (wer zuerst?), Kontrolle, Durability. Neu: **Caffiend** (ab Z9), **Safeguard** (ab Z11), **Kindlebale**-Teaser + **Bandbox** (ab Z12). Wellen 2–3.
+
+> **Geändert 01.08.2026:** Lehrziel war „Analyse (Stats/Schwäche lesen)". Analyse ist keine Kapitel-1-Mechanik mehr (`kampf-analyse-shock.md` §5); den Regions-Beat trägt die Zielwahl am Heiler-Gegner **Bandbox** (`gegner-encounter.md` §5a). Das Bestiarium füllt sich weiterhin still beim Erst-Kill.
 
 - Z9–10: 1× Blando + 1× Caffiend (Speed spürbar → Barrels Suppress)
 - Z11: 1× Safeguard (solo, zäh → zeigt „hier will ich später Schwäche/Magie")
-- Z12–13: 1× Kindlebale + 1× Blando (Analyse enthüllt Feuer-Schwäche als Köder)
+- Z12–13: 1× Kindlebale + 1× **Bandbox** (Heiler – Zielwahl entscheidet erstmals den Kampf; Kindlebales Feuer-Schwäche liegt als Köder im Bestiarium, ungenutzt bis Kapitel 2)
 - Z14–15: 2× Caffiend + 1× Blando (Speed-Druck)
 - Z16–17: 1× Safeguard + 1× Caffiend (zäh + flink zugleich)
 - **Z18 (Gate):** **Fort Knoxious** + 1× Caffiend-Add.
