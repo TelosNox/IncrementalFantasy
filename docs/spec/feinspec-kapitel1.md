@@ -139,14 +139,31 @@ Neutral (alle Kap.-1-Gegner) baut also nur über Schaden auf – langsam, aber r
 Verfügbarkeit: NUR in Encountern mit `limitAllowed: true` (§4.3) – in Kap. 1
                exakt die drei Gates (Blandzilla Z8, Fort Knoxious Z18, Vaultron Z30).
 Start:         limit = 0 zu Beginn jedes solchen Kampfes. Kein Übertrag, nirgends.
-Ladung:        zugefügter Schaden:  limit += schaden · 0,35
-               erlittener Schaden:  limit += schaden · 0,50  (AoE: · 0,40 je Figur)
+Ladung:        zugefügter Schaden:  limit += 60 · (schaden / maxHP des Ziels)
+               erlittener Schaden:  limit += 80 · (schaden / eigene maxHP)
+                                    (AoE: · 0,75 des Werts, je Figur)
 Zünden (Kap. 1, generisch): schaden(4,5·ATK, DEF) mit DEF-Ignore auf das stärkste Ziel.
 ```
 
 Damit ist Limit kein Dauer-Knopf mehr, sondern ein **Ereignis, das ausschließlich an Wänden existiert** und sich dort vor den Augen des Spielers aufbaut. Die Laderaten sind so zu justieren, dass die Leiste in einem Gate-Kampf **ein- bis zweimal** voll wird – sie wird damit zum Taktgeber innerhalb des Kampfes statt zu einer vorab mitgebrachten Ressource.
 
 Das schärft zugleich den Wert manuellen Spiels genau dort, wo er hingehört: Limit lebt künftig nur noch in den Kämpfen, die `gambits.md` §4 ohnehin als **manuelle Prüfsteine** vorsieht. Aktives Timing ins Shock-Fenster holt weiterhin spürbar mehr heraus.
+
+**Revision der Laderaten: relativ statt absolut (Konzept-Review 01.08.2026, nach dem M17-Playtest).** Die bisherigen Raten (`schaden · 0,35` bzw. `· 0,50`; im Code zuletzt `0,2`/`0,3`) hingen an **absoluten** Schadenszahlen, während `LIMIT_MAX` fix bei 100 liegt.
+
+*Befund:* An Blandzilla (Zone 8) kam das Limit als **letzter Hit** des Kampfes – der Spieler konnte nicht erkennen, was es überhaupt gebracht hat. Das Soll „ein- bis zweimal voll" war damit messbar verfehlt. Nachgerechnet: Blandzilla hat zonenskaliert ~209 HP, für eine volle Leiste aus zugefügtem Schaden wären bei `0,2` aber **500 Schadenspunkte** nötig gewesen – mehr als doppelt so viel, wie der Gegner überhaupt besitzt. Claude konnte die Leiste aus eigener Kraft also **gar nicht** füllen; der Rest musste aus erlittenem Schaden kommen, weshalb sie erst kurz vor dem Kampfende volllief.
+
+*Wurzel:* Schaden und HP wachsen über Zone (`ZONE_GROWTH`) und Level, `LIMIT_MAX` nicht. Die Ladegeschwindigkeit **driftet dadurch über das Kapitel** – an Zone 8 zu langsam, an den späteren Gates von allein zu schnell. Eine Nachjustierung der Rate hätte dieselbe Zahl mehrfach fällig gemacht.
+
+*Beschluss:* Die Ladung hängt jetzt am **Anteil** statt am Betrag – am Anteil der Ziel-maxHP beim Austeilen, am Anteil der eigenen maxHP beim Einstecken. Damit ist die Leiste zonen- und levelstabil ohne weitere Playtest-Zahl, und sie liefert genau das intendierte Gefühl: **das Limit kommt, wenn es ernst wird.** Wer einen Gegner im Alleingang niederschlägt, hat ~60 % Leiste; wer 80 % seiner HP verloren hat, ~64 %. An Blandzilla fällt es dadurch bei etwa 60 % Kampffortschritt – früh genug, dass der Einbruch im HP-Balken sichtbar ist.
+
+*Verworfen – nur die beiden Raten anheben* (`0,2 → 0,35`, `0,3 → 0,45`): behebt Blandzilla sofort und für wenige Minuten Arbeit, lässt die Drift aber bestehen; dieselbe Entscheidung stünde in Zone 20 erneut an. Die relative Form kostet einmalig eine Neuprüfung des ganzen Kapitels und ist danach erledigt.
+
+*Ausdrücklich NICHT gemacht – Blandzillas ATK senken.* Der naheliegende Wunsch „weniger Schaden bekommen, damit es nicht so knapp wird" **verschlimmert den gemeldeten Befund**: Erlittener Schaden ist der stärkere der beiden Ladekanäle, ein ATK-Nerf ließe das Limit also noch später kommen. Blandzillas Werte (§6.2) bleiben unverändert, ebenso die Knappheit des Kampfes – „ich habe alles benutzt, was verfügbar war, und knapp gewonnen" ist das designte Gefühl eines Gates (`gegner-encounter.md` §7), nicht der Fehler.
+
+*Ebenfalls Teil des Befunds, aber Anzeige statt Zahl:* Der Limit-Treffer muss sich **absetzen** – große Schadenszahl und ein sichtbarer „DEF ignoriert"-Marker. Auch als letzter Hit soll ablesbar sein, was er ausgerichtet hat.
+
+**Umsetzungs-Rückstand (nächste Umsetzungs-Session):** `limitGainOnDealt`/`limitGainOnTaken` in `core/formulas.ts` auf die relative Form umstellen (beide brauchen jetzt die maxHP-Bezugsgröße als Parameter – Aufrufer in `core/battle.ts` und `core/tick.ts`); Limit-Trefferanzeige aufwerten; `tests/chapter-playthrough.test.ts` gegen alle drei Gates neu prüfen, Sollwert unverändert „ein- bis zweimal voll pro Gate-Kampf".
 
 *Playtest-Befund, der zu dieser Revision führte:* Limit fühlte sich „wie die Spezialattacke an, nichts Besonderes" – genau weil es überall verfügbar war. Der in der Vorfassung unter §11 vermerkte Implementierungsfehler (Leiste fiel bei jedem Zonenstart auf 0) **entfällt damit ersatzlos**; das Esper-Modell macht das frühere Soll-Verhalten überflüssig, statt es nachzurüsten.
 
@@ -562,10 +579,20 @@ if flags.materiaUnlocked and figur.materiaActions: + "Magic ▸"     # Unterlist
 
 | Figur | Region | HP | MP | ATK | MAG | DEF | SPD | Special (MP) | Rolle |
 |-------|:------:|---:|---:|----:|----:|----:|----:|--------------|-------|
-| **Claude** | 1 | 110 | 20 | 14 | 6 | 4 | 100 | Big single-target hit ×3 ATK (8) | Damage |
+| **Claude** | 1 | 110 | 20 | 14 | 6 | 4 | 100 | **Overcommit**: big single-target hit ×3 ATK (8) | Damage |
 | **Barrel** | 2 | 140 | 20 | 11 | 5 | 8 | 80 | Suppress: enemy ATB ×0.5 / 4s (6) | Control/Tank |
 | **Tofa** | 3 | 95 | 20 | 12 | 5 | 3 | 130 | Shock Strike: +45 Shock (7) | Shock-Enabler |
-| **Air is...** | 3 | 80 | 30 | 7 | 14 | 3 | 95 | Heal Wind: party heal 2.2·MAG (10) | Healing |
+| **Air is...** | 3 | 80 | 30 | 7 | 14 | 3 | 95 | **Second Wind**: party heal 2.2·MAG (10) | Healing |
+
+**Special-Namen festgelegt (Konzept-Review 01.08.2026, nach dem M17-Playtest).** Zwei der vier Namen waren aus FF7 **1:1 übernommene Limit-Break-Namen** – und damit doppelt falsch:
+
+- **Claude: „Cross Slash" → `Overcommit`.** *Cross-Slash* ist Clouds Limit Break Lv. 1. Der Name stand nie in dieser Spec (die Zeile lautete namenlos „Big single-target hit ×3 ATK"); er ist nur in Code-Kommentaren gewachsen und mit dem M17-Popup `special_mp` erstmals sichtbar geworden. Dort lehrt er ausgerechnet die Unterscheidung **Special ≠ Limit** – mit einem Limit-Namen. `Overcommit` ist doppeldeutig (er holt so weit aus, dass die Deckung weg ist / Bürojargon) und passt zur Figur.
+- **Air is...: „Heal Wind" → `Second Wind`.** *Healing Wind* ist Aeriths Limit Break Lv. 1. `Second Wind` spielt auf Ventilator und „zweiter Atem" an, ohne FF7-Begriff.
+- **Tofas „Shock Strike" und Barrels „Suppress" bleiben** – beide frei erfunden, kein Vorbild.
+
+Beides verstieß zusätzlich gegen die Rahmenentscheidung „keine Kopien der FF7-Originale, sondern eigenständige Figuren, die daran erinnern" (`../../CLAUDE.md`): Ein wörtlich übernommener Limitname ist kein Parodie-Anklang, sondern ein Zitat. **Diese Tabelle ist ab jetzt die normative Quelle der Special-Namen** – Namen entstehen nicht mehr nebenbei im Code.
+
+**Umsetzungs-Rückstand (nächste Umsetzungs-Session):** `content/introductions.ts` (Popup `special_mp`, Zeile „Claude's Cross Slash hits far harder…") sowie die Code-Kommentare in `core/gambits.ts`, `ui/gameStore.svelte.ts`, `content/zones.ts` und `tests/gambits.test.ts` auf `Overcommit` umstellen; `Second Wind` prüfen, sobald Air is...' Special UI-sichtbar wird.
 
 ### 6.2 Monster- & Gate-Basiswerte (bei Einführung, vor `g`-Skalierung)
 
@@ -585,7 +612,7 @@ if flags.materiaUnlocked and figur.materiaActions: + "Magic ▸"     # Unterlist
 | **Fort Knoxious** (R2-Gate, Z18, 1,5×) | 160 | 12 | 14 | 70 | 70 | 60 | armor |
 | **Vaultron** (Kapitel-Boss, Z30, 2×) | 240 | 14 | 16 | 70 | 140 | 120 | boss + counterStance (M16) |
 
-**Bandbox** (M16) – Heiler-Gegner, `gegner-encounter.md` §5a: heilt statt anzugreifen das verletzteste lebende Gruppenmitglied um `1,2×ATK` (`ENEMY_HEAL_MULT`, `core/formulas.ts`; Startwert 2,5 im Live-Playtest gesenkt, s. Umsetzungsentscheidung 76), ist niemand verletzt greift er wie ein normales Monster an. Kein Gil-Wert (Gil ist gestrichen, s. §6.4). Kein FF7-Vorbild, neu für diesen Meilenstein (`gegner-katalog.md`).
+**Bandbox** (M16) – Heiler-Gegner, `gegner-encounter.md` §5a: heilt statt anzugreifen das verletzteste lebende Gruppenmitglied (`ENEMY_HEAL_MULT`, `core/formulas.ts`; Startwert 2,5 im Live-Playtest auf 1,2 gesenkt, s. Umsetzungsentscheidung 76), ist niemand verletzt greift er wie ein normales Monster an. **Taktung 01.08.2026 geändert:** `3,6×ATK` alle ~6 s statt `1,2×ATK` alle ~2 s – gleiche Heilung pro Sekunde, aber sichtbar, weil die alte Rate im Playtest optisch unter dem gleichzeitigen Schaden verschwand (`gegner-encounter.md` §5a). Kein Gil-Wert (Gil ist gestrichen, s. §6.4). Kein FF7-Vorbild, neu für diesen Meilenstein (`gegner-katalog.md`).
 
 *Boss-Namen/Visualisierung & Sprite-Größen (Miniboss 1,5×, Boss 2×): `gegner-katalog.md` + `charaktere-visuals.md`. Sprites in `assets/bosses/`.*
 
@@ -745,7 +772,7 @@ Die sensibelsten Hebel:
 - **Erholung nach Sieg (25 %)** – gebunden an die Signalregel in §3.8d, nicht frei wählbar: komfortable Zone netto neutral, harte Zone netto negativ. Diese Regel bestimmt den Wert, nicht umgekehrt.
 - **Gasthaus: Totzeit (10 s) und Rate (5 %/s).** Die Totzeit ist der eigentliche Design-Hebel (sie macht Heil-Spam unwirtschaftlich); die Rate steuert nur, wie teuer ein voller Heilgang ist. Ursprünglich als Band 5–10 s diskutiert – 10 s ist der Startwert, weil er nach einer Niederlage auf runde 30 s Gesamtwartezeit führt. **Wichtig:** Ohne Offline-Progress ist diese Zeit jetzt echte Wartezeit am Bildschirm; sie muss sich *gespielt* vertretbar anfühlen, nicht nur gerechnet.
 - **MP-Ökonomie:** Refill 25 % + **neu herzuleitende** Special-Kosten (§6.1 war gegen den gestrichenen Refund balanciert). Bestimmt, wie oft Specials fallen – und wie hart die Heilungs-Obergrenze in Bosskämpfen greift.
-- ~~Limit-Laderaten (0,35 / 0,50) und Payoff (4,5·ATK)~~ → **M11 justiert:** 0,20 (dealt) / 0,30 (taken, Einzelziel) / 0,22 (taken, AoE), Payoff unverändert bei 4,5·ATK. Entgegen der ursprünglichen Vermutung waren die alten Raten nicht zu niedrig, sondern (gemessen an "1-2× pro Figur", nicht pro Party-Kampf) zu hoch. Weiterhin Startwerte, s. `07_Umsetzungsentscheidungen.md` M11-Umsetzungsentscheidung 4.
+- ~~Limit-Laderaten (0,35 / 0,50) und Payoff (4,5·ATK)~~ → **M11 justiert:** 0,20 (dealt) / 0,30 (taken, Einzelziel) / 0,22 (taken, AoE), Payoff unverändert bei 4,5·ATK. Entgegen der ursprünglichen Vermutung waren die alten Raten nicht zu niedrig, sondern (gemessen an "1-2× pro Figur", nicht pro Party-Kampf) zu hoch. Weiterhin Startwerte, s. `07_Umsetzungsentscheidungen.md` M11-Umsetzungsentscheidung 4. **Überholt am 01.08.2026:** Die absoluten Raten sind durch eine **relative** Ladung ersetzt (Anteil der Ziel- bzw. eigenen maxHP, s. §3.4) – dass diese Zahl dreimal justiert wurde, ist selbst der Beleg für die Drift, die die relative Form beseitigt. Damit ist dies **keine offene Stellschraube mehr**; offen bleibt nur die einmalige Verifikation an allen drei Gates.
 - **Shock-Aufbaurate** (0,5·Schaden) und **Tofa-Bonus** (+45) – wie relevant Shock schon in Kap. 1 ist (nur bei manuellem Spiel nutzbar, s. §4.7).
 - **Zeitstrafe bei Niederlage** (5 s) – wirkt jetzt zusammen mit der Gasthaus-Totzeit; beide Zeitkosten sind gemeinsam zu betrachten, nicht einzeln.
 - **Zonen-Rückkehr:** ob die freie Auswahl ausreicht oder ob es eine Empfehlung/Markierung braucht („hier kommst du gerade sicher durch"). Reine Ventil-Funktion steht, die **Lesbarkeit** ist offen.
