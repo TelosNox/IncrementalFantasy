@@ -24,10 +24,16 @@ export const EXP_GROWTH = 1.22
 
 /**
  * gegner-encounter.md §5a (M16) - Heiler-Gegner: Heilmenge relativ zu seinem eigenen ATK,
- * analog zu Air is...' Heal Wind (2,2×MAG, feinspec §6.1). Startwert, s. §11 offene
- * Playtest-Stellschraube - gegen `tests/chapter-playthrough.test.ts` validiert.
+ * analog zu Air is...' Heal Wind (2,2×MAG, feinspec §6.1). Startwert 2,5 war im Browser-Playtest
+ * (01.08.2026) zu stark: Bandbox heilt (auch) sich selbst, sobald es das verletzteste Ziel ist -
+ * gegen zwei fokussierende Angreifer (~15 Schaden je Treffer, eigenes ATB-Tempo) hielt 2,5×ATK
+ * (33 HP je 2s) beim Live-Test locker mit, das gezielte Toeten fuehlte sich NICHT eindeutig
+ * ueberlegen an (Kernversprechen von §5a verfehlt). 1,2×ATK (~16 HP je 2s) laesst zwei
+ * fokussierende Angreifer klar gewinnen, haelt aber weiterhin spuerbar gegen einen einzelnen
+ * Angreifer/einen ignorierten Heiler durch - gegen `tests/chapter-playthrough.test.ts` erneut
+ * validiert. Weiterhin Startwert, s. §11 offene Playtest-Stellschraube.
  */
-export const ENEMY_HEAL_MULT = 2.5
+export const ENEMY_HEAL_MULT = 1.2
 
 /** §5a - Heilmenge eines Heiler-Gegners fuer einen Verbuendeten. */
 export function enemyHealAmount(atk: number): number {
