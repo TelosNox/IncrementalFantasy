@@ -131,7 +131,7 @@ Je Region: das eine Motiv, die Signaturfarbe, das eine Detail. Namen und Reihenf
 
 ## 7. Werkzeug: Baukasten statt Einzelfunktionen
 
-**Gebaut in M12.** `assets/region_kit.py` enthält Bausteine, Prüfmodus und Gegenprobe; `assets/generate_regions.py` enthält **nur noch Paletten und Rezepturen** – eine Region ist eine `Palette` plus eine Liste `(Baustein, Parameter)`. Aufruf: `python generate_regions.py [--check] [--report]`. Details und Abweichungen: `../06_Implementierungsplan_Kapitel1.md`, Umsetzungsentscheidungen 20–30.
+**Gebaut in M12.** `assets/region_kit.py` enthält Bausteine, Prüfmodus und Gegenprobe; `assets/generate_regions.py` enthält **nur noch Paletten und Rezepturen** – eine Region ist eine `Palette` plus eine Liste `(Baustein, Parameter)`. Aufruf: `python generate_regions.py [--check] [--report]`. Details und Abweichungen: `../07_Umsetzungsentscheidungen.md`, Umsetzungsentscheidungen 20–30.
 
 **Ursprünglicher Befund (erledigt):** `assets/generate_regions.py` enthielt je Region **eine handgeschriebene Funktion mit rohen Koordinaten** (`s.r(40,40,52,34,'#2b333c')`). Bei drei Kulissen tragbar, bei fünfzehn nicht: Es gab keine Wiederverwendung, jede Änderung war Zahlenraten ohne visuelles Feedback, und die Stilkonsistenz hing allein an Disziplin.
 

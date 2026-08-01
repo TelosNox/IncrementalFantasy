@@ -197,7 +197,7 @@ EXP-Faktor  f(u):  f = 1 für u <= PLATEAU
 
 - **Plateau breit genug** (~+2–3 Level), damit „ein bis zwei Zonen zurück, dann geht es" bezahlbar bleibt. Das ist der legitime Ventil-Gebrauch und schützt Leitplanke A3.
 - **Sturz steil genug**, damit blindes Idle den Kapitel-Boss nicht in einer Stunde umlegt.
-- ✓ **Gemessen (M15, `06_Implementierungsplan_Kapitel1.md` Umsetzungsentscheidung 50/52):** Beides geht gleichzeitig. Startwerte: Plateau 2,5 Level, exponentieller Decay 0,72/Überschuss-Level, Floor 0,03 (nie 0). Typ V (§12) braucht dadurch 67,3 statt 53,2 min (Faktor 4,99× statt 3,4× gegenüber Typ M), M/T bleiben nahezu unverändert bei 13,5/43,7 min.
+- ✓ **Gemessen (M15, `07_Umsetzungsentscheidungen.md` Umsetzungsentscheidung 50/52):** Beides geht gleichzeitig. Startwerte: Plateau 2,5 Level, exponentieller Decay 0,72/Überschuss-Level, Floor 0,03 (nie 0). Typ V (§12) braucht dadurch 67,3 statt 53,2 min (Faktor 4,99× statt 3,4× gegenüber Typ M), M/T bleiben nahezu unverändert bei 13,5/43,7 min.
 
   | Typ | Gesamtzeit (M15, gedämpft) | Verhältnis zu M | zuvor (ungedämpft, §7.4) |
   |-----|:---------------------------:|:-----------------:|:--------------------------:|
@@ -221,7 +221,7 @@ Größen-/Farbvarianten streuen ±15 % (kleiner = schwächer/schneller).
 
 **Die Regions-Stufe wurde eingeführt und wieder verworfen – gemessen, nicht geschätzt.** Mit dem Gruppenlevel wurde hier eine Stufe auf die Gegner-Basiswerte vorgesehen (×1,5 ab Zone 9, ×1,4 ab Zone 19), gegen die Erwartung, dass R2/R3 sonst zu leicht würden: Barrel (Z9) und Tofa+Air is… (Z19) stoßen jetzt voll skaliert dazu, der Party-DPS springt also dort, wo die `g`-Kurve glatt weiterläuft. Der Wert war ausdrücklich als Schätzung markiert und gegen die TS-Engine zu validieren (§11).
 
-**Die Messung widerlegt die Erwartung.** Gegen `tests/chapter-playthrough.test.ts` (die drei Spielertypen aus §12) trifft das Kapitel **ohne** Stufe die §7.4-Baseline nahezu exakt – Gesamtzeit M 13,3 / T 42,8 / V 53,2 min gegen die dort dokumentierten 15,6 / 44,3 / 53,0. Mit ×1,5/×1,4 explodiert sie auf 84 / 177 / 203 min; schon ×1,15/×1,1 verfehlt mehr Kriterien als gar keine Stufe. Der Grund: Der Party-EXP-Topf levelt exakt so schnell wie zuvor Claude allein (jede Figur bekam schon vorher die volle Wellen-Summe), und der Zugewinn durch einen voll skalierten Neuzugang ist kleiner als der Gegendruck einer multiplikativen Stufe auf **alle** Gegnerwerte einer ganzen Region. Die Gegnerkurve bleibt deshalb die reine `g`-Kurve. Details: `06_Implementierungsplan_Kapitel1.md`, Umsetzungsentscheidung 42.
+**Die Messung widerlegt die Erwartung.** Gegen `tests/chapter-playthrough.test.ts` (die drei Spielertypen aus §12) trifft das Kapitel **ohne** Stufe die §7.4-Baseline nahezu exakt – Gesamtzeit M 13,3 / T 42,8 / V 53,2 min gegen die dort dokumentierten 15,6 / 44,3 / 53,0. Mit ×1,5/×1,4 explodiert sie auf 84 / 177 / 203 min; schon ×1,15/×1,1 verfehlt mehr Kriterien als gar keine Stufe. Der Grund: Der Party-EXP-Topf levelt exakt so schnell wie zuvor Claude allein (jede Figur bekam schon vorher die volle Wellen-Summe), und der Zugewinn durch einen voll skalierten Neuzugang ist kleiner als der Gegendruck einer multiplikativen Stufe auf **alle** Gegnerwerte einer ganzen Region. Die Gegnerkurve bleibt deshalb die reine `g`-Kurve. Details: `07_Umsetzungsentscheidungen.md`, Umsetzungsentscheidung 42.
 
 **Was der Roster-Sprung stattdessen bewirkt:** Er verschiebt Niederlagen aus der Fläche an die Gates (Typ V an Z30: 16 statt 11 Retries, dafür weniger in Region 2) – im Sinne von §12 C4 die gewollte Richtung, bei praktisch unveränderter Gesamtzeit.
 
@@ -634,7 +634,7 @@ if flags.materiaUnlocked and figur.materiaActions: + "Magic ▸"     # Unterlist
 
 ## 7. So spielt sich Kapitel 1 – drei durchgespielte Beispiele
 
-> ⚠️ **7.1–7.3 sind durch die Revisionen in §3.4/§3.5/§3.8 überholt und beschreiben ein Spiel, das es so nicht mehr gibt.** Sie bleiben als Referenz stehen, weil die *Beats* (welcher Moment lehrt was) weiter gelten – die *Zahlen und Abläufe* nicht. Konkret ungültig: der Attack-MP-Refund in §7.1, volle HP/MP zu Kampfbeginn in allen drei Beispielen, Limit außerhalb der Gates. **§7.4 (Pacing) ist davon ausgenommen** – dort steht seit dem M11-Nachtrag (feinspec §3.9/§4.7, `06_Implementierungsplan_Kapitel1.md` M11-Entscheidungen 11–13) eine neu simulierte, gültige Tabelle.
+> ⚠️ **7.1–7.3 sind durch die Revisionen in §3.4/§3.5/§3.8 überholt und beschreiben ein Spiel, das es so nicht mehr gibt.** Sie bleiben als Referenz stehen, weil die *Beats* (welcher Moment lehrt was) weiter gelten – die *Zahlen und Abläufe* nicht. Konkret ungültig: der Attack-MP-Refund in §7.1, volle HP/MP zu Kampfbeginn in allen drei Beispielen, Limit außerhalb der Gates. **§7.4 (Pacing) ist davon ausgenommen** – dort steht seit dem M11-Nachtrag (feinspec §3.9/§4.7, `07_Umsetzungsentscheidungen.md` M11-Entscheidungen 11–13) eine neu simulierte, gültige Tabelle.
 
 ### 7.1 Region 1, die ersten Minuten (Claude solo)
 
@@ -659,7 +659,7 @@ Welle: Funkus + Shortfuse + Blando, volle Party. **Playtest-Korrektur (§4.7):**
 
 ### 7.4 Pacing (neu simuliert, M11-Nachtrag)
 
-Ersetzt sowohl die ursprüngliche Erstfassung (durchgehend smarter Auto) als auch die zwischenzeitlich als „⚠️ UNGÜLTIG" markierte Fassung (Harness farmte implizit bei jeder Niederlage, Verstoß gegen F2). Gemessen über die reale TS-Engine (`tests/chapter-playthrough.test.ts`), **nach** dem §3.9/§4.7-Nachtrag zur Zielvorauswahl UND nach dem Blandzilla-Fix (`06_Implementierungsplan_Kapitel1.md` M11-Entscheidungen 11/12/14) – Entscheidung 13/16 dokumentiert den Messvorgang. Gemessen gegen die drei Spielertypen aus §12, nicht mehr gegen eine einzelne „empfohlene Spielweise": Die Zonen-Rückkehr ist als Spielerentscheidung modelliert (Farmen der zuletzt geschafften Zone, F2), Retry-Strafe und Gasthaus-Totzeit sind in „Gesamtzeit" enthalten; „Kampfzeit aktiv" ist ausschließlich die echte ATB-Zeit der siegreichen Kämpfe (Menü-/Kauf-/Wartezeit kommt obendrauf, s. u.).
+Ersetzt sowohl die ursprüngliche Erstfassung (durchgehend smarter Auto) als auch die zwischenzeitlich als „⚠️ UNGÜLTIG" markierte Fassung (Harness farmte implizit bei jeder Niederlage, Verstoß gegen F2). Gemessen über die reale TS-Engine (`tests/chapter-playthrough.test.ts`), **nach** dem §3.9/§4.7-Nachtrag zur Zielvorauswahl UND nach dem Blandzilla-Fix (`07_Umsetzungsentscheidungen.md` M11-Entscheidungen 11/12/14) – Entscheidung 13/16 dokumentiert den Messvorgang. Gemessen gegen die drei Spielertypen aus §12, nicht mehr gegen eine einzelne „empfohlene Spielweise": Die Zonen-Rückkehr ist als Spielerentscheidung modelliert (Farmen der zuletzt geschafften Zone, F2), Retry-Strafe und Gasthaus-Totzeit sind in „Gesamtzeit" enthalten; „Kampfzeit aktiv" ist ausschließlich die echte ATB-Zeit der siegreichen Kämpfe (Menü-/Kauf-/Wartezeit kommt obendrauf, s. u.).
 
 | Typ | Gesamtzeit (inkl. Retry-Strafe/Gasthaus) | Kampfzeit aktiv | Endlevel Claude | Verhältnis zu M |
 |-----|:-----------------------------------------:|:----------------:|:----------------:|:----------------:|
@@ -743,7 +743,7 @@ Die sensibelsten Hebel:
 - **Erholung nach Sieg (25 %)** – gebunden an die Signalregel in §3.8d, nicht frei wählbar: komfortable Zone netto neutral, harte Zone netto negativ. Diese Regel bestimmt den Wert, nicht umgekehrt.
 - **Gasthaus: Totzeit (10 s) und Rate (5 %/s).** Die Totzeit ist der eigentliche Design-Hebel (sie macht Heil-Spam unwirtschaftlich); die Rate steuert nur, wie teuer ein voller Heilgang ist. Ursprünglich als Band 5–10 s diskutiert – 10 s ist der Startwert, weil er nach einer Niederlage auf runde 30 s Gesamtwartezeit führt. **Wichtig:** Ohne Offline-Progress ist diese Zeit jetzt echte Wartezeit am Bildschirm; sie muss sich *gespielt* vertretbar anfühlen, nicht nur gerechnet.
 - **MP-Ökonomie:** Refill 25 % + **neu herzuleitende** Special-Kosten (§6.1 war gegen den gestrichenen Refund balanciert). Bestimmt, wie oft Specials fallen – und wie hart die Heilungs-Obergrenze in Bosskämpfen greift.
-- ~~Limit-Laderaten (0,35 / 0,50) und Payoff (4,5·ATK)~~ → **M11 justiert:** 0,20 (dealt) / 0,30 (taken, Einzelziel) / 0,22 (taken, AoE), Payoff unverändert bei 4,5·ATK. Entgegen der ursprünglichen Vermutung waren die alten Raten nicht zu niedrig, sondern (gemessen an "1-2× pro Figur", nicht pro Party-Kampf) zu hoch. Weiterhin Startwerte, s. `06_Implementierungsplan_Kapitel1.md` M11-Umsetzungsentscheidung 4.
+- ~~Limit-Laderaten (0,35 / 0,50) und Payoff (4,5·ATK)~~ → **M11 justiert:** 0,20 (dealt) / 0,30 (taken, Einzelziel) / 0,22 (taken, AoE), Payoff unverändert bei 4,5·ATK. Entgegen der ursprünglichen Vermutung waren die alten Raten nicht zu niedrig, sondern (gemessen an "1-2× pro Figur", nicht pro Party-Kampf) zu hoch. Weiterhin Startwerte, s. `07_Umsetzungsentscheidungen.md` M11-Umsetzungsentscheidung 4.
 - **Shock-Aufbaurate** (0,5·Schaden) und **Tofa-Bonus** (+45) – wie relevant Shock schon in Kap. 1 ist (nur bei manuellem Spiel nutzbar, s. §4.7).
 - **Zeitstrafe bei Niederlage** (5 s) – wirkt jetzt zusammen mit der Gasthaus-Totzeit; beide Zeitkosten sind gemeinsam zu betrachten, nicht einzeln.
 - **Zonen-Rückkehr:** ob die freie Auswahl ausreicht oder ob es eine Empfehlung/Markierung braucht („hier kommst du gerade sicher durch"). Reine Ventil-Funktion steht, die **Lesbarkeit** ist offen.
@@ -751,117 +751,12 @@ Die sensibelsten Hebel:
 - ~~Die EXP-Dämpfung (§3.6) – Plateaubreite und Sturzsteilheit.~~ **Erledigt** (M15, s. §3.6/§12 B2) – Startwerte gemessen, A3 und B4 gleichzeitig erfüllt.
 - ~~Das aus den Waffen-Tiers entfallende ATK/HP/MAG-Wachstum~~ **Erledigt** (M15) – in die Level-Kurve gefaltet, `stats-kampfwerte.md` §4.
 - **Zielzeiten** (§12 B2): ~30 min für M, ~90 min für T bleiben durch M15 nahezu unberührt (Simulationszeit ändert sich für M/T kaum, s. §12 B2). Das Zielband für den schwachen Spieler (T′) ist weiterhin **offen** – das ist eine Playtest-/E2-Frage, keine Simulationszahl.
-- **Heiler-Heilmenge** (`ENEMY_HEAL_MULT = 2,5×ATK`, M16) und **Vaultron-Konter** (`COUNTER_MAX_HITS = 2` Konter je Fenster, volle Schadensformel) – beides Startwerte, gegen `tests/chapter-playthrough.test.ts` justiert (s. `06_Implementierungsplan_Kapitel1.md` M16-Umsetzungsentscheidungen). Der Konter-Deckel ist der empfindlichste neue Hebel: schon 3 statt 2 Konter je Fenster kippte den gemessenen M↔T-Abstand wieder, ohne selbst A2/B2/C3 zu verletzen – ein Zeichen, dass hier noch kein stabiles Plateau gefunden ist, nur ein erster Startwert.
+- **Heiler-Heilmenge** (`ENEMY_HEAL_MULT = 2,5×ATK`, M16) und **Vaultron-Konter** (`COUNTER_MAX_HITS = 2` Konter je Fenster, volle Schadensformel) – beides Startwerte, gegen `tests/chapter-playthrough.test.ts` justiert (s. `07_Umsetzungsentscheidungen.md` M16-Umsetzungsentscheidungen). Der Konter-Deckel ist der empfindlichste neue Hebel: schon 3 statt 2 Konter je Fenster kippte den gemessenen M↔T-Abstand wieder, ohne selbst A2/B2/C3 zu verletzen – ein Zeichen, dass hier noch kein stabiles Plateau gefunden ist, nur ein erster Startwert.
 
 **Erledigt durch diese Revision** (vormals hier offen): der Limit-Reset-Fehler bei jedem Zonenstart – das Esper-Modell (§3.4) macht die frühere Persistenz-Anforderung gegenstandslos, statt sie nachzurüsten.
 
 ---
 
-## 12. Abnahmekriterien der Neu-Balancierung
+## 12. Abnahmekriterien → ausgezogen nach [`abnahme-kapitel1.md`](abnahme-kapitel1.md)
 
-**Zweck:** Die Konzeptphase liefert bewusst **keine neuen Zahlen** – sie liefert die Eigenschaften, die die Zahlen erfüllen müssen. Die Umsetzung findet die Werte und prüft sie gegen diese Liste. Grund: Die alte Baseline war nicht falsch berechnet, sondern gegen das falsche Modell gemessen (§9). Ein Kriterium ist deshalb nur dann eins, wenn es **falsifizierbar** ist und sagt, **wo** es geprüft wird — und seit dem 31.07.2026 zusätzlich, **welches Spielerverhalten** es prüft und **wo die Simulation davon abweicht** (`../02_Leitfaden_Kernmechaniken.md` §5). Der Grund: Dreimal hat hier ein Haken gehalten, weil die Sonde ein bequemeres Spiel maß als das ausgelieferte. Zu jedem Kriterium gehören daher der geprüfte **Typ**, dessen **Aktionen** (greift er im Kampf ein? wählt er Zonen? farmt er begrenzt oder unbegrenzt?) und die **Richtung** jeder Abweichung — lässt sie den Spieler schneller oder langsamer erscheinen?
-
-### Die vier Spielertypen
-
-Alle Kriterien werden gegen vier klar getrennte Spielweisen geprüft. Sie sind die Messgrundlage und ersetzen das frühere Begriffspaar „Auto vs. manuell an Gates":
-
-| Typ | Verhalten | Rolle |
-|-----|-----------|-------|
-| **M – Manuell** | wählt Aktionen *und* Ziele selbst, nutzt Specials/Heal/Suppress/Limit/Defend | Referenz (schnellster Pfad) |
-| **T – Teilautomatisch** | setzt pro Kampf nur das **Fokusziel**, sonst Auto | der erwartete Normalfall |
-| **V – Vollautomatisch** | greift im Kampf **gar nicht** ein, **wählt aber Zonen** – bei Niederlage einen Schritt zurück, dann wieder vor | Idle-Versprechen |
-| **K – Camper** *(neu 31.07.2026)* | greift im Kampf gar nicht ein und **wählt eine Zone, die er stundenlang stehen lässt** (Spiel läuft während der Arbeitszeit); erst danach stößt er vor | der reale Idle-Extremfall |
-
-**Warum K dazukommt.** V ist **nicht** reines Idle: Der Harness modelliert für V ausdrücklich eine **Zonenwahl** („bei Niederlage die letzte geschaffte Zone einmal farmen", `tests/chapter-playthrough.test.ts`). Damit blieb der Fall, den der zweite Playtest tatsächlich gefunden hat — *eine* Zone wählen und laufen lassen — dauerhaft ungemessen. Genau dort saß nach M15 noch ein Leck (§12 B5, `oekonomie-waehrungen.md` §1a).
-
-**Was K von V unterscheidet, ist nicht „weniger Eingriff", sondern die Farm-Menge.** V farmt pro Niederlage *einen* Kampf und wird deshalb von A2 begrenzt. K farmt an einer selbstgewählten Zone **unbegrenzt** und ist von A2 überhaupt nicht berührt. Wer K härter stellen will, muss deshalb A2 nicht anfassen — das ist der Grund, warum das Leck ohne Risiko für das Ventil zu schließen ist.
-
-**Ein völlig passiver Spieler ist kein eigener Typ** und braucht keinen: Niederlage zahlt nichts (§3.8c). Wer an einer Wand stur weiterprobiert, wird niemals stärker. Es existiert also kein Kanal „gar nichts tun und irgendwann gewinnen" — mindestens die Zonenwahl muss bedient werden. *Das ist der tragende Grund für B4, nicht die in `06_Implementierungsplan_Kapitel1.md` Entscheidung 52 genannte Begründung (s. dort).*
-
-### A – Durchspielbarkeit (harte Gates, nicht verhandelbar)
-
-- **A1** Alle vier Typen **besiegen** Zone 30 (Vaultron). **V und K dürfen langsamer sein, aber nie blockiert.** *Präzisiert 31.07.2026: Vorher stand „erreichen“ – und das war die billigere von zwei Ziellinien, während B2/B4/B5 den Boss meinten. Seit der Boss Pflicht ist (`prestige-reunion.md`), fallen Erreichen und Besiegen zu **einer** Ziellinie zusammen.*
-- **A2 (Ventil, formal):** Für **jede** Zone Z gilt: Es existiert eine Anzahl N wiederholter Siege in Zone Z−1, nach der Z für Typ V gewinnbar ist – mit **N ≤ 20**. Braucht eine Zone mehr, ist sie keine Wand mehr, sondern ein Stau. *Dies ist die formale Fassung von Anti-Pattern #1 und der wichtigste Test der ganzen Liste.*
-- **A3** Kein Spielzustand ist erreichbar, aus dem heraus kein Fortschritt mehr möglich ist – insbesondere nicht bei sehr wenig HP. *(Der frühere Zusatz „und 0 Gil" ist mit der Streichung von Gil gegenstandslos; das Gasthaus kostet weiterhin Zeit, §3.8b. **Neu relevant:** Die EXP-Dämpfung in §3.6 darf A3 nicht aushebeln – der Ertrag fällt nie auf null, und das Plateau muss breit genug bleiben, dass Zurückgehen den schwachen Spieler wirklich durchbringt.)*
-
-### B – Abstand zwischen den Spielertypen
-
-Der Abstand muss **existieren** (sonst lohnt aktives Spiel nicht, Anti-Pattern #5) und **begrenzt** sein (sonst ist Idle bestraft, Leitplanke „Idle-Versprechen respektieren").
-
-- **B1** Reihenfolge der Gesamtdauer strikt: **M < T < V**. Kein Gleichstand.
-- **B2** **Neu gefasst am 30.07.2026 – absolute Zielzeiten statt Verhältnis-Korridor.** Der alte Korridor (T ∈ [1,3; 3,5], V ∈ [2,5; 4,5] bei M = 1,0) war doppelt untauglich: Er hing nur an Verhältnissen, sagte also nichts darüber, ob das Kapitel überhaupt die richtige *Länge* hat – und er war seit M11 als „nicht erreichbar" markiert, weil Können am Ende nichts kaufte. Beides ist dieselbe Ursache (s. „Warum der Korridor nicht zu öffnen war").
-
-  | Spielweise | Zielzeit Durchlauf 1 | Herkunft |
-  |---|---|---|
-  | **M** – ordentlich, manuell | **~30 min** (Referenz) | Konzept-Vorgabe: die 1. Reunion ist das Onboarding und muss früh kommen, sonst hört der Spieler vor allem Interessanten auf |
-  | **T** – idle, Gates manuell | **~90 min** (~3×) | Schätzung der Konzept-Session, keine Messung |
-  | **T′** – schwach, manuell + Farmen | **offen: Zielband festzulegen** | muss **endlich** bleiben – das ist der Spieler, den A3 schützt |
-  | **V** – reines Idle | so hoch, dass es **niemand freiwillig abwartet** (Größenordnung Wochen) | ergibt sich aus der EXP-Dämpfung (§3.6) |
-
-  **Gemessen (M15, `06_Implementierungsplan_Kapitel1.md` Umsetzungsentscheidung 52, gegen `tests/chapter-playthrough.test.ts`):** M 13,5 min / T 43,7 min (3,24×) / V 67,3 min (4,99×) Simulationszeit – M/T praktisch unverändert gegenüber der alten, ungedämpften Baseline (§7.4: 13,3/42,8 min), V spürbar langsamer (zuvor 53,2 min/3,4×) durch die EXP-Dämpfung (§3.6). Die M/T-Zielzeiten (Echtzeit inkl. Menüs) bleiben damit erreichbar; **T′ ist weiterhin offen** (Playtest-Frage). Der V-Korridor in den Testkriterien ist entsprechend auf 2,5–5,5× angehoben (vorher 2,5–4,5×).
-
-  ⚠️ **Die Lücke zwischen T (~90 min) und V (Wochen) ist Faktor ~200.** Der Spieler, der ein Gate manuell *versucht* und nicht schafft (T′), darf nicht in den V-Kanal gedrückt werden – dann hört er auf. **Genau deshalb muss die EXP-Dämpfung ein breites Plateau haben** (§3.6): Ein bis zwei Zonen zurückzugehen muss ihn in wenigen Vielfachen der Referenz durchbringen. Das Zielband für T′ zu bestimmen, ist Teil der Neu-Balancierung.
-
-- **B4 Der Kapitel-Boss darf nicht durch reines Warten fallen.** **Erfüllt, aber anders begründet als in der Umsetzung angenommen:** Niederlage zahlt nichts (§3.8c), also wird ein Spieler, der *nichts* bedient, nie stärker. Es gibt keinen Kanal „warten und irgendwann gewinnen". *Die Begründung in `06_Implementierungsplan_Kapitel1.md` Entscheidung 52 („A2/C3 erzwingen einen Abschluss in endlicher, gemessener Zeit") ist ein Fehlschluss — dass der Abschluss endlich ist, wäre ein Argument **gegen** B4, nicht dafür.* Der operative Test ist nicht B4, sondern **B5**.
-
-- **B5 (neu 31.07.2026, aus dem Camper-Befund) Der Camper braucht mindestens drei Camping-Sessions an deutlich verschiedenen Zonen.** Gemessen als: Typ **K** stellt eine Zone ein, lässt sie eine realistische Session (Referenz: **8 h**) laufen, stößt danach vor, so weit es ohne Farmen geht — und wiederholt das. **Bis Vaultron fällt, müssen ≥ 3 solche Sessions an klar getrennten Zonen nötig sein.**
-
-  *Herkunft:* Der Nutzer hat den Camper als reales Verhalten benannt („startet das Spiel und lässt es während der Arbeitszeit laufen"). Weiterkommen ist ausdrücklich in Ordnung — nicht in Ordnung ist, **nach dem ersten Start direkt den Boss zu schaffen**; es soll mindestens einen Umzug in eine deutlich höhere Zone plus erneutes Campen erfordern. Die Mindestforderung war 2; festgeschrieben sind **3**, damit die nächste Balance-Änderung nicht sofort auf 1 zurückfällt.
-
-  ⚠️ **Nach M15 verletzt** — gemessen: **eine** 8-h-Session an **Zone 3** (der allerersten Wand) bringt L2 → L20, danach fallen Zonen 4–30 inklusive Vaultron ohne weiteres Farmen. Ursache: `oekonomie-waehrungen.md` §1a („Warum ein absoluter Floor das Leck ist").
-  **Mechanismus gebaut in M15a** (`EXP_DAMPING_CUTOFF = 6`, `core/formulas.ts`/`core/progression.ts`): Der Ertrag fällt jenseits von sechs Überschuss-Leveln hart auf 0 statt auf 1. Eine zusätzlich befürchtete Kalibrierung von `expectedLevelForZone` erwies sich als unnötig – der reale Überschuss am Kapitelende ist 2,5, nicht 6–8 (`06_Implementierungsplan_Kapitel1.md` Umsetzungsentscheidung 57; der Review hatte gegen die ungedämpfte Vor-M15-Baseline verglichen).
-
-  ⚠️ **B5 ist trotzdem noch nicht belegt.** Der Abnahmewert „3 Sessions, Zonen 1/16/30" stammt aus einer Simulation, die **Vaultron nie besiegt** (der Erfolgs-Zweig feuert, sobald die Vorstoß-Phase bei `frontier + 1 > 30` startet) und in der **Wände übersprungen** werden können. Beide Fehler haben denselben Ursprung und wirken **zugunsten** des Ergebnisses – der wahre Wert liegt vermutlich ≥ 3, B5 dürfte halten, **gemessen ist es nicht.** Details und Korrekturliste: `06_Implementierungsplan_Kapitel1.md` Entscheidung 59/60.
-- **B3** Beide Abstände müssen **existieren** – M < T und T < V. Eine Aussage über ihr Größenverhältnis wird bewusst **nicht** mehr getroffen (s. u.).
-
-### Warum der Korridor nicht zu öffnen war (aufgelöst 30.07.2026)
-
-Der M11-Befund lautete: „Der angenommene Korridor zwischen T und V ließ sich nicht erreichen – an der Kapitel-Wand bringt reine Zielwahl nur einen kleinen Vorteil." Das stand als offene Balance-Frage.
-
-**Es war keine Balance-Frage.** Wenn Wände durch **Stats** fallen und Stats aus **skillfreiem Farmen** kommen, konvergieren alle Spielweisen auf „farmen, bis die Wand umfällt". Der Korridor ließ sich nicht durch Zahlen öffnen, weil er **durch den Farm-Kanal zugedrückt** war. Dieselbe Ursache machte Zielwahl wirkungslos und Analyse nutzlos (`kampf-analyse-shock.md` §5).
-
-**Der Korridor ist damit als eigenes Thema geschlossen.** Er wird über zwei andere Beschlüsse mitgelöst:
-
-1. **EXP-Dämpfung** (§3.6) – Farmen hört auf, die dominante Strategie zu sein.
-2. **Gegner, die Zielwahl erzwingen** (`gegner-encounter.md` §5a, Heiler ab Region 2) – Können bekommt etwas, das Farmen nicht ersetzt.
-
-Der Abschnitt unten bleibt als Beleg stehen: Er beschreibt korrekt, *dass* der Abstand M→T groß und T→V klein ist – die damalige Deutung („ein kleiner Input verdient einen kleinen Ertrag") ist aber nur die halbe Wahrheit. Der Ertrag war klein, weil es an der Wand auf Zielwahl gar nicht ankam.
-
-**Aufgelöst (war offen nach M11): Typ T liegt viel näher an V als an M – und das ist richtig so.**
-
-Die Erstfassung von B3 verlangte, der Sprung M→T müsse der *kleinere* sein: Ein Fokusziel pro Kampf sollte den Großteil des Vorteils einfangen. Die Messung sagt das Gegenteil (M→T ≈1,8 Einheiten, T→V ≈0,6). Das ist kein Balance-Fehler, sondern die Natur der Sache: **Ein kleiner Input verdient einen kleinen Ertrag.** Der große Hebel sind Limit, Specials, Heilung und Suppress – und die sind vor der 1. Reunion **absichtlich** manuell (§4.7, Playtest-Korrektur nach M7). Dass die Zahlen das zeigen, bestätigt jene Entscheidung, statt sie zu widerlegen.
-
-**Konsequenz für die Einordnung:** Typ T ist **keine Machtstufe, sondern ein Komfort- und Ablesbarkeits-Feature.** Seine Rechtfertigung hängt nicht am Zeitgewinn, sondern an drei anderen Dingen: Zielwahl wird überhaupt sichtbar (E3), Defend bekommt eine Informationsgrundlage (§3.9), und der Spieler kann seine Absicht ausdrücken. Das trägt auch bei geringem Tempovorteil.
-
-**Ausdrücklich verworfen:** Typ T zusätzliche Fähigkeiten zu geben (z. B. Defend ohne volle manuelle Steuerung), um den Abstand künstlich zu vergrößern. Das würde die Typgrenzen verwischen und genau den M-Vorsprung abtragen, auf dem die M7-Korrektur beruht („Auto bleibt stumpf, damit aktives Spiel über das *ganze* Kapitel lohnt").
-
-**Was stattdessen zu beobachten ist:** nicht der Abstand T↔V, sondern der **Absolutwert von V**. Mit ≈3,4× liegt reines Idle knapp über der früher als vertretbar geltenden Baseline (3,25×) – und ohne Offline-Progress ist das echte Zeit am Bildschirm. Der eigentliche Prüfstein dafür ist **E2** (gespielt beurteilen), nicht die Rechnung.
-
-### C – Wo die Wände sitzen
-
-- **C1** An jedem der drei Gates gilt für die Retry-Zahl: **M ≤ T ≤ V**. *Mit Toleranz an zwei Stellen, jeweils als Umsetzungsentscheidung dokumentiert: T ≤ V an Zone 30 mit +6 (Entscheidung 6), M ≤ T an Zone 18 mit +1 (Entscheidung 42 – seit Barrel auf dem Gruppenlevel einsteigt, verliert M in Region 2 seltener, farmt weniger und steht am Gate mit knapp niedrigerem Level als der grindende T).*
-- **C2** Für M liegt die Retry-Zahl an allen drei Gates bei **0–1**. Können zahlt sich aus.
-- **C3** Für V ist die Retry-Zahl an jedem Gate **≤ 18** (in Kombination mit A2 – Grinden muss die Zahl senken). *Ursprünglich ≤ 15 – eine runde Zahl, kein gemessener Schwellwert. Mit dem Gruppenlevel verlagern sich V's Niederlagen aus der Fläche an die Gates (§3.7): Z30 16 statt 11 Retries bei unveränderter Gesamtzeit – im Sinne von C4 die gewollte Richtung.*
-- **C4** **Keine reguläre Zone darf für irgendeinen Typ mehr Retries erfordern als das nächstfolgende Gate.** Wände gehören an Gates. Genau das war in der Vorfassung verletzt: Zone 6 wurde zur härtesten Stelle der Region.
-
-### D – Ressourcen-Ökonomie
-
-- **D1 (HP-Signalregel, §3.8d):** Farmt Typ T eine Zone auf dem Level, auf dem er sie erstmals geschafft hat, ist die HP-Bilanz pro Kampf **≥ 0**. Drückt er auf die nächste Zone, ist sie **< 0**. Diese Regel *bestimmt* den Erholungswert; sie wird nicht gegen ihn geprüft.
-- **D2** MP ist an Gates ein echter Riegel: Typ M geht in **jedem** Gate-Kampf vor Kampfende die MP aus. Andernfalls ist MP kein Limiter, sondern Dekoration.
-- **D3** MP ist in der Fläche kein Dauerärgernis: Typ M kann beim Farmen einer komfortablen Zone im Schnitt **mindestens einen Special pro Kampf** einsetzen, ohne ins Gasthaus zu müssen.
-- **D4** Gasthaus-Anteil: Für Typ T liegt die im Gasthaus verbrachte Zeit bei **≤ 15 %** der Gesamt-Kapitelzeit. Darüber dominiert Warten das Spiel.
-- **D5** Die Limit-Leiste füllt sich für Typ M in jedem Gate-Kampf **ein- bis zweimal** – und in regulären Zonen **nie** (strukturell durch §3.4, trotzdem als Regression abzusichern).
-
-### E – Prüfung am Menschen (nicht ersetzbar)
-
-- **E1** Eine Person spielt Zone 1 → 30 → Reunion **ohne Debug-Eingriffe** durch, ohne dauerhaft festzustecken. Das ist die Abnahme von M11.
-- **E2** Die Wartezeiten (Zeitstrafe + Gasthaus-Totzeit) werden **gespielt** beurteilt, nicht gerechnet. Ohne Offline-Progress ist das echte Zeit am Bildschirm.
-- **E3** Ein Spieler kann nach dem Durchgang die Zielregeln **in eigenen Worten benennen** – Gegner wie Party. Wird das nicht erreicht, ist die Regel zwar deterministisch, aber nicht nachvollziehbar (§3.9), und die Anzeige ist nachzubessern.
-- **E4 (neu, 30.07.2026)** Ein Spieler kann nach dem Durchgang **jede eingeführte Mechanik benennen und sagen, wofür jede Figur da ist**. Das ist die Abnahme des Einführungs-Systems (`ui-layout.md`, „Mechanik-Einführung"). *Begründung: Eine Mechanik, die der Spieler nicht bemerkt, benutzt er nicht – wer Defend und Zielwahl nie wahrgenommen hat, spielt zwangsläufig als Typ V. Die stumme Einführung ist damit mitverantwortlich für die Idle-Konvergenz und nicht bloß ein Komfortthema.*
-- **E5 (neu)** Der Spieler weiß nach seiner ersten Niederlage, **dass er in eine frühere Zone zurückgehen kann**. Das Ventil ist die zentrale Anti-Deadlock-Mechanik des Spiels; wird es nicht bemerkt, existiert es faktisch nicht (`niederlage-offline.md` §3, „Lesbarkeit ist Teil der Mechanik").
-
-### F – Schutz gegen die Wiederholung des Ursprungsfehlers
-
-- **F1** Der Pacing-Harness ruft **dieselben Codepfade** auf wie das Spiel. Insbesondere durchläuft ein Zonenwechsel dieselbe Funktion, die auch der Spieler auslöst – kein harness-eigener Weg in eine andere Zone.
-- **F2** Der Harness **modelliert keine Mechanik, die das Spiel nicht hat.** Die Zonen-Rückkehr wird als *Spielerentscheidung* abgebildet (welche Zone farmt wer wie lange), nicht als impliziter Automatismus bei jeder Niederlage. Das war die exakte Ursache dafür, dass die alte Baseline ein anderes Spiel maß.
-- **F3** Kein Leitplanken-Haken in §10 wird gesetzt, bevor die zugehörige Eigenschaft **im Spiel** geprüft wurde – nicht in der Simulation, die sie voraussetzt (`../02_Leitfaden_Kernmechaniken.md` §5, Playtest-Nachträge).
+Die Abnahmekriterien der Neu-Balancierung (Spielertypen M/T/V/K, Kriterien A–F) liegen seit 01.08.2026 in `spec/abnahme-kapitel1.md`. Verweise auf "feinspec §12" bleiben gültig und führen über diese Zeile dorthin.

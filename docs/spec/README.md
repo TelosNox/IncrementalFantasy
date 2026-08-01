@@ -30,5 +30,8 @@ sodass Querbezüge ohne Laden der anderen Detail-Docs erkennbar bleiben.
 | `oekonomie-waehrungen.md` | Währungen & Fortschritts-Ökonomie | §11 |
 | `niederlage-offline.md` | Niederlage/Heilung, Offline-Modell | §12, §13 |
 | `feinspec-kapitel1.md` | **Implementierungsnahe Feinspec Kapitel 1** (Formeln, Schemas, Tick-Loop, konkrete Startwerte, Pacing, Screens) | fasst §3/§4/§7/§11/§12 zusammen |
+| `abnahme-kapitel1.md` | **Abnahmekriterien Kapitel 1** (Spielertypen M/T/V/K, Kriterien A–F) – vormals `feinspec-kapitel1.md` §12, ausgezogen am 01.08.2026 | Prüfinstanz zur Feinspec |
+
+**Hinweis zu `abnahme-kapitel1.md`:** Wird als Einheit gelesen (Reviews, Messungen) und deshalb getrennt geladen – nicht zusammen mit der ganzen Feinspec. Bestehende Zitate „feinspec §12" bleiben gültig; an der alten Stelle in `feinspec-kapitel1.md` steht ein Zeiger.
 
 **Hinweis:** `feinspec-kapitel1.md` ist die erste implementierungsnahe Zusammenführung (Datenmodelle + konkrete, simulationsvalidierte Zahlen). Werkzeuge dazu in `assets/sim/` (Kampf-/Pacing-Simulator + Mockup-Generator), Screens in `assets/mockups/`.

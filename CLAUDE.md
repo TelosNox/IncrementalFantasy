@@ -27,7 +27,7 @@ Gearbeitet wird durchgehend in **Claude Code**, aber in zwei klar getrennten Mod
 - **Haltung:** konvergent. Der Spec folgen; das Design **nicht** mitten im Meilenstein neu verhandeln.
 - **Rückkanal (wichtigste Regel):** Spec-Lücken und -Widersprüche fallen erfahrungsgemäß erst hier auf (siehe die Umsetzungsentscheidungen zu M7/M8/M9). Sie werden **nie still improvisiert**, sondern:
   1. Entscheidung treffen und umsetzen (Fortschritt hat Vorrang vor Rückfragen),
-  2. als nummerierte **„Umsetzungsentscheidung"** im Meilenstein-Plan festhalten – mit Begründung und Spec-Bezug,
+  2. als nummerierte **„Umsetzungsentscheidung"** in `docs/07_Umsetzungsentscheidungen.md` festhalten – mit Begründung und Spec-Bezug (append-only, Nummerierung fortlaufend; **nicht** mehr im Meilenstein-Plan),
   3. bei **design-relevanten** Funden zusätzlich die betroffene `docs/spec/*.md` korrigieren, damit die nächste Konzept-Session den Stand sieht.
 
 Beides bleibt der verbindlichen Prüfinstanz `docs/02_Leitfaden_Kernmechaniken.md` unterworfen – auch im Umsetzungs-Modus.
@@ -68,7 +68,8 @@ Weicht ein Vorschlag bewusst vom Leitfaden ab, ist das **explizit zu kennzeichne
 - `docs/03_Konzept_Gerüst.md` – Konzept-Rahmengerüst (verbindliche Richtung für alle Systeme, ohne Zahlen).
 - `docs/04_Status_und_Roadmap.md` – Status: entschieden vs. Playtest-Balance vs. noch nicht spezifiziert; nächster Schritt.
 - `docs/05_Architektur.md` – Technische Architektur (Stack, Projektstruktur, Save-/Offline-System, Hosting/CI).
-- `docs/06_Implementierungsplan_Kapitel1.md` – Meilenstein-Plan für den Umsetzungs-Modus: M0 Scaffold bis M10 Politur, inkl. der „Umsetzungsentscheidungen" je Meilenstein (Rückkanal).
+- `docs/06_Implementierungsplan_Kapitel1.md` – Meilenstein-Plan für den Umsetzungs-Modus: M0 Scaffold bis M17, je Meilenstein Ziel/Umfang/Abnahme und ein Zeiger auf die zugehörigen Umsetzungsentscheidungen.
+- `docs/07_Umsetzungsentscheidungen.md` – Archiv der nummerierten Umsetzungsentscheidungen (der Rückkanal). **Nur bei Bedarf laden** – wenn die Frage „warum ist X so?" ansteht oder eine Nummer zitiert wird. Der Umsetzungs-Modus lädt 06 als **Plan**, nicht 07 als Archiv.
 - `docs/spec/` – Detail-Spezifikationen je System (mit Zahlen/Details).
 
 ## Doku-Struktur & Kontext-Ladehinweis
@@ -77,6 +78,11 @@ Um den Kontext schlank zu halten, gilt beim **Spezifizieren eines einzelnen Syst
 `docs/03_Konzept_Gerüst.md` (Überblick/Anker) **+ genau die betroffene `docs/spec/*.md`** laden – nicht den ganzen Stapel.
 Der Block „Schnittstellen zu anderen Systemen" oben in jeder `spec/`-Datei macht Abhängigkeiten explizit.
 `docs/spec/README.md` enthält die Übersicht. Verbindliche Prüfinstanz bleibt in jedem Fall `docs/02_Leitfaden_Kernmechaniken.md`.
+
+**Zwei Archive gehören ausdrücklich nicht in die Grundlast** (ausgezogen am 01.08.2026, reiner Umzug):
+
+- `docs/07_Umsetzungsentscheidungen.md` – nur laden, wenn „warum ist X so?" gefragt ist oder eine Entscheidungsnummer zitiert wird.
+- `docs/spec/abnahme-kapitel1.md` – die Abnahmekriterien A–F (vormals `feinspec-kapitel1.md` §12); nur laden, wenn gegen die Kriterien geprüft oder gemessen wird. Zitate der Form „feinspec §12" meinen diese Datei; in der Feinspec steht an alter Stelle ein Zeiger.
 
 ### Kontextkosten (verbindlich)
 

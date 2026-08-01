@@ -75,8 +75,8 @@ Ladehinweis (CLAUDE.md): `03_Konzept_Gerüst.md` + betroffene `spec/*.md`, `02_L
 
 Aus der Konzept-Session vom 25.07.2026 (Bühnen-Framework) stehen zwei umsetzungsreife Meilensteine in `06_Implementierungsplan_Kapitel1.md`:
 
-- **M12 – Region-Kulissen: Baukasten & Neuauflage. ✅ erledigt (25.07.2026).** Der Generator besteht jetzt aus `assets/region_kit.py` (Bausteine, Prüfmodus, rechnerische Gegenprobe) und `assets/generate_regions.py` (nur Paletten + Rezepturen); die drei Kapitel-1-Kulissen sind im Format 224×128 neu erzeugt, der Shock-Farb-Verstoß ist weg, Quaintsville liegt als vierte Region allein über eine Rezeptur bei. Umsetzungsentscheidungen 20–30 in `06_Implementierungsplan_Kapitel1.md`.
-- **M13 – Bühnen-Framework in der Stage. ✅ erledigt (26.07.2026).** Die Kampfzone rechnet jetzt in Stage-Units mit einem Skalierungsfaktor: Geometrie in `src/ui/stageLayout.ts`, Darstellung in `Stage.svelte`, Abnahme in `tests/stage-layout.test.ts` (13 Tests, Suite 110/110). Handkalibrierte Pixelwerte, `ENEMY_LAYOUTS` und der feste 2×-Zoom sind entfallen; die beiden Altlasten UI-2 (Cyan) und UI-4 (Sitzplatz-Platzhalter) sind aufgelöst. Umsetzungsentscheidungen 31–41 in `06_Implementierungsplan_Kapitel1.md`. **Abnahme durch die Konzept-Review am laufenden Dev-Server bestanden** (26.07.2026): Bei drei Fenstergrößen von 540 bis 1092 px Stage-Breite bleiben alle Positionen in su identisch. **Ein Nachzieher offen:** Das Aktions-Popup skaliert nicht mit `s` und verdeckt bei kleiner Bühne 34 % der handelnden Figur – Regel dagegen jetzt in `spec/ui-layout.md`, Umsetzung steht aus.
+- **M12 – Region-Kulissen: Baukasten & Neuauflage. ✅ erledigt (25.07.2026).** Der Generator besteht jetzt aus `assets/region_kit.py` (Bausteine, Prüfmodus, rechnerische Gegenprobe) und `assets/generate_regions.py` (nur Paletten + Rezepturen); die drei Kapitel-1-Kulissen sind im Format 224×128 neu erzeugt, der Shock-Farb-Verstoß ist weg, Quaintsville liegt als vierte Region allein über eine Rezeptur bei. Umsetzungsentscheidungen 20–30 in `07_Umsetzungsentscheidungen.md`.
+- **M13 – Bühnen-Framework in der Stage. ✅ erledigt (26.07.2026).** Die Kampfzone rechnet jetzt in Stage-Units mit einem Skalierungsfaktor: Geometrie in `src/ui/stageLayout.ts`, Darstellung in `Stage.svelte`, Abnahme in `tests/stage-layout.test.ts` (13 Tests, Suite 110/110). Handkalibrierte Pixelwerte, `ENEMY_LAYOUTS` und der feste 2×-Zoom sind entfallen; die beiden Altlasten UI-2 (Cyan) und UI-4 (Sitzplatz-Platzhalter) sind aufgelöst. Umsetzungsentscheidungen 31–41 in `07_Umsetzungsentscheidungen.md`. **Abnahme durch die Konzept-Review am laufenden Dev-Server bestanden** (26.07.2026): Bei drei Fenstergrößen von 540 bis 1092 px Stage-Breite bleiben alle Positionen in su identisch. **Ein Nachzieher offen:** Das Aktions-Popup skaliert nicht mit `s` und verdeckt bei kleiner Bühne 34 % der handelnden Figur – Regel dagegen jetzt in `spec/ui-layout.md`, Umsetzung steht aus.
 
 **Reihenfolge M12 vor M13** – M13 erwartet Kulissen im neuen Format. Beide sind reine Darstellung, ändern keine Mechanik und blockieren die Kapitel-2-Feinspec nicht. **Die Darstellungsschiene ist damit abgearbeitet.**
 
@@ -86,7 +86,7 @@ Aus der Konzept-Session vom 25.07.2026 (Bühnen-Framework) stehen zwei umsetzung
 
 **M11 ist implementiert und alle 88 automatisierten Tests sind grün** (`npm test`), inkl. eines neu aufgesetzten `tests/chapter-playthrough.test.ts` gegen die drei Spielertypen aus feinspec §12 (M/T/V). Umgesetzt: Zonen-Rückkehr (freie Zonen-Auswahl in der Sidebar), HP/MP-Übertrag zwischen Kämpfen, Sieg-Erholung (+25 % HP/MP) getrennt von Level-Up (heilt nicht mehr automatisch), MP-Refund-Kanal gestrichen, Gasthaus als zeitbasierter Heilkanal (Sidebar-Anmeldung + Stage-Banner), Niederlage ohne Heilung, Limit als Esper-Modell (nur an den drei Gates), Gegner-Zielwahl (höchste HP) + Partei-Fokusziel (Klick auf Gegner, Markierungen für Fokus- und nächstes Gegnerziel), Offline-Progress aus dem Live-Pfad entfernt (`core/offline.ts` bleibt als Balance-Werkzeug), Save-Migration v1→v2.
 
-**Zwei Befunde beim Balancieren gegen die TS-Engine, dokumentiert statt stillschweigend übergangen** (Details: `06_Implementierungsplan_Kapitel1.md` M11-Umsetzungsentscheidungen):
+**Zwei Befunde beim Balancieren gegen die TS-Engine, dokumentiert statt stillschweigend übergangen** (Details: `07_Umsetzungsentscheidungen.md` M11-Umsetzungsentscheidungen):
 
 1. Die Zonen-Größenmodifikatoren (§3.7) mussten für mehrere Zonen (u. a. 6/7/8/18/30) neu justiert werden – die alten, aus dem inzwischen nicht mehr gültigen `sim_chapter1.py` stammenden Werte reproduzierten exakt den „Zone-6-Fehler", den M11 eigentlich beheben sollte.
 2. Der in feinspec §12 B2 angenommene Korridor zwischen den Spielertypen T und V (T ≈1,3–2,0×, V ≈2,5–4,0× von M) ließ sich mit T strikt als „nur Fokusziel" (§3.9) nicht erreichen – an der Kapitel-Wand bringt reine Zielwahl ohne Limit/Specials/Heal/Suppress nur einen kleinen Vorteil gegenüber V. Korridor vorläufig angepasst (feinspec §12 B2 trägt einen entsprechenden Vermerk); offene Frage für die nächste Konzept-Session.
@@ -107,7 +107,7 @@ Aus der Konzept-Session vom 25.07.2026 (Bühnen-Framework) stehen zwei umsetzung
 
 **Ab der 1. Reunion** steht die volle Gruppe schon in Zone 1 (Charaktere bleiben erhalten, Level fällt auf 1). Region 1 wird dadurch deutlich leichter – **gewollt als Prestige-Belohnung**, keine Sonderregel für Folgeläufe (`spec/prestige-reunion.md`). Wie stark das ausfällt, ist noch *gespielt* zu beurteilen.
 
-**Umgesetzt** (`06_Implementierungsplan_Kapitel1.md`, Umsetzungsentscheidung 42): Gruppenlevel im Save (`partyLevel`/`partyExp`, Migration v2→v3), `Character` ohne eigenes `level`/`exp`, Neuzugänge steigen auf dem Gruppenlevel mit vollen HP/MP ein, **ein** Level-/EXP-Anzeiger in der Sidebar. `REGION_STEP` validiert und verworfen (s. o.). **Weiterhin offen:** die *gespielte* Beurteilung von Durchlauf 2 (volle Gruppe ab Zone 1) – rechnerisch abgedeckt, am Menschen nicht.
+**Umgesetzt** (`07_Umsetzungsentscheidungen.md`, Umsetzungsentscheidung 42): Gruppenlevel im Save (`partyLevel`/`partyExp`, Migration v2→v3), `Character` ohne eigenes `level`/`exp`, Neuzugänge steigen auf dem Gruppenlevel mit vollen HP/MP ein, **ein** Level-/EXP-Anzeiger in der Sidebar. `REGION_STEP` validiert und verworfen (s. o.). **Weiterhin offen:** die *gespielte* Beurteilung von Durchlauf 2 (volle Gruppe ab Zone 1) – rechnerisch abgedeckt, am Menschen nicht.
 
 Geänderte Dokumente: `03_Konzept_Gerüst.md`, `spec/stats-kampfwerte.md`, `spec/feinspec-kapitel1.md`, `spec/charaktere-party.md`, `spec/oekonomie-waehrungen.md`, `spec/progression-regionen.md`, `spec/prestige-reunion.md`.
 
@@ -206,7 +206,7 @@ Bisher deckte §12 nur M/T/V ab, und **V ist nicht reines Idle**: Der Harness mo
 
 **Reihenfolge unverändert:** M15a → M16 → M17 → Kapitel-2-Feinspec.
 
-Geänderte Dokumente: `spec/feinspec-kapitel1.md` (§12), `spec/oekonomie-waehrungen.md` (§1a), `06_Implementierungsplan_Kapitel1.md` (M15a, Entscheidungen 53–55), dieses Dokument.
+Geänderte Dokumente: `spec/feinspec-kapitel1.md` (§12), `spec/oekonomie-waehrungen.md` (§1a), `07_Umsetzungsentscheidungen.md` (M15a, Entscheidungen 53–55), dieses Dokument.
 
 ---
 
@@ -227,7 +227,7 @@ Geänderte Dokumente: `spec/feinspec-kapitel1.md` (§12), `spec/oekonomie-waehru
 
 *Wiederkehrendes Muster, dritte Instanz nach dem 24.07. und M15:* **Ein Kriterium ist erst erfüllt, wenn die Simulation, die es prüft, das Spiel abbildet – nicht eine bequemere Variante davon.** Am 24.07. farmte der Harness an einer Zone, die es nicht gab; in M15 fehlte der Camper ganz; in M15a gewinnt er den Boss nicht, der als besiegt gilt.
 
-Geänderte Dokumente: `spec/feinspec-kapitel1.md` (§12 B5), `spec/oekonomie-waehrungen.md` (§1a), `06_Implementierungsplan_Kapitel1.md` (M15a-Abnahme, Entscheidungen 59–60), dieses Dokument.
+Geänderte Dokumente: `spec/feinspec-kapitel1.md` (§12 B5), `spec/oekonomie-waehrungen.md` (§1a), `07_Umsetzungsentscheidungen.md` (M15a-Abnahme, Entscheidungen 59–60), dieses Dokument.
 
 ### Nachtrag derselben Session: der Kapitel-Boss wird Pflicht
 
@@ -249,4 +249,4 @@ Die Wahlfreiheit geht also **nicht verloren** – ich hatte sie fälschlich als 
 
 **Nebeneffekt:** Die zwei Ziellinien fallen zu einer zusammen, A1 ist auf „besiegen" korrigiert, und die `simulateCamper`-Korrektur ist damit eindeutig – *vorher* lag der gefundene Bug („Erfolg ohne Sieg in Zone 30") näher an der damals geltenden Reunion-Linie als meine eigene Korrekturforderung.
 
-Umsetzung: `canReunion` verlangt einen Sieg in Zone 30 (eigenes Flag, nicht `currentZone > 30`), zusammen mit den `simulateCamper`-Korrekturen. Entscheidungen 61–62 in `06_Implementierungsplan_Kapitel1.md`.
+Umsetzung: `canReunion` verlangt einen Sieg in Zone 30 (eigenes Flag, nicht `currentZone > 30`), zusammen mit den `simulateCamper`-Korrekturen. Entscheidungen 61–62 in `07_Umsetzungsentscheidungen.md`.
