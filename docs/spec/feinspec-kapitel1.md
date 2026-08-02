@@ -139,9 +139,10 @@ Neutral (alle Kap.-1-Gegner) baut also nur über Schaden auf – langsam, aber r
 Verfügbarkeit: NUR in Encountern mit `limitAllowed: true` (§4.3) – in Kap. 1
                exakt die drei Gates (Blandzilla Z8, Fort Knoxious Z18, Vaultron Z30).
 Start:         limit = 0 zu Beginn jedes solchen Kampfes. Kein Übertrag, nirgends.
-Ladung:        zugefügter Schaden:  limit += 60 · (schaden / maxHP des Ziels)
-               erlittener Schaden:  limit += 80 · (schaden / eigene maxHP)
+Ladung:        zugefügter Schaden:  limit += 110 · (schaden / maxHP des Ziels)
+               erlittener Schaden:  limit += 140 · (schaden / eigene maxHP)
                                     (AoE: · 0,75 des Werts, je Figur)
+               (angehoben von 60/80 am 02.08.2026 – Begründung unten)
 Zünden (Kap. 1, generisch): schaden(4,5·ATK, DEF) mit DEF-Ignore auf das stärkste Ziel.
 ```
 
@@ -163,7 +164,23 @@ Das schärft zugleich den Wert manuellen Spiels genau dort, wo er hingehört: Li
 
 *Ebenfalls Teil des Befunds, aber Anzeige statt Zahl:* Der Limit-Treffer muss sich **absetzen** – große Schadenszahl und ein sichtbarer „DEF ignoriert"-Marker. Auch als letzter Hit soll ablesbar sein, was er ausgerichtet hat.
 
-**Umsetzungs-Rückstand (nächste Umsetzungs-Session):** `limitGainOnDealt`/`limitGainOnTaken` in `core/formulas.ts` auf die relative Form umstellen (beide brauchen jetzt die maxHP-Bezugsgröße als Parameter – Aufrufer in `core/battle.ts` und `core/tick.ts`); Limit-Trefferanzeige aufwerten; `tests/chapter-playthrough.test.ts` gegen alle drei Gates neu prüfen, Sollwert unverändert „ein- bis zweimal voll pro Gate-Kampf".
+**Anhebung der Ladehöhe: das Soll „ein- bis zweimal voll" war nie eingelöst (Playtest 02.08.2026).**
+
+*Befund:* Blandzilla mit Party-Level 6–7, knapper Kampf, angemessenes Level – trotzdem: zwei Specials, danach nur noch Attack, **Limit voll, aber nicht gebraucht.** Die relative Ladung (oben) hat die Drift beseitigt, nicht die Höhe: Die Leiste läuft bei ~60 % Kampffortschritt voll, also **einmal**, mit nur noch 40 % Kampf zum Wirken.
+
+*Wurzel:* Das Soll oben verlangt „ein- bis **zwei**mal voll"; die Werte 60/80 liefern strukturell nur eine Zündung, und die spät. Der eigentliche Verlust ist nicht Schaden, sondern **Ablesbarkeit**: Ein Limit auf einen noch vollen Gegner-HP-Balken zeigt sichtbar, was es ausrichtet – am Kampfende ist derselbe Schaden unsichtbar, weil der Gegner ohnehin fällt.
+
+*Beschluss:* Ladehöhe anheben. **Zielgröße: erste volle Leiste bei ~30–35 % Kampffortschritt, zweite gegen Ende.** Das löst „ein- bis zweimal" erstmals ein, gibt dem ersten Limit sichtbare Wirkung und behält den zweiten als Finisher.
+
+⚠️ **Die eingetragenen 110/140 sind eine Annahme aus der Konzept-Session, keine gemessene Zahl.** Welcher Faktor die 30–35 % trifft, ist nur an der Sim/Engine zu ermitteln – die Umsetzungs-Session justiert gegen die Zielgröße, nicht gegen die Zahl.
+
+*Grenze nach oben (wichtig für Kapitel 2):* Noch früher kippt zurück in den Ur-Befund „Limit fühlt sich an wie die Spezialattacke" – die Rechtfertigung des Esper-Modells. Zusätzlich kollidiert eine sehr frühe Leiste mit dem Shock-Fenster ab Kapitel 2: Wer mit voller Leiste auf den Schock wartet, verliert jede weitere Ladung – **Aufheben würde bestraft statt belohnt.** Deshalb steigt die Rate **jetzt** und **ab Kapitel 2 nicht weiter**; dort trägt der Shock-Multiplikator den Wert des Limits, nicht seine Häufigkeit (`kampf-analyse-shock.md` §4/§6).
+
+*Verworfen – mit Teilladung starten* (z. B. 25 % zu Kampfbeginn statt höherer Rate): trifft denselben Zeitpunkt bei kleinerem Eingriff, aber die Leiste begänne als Geschenk statt als etwas, das der Kampf erzeugt. Das Esper-Gefühl („baut sich vor deinen Augen auf") lebt genau vom Start bei 0.
+
+*Nicht Teil dieses Beschlusses:* Blandzillas Werte (§6.2) bleiben unverändert – der Kampf war knapp, das Level angemessen. Das ist nicht der Fehler.
+
+**Umsetzungs-Rückstand (nächste Umsetzungs-Session):** `limitGainOnDealt`/`limitGainOnTaken` in `core/formulas.ts` auf die relative Form umstellen (beide brauchen jetzt die maxHP-Bezugsgröße als Parameter – Aufrufer in `core/battle.ts` und `core/tick.ts`); Limit-Trefferanzeige aufwerten; `tests/chapter-playthrough.test.ts` gegen alle drei Gates neu prüfen, Sollwert unverändert „ein- bis zweimal voll pro Gate-Kampf". **Ergänzt 02.08.2026:** Die Faktoren auf 110/140 anheben und **gegen die Zielgröße „erste volle Leiste bei ~30–35 % Kampffortschritt" justieren** – die 110/140 sind der Startwert, die Zielgröße ist die Vorgabe. Test entsprechend erweitern (nicht nur *ob*, sondern *wann* die Leiste voll wird).
 
 *Playtest-Befund, der zu dieser Revision führte:* Limit fühlte sich „wie die Spezialattacke an, nichts Besonderes" – genau weil es überall verfügbar war. Der in der Vorfassung unter §11 vermerkte Implementierungsfehler (Leiste fiel bei jedem Zonenstart auf 0) **entfällt damit ersatzlos**; das Esper-Modell macht das frühere Soll-Verhalten überflüssig, statt es nachzurüsten.
 

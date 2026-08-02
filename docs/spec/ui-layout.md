@@ -164,7 +164,19 @@ Was bleibt: Die Reihen sind **keine** Mechanik, und nichts in der UI darf so tun
 - **Reihenzuordnung bleibt innerhalb eines Kampfes stabil.** Fällt jemand, rücken die anderen nicht nach (s. u.).
 - **Kopfraum-Regel erweitert:** Namen/HP/Shock-Anzeigen der hinteren Reihe dürfen nicht von Sprites der vorderen verdeckt werden.
 
-### Vortreten bei Bereitschaft
+### Vortreten bei Bereitschaft — ❌ gestrichen am 02.08.2026 (Playtest)
+
+> **Beschluss: Das Vortreten entfällt ersatzlos.** Der folgende Abschnitt beschreibt eine Mechanik, die es nicht mehr gibt; er bleibt als Begründungs-Historie stehen (die Herleitung der beiden Weltachsen ist weiterhin die maßgebliche Beschreibung der Bühnengeometrie).
+>
+> **Befund (Nutzer, gespielt):** *„Überhaupt das Bewegen sieht komisch aus. Man hat ja bereits das Popup und weiß damit auch, wer dran ist. Es gibt dann 2 verschiedene Indikatoren dafür, wer an der Reihe ist, und man weiß nicht, ob man jetzt nach der Figur schauen soll oder auf das Popup achten."*
+>
+> **Das ist der entscheidende Punkt, und er kehrt die ursprüngliche Begründung um.** Das Vortreten wurde als *Klammer* zum Popup gerechtfertigt („sichtbar, wer dran ist"). Tatsächlich ist es ein **zweites Signal für dieselbe Information** – und zwei Signale an verschiedenen Bildschirmorten sind nicht redundant abgesichert, sie **teilen die Aufmerksamkeit**. Das Popup allein beantwortet die Frage bereits, und zwar an dem Ort, an dem auch gehandelt wird.
+>
+> **Die Ausweich-Regel war zirkulär – und fällt mit weg.** „Das Popup weicht der Figur aus" (s. „Skalierung" und „Platz") existierte, *weil* die Figur vorgetreten war; maßgeblich war ausdrücklich „die Figur in ihrer vorgetretenen Position". Der gemessene M13-Fall (34 % Verdeckung bei kleiner Bühne) war eine Kollision, die das Vortreten selbst erzeugt hat. Ohne Vortreten entfällt der Anlass. **Die allgemeine U1/U2-Regel bleibt** (ein Overlay darf die Figur, auf die es sich bezieht, nicht verdecken) – sie hat nur ihren teuersten Anwendungsfall verloren. Im Playtest weichen die Popups faktisch ohnehin nicht aus, weil es nicht nötig ist.
+>
+> **Was mit gestrichen ist:** die Ausnahme von der Abdunklung der hinteren Reihe für die handelnde Figur. Ohne Vortreten gibt es keine Sonderstellung mehr, die sie begründet.
+>
+> **Nicht verwechseln mit fehlenden Animationen.** Der Nutzer vermisst Animationen ausdrücklich – aber als eigenes, **bewusst nachgelagertes** Thema („zunächst muss die grundlegende Spielmechanik sitzen"). Das Vortreten ist nicht die Vorstufe davon: Es fällt nicht weg, weil Bewegung zu früh käme, sondern weil es eine Information doppelt trägt. Eine spätere Animations-Ebene darf es **nicht** unter anderem Namen wieder einführen.
 
 **Die Slots sind fest, aber nicht starr.** Sobald die ATB-Leiste einer **Party-Figur** voll ist (`atb >= 1.0`, `feinspec-kapitel1.md` §5.1), **tritt sie nach vorne rechts** – um **(+12, +12) su** – und ist währenddessen **nicht** abgedunkelt, auch wenn sie in der hinteren Reihe steht. Ihr Kopf-HUD wandert mit. Nach der Aktion kehrt sie auf ihren Slot zurück.
 
@@ -211,6 +223,14 @@ Es gibt zwei Markierungen mit **verschiedener Bedeutung**:
 | an einem **Gegner** | ist das Fokusziel | Absichtserklärung des Spielers |
 
 Bisher unterschieden sie sich in der **Form** (dezenter Rand vs. großer Kasten) – das ist die falsche Achse. **Die Form bleibt konstant, die Farbe trägt die Bedeutung:**
+
+> ⚠️ **Revidiert am 02.08.2026 (Playtest): Der Schein an der Silhouette entfällt – beide Markierungen leben am Namen.** Der Rest dieses Abschnitts beschreibt die Vorfassung und bleibt als Begründungs-Historie stehen (die Farbzuordnung rot/cyan gilt unverändert weiter, nur ihr *Träger* ändert sich).
+>
+> **Befund:** *„Was mir optisch nicht gefällt ist der Glow auf Charakteren und Gegnern. Die Zielmarkierung ist ja über den Marker im Namen erkennbar, das reicht."*
+>
+> **Warum das trägt – auch für den roten Marker an der Party-Figur.** Der erste Einwand war, dieser sei keine Zielmarkierung, sondern die **Informationsgrundlage für Defend** (`feinspec-kapitel1.md` §3.9), und dürfe deshalb nicht fallen. Er ist entkräftet: Es ist dieselbe Information aus der Gegenrichtung, und der **Namensmarker existiert auf beiden Seiten**. Die Information bleibt also vollständig erhalten – gestrichen wird ein zweiter Träger derselben Aussage, nicht die Aussage.
+>
+> **Zusatznutzen:** Der Schein am Gegner konkurrierte am selben Objekt mit dem Shock-Ring. Die weiter unten als Lesbarkeitsfehler benannte Gold-Kollision verliert damit ihre Hälfte – nicht durch eine Farbkorrektur, sondern weil ein Element weniger um dieselbe Silhouette streitet.
 
 - **Form (beide):** dünner Umriss entlang der Sprite-Silhouette plus dezenter Schein. **Keine Kästen** – ein Rechteck um ein freigestelltes Pixel-Sprite wirkt wie ein Debug-Rahmen und dominiert die Stage.
 - **Farbe:** **rot/warm** für „wird getroffen" (Bedrohung), **kühl (Cyan/Weiß)** für „Fokusziel" (Spielerabsicht). Cyan ist im Spiel bereits die Farbe der Spielerkontrolle (Manual-Chip, `feinspec-kapitel1.md` §1.5) – die Zuordnung ist also schon gelernt. *(M13: Das stimmte zum Zeitpunkt der Spec **nicht** – der Auto/Manual-Umschalter war für beide Zustände blau. Aufgelöst zugunsten dieser Regel: Aktives „Manual" trägt jetzt Cyan, aktives „Auto" bleibt Blau. Cyan heißt damit durchgängig „der Spieler greift ein".)*
@@ -381,6 +401,42 @@ Die Figuren stellen sich **selbst** vor, mit 2–3 witzigen Sätzen, aus denen i
 
 Das übrige UI-Design (Shop-/Materia-/Prestige-Panels, Farben-Feinschliff, Responsive/Portrait) folgt später. **Ausnahme:** die **Steuer-UI oben** (Aktions-Popup + Modus-Schalter) ist bereits spezifiziert, da sie fürs Kampfgefühl zentral ist und in die Implementierung geht. Der übrige Bereich bleibt vorerst **reservierter Platz**, damit Kulissen und Sprite-Platzierung ihn einkalkulieren.
 
+## Gasthaus-Szene (beschlossen 02.08.2026, Playtest)
+
+**Anlass (Nutzer, gespielt):** *„Das Gasthaus visualisieren. Man sieht einfach nur den letzten Zustand und es bewegt sich nichts."* Der Gasthaus-Aufenthalt ist mechanisch längst da (`niederlage-offline.md` §2b: Totzeit, dann volle HP/MP) – visuell ist er **nichts**. Der Kampfbildschirm bleibt eingefroren stehen, und die einzige Rückmeldung ist, dass irgendwann die Leisten anders aussehen.
+
+**Warum das ein Fehler ist und nicht bloß fehlende Politur:** Die Totzeit ist eine **bewusst gesetzte Balance-Größe** – sie entscheidet, ob „durchhalten" oder „heilen" die klügere Wahl ist (`niederlage-offline.md`, offene Punkte). Eine Wartezeit ohne Bild ist für den Spieler von einem hängenden Spiel nicht unterscheidbar; sie wird als Defekt gelesen statt als Preis. Damit kann die Kosten-Nutzen-Abwägung, die sie tragen soll, gar nicht stattfinden.
+
+**Beschluss:**
+
+- **Der Kampfbildschirm blendet weg**, die Gasthaus-Szene übernimmt die Bühne. Kein Overlay über der eingefrorenen Stage – die Trennung ist der halbe Punkt: „hier passiert gerade etwas anderes".
+- **Die Heilung wird als Vorgang gezeigt, nicht als Ergebnis.** Die HP/MP-Leisten der Party füllen sich über die Dauer des Aufenthalts sichtbar auf. Der Spieler soll die Totzeit **ablaufen sehen** – dann ist sie ein Preis, den er bezahlt, statt eine Hängepartie.
+- **Die Szene erzeugt keine neue Wartezeit.** Sie bebildert exakt die bestehende Totzeit; sie verlängert sie nicht und kürzt sie nicht. Die Balance-Frage (Rate vs. Totzeit) bleibt davon unberührt.
+- **Humor-Spotlight (F2):** Das Gasthaus ist einer der wenigen Orte des Kapitels außerhalb des Kampfes – ein Parodie-Moment gehört hierher (Wirt, Schild, Übernachtungsritual). Konkrete Ausgestaltung offen, gehört zu `regionen-kulissen.md`.
+- **Keine Zahlen im Bild** (siehe „Keine konkreten Zahlen im Text" oben) – die Leisten zeigen den Fortschritt, kein „+240 HP".
+
+*Offen:* Ob die Szene überspringbar ist. **Vermutlich nicht** – ein Skip würde die Totzeit aushebeln, die gerade die Entscheidung trägt. Zu entscheiden, sobald die Totzeit-Höhe steht.
+
+## Suppress sichtbar machen (Playtest 02.08.2026)
+
+**Befund (Nutzer, gespielt):** *„Die Special von Barrel nimmt man kaum wahr. Ich denke aber, dass sie Sinn macht, vor allem um Bosse zu bremsen."* Wirkung und Zahl stehen also **nicht** zur Debatte (`feinspec-kapitel1.md`: enemy ATB ×0,5 / 4 s) – die Anzeige tut es.
+
+**Wurzel:** Suppress ist die einzige Aktion des Kapitels, deren Wirkung darin besteht, dass etwas **nicht** passiert. Heilung und Shock haben einen Auszahlungsmoment, den man sehen kann; eine ausbleibende Gegner-Aktion hat keinen. Ohne eigene Anzeige ist Suppress strukturell unsichtbar, egal wie stark er ist.
+
+**Derselbe Fehlertyp wie beim Heiler-Gegner** (`gegner-encounter.md` §5a): Auch dort war die Wirkung real und ging optisch unter; gelöst wurde er **nicht** über mehr Wirkung, sondern über sichtbare Taktung. Hier gilt dasselbe – die Rate anzuheben würde Suppress stärker machen, aber nicht sichtbarer.
+
+**Beschluss: die Wirkung dort zeigen, wo sie stattfindet – an der ATB-Leiste des Gegners.** Sie ist der Ort, an dem die Verlangsamung real ist; ein Zustandsmarker anderswo wäre eine zweite Behauptung über dieselbe Sache.
+
+**Konkret: die Leiste wechselt für die Wirkdauer die Farbe.** *(Nutzer, 02.08.2026: „Der ATB des Gegners ist ja sichtbar. Man kann es aktuell schon sehen, wenn man den Balken genau beobachtet, aber es ist halt sehr subtil.")* Damit ist die Annahme der Erstfassung – ob die Leiste überhaupt sichtbar ist – bestätigt, und der Befund präzisiert: Die Information ist **vorhanden, aber nur bei gezieltem Beobachten ablesbar**. Ein 4-Sekunden-Zustand, den man nur findet, wenn man ihn sucht, ist im laufenden Kampf keiner. Ein Farbwechsel ist die richtige Größenordnung – er ist auch peripher sichtbar, ohne ein neues Element auf die Bühne zu legen.
+
+- **Keine der drei belegten Signalfarben.** Gold/Bernstein gehört dem Shock, Rot der Bedrohung, Cyan der Spielerabsicht (s. „Markierungen"). Der Suppress-Farbton muss von allen dreien unterscheidbar sein – **und** vom Normalzustand der Leiste. Konkreter Ton offen; naheliegend ist eine kalte, „eingefrorene" Anmutung, die zur Wirkung passt (etwas ist gebremst), ohne mit Cyan zu kollidieren.
+- **Die Rückkehr zur Normalfarbe zeigt das Ende der Wirkdauer** – der Zustand hat damit von selbst einen Anfang und ein Ende, ohne separaten Countdown.
+- **Kein zusätzliches Icon am Gegner.** Die Erstfassung sah eines vor; mit einem tragfähigen Farbwechsel ist es ein zweiter Träger derselben Aussage – derselbe Fehler, aus dem die Streichung des Silhouetten-Scheins und des Vortretens folgt.
+
+## Sprites dürfen nicht ziehbar sein (Playtest 02.08.2026)
+
+**Befund:** Sprites lassen sich mit der Maus ziehen. Der Nutzer vermutet, das sei der Preis für die Klickbarkeit der Zielauswahl – **ist es nicht.** Natives Bild-Dragging (`draggable` / Text-Selektion) ist unabhängig vom Klick-Handler abschaltbar; die Zielauswahl bleibt vollständig erhalten. Reiner Umsetzungs-Fix, keine Design-Frage.
+
 ## Offene Punkte
 
 - Konkrete Prozente der drei Flächen (Stage / Bottom-Leiste / Seitenleiste) innerhalb der genannten Korridore.
@@ -388,5 +444,6 @@ Das übrige UI-Design (Shop-/Materia-/Prestige-Panels, Farben-Feinschliff, Respo
 - Seitenleiste links oder rechts; Einklapp-Verhalten. **Neu relevant:** Beim Ein-/Ausklappen ändert sich die Stage-Breite und damit `s` – ob die Bühne dabei animiert mitskaliert oder springt, ist noch nicht entschieden.
 - ~~Parallax zwischen B0/B1/B2~~ → **verworfen:** wirkungslos ohne Kamerabewegung, und die Bühne steht still. B0–B2 bleiben als Bauordnung; stattdessen „Kulissen-Leben" (`regionen-kulissen.md` §10).
 - Kampf-Feedback-Ebene (U1): Schadenszahlen, Trefferanzeige, Angriffsbewegung sind bisher inhaltlich nicht spezifiziert, nur eingeplant.
+  **Präzisiert 02.08.2026 (Nutzer, gespielt):** Animationen fehlen spürbar – *„die habe ich aber bewusst hintenangestellt, zunächst muss die grundlegende Spielmechanik sitzen."* Das ist eine **bewusste Reihenfolge-Entscheidung, kein Versäumnis**: Bewegung, die Mechanik erklärt, muss wissen, welche Mechanik sie erklärt. Der Punkt bleibt offen und wird **nicht** vorgezogen. **Randbedingung für den späteren Entwurf:** Das gestrichene Vortreten (s. o.) darf hier nicht durch die Hintertür zurückkehren – es ist nicht an zu wenig Animation gescheitert, sondern daran, dass es eine Information doppelt trug.
 - ~~Genaue Sprite-Größen im Verhältnis zur Stage~~ → **entschieden:** Bühnen-Framework (su, Bühnenbox 504×288, einheitlicher Faktor `s`).
 - ~~Exaktes Spacing bei voller Party~~ → **entschieden:** Slot-Raster im Bühnen-Framework.

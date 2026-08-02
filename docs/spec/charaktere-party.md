@@ -32,6 +32,8 @@ Bis zum 30.07.2026 hing der Special an `weaponTier >= 1`, also am Gil-Kauf. Mit 
 
 **Warum nur Claude einen verzögerten Trigger hat:** Bei ihm ist der Special **neue Mechanik** – vorher gibt es nur „Attack", danach eine Ressourcen-Entscheidung. Zone 3 gibt dem Spieler zwei Zonen reines Antippen als Kontrast, damit der Unterschied spürbar ist. Bei allen späteren Figuren ist der Special **keine neue Mechanik mehr**, sondern Teil der Figur; ihn zu verzögern würde eine Regel einführen, die nichts erklärt, und die Figur bis dahin ohne Rolle dastehen lassen.
 
+⚠️ **Umsetzungs-Rückstand (Playtest-Fund 02.08.2026): Barrel weicht im Code von dieser Tabelle ab.** `src/content/characters.ts` setzt `unlockedFromZone: 10`, während Barrel in Zone 9 beitritt (`BARREL_JOIN_ZONE`) – er steht also eine Zone lang ohne seine Rolle da. Genau das, was der Absatz oben ausschließt. Tofa und Air is… stehen korrekt auf 19 = Beitritt; der Fehler ist isoliert. **Fix: `unlockedFromZone: 9`.** Nebenwirkung beachten: Beitritts- und Special-Popup fallen dann in denselben Tick – die FIFO-Reihenfolge dafür existiert bereits (`gameStore.svelte.ts`, M17).
+
 *Verworfen: eine Staffelung der späteren Specials (z. B. Barrel Zone 11, Tofa Zone 21), um Zone 19 zu entlasten. Begründung s. o. – bei Air is… wäre sie zusätzlich schädlich, weil ihr Special ihre einzige Rolle ist (Gruppenheilung) und Heilung seit M11 knapp ist.*
 
 **Ab Durchlauf 2 gilt der Zeitplan nicht.** Gelernte Specials sind permanent (s. u.), stehen also ab Zone 1 zur Verfügung. Der Einführungsrhythmus ist eine **Tutorial-Eigenschaft des ersten Durchlaufs**, keine Dauerregel – deshalb können Gambit-Regeln, die auf „Special" verweisen, nie ins Leere laufen.
@@ -88,4 +90,5 @@ _Rollen/Affinitäten je Figur, Skill-Listen, Limit-Design je Figur, Party-Synerg
 
 - Rollen-/Affinitäts-Feinbild je Charakter.
 - Konkrete Skills und Limits pro Figur.
+  **Richtung steht, Ausgestaltung offen (02.08.2026):** Die Limits sollen **charakterspezifisch** werden – Kapitel 1 nutzt bewusst die generische Form (`schaden(4,5·ATK)` mit DEF-Ignore, `feinspec-kapitel1.md` §3.4). Der Grund für den Wechsel: Ein Limit, das nur Schaden macht, bleibt ein Beschleuniger und damit optional – der Kampf ist auch ohne es gewinnbar, nur langsamer. Erst eine **qualitative** Wirkung (etwas, das sonst gar nicht geht) macht es zum „Wand-Brecher", als der es im Konzept steht (`kampf-analyse-shock.md` §4). **Bewusst vertagt:** noch keine tragfähige Idee, wie die vier Wirkungen aussehen sollen; eine Ausgestaltung ohne diese Idee wäre geraten. Kein Zeitdruck – Kapitel 1 funktioniert generisch.
 - Party-Größe/Bank-Frage (falls über die feste Party hinaus relevant).
