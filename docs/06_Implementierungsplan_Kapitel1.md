@@ -492,13 +492,65 @@ Am laufenden Dev-Server gemessen, nicht aus dem Code abgeleitet (die Vorgabe „
 
 ---
 
+## M19a – Gasthaus-Kulisse (Konzept-Session 02.08.2026)
+
+**Ziel:** Der Gasthaus-Aufenthalt hat kein Bild. Bevor M19b einen Ablauf darauf inszenieren kann, muss es einen Ort geben, an dem er stattfindet. **Reiner Asset-Meilenstein, keine Zeile Spiellogik** – deshalb von M19b getrennt: Der Innenraum ist der **erste** überhaupt, der Baukasten war bis hier ausschließlich auf Außensilhouetten ausgelegt, und diese Arbeit hat mit dem Szenenablauf keine Berührung außer dem fertigen PNG.
+
+**Spec:** `spec/regionen-kulissen.md` §6a (normativ), Framework §3/§4/§5/§9, Baukasten §7.
+
+### Umfang
+
+1. **Neue Bausteine** in `assets/region_kit.py`: Bett, Tresen, Feuerstelle, Innen-Fensternische. Sie gehören nach §7 anschließend **allen** Regionen – also parametriert und stilkonform (Iso-Kippung, Licht oben-links, zwei Helligkeitsstufen), nicht als Sonderfall für diese eine Kulisse gebaut.
+2. **Rezeptur „Inn"** in `assets/generate_regions.py`: Schankraum-Innenansicht. Rückwand mit **einem Fenster** an der Stelle des Himmelbands, Möbelmasse als B1, Boden als B2. Nenn-Box, Bleed und Maßstab wie jede andere Kulisse (§9) – die Szene benutzt dieselbe Bühnenbox.
+3. **Eine Palette je Kapitel**, nicht je Region – für Kapitel 1 also **genau eine**. Kapitel 2–5 bleiben offen und kommen mit ihren Kapiteln.
+4. **Der Fensterschein nimmt die Signaturfarbe der aktuellen Region** (§6). Das ist ein **Laufzeit-Parameter, kein zweites Bild** – die Kulisse muss so gebaut sein, dass die Fensterfläche zur Laufzeit eingefärbt werden kann. Fällt der Wert aus, muss das Bild trotzdem stimmen.
+5. **Der Bildaufbau muss die Dimmung aushalten.** M19b dunkelt die Kulisse zur Laufzeit ab (kein zweites Asset). Eine Komposition, die nur bei voller Helligkeit lesbar ist, ist hier durchgefallen – gegen den abgedunkelten Zustand mitprüfen.
+6. **Höchstens ein Kulissen-Leben-Element** (§10), etwa Glut. Ein ruhiger Ort ist die Aufgabe; der Kontrast zum Kampf ist der Zweck der Szene.
+
+### Abnahme
+
+- `python generate_regions.py --check` grün – **einschließlich** Signalfarben-Sperre (§4) und Kontrast-Budget (§5). Der Fensterschein darf mit HP-Rot, Shock-Gold und Fokus-Cyan nicht verwechselbar sein; er ist Atmosphäre, kein Signal.
+- **Beidseitig geprüft** (§7 Punkt 6): Die Schwellen dürfen nicht durch Weglassen bestanden werden – ein leerer, strukturloser Raum ist kein Erfolg.
+- **Die vier Party-Slots des Bühnen-Frameworks liegen frei** – im Prüfmodus mit eingeblendeten Framework-Linien gegengeprüft. Das ist das eigentliche Abnahmekriterium: Steht ein Bett auf einem Slot, ist die Kulisse unbrauchbar, egal wie gut sie aussieht.
+
+---
+
+## M19b – Gasthaus-Szene (Konzept-Session 02.08.2026)
+
+**Ziel:** *„Man sieht einfach nur den letzten Zustand und es bewegt sich nichts."* Der Aufenthalt ist mechanisch seit Langem da (feinspec §3.8b), visuell ist er nichts. **Das ist keine Politur:** Die Totzeit ist die Balance-Größe, die „durchhalten oder heilen" überhaupt trägt – eine Wartezeit ohne Bild ist von einem hängenden Spiel nicht unterscheidbar und wird als Defekt gelesen statt als Preis. Damit kann die Abwägung, für die sie existiert, nicht stattfinden.
+
+**Spec:** `spec/ui-layout.md`, „Gasthaus-Szene" (normativ, inkl. der vier ausspezifizierten Punkte). Mechanik: `spec/feinspec-kapitel1.md` §3.8b. **Setzt M19a voraus.**
+
+### Umfang
+
+1. **Bühnenwechsel, kein Overlay.** Der Kampfbildschirm blendet weg, die Gasthaus-Szene übernimmt die Bühne. Die Trennung ist die halbe Aussage.
+2. **Drei Takte:** Ankunft (die 10 s Totzeit) → Nacht (die ~20 s Auffüllen) → Aufbruch (Blende). **Alles liegt innerhalb der bestehenden 30 s** – die Szene erzeugt keine einzige Sekunde neue Wartezeit, weder für Blenden noch für die Ankunft.
+3. **Die Dimmung ist der Fortschrittsträger der Totzeit** und der Kern des Meilensteins: Das Raumlicht fährt über `INN_DEAD_TIME` herunter und endet exakt, wenn die Leisten anspringen. **Kein Countdown, kein Ladebalken, keine Zahl** – ein zweiter Träger derselben Aussage ist ausdrücklich verboten (gleicher Fehler wie das gestrichene Suppress-Icon).
+4. **Gestaffelte Ankunft:** Die Figuren treffen nacheinander ein, Stehende zuerst, **Gefallene zuletzt und getragen**. Das ist der zweite Inhalt der Totzeit und sagt wortlos, warum man hier ist.
+5. **Genau eine Wirtszeile pro Aufenthalt**, aus einem Pool gezogen. Nicht zwei – zwei sind ein Dialog, und ein Dialog beim vierzigsten Mal ist eine Zwischensequenz.
+6. **Aufstehen an der bestehenden KO-Schwelle:** Jede gefallene Figur steht auf, sobald ihre HP-Leiste die Schwelle überschreitet, an der sie im Kampf wieder handlungsfähig wäre. **Keine neue Zahl für die Szene** – sonst behauptet das Bild einen Zustand, den die Mechanik nicht kennt. Kein Effekt-Aufschlag beim Aufstehen.
+7. **Slot-Raster und Leistenpositionen wie im Kampf.** Die HP/MP-Leisten sind der Hauptträger der ganzen Szene; der Spieler darf nichts neu suchen.
+8. **„Aufbrechen" (feinspec §3.8b):** Ab Ende der Totzeit beendbar, Rückkehr mit dem erreichten Stand; auch beim automatischen Aufenthalt nach Niederlage. **Die Schaltfläche erscheint erst mit dem Ende der Dimmung**, nicht vorher ausgegraut – ein sichtbarer gesperrter Knopf lädt zu einem Ausstieg ein, den es dort nicht gibt, und markiert die Totzeit als Gängelung statt als Preis.
+9. **Kein Skip, keine Interaktion, keine Zahlen im Bild.** Kein Shop, kein Menü, kein Gespräch mit Auswahl – ein Ort, an dem man etwas erledigen *kann*, wird zu einem, an dem man etwas erledigen *muss*.
+
+### Abnahme
+
+- `npm test` und `npm run check` grün.
+- **Gemessen, nicht geschätzt:** Ein Aufenthalt dauert unverändert `INN_DEAD_TIME` + Auffüllzeit. Die Szene darf die Ventil-Ökonomie (§3.8) nicht um eine Sekunde verschieben – das ist der Punkt, an dem eine Inszenierung erfahrungsgemäß zuerst leckt.
+- **Gespielt:** Zwei Aufenthalte hintereinander – einer freiwillig angemeldet, einer nach Niederlage mit Wipe. Im zweiten müssen mehrere Figuren nacheinander aufstehen.
+- **Der Abbruch bleibt während der Totzeit unmöglich** – auch über Tastatur/Hotkeys, nicht nur über die fehlende Schaltfläche.
+
+⚠️ **Zu beobachten (E2, gespielt): Wiederholungsermüdung.** Der Aufenthalt kommt nach jeder Niederlage automatisch, in einem Retry-lastigen Lauf zweistellig pro Region. Was beim dritten Mal ein Ort ist, ist beim vierzigsten „schon wieder". Die Gegenmaßnahme ist ausdrücklich **wenig Inhalt, der nicht altert** – nicht mehr Inhalt. Falls es kippt, ist das ein Streichgrund für Einzelteile, nicht ein Grund, nachzulegen.
+
+---
+
 ## Danach
 
 **M12/M13 sind die Darstellungsschiene** und laufen unabhängig von der Kapitel-2-Feinspec: Sie ändern keine Mechanik, sondern lösen den in der Konzept-Session vom 25.07.2026 gefundenen Layout-Fehler (zwei Maßsysteme in der Kampfzone) und seine Asset-Folgen. Sie blockieren Kapitel 2 nicht und werden nicht von ihm blockiert.
 
 Kapitel-2-Feinspec (Materia/Slots/AP/Magie, programmierbarer Gambit-Editor) folgt erst, wenn **M15–M17** stehen und Kapitel 1 nachweislich durchspielbar ist – bewusst sequenziell, kein Parallel-Design auf einem unbewiesenen Fundament (Leitplanke „Skelett zuerst", `02_Leitfaden_Kernmechaniken.md` §5). Beide Playtests haben genau diese Leitplanke bestätigt: Das Skelett war nicht bewiesen, sondern nur simuliert.
 
-**Reihenfolge: M15 → M16 → M17 → M18 → menschlicher Durchlauf → Kapitel-2-Feinspec.** M15 ist der Blocker (einzige Run-Währung), M16 macht Können bezahlbar, M17 macht die Mechaniken überhaupt sichtbar, **M18 holt den Spec-Rückstand ein, damit der Durchlauf das aktuelle Spiel misst und nicht das vorletzte.**
+**Reihenfolge: M15 → M16 → M17 → M18 → menschlicher Durchlauf → M19a → M19b → Kapitel-2-Feinspec.** M19 steht **hinter** dem Durchlauf, nicht davor: Es ändert keine Mechanik und blockiert Kapitel 2 nicht – und der Durchlauf soll die Ventil-Ökonomie messen, nicht eine frische Inszenierung. Umgekehrt liefert er die Zahl, die M19 braucht: **wie oft** ein Aufenthalt tatsächlich vorkommt (Wiederholungsermüdung, s. M19b). M15 ist der Blocker (einzige Run-Währung), M16 macht Können bezahlbar, M17 macht die Mechaniken überhaupt sichtbar, **M18 holt den Spec-Rückstand ein, damit der Durchlauf das aktuelle Spiel misst und nicht das vorletzte.**
 
 *Die Kapitel-2-Achse ist bereits festgelegt* (`spec/gambits.md` §5a, Konzept-Session 02.08.2026): Der Gambit-Editor automatisiert die **Ausführung**, die Entscheidung wandert auf „welche Regel, für welche Figur" – Regelplätze als knapper **Party-Pool** (1 → ~4 in Kapitel 2), Konfiguration je Charakter, Erwerb nur über Erst-Clears und Reunion-Essenz. Offen und in der nächsten Konzept-Session dran: die automatisierbaren Gegner-Mechaniken (Bedingung a), die AP-Knappheit (greift die EXP-Dämpfung auch auf AP?), das Slot-Wachstum innerhalb eines Durchlaufs und Analyse im Materia-Starter-Set.
 
