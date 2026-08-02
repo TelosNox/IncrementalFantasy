@@ -69,22 +69,51 @@
     window.addEventListener('resize', avoidOverlap)
     return () => window.removeEventListener('resize', avoidOverlap)
   })
+
+  /**
+   * ui-layout.md "Tastensteuerung" - A/S/D fest an die Bedeutung gebunden (nicht an die
+   * Zeilenposition), nur wirksam waehrend genau dieses Popup offen ist. Kein Key-Repeat
+   * (`e.repeat`) und tot hinter einem blockierenden Einfuehrungs-Popup (`activeIntro`) - ein
+   * reflexhaftes A soll die Erklaerung nicht wegklicken. `attack`/`useSpecial`/`defend` pruefen
+   * Verfuegbarkeit ohnehin selbst (MP, `canDefend`), die Taste kann also nie mehr als der
+   * gleichnamige Klick.
+   */
+  function handleKeydown(e: KeyboardEvent): void {
+    if (e.repeat || game.activeIntro) return
+    switch (e.key.toLowerCase()) {
+      case 'a':
+        game.attack(unit)
+        break
+      case 's':
+        if (game.canUseSpecial(unit)) game.useSpecial(unit)
+        break
+      case 'd':
+        if (game.canDefend(unit)) game.defend(unit)
+        break
+    }
+  }
+
+  $effect(() => {
+    if (!ready) return
+    window.addEventListener('keydown', handleKeydown)
+    return () => window.removeEventListener('keydown', handleKeydown)
+  })
 </script>
 
 {#if ready}
   <div class="popup" bind:this={popupEl} style:transform="translateX({dodgeX}px)">
     <div class="popup-title">{unit.name} – ready</div>
 
-    <button class="row" onclick={() => game.attack(unit)}>Attack</button>
+    <button class="row" onclick={() => game.attack(unit)}><span class="hotkey">A</span>ttack</button>
 
     {#if game.canUseSpecial(unit)}
       <button class="row" class:disabled={specialDisabled} disabled={specialDisabled} onclick={() => game.useSpecial(unit)}>
-        Special <span class="cost">({unit.specialMpCost} MP)</span>
+        <span class="hotkey">S</span>pecial <span class="cost">({unit.specialMpCost} MP)</span>
       </button>
     {/if}
 
     {#if game.canDefend(unit)}
-      <button class="row" onclick={() => game.defend(unit)}>Defend</button>
+      <button class="row" onclick={() => game.defend(unit)}><span class="hotkey">D</span>efend</button>
     {/if}
 
     {#if game.canFireLimit(unit)}
@@ -156,6 +185,12 @@
   .row.limit {
     font-weight: 800;
     letter-spacing: 0.06em;
+  }
+
+  /* ui-layout.md "Sichtbarkeit: unterstrichener Anfangsbuchstabe" - erbt Farbe/Gewicht der
+     Zeile (hell/dick vs. gedaempft/duenn), statt eine eigene Achse zu belegen. */
+  .hotkey {
+    text-decoration: underline;
   }
 
   .cost {

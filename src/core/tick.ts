@@ -24,8 +24,9 @@ export interface BattleState {
   /**
    * feinspec §3.9 - EIN Ziel fuer die ganze Gruppe (normale Angriffe, gilt auch fuer Auto-Figuren).
    * Index in `enemies` statt Monster-ID: mehrere Gegner derselben Art teilen sich eine ID
-   * (z.B. 3x "blando" in Zone 6), nur die Position ist eindeutig. Reset pro Kampf (hier: null bei
-   * `createBattleState`), kein Uebertrag zwischen Kaempfen (§3.9). Faellt automatisch zurueck auf
+   * (z.B. 3x "blando" in Zone 6), nur die Position ist eindeutig. Reset pro Kampf (hier: sofort
+   * auf 0 = E1 bei `createBattleState`, nicht leer gelassen), kein Uebertrag zwischen Kaempfen
+   * (§3.9). Faellt automatisch zurueck auf
    * die Standardregel (naechststehend), sobald das Ziel stirbt und mehrere Gegner leben -
    * s. `gambits.ts` `resolvePartyTarget`.
    */
@@ -39,7 +40,8 @@ export function createBattleState(party: BattleUnit[], enemies: BattleUnit[]): B
     awaitingPlayerChoice: null,
     poisonAccumulator: 0,
     bossAoeTriggered: false,
-    focusTargetIndex: null,
+    // feinspec §3.9 - Standardregel (E1) gilt sofort, nicht erst nach der ersten Aktion.
+    focusTargetIndex: enemies.length ? 0 : null,
   }
 }
 
