@@ -250,3 +250,63 @@ Die Wahlfreiheit geht also **nicht verloren** – ich hatte sie fälschlich als 
 **Nebeneffekt:** Die zwei Ziellinien fallen zu einer zusammen, A1 ist auf „besiegen" korrigiert, und die `simulateCamper`-Korrektur ist damit eindeutig – *vorher* lag der gefundene Bug („Erfolg ohne Sieg in Zone 30") näher an der damals geltenden Reunion-Linie als meine eigene Korrekturforderung.
 
 Umsetzung: `canReunion` verlangt einen Sieg in Zone 30 (eigenes Flag, nicht `currentZone > 30`), zusammen mit den `simulateCamper`-Korrekturen. Entscheidungen 61–62 in `07_Umsetzungsentscheidungen.md`.
+
+---
+
+## ✅ M16 und M17 erledigt – die Kette aus dem zweiten Playtest ist abgearbeitet (01.–02.08.2026)
+
+**Damit stehen M15, M15a, M16, M17 – der letzte offene Umsetzungsschritt vor der Kapitel-2-Feinspec ist getan.**
+
+### M16 – Zielwahl muss zählen (umgesetzt + reviewt)
+
+Neues Monster **Bandbox** (Trait `heal`) in Zone 12/13, **Vaultron** mit temporärem, telegrafiertem **Konter-Fenster** (gedeckelt). Suite grün, alle §12-Kriterien A–D halten. Gemessene Laufzeiten: **M 13,8 / T 45,0 / V 69,1 min**.
+
+**Die Abnahme wurde ersetzt, nicht erfüllt.** Ursprünglich sollte „der Abstand M↔T wächst messbar" den Meilenstein abnehmen. Das Maß passt nicht zum Meilenstein: M↔T misst den Skill-Ertrag über **alle 30 Zonen**, M16 ändert davon zwei Encounter – die Kennzahl kann konstruktionsbedingt nur um wenige Prozent wandern (gemessen +1 min, nicht monoton, also kein Beleg). Ein Kriterium, das nur durch Drehen am schärfsten nichtlinearen Hebel zu erfüllen wäre, erzeugt Druck genau gegen die Leitlinie „fordernd, nicht strafend". Neue Abnahme: **zwei benannte Encounter**, in denen Zielwahl über Ausgang oder Dauer entscheidet, je mit einer Antwort, die nicht ausgehen kann. Der Regressionstest prüft beide Encounter jetzt direkt.
+
+**Analyse ist keine Kapitel-1-Mechanik mehr.** Das Bestiarium beschreibt die Gegner-*Art*, nicht die zonen-skalierte Instanz, und enthält deshalb **keine absoluten Zahlen** – die einzige exklusive Information (Heilmenge/Takt) war genau so eine. Analyse wird in **Kapitel 2 mit Materia** eingeführt (`spec/kampf-analyse-shock.md` §5); das Einführungs-Popup entfällt (13 statt 14 Einträge).
+
+### M17 – Mechanik-Einführung: Popup + Codex (umgesetzt)
+
+13 blockierende Einführungs-Popups mit Pause, Selbstvorstellungen der vier Figuren (Claude vor dem allerersten Kampf), **Codex** zum Nachlesen, ab Durchlauf 2 stumm. Keine Zahlen in Erklärtexten. Save-Migration v5→v6. Entscheidungen 81–89.
+
+### Drei Funde aus dem M17-Playtest, in der Spec gelöst
+
+1. **Special-Namen waren wörtliche FF7-Limit-Break-Namen** – falsche Kategorie (das Popup lehrt „Special ≠ Limit" mit einem Limit-Namen) und Verstoß gegen die Rahmenentscheidung „keine Kopien der Originale". Jetzt **Overcommit** (Claude) und **Second Wind** (Air is…); die Tabelle in feinspec §6.1 ist die normative Quelle.
+2. **Limit-Aufladung ist jetzt relativ** (60 · Schaden/maxHP des Ziels ausgeteilt, 80 · Schaden/maxHP selbst erlitten) statt absoluter Raten. Ursache war **Drift**: Schaden und HP skalieren mit Zone und Level, `LIMIT_MAX` bleibt 100 – an Blandzilla feuerte das Limit als allerletzter Treffer. Verworfen: bloß die Raten anheben (behebt die Drift nicht).
+3. **Der Heiler-Gegner heilt in Schüben** (3,6× ATK alle ~6 s statt 1,2× alle ~2 s, gleiche Heilung pro Sekunde) plus Telegraf und Heilzahl. Das Rinnsal war gegen die gleichzeitig fallende HP-Leiste unsichtbar.
+
+### Leitfaden-Abgleich: die Spec sagte an sieben Stellen den Vor-Entscheidungs-Stand
+
+Ein Review hat jede `spec/*.md` gegen `02_Leitfaden` und `03_Konzept` geprüft. Die bewussten Abweichungen tragen alle ihre Begründung – **was fehlte, war die Nachführung**: „Fünf Währungen" nach dem Gil-Aus, der gestrichene Angriffs-Refund noch als MP-Kanal 3, Reunion ohne Boss-Pflicht, Analyse als Kapitel-1-Mechanik an fünf Stellen, „nie auf null" als Dämpfungsregel trotz harter Null aus M15a, die Limit-Raten als offener Knopf, und `05_Architektur` mit der Offline-Projektion als Live-System. **Keine Design-Änderung – die Entscheidungen gab es alle schon.**
+
+### Drei Regeln, die nirgends standen (Nutzer-Entscheidungen)
+
+> **Ventil, geschärft:** Ein Ventil verlangt nicht, dass **überall** etwas fließt, sondern dass es überall eine **Handlung** gibt, nach der wieder etwas fließt. Ein völlig untätiger Spieler, der auf 0 EXP läuft, ist in Ordnung – seine Handlung ist die **Zonenwahl**. Gebunden an Kriterium A2.
+
+> **Gate-Regel:** Ein Gate muss nicht passiv erreichbar sein, aber passiv **leichter** werden. Können kauft Tempo, Zeit kauft Zugang. Deshalb darf die Strecke vor einem Gate leer sein – dort wandelt sich Zeit in Zugang, und ein zusätzlicher Takt würde das nur verdecken. **Bedingung: die Umwandlung muss lesbar sein**, sonst ist eine korrekte Wand nicht von Anti-Pattern #1 zu unterscheiden. Beantwortet, warum Zone 20–29 keine neue Mechanik tragen.
+
+> **Essenz-Ertrag skaliert mit erreichtem Fortschritt, nicht mit verbrachter Zeit.** Tiefer kommen zahlt mehr, länger bleiben nicht – sonst ist Reunion keine Timing-Entscheidung mehr, sondern eine Optimierungsaufgabe mit einer richtigen Antwort. Das ist die Exklusivitätsregel, auf die **Quelle** statt auf die Senken angewandt.
+
+### Zwei Lesbarkeits-Fragen geschlossen, T′ ebenfalls
+
+- **Erschöpfte Zonen werden markiert** – binär, in der Zonenwahl *und* an der laufenden Zone, plus eine einmalige Meldung im Moment des Kippens. Bis dahin war die EXP-Dämpfung vollständig unsichtbar: Der Spieler kämpft, gewinnt und bekommt nichts – die eine Stelle, an der ein korrekt arbeitendes System wie ein Defekt aussieht. **Bewusst binär statt abgestuft**: Eine Skala macht die Zonenwahl zur Ertragsmaximierung statt zur Entscheidung. Die Anzeige hängt am tatsächlichen Ertrag, nicht an `EXP_DAMPING_CUTOFF`, überlebt also jedes Neu-Balancieren.
+- **Bester bisheriger Versuch am Gate** wird nach einer Niederlage gezeigt. Rein rückblickend, sagt also nichts voraus und entwertet das Versuchen nicht – erfüllt die Lesbarkeitsbedingung der Gate-Regel. Reset bei Reunion.
+- **Heilen ist ein gültiger Zug, kein falscher.** HP/MP tragen über, also ist ein voll geheilter Versuch ein **anderer** Kampf, nicht derselbe wiederholt. Was daraus entsteht, ist eine **Eskalationsleiter, billig vor teuer**: heilen, dann zurückfallen und farmen. Der Determinismus begrenzt die billige Sprosse von selbst – ein zweiter voll geheilter Versuch läuft bitgleich.
+- **T′** (schwacher Spieler) folgt aus dieser Leiter und ist **zusammensetzbar statt geraten**: T plus ein bis zwei Gasthaus-Zyklen je Wand plus Farmzeit über das Plateau. Alle drei Größen sind gemessen oder messbar. Damit ist die letzte offene §12-Frage geschlossen.
+
+### ⚠️ Spec-Rückstand: die Konzept-Runde hat kein `src/` angefasst → **M18**
+
+Die drei Commits oben sind reine Doku-Commits. **Sieben Entscheidungen sind im Spiel noch nicht vorhanden**, fünf davon für den Spieler unmittelbar sichtbar: Special-Namen (auch im Popup-Text), relative Limit-Aufladung, Heiler-Schübe mit Telegraf, Markierung erschöpfter Zonen, bester Versuch am Gate, Bestiarium-Zahlen, M13-Popup-Skalierung. **Ein Durchlauf vor M18 zeigt teilweise die alten Fehler statt der Korrekturen.** Umfang und Abnahme: **M18** in `06_Implementierungsplan_Kapitel1.md`; danach der menschliche Durchlauf Zone 1 → 30 → Reunion.
+
+### Offene Reste aus Kapitel 1 (keine Blocker für Kapitel 2)
+
+- **§7.4 (Pacing-Tabelle) ist weiterhin als ungültig markiert.** Die Zielzeiten M/T/V sind gemessen, aber die Tabelle ist nie neu geschrieben worden.
+- **M13-Nachzieher:** Das Aktions-Popup skaliert nicht mit `s` und verdeckt bei kleiner Bühne 34 % der handelnden Figur. Regel steht in `spec/ui-layout.md`, Umsetzung steht aus.
+- **Umsetzungs-Rückstand:** Die Zeile „7 HP / ~2.0s" aus `ui/BestiaryModal.svelte` entfernen (Bestiarium führt keine absoluten Zahlen).
+- **Mobil-Portrait-Layout** (< ~700 px) weiterhin nicht unterstützt, laut `ui-layout.md` „Offene Punkte" auch noch nicht entschieden.
+
+### Nächster Schritt: Kapitel-2-Feinspec
+
+Materia/Slots/AP/Magie und der programmierbare Gambit-Editor. Die Vorbedingung aus `06_Implementierungsplan_Kapitel1.md` („erst wenn M15–M17 stehen und Kapitel 1 nachweislich durchspielbar ist") ist erfüllt.
+
+Geänderte Dokumente dieser Runde: `03_Konzept_Gerüst.md`, `05_Architektur.md`, `spec/abnahme-kapitel1.md`, `spec/encounter-zyklus1.md`, `spec/feinspec-kapitel1.md`, `spec/gambits.md`, `spec/gegner-encounter.md`, `spec/kampf-analyse-shock.md`, `spec/materia.md`, `spec/niederlage-offline.md`, `spec/oekonomie-waehrungen.md`, `spec/prestige-reunion.md`, `spec/progression-regionen.md`, `spec/ui-layout.md`, dieses Dokument.

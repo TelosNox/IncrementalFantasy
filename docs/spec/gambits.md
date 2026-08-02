@@ -87,6 +87,42 @@ Wir unterscheiden bewusst **zwei Wand-Typen** als Design-Werkzeug:
 - **Ausbau über Reunion** (vertikale Achse): mehr Slots, mehr Bedingungstypen, schnellere Reaktion. Automatik ist verdiente Prestige-Belohnung.
 - **Ab-Werk-Presets:** funktionierende Standard-Sets, damit Casuals sofort spielen; Tiefe optional (Auflösung „Tiefe ⟷ Zugänglichkeit" §3, gegen D1/D4-Spreadsheet-Gefahr).
 
+## 5a. Regelplatz-Ökonomie (ab Kapitel 2) – die Regel *ist* die Entscheidung
+
+**Festgelegt in der Konzept-Session vom 02.08.2026.** Der programmierbare Editor ist der zentrale Beat von Kapitel 2, und er steht in direkter Spannung zu dem, was M15–M17 an Kapitel 1 repariert haben. Die Auflösung ist die tragende Achse des Kapitels:
+
+> **Der Editor automatisiert nicht die Entscheidung, sondern die Ausführung. Die Entscheidung wandert eine Ebene höher:** nicht mehr „welchen Gegner klicke ich", sondern „welche Regel schreibe ich, und welchem Charakter gebe ich den knappen Platz". Dieselbe Bewegung wie beim Reunion-Upgrade-Menü – die Entscheidung wird seltener, informierter und exklusiver, statt zu verschwinden.
+
+Das trägt nur unter drei Bedingungen. Sie sind **verbindlich**, nicht Balance:
+
+**(a) Der Inhalt wächst schneller als die Regelplätze.** Automatisierung holt den Rückstand auf, das Spiel legt neue Gegner-Mechaniken davor. Der Spieler gewinnt den Wettlauf nie ganz. Gewinnt er ihn doch, ist das Kapitel zu Ende – dann ist Reunion dran. *Ohne diese Bedingung ist irgendwann jeder Encounter automatisch optimal gespielt, und reines Idle ist wieder die stärkste Spielweise – der Befund vom 30.07.2026, nur diesmal absichtlich gebaut.*
+
+**(b) Regelplätze sind nicht farmbar.** Quellen sind ausschließlich **Erst-Clears** (horizontale Achse) und **Reunion-Essenz** (vertikale Achse) – dieselben zwei, aus denen auch Materia kommt. **Nie** AP, Charakter-/Gruppenlevel oder Zonenzahl. Sonst ist „mehr Regeln" wieder Zeit, und die Platz-Ökonomie läuft in dieselbe Inflationsfalle wie Gil (`oekonomie-waehrungen.md`).
+
+**(c) Eine Regel zu schreiben setzt Wissen voraus, das man sich holen muss.** Gegner-spezifische Bedingungen (`Ziel heilt`, `Ziel kontert`, `Schwäche = X`) sind erst verfügbar, wenn der Gegner **analysiert** ist. Damit bekommt Kapitel 2 den Loop, den Kapitel 1 nie hatte:
+
+> **Der erste Kampf gegen einen neuen Gegner-Typ wird gespielt. Der zweite wird geschrieben.**
+
+Das ist zugleich die Antwort auf den Kapitel-1-Befund „Analyse ist wertlos" (30.07.2026): Analyse hat dort zu Recht nicht funktioniert, **weil es nichts zu automatisieren gab.** Sie ist keine Kampf-Information, sie ist die **Eingabe für die Automatisierung** (`kampf-analyse-shock.md` §5, `materia.md`).
+
+### Erwerb ist Gruppen-Ökonomie, Konfiguration ist Charakter-Ebene
+
+- Regelplätze liegen in einem **Party-Pool**. Der Spieler **weist jeden Platz einer Figur zu**; die Prioritätsliste je Figur (§5) bleibt unverändert die Struktur, in der die Regel steht.
+- **Knapp ist nur der Pool** – nicht die Zuweisung. Drei Plätze alle auf Tofa zu legen ist eine legitime, andere Strategie.
+- **Läge der Platz je Figur, gäbe es nichts zu wählen:** Die Automatik würde mit der Party-Größe wachsen, ohne Zutun des Spielers, und man automatisierte bei jeder Figur die offensichtliche Aktion.
+
+**Größenordnung (Arbeitsannahme, am Playtest zu prüfen): Kapitel 2 startet bei 1 Platz und endet bei etwa 4.** Der erste Platz ist bewusst *einer* – dann heißt „eine Regel" wörtlich: **eine** Figur hat eine Regel, die übrigen drei laufen weiter auf Default-Attack (Ebene 3).
+
+### Warum genau ein Startplatz so viel leistet
+
+Er koppelt an die **Rollen-Signatur** und erzeugt aus einem einzigen Platz qualitativ verschiedene Spielweisen: auf **Tofa** heißt er Sicherheit (Auto-Heilung ab HP-Schwelle), auf **Claude** Schaden (Special sobald MP reicht), auf **Barrel** Kontrolle (Suppress).
+
+Und er löst ein Kapitel-1-Erbe: Heal, Special, Suppress und Limit sind bis zur 1. Reunion **exklusiv manuell** (§1, Präzisierung nach M7). Der erste Regelplatz ist der Moment, in dem *eine* davon automatisierbar wird – mit nur einem Platz bleiben die anderen manuell. **Der Clutch-Modus (§3) wird damit nicht entwertet, sondern selektiv entlastet.**
+
+### Bewusst in Kauf genommener Preis
+
+M16 hat zwei Encounter gebaut, in denen **Zielwahl** über den Ausgang entscheidet (Bandbox, Vaultrons Konter-Fenster). Ab dem Editor entscheidet dort das **Regelset**, nicht mehr die Hand am Bildschirm; der M16-Regressionstest prüft danach etwas, das nicht mehr die Spielrealität ist. Das ist bewusst so: Die Wand verschiebt sich von **Reaktion** zu **Vorbereitung**, und Vorbereitung ist die bessere Entscheidung. Es ist aber eine Entwertung von Kapitel-1-Inhalt, keine kostenlose Erweiterung – deshalb steht sie hier.
+
 ## 6. Rollout-Reihenfolge
 
 Manual-only (Klicker) → Default-Attack-Regel → mehr Gambit-Slots/Bedingungen/Sets über Reunion. Manuelle Steuerung bleibt durchgehend verfügbar.
@@ -101,7 +137,9 @@ Manual-only (Klicker) → Default-Attack-Regel → mehr Gambit-Slots/Bedingungen
 
 ## Offene Detailfragen (nächste Iteration, dann mit Zahlen)
 
-- Welche Bedingungstypen in welcher Reunion-Stufe; Slot-Anzahl je Stufe.
+- Welche Bedingungstypen in welcher Reunion-Stufe. ~~Slot-Anzahl je Stufe~~ → **Rahmen festgelegt (§5a):** Party-Pool, Kapitel 2 von 1 auf ~4; Quellen nur Erst-Clears und Reunion-Essenz. Offen bleibt die **Verteilung über die Beats** (welcher Erst-Clear zahlt welchen Platz) und die Größenordnung für Kapitel 3+.
+- **Vokabular:** welche Bedingungen und Aktionen es konkret gibt, und welche davon an Analyse hängen (§5a Bedingung c).
+- **Wettlauf-Nachweis (§5a Bedingung a):** wie viele automatisierbare Gegner-Mechaniken Kapitel 2 mindestens braucht, damit 4 Plätze sie nicht abdecken.
 - Preset-Umfang für den Casual-Einstieg.
 - ~~„Wechselkurs" Skill↔Zeit an **Idle-Wänden**: wie viel schneller ist manuell?~~ **Festgelegt und gemessen** (`abnahme-kapitel1.md` B2): M 13,5 / T 43,7 / V 67,3 min, Zielkorridor für V **2,5–5,5×** der manuellen Referenz. Der Tausch ist damit **Tempo, nicht Zugang** – V kommt durch, nur später. Offen bleibt allein **T′** (der schwache Spieler, der manuell versucht und farmen muss) und die *gespielte* Beurteilung des Absolutwerts (Kriterium E2) – ohne Offline-Progress sind V's ~67 min echte Bildschirmzeit.
 - **Manuelle Prüfsteine:** Häufigkeit, Platzierung und Schwierigkeitsgrad (selten, überlegt-nicht-twitch, klar telegrafiert).

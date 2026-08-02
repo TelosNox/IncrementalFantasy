@@ -466,13 +466,39 @@ Am laufenden Dev-Server gemessen, nicht aus dem Code abgeleitet (die Vorgabe „
 
 ---
 
+## M18 – Spec-Rückstand einholen (Konzept-Runde 01.–02.08.2026)
+
+**Ziel:** Die drei Doku-Commits `2fc94a6`, `2e440cc`, `0e6e544` haben **kein `src/` angefasst.** Alles, was sie entschieden haben, ist im Spiel nicht vorhanden. Fünf der sieben Punkte sind für den Spieler unmittelbar sichtbar – **ein Durchlauf vor M18 zeigt teilweise die alten Fehler statt der Korrekturen**, und zwei davon (Limit, Heiler-Telegraf) sind genau die Stellen, die im M17-Playtest aufgefallen sind.
+
+**Einordnung:** Kein neues Design – reine Nachführung bereits getroffener Entscheidungen. Deshalb keine Konzept-Rückfragen nötig; die Begründungen stehen jeweils in der genannten Spec-Stelle.
+
+### Umfang
+
+1. **Special-Namen** (`spec/feinspec-kapitel1.md` §6.1): „Cross Slash" → **Overcommit** (Claude), „Heal Wind" → **Second Wind** (Air is…). Es waren wörtliche FF7-Limit-Break-Namen – falsche Kategorie (das `special_mp`-Popup lehrt „Special ≠ Limit" mit einem Limit-Namen) und Verstoß gegen „keine Kopien der Originale". Betroffen u. a. `content/zones.ts`, `content/introductions.ts` (**Spielertext**), `core/formulas.ts`, `core/gambits.ts`, `ui/gameStore.svelte.ts`. Die Tabelle in §6.1 ist die normative Quelle.
+2. **Limit-Aufladung relativ** (`spec/feinspec-kapitel1.md` §3.4): `60 · Schaden/maxHP(Ziel)` ausgeteilt, `80 · Schaden/maxHP(selbst)` erlitten – statt absoluter Raten in `limitGainOnDealt`/`limitGainOnTaken`. Grund ist **Drift**: Schaden und HP skalieren mit Zone und Level, `LIMIT_MAX` bleibt 100. Ausdrücklich **nicht** tun: Raten bloß anheben (behebt die Drift nicht), Blandzillas ATK senken (erlittener Schaden ist der stärkere Ladekanal).
+3. **Heiler heilt in Schüben** (`spec/gegner-encounter.md` §5a): 3,6× ATK alle ~6 s statt 1,2× alle ~2 s – **gleiche Heilung pro Sekunde**, plus Telegraf und sichtbare Heilzahl. Das Rinnsal war gegen die gleichzeitig fallende HP-Leiste unsichtbar. `ENEMY_HEAL_MULT` wird dabei **nicht** erneut angehoben; 1,2 ist das Ergebnis von Entscheidung 76.
+4. **Erschöpfte Zonen markieren** (`spec/ui-layout.md`, `spec/oekonomie-waehrungen.md` §1a): binär, in der Zonenwahl **und** an der laufenden Zone, plus einmalige Meldung im Moment des Kippens. Bis dahin ist die EXP-Dämpfung völlig unsichtbar – der Spieler kämpft, gewinnt und bekommt nichts. **Die Anzeige hängt am tatsächlichen Ertrag, nicht an `EXP_DAMPING_CUTOFF`**, überlebt also jedes Neu-Balancieren. Erschöpfte Zonen bleiben wählbar.
+5. **Bester Versuch am Gate** (`spec/ui-layout.md`, `spec/prestige-reunion.md`): nach einer Boss-Niederlage den besten bisherigen Versuch zeigen. Rein rückblickend – sagt nichts voraus und entwertet das Versuchen nicht. **Reset bei Reunion** (Save-Feld, nach der Reset-/Persistenz-Liste): Nach dem Reset ist die Party Level 1, ein alter Bestwert wäre unerreichbar und würde entmutigen statt messen.
+6. **Bestiarium: Heilmenge/Takt entfernen** – `ui/BestiaryModal.svelte` zeigt „HP / s" aus `enemyHealAmount`; der Kommentar dort zitiert noch die am 01.08.2026 **zurückgenommene** Anforderung. Das Bestiarium beschreibt die Gegner-*Art* und führt **keine absoluten Zahlen**. Ggf. durch einen zahlenfreien Tag ersetzen.
+7. **M13-Nachzieher:** Das Aktions-Popup skaliert nicht mit `s` und verdeckt bei kleiner Bühne 34 % der handelnden Figur. Regel steht in `spec/ui-layout.md`.
+
+### Abnahme
+
+- `npm test` und `npm run check` grün; die §12-Kriterien A–D halten weiterhin (Punkt 2 verschiebt Limit-Zeitpunkte, kann also Laufzeiten bewegen).
+- Kein Vorkommen von „Cross Slash"/„Heal Wind" mehr in `src/`.
+- **Anschließend: ein menschlicher Durchlauf Zone 1 → 30 → Reunion.** Er ist der eigentliche Zweck von M18 – die Kapitel-2-Feinspec baut sonst auf einem Kapitel 1 auf, das in dieser Form nie gespielt wurde (Leitplanke „Skelett zuerst", zweimal durch Playtests bestätigt).
+
+---
+
 ## Danach
 
 **M12/M13 sind die Darstellungsschiene** und laufen unabhängig von der Kapitel-2-Feinspec: Sie ändern keine Mechanik, sondern lösen den in der Konzept-Session vom 25.07.2026 gefundenen Layout-Fehler (zwei Maßsysteme in der Kampfzone) und seine Asset-Folgen. Sie blockieren Kapitel 2 nicht und werden nicht von ihm blockiert.
 
 Kapitel-2-Feinspec (Materia/Slots/AP/Magie, programmierbarer Gambit-Editor) folgt erst, wenn **M15–M17** stehen und Kapitel 1 nachweislich durchspielbar ist – bewusst sequenziell, kein Parallel-Design auf einem unbewiesenen Fundament (Leitplanke „Skelett zuerst", `02_Leitfaden_Kernmechaniken.md` §5). Beide Playtests haben genau diese Leitplanke bestätigt: Das Skelett war nicht bewiesen, sondern nur simuliert.
 
-**Reihenfolge: M15 → M16 → M17 → Kapitel-2-Feinspec.** M15 ist der Blocker (einzige Run-Währung), M16 macht Können bezahlbar, M17 macht die Mechaniken überhaupt sichtbar.
+**Reihenfolge: M15 → M16 → M17 → M18 → menschlicher Durchlauf → Kapitel-2-Feinspec.** M15 ist der Blocker (einzige Run-Währung), M16 macht Können bezahlbar, M17 macht die Mechaniken überhaupt sichtbar, **M18 holt den Spec-Rückstand ein, damit der Durchlauf das aktuelle Spiel misst und nicht das vorletzte.**
+
+*Die Kapitel-2-Achse ist bereits festgelegt* (`spec/gambits.md` §5a, Konzept-Session 02.08.2026): Der Gambit-Editor automatisiert die **Ausführung**, die Entscheidung wandert auf „welche Regel, für welche Figur" – Regelplätze als knapper **Party-Pool** (1 → ~4 in Kapitel 2), Konfiguration je Charakter, Erwerb nur über Erst-Clears und Reunion-Essenz. Offen und in der nächsten Konzept-Session dran: die automatisierbaren Gegner-Mechaniken (Bedingung a), die AP-Knappheit (greift die EXP-Dämpfung auch auf AP?), das Slot-Wachstum innerhalb eines Durchlaufs und Analyse im Materia-Starter-Set.
 
 **Was Kapitel 2 aus der 30.07.-Session mitbekommt:**
 
