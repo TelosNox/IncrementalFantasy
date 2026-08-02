@@ -513,6 +513,8 @@ Am laufenden Dev-Server gemessen, nicht aus dem Code abgeleitet (die Vorgabe „
 - **Beidseitig geprüft** (§7 Punkt 6): Die Schwellen dürfen nicht durch Weglassen bestanden werden – ein leerer, strukturloser Raum ist kein Erfolg.
 - **Die vier Party-Slots des Bühnen-Frameworks liegen frei** – im Prüfmodus mit eingeblendeten Framework-Linien gegengeprüft. Das ist das eigentliche Abnahmekriterium: Steht ein Bett auf einem Slot, ist die Kulisse unbrauchbar, egal wie gut sie aussieht.
 
+**Umgesetzt (02.08.2026):** Vier neue Bausteine in `assets/region_kit.py` (Pfad `docs/spec/assets/`, s. u.): `bed`, `counter`, `hearth`, `window_nook`. Rezeptur `INN` in `assets/generate_regions.py`, eigene Kapitel-1-Palette (warmes Holz/Kerzenlicht, bewusst gegen das kalte Neon draußen). Möbelmasse (Feuerstelle, Tresen, Bettreihe) sitzt geschlossen in der ungenutzten Gegner-Spalte (x 99+), die Party-Spalte (x 8–83) bleibt frei – im Prüfmodus-Overlay bestätigt. Fensterscheibe malt den neutralen `light`-Ton als eigenständig korrekten Normalzustand; das Rechteck dafür (`INN_WINDOW`/`INN_WINDOW_GLASS`) ist als Konstante für M19b exportiert, ohne dass hier schon eine Laufzeit-Einfärbung gebaut wurde. `python generate_regions.py --check --report` grün für alle fünf Kulissen. Details, insbesondere die Umdeutung der `accent`-Rolle für diese eine Rezeptur: `07_Umsetzungsentscheidungen.md` #102–105. **Hinweis für M19b:** Die Python-Asset-Pipeline liegt tatsächlich unter `docs/spec/assets/`, nicht unter `assets/` im Repo-Wurzelverzeichnis – der Pfad oben folgt nur der Kurzform aus der Spec.
+
 ---
 
 ## M19b – Gasthaus-Szene (Konzept-Session 02.08.2026)

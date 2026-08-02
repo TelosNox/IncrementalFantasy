@@ -17,9 +17,9 @@ from PIL import Image
 
 from pixel_io import save_png, upscale
 from region_kit import (
-    CANVAS_H, CANVAS_W, Palette, Region, awning_row, check, foliage, glow,
-    lamp_string, overlay, pipe_run, report, render, sign, stack, tower, wheel,
-    window_grid, crag,
+    CANVAS_H, CANVAS_W, Palette, Region, WINDOW_NOOK_INSET, awning_row, bed,
+    check, counter, foliage, glow, hearth, lamp_string, overlay, pipe_run,
+    report, render, sign, stack, tower, wheel, window_grid, window_nook, crag,
 )
 
 # --- Chapter 1: "The Grid" -- cold artificial-light night, blue-grey base ----
@@ -175,11 +175,51 @@ QUAINTSVILLE = Region(
     ground=dict(seed=71, speckle=0.07),
 )
 
-REGIONS = [REACTOR_ROW, BARGAIN_BAZAAR, MEGACORP_TOWER, QUAINTSVILLE]
+# --- The inn (M19a, regionen-kulissen.md section 6a) ------------------------
+# One backdrop for all 15 regions, not one per region: an interior, palette
+# per *chapter*. The window carries the current region's signature colour, but
+# that is a runtime parameter the generator does not know (section 6a point
+# 4) -- so the glass here is only the neutral fallback tone, and the rect
+# below is exported for whatever wires up that tint later (M19b).
+
+INN_WINDOW = dict(x=84, y=-6, w=24, h=26)
+INN_WINDOW_GLASS = (
+    INN_WINDOW['x'] + WINDOW_NOOK_INSET, INN_WINDOW['y'] + WINDOW_NOOK_INSET,
+    INN_WINDOW['w'] - 2 * WINDOW_NOOK_INSET, INN_WINDOW['h'] - 2 * WINDOW_NOOK_INSET,
+)
+
+INN = Region(
+    key='inn',
+    name='Inn',
+    palette=Palette(
+        # Warm wood and candlelight, deliberately against chapter 1's cold
+        # neon outside -- the whole point of the room is that it is not the
+        # zone (spec section 6a, "der Kontrast zum Kampf ist der Zweck").
+        sky_top='#6b5644', sky_bottom='#372c22', far='#241d19', mid='#4a3624',
+        accent='#8a5024', ground='#241c15', light='#efe6d2',
+    ),
+    sky=dict(stars=0, haze=True),
+    recipe=[
+        # the one window, offset off-centre (spec section 3: the stage
+        # centre stays the quietest point of the image)
+        (window_nook, dict(x=INN_WINDOW['x'], y=INN_WINDOW['y'], w=INN_WINDOW['w'], h=INN_WINDOW['h'])),
+        # furniture mass sits entirely right of the party column (x 8-83,
+        # spec section 3) so the four party slots stay clear
+        (hearth, dict(x=100, base_y=64, w=16, h=18)),
+        (counter, dict(x=120, base_y=64, w=26, h=13)),
+        (bed, dict(x=150, base_y=64, w=20, h=14, head='left')),
+        (bed, dict(x=172, base_y=64, w=20, h=14, head='left')),
+    ],
+    ground=dict(seed=81, speckle=0.05),
+)
+
+REGIONS = [REACTOR_ROW, BARGAIN_BAZAAR, MEGACORP_TOWER, QUAINTSVILLE, INN]
 
 # Regions the game currently ships (chapter 1). Quaintsville stays in docs/ as
-# the proof that the kit takes a new region without new code.
-SHIPPED = {'reactor_row', 'bargain_bazaar', 'megacorp_tower'}
+# the proof that the kit takes a new region without new code. The inn ships
+# as an asset now (M19a) even though nothing imports it yet -- M19b wires up
+# the scene and the runtime window tint.
+SHIPPED = {'reactor_row', 'bargain_bazaar', 'megacorp_tower', 'inn'}
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, 'regions')

@@ -399,6 +399,74 @@ def lamp_string(bd: Backdrop, x0, y0, x1, y1, *, n=10, color='light', sag=4, wir
         bd.rect(round(px), round(py), 2, 2, color)
 
 
+# --- Interior blocks (Gasthaus, regionen-kulissen.md section 6a) -----------
+# The inn is the first interior; these belong to the shared kit like everything
+# above (spec section 7) so any future indoor scene can reuse them.
+
+WINDOW_NOOK_INSET = 2  # glass rect = (x+inset, y+inset, w-2*inset, h-2*inset)
+
+
+def bed(bd: Backdrop, x, base_y, w, h, *, color='mid', linen='light', head='left'):
+    """Low sleeping mass: a headboard at one end, a blanket-topped mattress
+    along the rest. `head` picks which end carries the headboard."""
+    front, top, side = _faces(bd, color)
+    hb_w = max(3, round(w * 0.16))
+    mw = w - hb_w
+    hx = x if head == 'left' else x + mw
+    mx = x + hb_w if head == 'left' else x
+    mh = max(2, round(h * 0.45))
+    bd.rect(hx, base_y - h, hb_w, h, front)
+    bd.rect(hx, base_y - h, hb_w, 1, top)
+    bd.rect(mx, base_y - mh, mw, mh, front)
+    bd.rect(mx, base_y - mh, mw, max(1, round(mh * 0.4)), linen)
+    bd.rect(mx + mw - 1, base_y - mh, 1, mh, side)
+
+
+def counter(bd: Backdrop, x, base_y, w, h, *, color='mid', overhang=2):
+    """Waist-height bar counter: a body with a lighter slab top, wider than
+    the body underneath it."""
+    front, top, side = _faces(bd, color)
+    bd.rect(x, base_y - h, w, h, front)
+    bd.rect(x, base_y - h, w, 1, top)
+    bd.rect(x + w - 1, base_y - h, 1, h, side)
+    slab_h = max(2, round(h * 0.18))
+    bd.rect(x - overhang, base_y - h - slab_h, w + overhang * 2, slab_h, top)
+
+
+def hearth(bd: Backdrop, x, base_y, w, h, *, color='mid', ember='accent', ember_r=3, core=1.5):
+    """Stone hearth with a dim ember glow -- the scene's one Kulissen-Leben
+    element (spec section 10). The ember stays dark enough to clear the
+    signal-colour lock (section 4): the check flags saturated *light points*,
+    so keeping value low reads as embers, not as a Shock/HP cue, whatever the
+    hue. `core_color` is deliberately not lightened -- a brighter highlight
+    would risk crossing the check's V threshold."""
+    front, top, side = _faces(bd, color)
+    bd.rect(x, base_y - h, w, h, front)
+    bd.rect(x, base_y - h, w, 1, top)
+    mouth_w, mouth_h = round(w * 0.55), round(h * 0.6)
+    mx, my = x + (w - mouth_w) // 2, base_y - mouth_h
+    bd.rect(mx, my, mouth_w, mouth_h, side)
+    glow(bd, mx + mouth_w / 2, my + mouth_h * 0.7, ember_r, color=ember, steps=3,
+         core=core, core_color=ember)
+
+
+def window_nook(bd: Backdrop, x, y, w, h, *, frame='mid_lo', sill='mid_top', glass='light', mullion=True):
+    """Recessed window in an interior rear wall -- the inn's one window
+    (spec section 6a). `glass` is only the fallback tone: at runtime the game
+    tints this same rectangle with the current region's signature colour, a
+    value the generator does not know (section 6a point 4) -- so the fallback
+    must look right on its own, not just placeholder-right. The glass rect is
+    `(x, y, w, h)` inset by `WINDOW_NOOK_INSET` on every side."""
+    bd.rect(x, y, w, h, frame)
+    bd.rect(x - 1, y + h, w + 2, 2, sill)
+    i = WINDOW_NOOK_INSET
+    gx, gy, gw, gh = x + i, y + i, w - 2 * i, h - 2 * i
+    bd.rect(gx, gy, gw, gh, glass)
+    if mullion:
+        bd.rect(x + w // 2, gy, 1, gh, frame)
+        bd.rect(gx, y + h // 2, gw, 1, frame)
+
+
 def glow(bd: Backdrop, cx, cy, r, color='accent', *, steps=3, core=0, core_color=None):
     """Soft radial light. The only place where saturation is allowed to peak --
     keep it out of the locked hue families."""
