@@ -10,7 +10,7 @@
   /**
    * ui-layout.md "Buehnen-Framework" (M13) - die Kampfzone kennt genau EINE Laengeneinheit
    * (Stage-Unit, 1 su = 1 Sprite-Pixel nativ) und EINEN Skalierungsfaktor `s`. Die Geometrie
-   * (Slot-Raster, Standlinien, Vortreten, HUD-Maße) liegt in `stageLayout.ts` - ohne DOM und
+   * (Slot-Raster, Standlinien, HUD-Maße) liegt in `stageLayout.ts` - ohne DOM und
    * damit pruefbar (`tests/stage-layout.test.ts`). Hier bleibt nur die Darstellung; `--s`
    * (CSS-Pixel je su) traegt die Umrechnung, damit im Markup und im CSS keine zweite
    * Masseinheit auftaucht - genau der Fehler, den M13 behebt.
@@ -96,41 +96,29 @@
     return 'Healing…'
   }
 
-  /** Volle ATB-Leiste = bereit; die Figur tritt vor und wird nicht abgedunkelt. */
-  function isReady(unit: { atb: number; hp: number }): boolean {
-    return unit.atb >= 1 && unit.hp > 0
-  }
-
-  const THREAT_COLOR = '#ff5c5c' // rot/warm - "wird als Naechstes angegriffen" (Party)
-  const FOCUS_COLOR = 'var(--game-mp)' // cyan - Fokusziel (Gegner), s. ui-layout.md §"Markierungen"
   const SHOCK_WINDOW_COLOR = '#ffcc33'
   // dezente atmosphaerische Abdunklung/Entsaettigung der hinteren Reihe (Tiefenhinweis,
-  // ui-layout.md "Ebenen"/"Kontrastplatte"); eine vortretende Figur ist davon ausgenommen.
+  // ui-layout.md "Ebenen"/"Kontrastplatte").
   const DEPTH_FILTER = 'brightness(0.88) saturate(0.85)'
 
   /**
-   * ui-layout.md "Markierungen: gleiche Form, unterschiedliche Farbe" - beide Markierungen sind
-   * ein duenner, der Sprite-Silhouette folgender Umriss+Schein (drop-shadow folgt der Alpha-Maske
-   * eines freigestellten Sprites). Als EIN kombinierter `style:filter`-String statt CSS-Klassen,
-   * weil ein Sprite gleichzeitig hintere Reihe UND markiert sein kann - mehrere `filter`-
-   * Deklarationen ueberschreiben sich sonst gegenseitig, statt sich zu addieren.
-   * Der Schein skaliert mit `s`, damit er bei kleiner Buehne nicht das Sprite ueberstrahlt.
+   * ui-layout.md "Markierungen" (revidiert 02.08.2026, Playtest: "der Glow auf Charakteren und
+   * Gegnern gefaellt mir nicht, die Zielmarkierung ist ja ueber den Marker im Namen erkennbar") -
+   * der Schein/Umriss an der Sprite-Silhouette entfaellt fuer beide Markierungen (Party-Bedrohung
+   * rot, Gegner-Fokus cyan); sie leben jetzt ausschliesslich am Namen (`.threat-mark`/`.focus-mark`
+   * im `hud`-Snippet unten). Die Shock-Fenster-Kennzeichnung am Gegner-Sprite ist eine eigene,
+   * unveraenderte Anzeige (kampf-analyse-shock.md §6), keine der "zwei Markierungen".
    */
-  function markerGlow(color: string): string[] {
-    return [`drop-shadow(0 0 ${3 * s}px ${color})`, `drop-shadow(0 0 ${s}px ${color})`]
-  }
-  function partyImgFilter(isNextTarget: boolean, isFallen: boolean, dimmed: boolean): string {
+  function partyImgFilter(isFallen: boolean, dimmed: boolean): string {
     const parts: string[] = []
     if (dimmed) parts.push(DEPTH_FILTER)
     if (isFallen) parts.push('grayscale(0.85)', 'brightness(0.45)')
-    if (isNextTarget) parts.push(...markerGlow(THREAT_COLOR))
     return parts.length ? parts.join(' ') : 'none'
   }
-  function enemyImgFilter(isFocused: boolean, inWindow: boolean, dimmed: boolean): string {
+  function enemyImgFilter(inWindow: boolean, dimmed: boolean): string {
     const parts: string[] = []
     if (dimmed) parts.push(DEPTH_FILTER)
-    if (inWindow) parts.push(...markerGlow(SHOCK_WINDOW_COLOR))
-    if (isFocused) parts.push(...markerGlow(FOCUS_COLOR))
+    if (inWindow) parts.push(`drop-shadow(0 0 ${3 * s}px ${SHOCK_WINDOW_COLOR})`, `drop-shadow(0 0 ${s}px ${SHOCK_WINDOW_COLOR})`)
     return parts.length ? parts.join(' ') : 'none'
   }
 </script>
@@ -181,23 +169,22 @@
   <div class="box">
     {#snippet partySprite(placed: Placed<(typeof game.party)[number]>)}
       {@const unit = placed.unit}
-      {@const stepping = isReady(unit)}
       {@const isFallen = unit.hp <= 0}
       <!-- ui-layout.md "Gefallene Figuren" - eine KO'te Figur bleibt an ihrem Platz stehen
            (entsaettigt) statt zu verschwinden; sie kehrt erst nach dem naechsten Sieg zurueck
            (Sieg-Erholung, feinspec §3.5). Kein Revive-Hinweis - es gibt keine Wiederbelebung. -->
       <img
         class="sprite"
-        class:stepping
         data-actor-id={unit.id}
         src={CHARACTER_SPRITES[unit.id]}
         alt={unit.name}
-        style:left="calc({anchorX(placed.slot, stepping)} * var(--s))"
-        style:bottom="calc({anchorBottom(placed.slot, stepping)} * var(--s))"
+        draggable="false"
+        style:left="calc({anchorX(placed.slot)} * var(--s))"
+        style:bottom="calc({anchorBottom(placed.slot)} * var(--s))"
         style:width="calc({placed.size} * var(--s))"
         style:height="calc({placed.size} * var(--s))"
-        style:z-index={stepping ? 3 : placed.slot.back ? 1 : 2}
-        style:filter={partyImgFilter(unit.id === nextEnemyTargetId && !isFallen, isFallen, placed.slot.back && !stepping)}
+        style:z-index={placed.slot.back ? 1 : 2}
+        style:filter={partyImgFilter(isFallen, placed.slot.back)}
       />
     {/snippet}
 
@@ -210,7 +197,6 @@
       <!-- kampf-analyse-shock.md §6 (M11-Politur) - visuelles Gewicht skaliert mit dem
            Aufbau-Fuellstand, ausser waehrend des aktiven Fensters (volle Prominenz). -->
       {@const ringIntensity = inWindow ? 1 : ringPct}
-      {@const isFocused = game.focusTargetIndex === i && enemy.hp > 0}
       <!-- feinspec §3.9 (M11) - Fokusziel per Klick; ui-layout.md "Gegner verschwinden mit einem
            Takt" - Opacity-Transition statt display:none, der Slot bleibt reserviert (kein
            Nachruecken, `focusTargetIndex` ist ein stabiler Array-Index). -->
@@ -218,7 +204,7 @@
         class="enemy-stack"
         class:defeated={enemy.hp <= 0}
         style:left="calc({placed.slot.x} * var(--s))"
-        style:bottom="calc({anchorBottom(placed.slot, false)} * var(--s))"
+        style:bottom="calc({anchorBottom(placed.slot)} * var(--s))"
         style:width="calc({placed.size} * var(--s))"
         style:height="calc({placed.size} * var(--s))"
         style:z-index={placed.slot.back ? 1 : 2}
@@ -240,7 +226,8 @@
           class="enemy-img"
           src={ENEMY_SPRITES[enemy.id]}
           alt=""
-          style:filter={enemyImgFilter(isFocused, shockVisible && inWindow, placed.slot.back)}
+          draggable="false"
+          style:filter={enemyImgFilter(shockVisible && inWindow, placed.slot.back)}
         />
         {#if shockVisible && inWindow}<div class="shock-break">✦</div>{/if}
       </div>
@@ -259,6 +246,7 @@
       x: number,
       mark: 'threat' | 'focus' | null,
       dimmed: boolean,
+      suppressed: boolean = false,
     )}
       <div
         class="hud"
@@ -273,7 +261,12 @@
           {#if mark === 'focus'}<span class="focus-mark" title="Party focus target">◆</span>{/if}
         </div>
         <div class="mini-bar hp"><div class="fill" style:width="{hpPct}%"></div></div>
-        <div class="mini-bar atb"><div class="fill" style:width="{atbPct}%"></div></div>
+        <!-- ui-layout.md "Suppress sichtbar machen" - kein zusaetzliches Icon; die ATB-Leiste
+             selbst wechselt fuer die Wirkdauer die Farbe, Rueckkehr zur Normalfarbe = Ende der
+             Wirkung (kein separater Countdown noetig). -->
+        <div class="mini-bar atb" class:suppressed title={suppressed ? 'Suppressed - ATB fills slower' : undefined}>
+          <div class="fill" style:width="{atbPct}%"></div>
+        </div>
       </div>
     {/snippet}
 
@@ -289,15 +282,15 @@
     <div class="layer-hud">
       {#each partyPlaced as placed (placed.unit.id)}
         {@const unit = placed.unit}
-        {@const stepping = isReady(unit)}
         {@render hud(
           unit.name,
           (Math.max(0, unit.hp) / unit.maxHp) * 100,
           Math.min(1, unit.atb) * 100,
-          hudBottom(placed.slot, placed.size, stepping),
-          anchorX(placed.slot, stepping),
+          hudBottom(placed.slot, placed.size),
+          anchorX(placed.slot),
           unit.id === nextEnemyTargetId && unit.hp > 0 ? 'threat' : null,
-          placed.slot.back && !stepping,
+          placed.slot.back,
+          unit.suppress > 0,
         )}
       {/each}
       {#each enemyPlaced as placed (placed.index)}
@@ -307,16 +300,17 @@
             enemy.name,
             (Math.max(0, enemy.hp) / enemy.maxHp) * 100,
             Math.min(1, enemy.atb) * 100,
-            hudBottom(placed.slot, placed.size, false),
+            hudBottom(placed.slot, placed.size),
             placed.slot.x,
             game.focusTargetIndex === placed.index ? 'focus' : null,
             placed.slot.back,
+            enemy.suppress > 0,
           )}
           {#if enemy.trait === 'bomb' && enemy.hitsTaken >= 3}
             <div
               class="telegraph detonate"
               style:left="calc({placed.slot.x} * var(--s))"
-              style:bottom="calc({hudBottom(placed.slot, placed.size, false) + 21} * var(--s))"
+              style:bottom="calc({hudBottom(placed.slot, placed.size) + 21} * var(--s))"
             >
               ! DETONATING
             </div>
@@ -329,7 +323,7 @@
             <div
               class="telegraph charging"
               style:left="calc({placed.slot.x} * var(--s))"
-              style:bottom="calc({hudBottom(placed.slot, placed.size, false) + 21} * var(--s))"
+              style:bottom="calc({hudBottom(placed.slot, placed.size) + 21} * var(--s))"
             >
               ⚡ Mako core charging…{enemy.counterActive ? ' (retaliates if struck!)' : ''}
             </div>
@@ -340,7 +334,7 @@
             <div
               class="telegraph charging"
               style:left="calc({placed.slot.x} * var(--s))"
-              style:bottom="calc({hudBottom(placed.slot, placed.size, false) + 21} * var(--s))"
+              style:bottom="calc({hudBottom(placed.slot, placed.size) + 21} * var(--s))"
             >
               ✚ readying a heal…
             </div>
@@ -357,7 +351,7 @@
             <div
               class="heal-number"
               style:left="calc({healTarget.slot.x} * var(--s))"
-              style:bottom="calc({hudBottom(healTarget.slot, healTarget.size, false) + 34} * var(--s))"
+              style:bottom="calc({hudBottom(healTarget.slot, healTarget.size) + 34} * var(--s))"
             >
               +{enemy.lastHealAmount} HP
             </div>
@@ -416,20 +410,21 @@
     pointer-events: none;
   }
 
+  /* ui-layout.md "Sprites duerfen nicht ziehbar sein" - `draggable="false"` im Markup deckt die
+     meisten Browser ab; die beiden Deklarationen hier fangen den Rest ab (WebKit ignoriert
+     `draggable` teils auf <img>, Firefox kann ein Bild sonst per Text-Selektion mitziehen).
+     Betrifft nur natives Drag/Select - Klick-Handler (Zielauswahl) bleiben unberuehrt. */
   .sprite,
   .enemy-stack {
     position: absolute;
     transform: translateX(-50%);
     image-rendering: pixelated;
+    -webkit-user-drag: none;
+    user-select: none;
   }
 
-  /* ui-layout.md "Vortreten bei Bereitschaft" - (+12, +12) su, nur Party; die Figur wird dabei
-     nicht abgedunkelt (s. `partyImgFilter`) und ihr Kopf-HUD wandert mit. */
   .sprite {
-    transition:
-      filter 0.15s ease,
-      left 0.18s ease,
-      bottom 0.18s ease;
+    transition: filter 0.15s ease;
   }
 
   .enemy-stack {
@@ -447,6 +442,8 @@
     height: 100%;
     image-rendering: pixelated;
     transition: filter 0.15s ease;
+    -webkit-user-drag: none;
+    user-select: none;
   }
 
   .hud {
@@ -496,6 +493,16 @@
 
   .mini-bar.atb .fill {
     background: var(--game-atb);
+  }
+
+  /* ui-layout.md "Suppress sichtbar machen" - eigener Farbton, abgesetzt von Gold (Shock),
+     Rot (Bedrohung), Cyan (Spielerkontrolle/--game-mp) und der normalen ATB-Farbe: eine
+     blasse, entsaettigte "vereiste" Anmutung statt eines weiteren saettigten Tons - passt zur
+     Wirkung (etwas ist ausgebremst) und ist auch peripher von der vollen ATB-Farbe zu
+     unterscheiden. Rueckkehr zu `.mini-bar.atb .fill` oben = Ende der Wirkdauer, kein
+     separater Countdown noetig. */
+  .mini-bar.atb.suppressed .fill {
+    background: #cdeeff;
   }
 
   .focus-mark {

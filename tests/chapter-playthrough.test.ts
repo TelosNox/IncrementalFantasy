@@ -115,12 +115,24 @@ function chooseFocusIndex(units: BattleUnit[]): number {
   return dangerous !== -1 ? dangerous : weakestIndex(units)
 }
 
+/** D5/feinspec §3.4 - Momentaufnahme "wie voll wurde eine Figuren-Limit-Leiste, bei wie viel
+ * Kampffortschritt" (Anteil des insgesamt zugefuegten Gegner-Schadens an der Start-Gegner-HP-Summe -
+ * die Groesse, an der §3.4 die Zielgroesse "~30-35% beim ersten Mal" festmacht). */
+interface LimitFillEvent {
+  unitId: string
+  /** 1-basiert: 1 = erste volle Leiste in diesem Kampf, 2 = zweite, usw. */
+  fillNumber: number
+  battleProgress: number
+}
+
 interface BattleRun {
   win: boolean
   timeSeconds: number
   units: BattleUnit[]
   /** D5 - wie oft Limit waehrend dieses Kampfes gezuendet wurde (nur fuer Typ M relevant). */
   limitFires: number
+  /** D5 (M18 - "wann", nicht nur "ob") - Reihenfolge der Voll-Ereignisse je Figur. */
+  limitFillEvents: LimitFillEvent[]
 }
 
 function runBattle(
@@ -140,13 +152,28 @@ function runBattle(
 
   if (mode === 'T' && enemyUnits.length > 1) state.focusTargetIndex = chooseFocusIndex(enemyUnits)
 
+  const totalEnemyHp = enemyUnits.reduce((sum, e) => sum + e.maxHp, 0)
+  const prevLimit = new Map(partyUnits.map((u) => [u.id, 0]))
+  const fillCount = new Map(partyUnits.map((u) => [u.id, 0]))
+  const limitFillEvents: LimitFillEvent[] = []
+
   let limitFires = 0
   let t = 0
   const maxSeconds = 900
   while (t < maxSeconds) {
     const result = battleTick(state, DT)
-    if (result === 'win') return { win: true, timeSeconds: t, units: partyUnits, limitFires }
-    if (result === 'loss') return { win: false, timeSeconds: t, units: partyUnits, limitFires }
+    for (const u of partyUnits) {
+      const prev = prevLimit.get(u.id)!
+      if (u.limitAllowed && prev < LIMIT_MAX && u.limit >= LIMIT_MAX) {
+        const dealt = totalEnemyHp - enemyUnits.reduce((sum, e) => sum + Math.max(0, e.hp), 0)
+        const fillNumber = (fillCount.get(u.id) ?? 0) + 1
+        fillCount.set(u.id, fillNumber)
+        limitFillEvents.push({ unitId: u.id, fillNumber, battleProgress: dealt / totalEnemyHp })
+      }
+      prevLimit.set(u.id, u.limit)
+    }
+    if (result === 'win') return { win: true, timeSeconds: t, units: partyUnits, limitFires, limitFillEvents }
+    if (result === 'loss') return { win: false, timeSeconds: t, units: partyUnits, limitFires, limitFillEvents }
     if (result === 'paused') {
       const unit = state.awaitingPlayerChoice as BattleUnit
       const firing = unit.limitAllowed && unit.limit >= LIMIT_MAX
@@ -158,7 +185,7 @@ function runBattle(
     }
     t += DT
   }
-  return { win: false, timeSeconds: t, units: partyUnits, limitFires }
+  return { win: false, timeSeconds: t, units: partyUnits, limitFires, limitFillEvents }
 }
 
 function syncFromUnits(party: Record<string, Character>, roster: CharacterId[], units: BattleUnit[]): void {
@@ -232,6 +259,8 @@ interface PlaythroughSummary {
   partyLevel: number
   /** D5 - Limit-Zündungen je Gate-Zone (nur Typ M feuert je Limit, s. `resolveOptimalAction`). */
   gateLimitFires: Record<number, number>
+  /** D5b (M18) - je Gate-Zone die Voll-Ereignisse des SIEGREICHEN Kampfes (§3.4 "wann", nicht nur "ob"). */
+  gateLimitFillEvents: Record<number, LimitFillEvent[]>
 }
 
 /**
@@ -252,6 +281,7 @@ function playChapter(mode: PlayerType, maxGrindPerZone = 4000): PlaythroughSumma
   let lastClear = 0
   const rows: ZoneRow[] = []
   const gateLimitFires: Record<number, number> = {}
+  const gateLimitFillEvents: Record<number, LimitFillEvent[]> = {}
 
   for (let zoneIndex = 1; zoneIndex <= 30; zoneIndex++) {
     // feinspec §6.3 - Roster-Beitritt haengt an der hoechsten je erreichten Zone, nicht an der
@@ -277,6 +307,7 @@ function playChapter(mode: PlayerType, maxGrindPerZone = 4000): PlaythroughSumma
     let retries = 0
     let grindWins = 0
     let winningLimitFires = 0
+    let winningLimitFillEvents: LimitFillEvent[] = []
     for (let attempt = 0; ; attempt++) {
       const battle = runBattle(zoneIndex, party, roster, mode, progress.level)
       totalSeconds += battle.timeSeconds
@@ -287,6 +318,7 @@ function playChapter(mode: PlayerType, maxGrindPerZone = 4000): PlaythroughSumma
         // D5 (feinspec §12) misst den siegreichen Kampf an DIESER Zone - nicht
         // fehlgeschlagene Vorversuche, und nicht die zwischendurch gefarmte Vorzone.
         winningLimitFires = battle.limitFires
+        winningLimitFillEvents = battle.limitFillEvents
         break
       }
 
@@ -320,10 +352,19 @@ function playChapter(mode: PlayerType, maxGrindPerZone = 4000): PlaythroughSumma
     rows.push({ zone: zoneIndex, isGate: isGateZone(zoneIndex), retries, grindWins })
     // D5 - "die Limit-Leiste füllt sich pro Figur 1-2x": Gesamtzahl geteilt durch die
     // zu diesem Zeitpunkt aktive Party-Größe (jede Figur lädt ihre eigene Leiste).
-    if (isGateZone(zoneIndex)) gateLimitFires[zoneIndex] = winningLimitFires / roster.length
+    if (isGateZone(zoneIndex)) {
+      gateLimitFires[zoneIndex] = winningLimitFires / roster.length
+      gateLimitFillEvents[zoneIndex] = winningLimitFillEvents
+    }
   }
 
-  return { rows, totalMinutes: totalSeconds / 60, partyLevel: progress.level, gateLimitFires }
+  return {
+    rows,
+    totalMinutes: totalSeconds / 60,
+    partyLevel: progress.level,
+    gateLimitFires,
+    gateLimitFillEvents,
+  }
 }
 
 const CAMP_SESSION_SECONDS = 8 * 3600
@@ -616,6 +657,35 @@ describe('feinspec §12 - Abnahmekriterien der Neu-Balancierung (M11)', () => {
       for (const z of [8, 18, 30]) {
         expect(m.gateLimitFires[z]).toBeGreaterThanOrEqual(0.5)
         expect(m.gateLimitFires[z]).toBeLessThanOrEqual(2.5)
+      }
+    })
+
+    // feinspec §3.4 "Anhebung der Ladehöhe" (02.08.2026) - nicht nur *ob* die Leiste voll wird
+    // (D5 oben), sondern *wann*: das Playtest-Problem war "Limit voll, aber nicht gebraucht"
+    // (Leiste lief erst bei ~60% Kampffortschritt voll, nur EINE Zündung). Zielgröße laut Spec:
+    // erste volle Leiste bei ~30-35% Kampffortschritt, zweite gegen Ende. Gemessen an 135/150
+    // (`formulas.ts` limitGainOnDealt/limitGainOnTaken, s. dortiger Kommentar zur Herleitung):
+    // Zone 8/18 treffen die Zielgröße (Claude ~35%, Barrel ~27%); Zone 30 (Vaultron, laengerer
+    // Kampf mit 3 Gegnern statt 1 - der einzelne zugefuegte/erlittene Schaden macht einen
+    // kleineren Anteil des GESAMTEN Gegner-HP-Pools aus) faellt strukturell spaeter, bleibt aber
+    // klar VOR der Kampfmitte statt beim "letzten Hit" (der Ur-Befund, den diese Revision behebt).
+    it('D5b (M18): die erste volle Limit-Leiste kommt an jedem Gate deutlich vor Kampfende, nicht als letzter Hit', () => {
+      for (const z of [8, 18, 30]) {
+        const events = m.gateLimitFillEvents[z]
+        expect(events.length).toBeGreaterThan(0)
+        const firstFillProgress = Math.min(...events.filter((e) => e.fillNumber === 1).map((e) => e.battleProgress))
+        expect(firstFillProgress).toBeGreaterThanOrEqual(0.2)
+        expect(firstFillProgress).toBeLessThanOrEqual(0.6)
+      }
+    })
+
+    it('D5b (M18): wo eine Leiste zweimal voll wird, kommt die zweite Zündung gegen Kampfende', () => {
+      for (const z of [8, 18, 30]) {
+        const events = m.gateLimitFillEvents[z]
+        const secondFills = events.filter((e) => e.fillNumber === 2)
+        for (const fill of secondFills) {
+          expect(fill.battleProgress).toBeGreaterThanOrEqual(0.7)
+        }
       }
     })
   })

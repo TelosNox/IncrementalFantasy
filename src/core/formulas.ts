@@ -147,18 +147,27 @@ export function applyShockBuildup(currentShock: number, damage: number, bonus = 
  * §3.4 Limit-Ladung bei zugefügtem Schaden. Konzept-Review 01.08.2026 (nach dem
  * M17-Playtest): relative statt absolute Rate - Schaden und HP wachsen über Zone
  * und Level, LIMIT_MAX bleibt fix bei 100, eine absolute Rate driftet also übers
- * Kapitel. Jetzt am Anteil der Ziel-maxHP: limit += 60 * (schaden / maxHP des Ziels).
+ * Kapitel. Jetzt am Anteil der Ziel-maxHP: limit += 135 * (schaden / maxHP des Ziels).
+ *
+ * Ladehöhe angehoben (Konzept-Review 02.08.2026, feinspec §3.4): Zielgröße "erste volle
+ * Leiste bei ~30-35% Kampffortschritt" - gegen die Engine justiert (`tests/_probe_limit.test.ts`,
+ * geloescht nach der Messung), nicht gegen die im Konzept notierten 110/140. 135/150 trifft die
+ * Zielgroesse an Zone 8/18 (Blandzilla/Fort Knoxious); Zone 30 (Vaultron, laengerer Kampf mit
+ * mehr Gegner-HP-Pool) faellt strukturell spaeter. Obergrenze: Blandzilla (Zone 8, §3.4 "knapper
+ * Kampf ist das designte Gefuehl") kippt von Sieg zu Niederlage oberhalb von ~150 (taken) bzw.
+ * ~150 (dealt) - ein frueher gezuendetes Limit ersetzt einen regulaeren Treffer und verzoegert
+ * dadurch den Shock-Aufbau, der den engen Kampf sonst traegt. 135/150 bleibt mit Puffer darunter.
  */
 export function limitGainOnDealt(damage: number, targetMaxHp: number): number {
-  return 60 * (damage / targetMaxHp)
+  return 135 * (damage / targetMaxHp)
 }
 
 /**
  * §3.4 Limit-Ladung bei erlittenem Schaden, relativ zur eigenen maxHP
- * (AoE: · 0,75 des Werts, je Figur).
+ * (AoE: · 0,75 des Werts, je Figur). S. Kommentar auf `limitGainOnDealt` zur Herleitung von 150.
  */
 export function limitGainOnTaken(damage: number, ownMaxHp: number, isAoe = false): number {
-  return 80 * (damage / ownMaxHp) * (isAoe ? 0.75 : 1)
+  return 150 * (damage / ownMaxHp) * (isAoe ? 0.75 : 1)
 }
 
 /** §3.4 Limit-Zünden: schaden(4,5·ATK, DEF) mit DEF-Ignore auf das stärkste Ziel. */

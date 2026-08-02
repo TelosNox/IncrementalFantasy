@@ -87,9 +87,10 @@ function freshCharacter(id: string, controlMode: ControlMode): Character {
 
 /**
  * feinspec §4.1/§5.1/§6.4 (M15, 30.07.2026) - permanenter Zonen-Trigger statt Gil-Kauf: Claude
- * bei Zone 3, jede spaeter hinzustoßende Figur bei ihrer eigenen `unlockedFromZone` (Barrel Z10,
- * Tofa/Air is... Z19 - identisch mit ihrer Beitritts-Zone, "mit Beitritt" per Data-Zufall bei
- * Barrel einen Zug spaeter). Einmal true, bleibt es true - auch ueber die Reunion (s. `reunion()`).
+ * bei Zone 3, jede spaeter hinzustoßende Figur bei ihrer eigenen `unlockedFromZone` (Barrel Z9,
+ * Tofa/Air is... Z19 - identisch mit ihrer jeweiligen Beitritts-Zone, `charaktere-party.md`
+ * "Special mit Beitritt"; Barrel stand bis zur Korrektur vom 02.08.2026 auf Z10, s.
+ * Umsetzungsentscheidung 94). Einmal true, bleibt es true - auch ueber die Reunion (s. `reunion()`).
  */
 function withSpecialTrigger(character: Character, frontierZone: number): Character {
   if (character.specialUnlocked || frontierZone < character.special.unlockedFromZone) return character

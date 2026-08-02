@@ -6,6 +6,9 @@
  * Eine Einheit: **Stage-Unit (su)**, 1 su = 1 Sprite-Pixel nativ. Ein Skalierungsfaktor:
  * `s` = CSS-Pixel je su. Alles hier ist in su; die Umrechnung passiert ausschliesslich
  * ueber die CSS-Variable `--s` in `Stage.svelte`.
+ *
+ * Kein Vortreten mehr (ui-layout.md "Vortreten bei Bereitschaft" - gestrichen 02.08.2026,
+ * s. Umsetzungsentscheidung): Figuren bleiben bei ATB-Bereitschaft auf ihrem Slot.
  */
 
 export const STAGE_W = 504
@@ -28,9 +31,6 @@ export const STAND_FRONT = 268
 export const SPRITE_SU = 64
 export const MINIBOSS_SU = 96
 export const BOSS_SU = 128
-
-/** Vortreten bei Bereitschaft: (+12, +12) su - ein Schritt vor plus Seitenschritt. */
-export const STEP_FORWARD = 12
 
 /** Kopf-HUD (Ebene U0): Plattenbreite, Abstand ueber der Sprite-Oberkante, Hoehenbudget. */
 export const HUD_W = 60
@@ -116,22 +116,22 @@ export function enemyPlacement(sizes: number[]): Placed[] {
   })
 }
 
-/** Anker-x der Figur (Mitte der Sprite-Box), inkl. Vortreten. */
-export function anchorX(slot: Slot, stepping = false): number {
-  return slot.x + (stepping ? STEP_FORWARD : 0)
+/** Anker-x der Figur (Mitte der Sprite-Box). */
+export function anchorX(slot: Slot): number {
+  return slot.x
 }
 
-/** Abstand der Sprite-Unterkante vom Buehnenboden, inkl. Vortreten. */
-export function anchorBottom(slot: Slot, stepping = false): number {
-  return STAGE_H - slot.y - (stepping ? STEP_FORWARD : 0)
+/** Abstand der Sprite-Unterkante vom Buehnenboden. */
+export function anchorBottom(slot: Slot): number {
+  return STAGE_H - slot.y
 }
 
 /** Unterkante des Kopf-HUD: HUD_GAP ueber der Sprite-Oberkante. */
-export function hudBottom(slot: Slot, size: number, stepping = false): number {
-  return anchorBottom(slot, stepping) + size + HUD_GAP
+export function hudBottom(slot: Slot, size: number): number {
+  return anchorBottom(slot) + size + HUD_GAP
 }
 
 /** Oberkante der Sprite-Box, y von der Buehnenoberkante. */
-export function spriteTop(slot: Slot, size: number, stepping = false): number {
-  return STAGE_H - anchorBottom(slot, stepping) - size
+export function spriteTop(slot: Slot, size: number): number {
+  return STAGE_H - anchorBottom(slot) - size
 }

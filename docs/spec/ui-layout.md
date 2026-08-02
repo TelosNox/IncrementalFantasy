@@ -296,7 +296,9 @@ Ein Hotkey, der nicht im Popup steht, existiert für den Spieler nicht. Angezeig
 
 ### Folge für die Bühne
 
-Wer per Tastatur spielt, folgt mit den Augen **nicht mehr dem Cursor**. Damit ist das **Vortreten der handelnden Figur** kein Schmuck mehr, sondern das einzige verbleibende Signal, wessen Popup gerade offen ist (die Popup-Position allein wird nicht mehr angesteuert und daher auch nicht mehr angesehen). Der Effekt muss entsprechend deutlich sein – das ist ein **neues Argument für die 12-su-Bewegung**, die bisher allein über „lebt von der Bewegung, nicht vom Endzustand" begründet war.
+⚠️ **Widerspruch, gefunden und aufgelöst in der Umsetzungs-Session vom 02.08.2026 (s. Umsetzungsentscheidung):** Dieser Abschnitt setzte das Vortreten als fortbestehend voraus und baute ein neues Argument dafür auf – obwohl „Vortreten bei Bereitschaft" **im selben Konzept-Review, am selben Tag** ersatzlos gestrichen wurde (s. oben). Beide Beschlüsse können nicht gleichzeitig gelten. Da die Streichung die spätere, ausdrücklich als Playtest-Befund begründete Entscheidung ist (der Nutzer hat gegen die Doppelsignalisierung gespielt, nicht gegen die Tastensteuerung), sticht sie: **Das Vortreten bleibt gestrichen, auch unter Tastatursteuerung.**
+>
+> Der ursprüngliche Einwand ("wer per Tastatur spielt, folgt nicht mehr dem Cursor, das Popup allein reicht als Signal dann nicht mehr") ist damit nicht widerlegt, aber er verlangt keine Bewegung zurück – das Aktions-Popup öffnet weiterhin **direkt am Panel der handelnden Figur** (s. „Charakter-Steuerung: Panels & Aktions-Popup"); Panel und Bottom-Leiste sind bei fester Party-Reihenfolge genauso eindeutig zuordenbar wie eine vortretende Figur, nur ohne das zweite, um Aufmerksamkeit konkurrierende Signal. Sollte sich im Playtest zeigen, dass Tastatur-Spieler das handelnde Panel dennoch nicht finden, ist die mildere Abhilfe eine hervorgehobene Panel-Umrandung (ein Signal, kein zweiter Bewegungskanal) – nicht die Rücknahme der Streichung.
 
 ## Freischaltungs-Hinweis (Unlock-Callout)
 
@@ -429,13 +431,15 @@ Das übrige UI-Design (Shop-/Materia-/Prestige-Panels, Farben-Feinschliff, Respo
 
 **Konkret: die Leiste wechselt für die Wirkdauer die Farbe.** *(Nutzer, 02.08.2026: „Der ATB des Gegners ist ja sichtbar. Man kann es aktuell schon sehen, wenn man den Balken genau beobachtet, aber es ist halt sehr subtil.")* Damit ist die Annahme der Erstfassung – ob die Leiste überhaupt sichtbar ist – bestätigt, und der Befund präzisiert: Die Information ist **vorhanden, aber nur bei gezieltem Beobachten ablesbar**. Ein 4-Sekunden-Zustand, den man nur findet, wenn man ihn sucht, ist im laufenden Kampf keiner. Ein Farbwechsel ist die richtige Größenordnung – er ist auch peripher sichtbar, ohne ein neues Element auf die Bühne zu legen.
 
-- **Keine der drei belegten Signalfarben.** Gold/Bernstein gehört dem Shock, Rot der Bedrohung, Cyan der Spielerabsicht (s. „Markierungen"). Der Suppress-Farbton muss von allen dreien unterscheidbar sein – **und** vom Normalzustand der Leiste. Konkreter Ton offen; naheliegend ist eine kalte, „eingefrorene" Anmutung, die zur Wirkung passt (etwas ist gebremst), ohne mit Cyan zu kollidieren.
+- **Keine der drei belegten Signalfarben.** Gold/Bernstein gehört dem Shock, Rot der Bedrohung, Cyan der Spielerabsicht (s. „Markierungen"). Der Suppress-Farbton muss von allen dreien unterscheidbar sein – **und** vom Normalzustand der Leiste. **Festgelegt (Umsetzungs-Session 02.08.2026, s. Umsetzungsentscheidung):** `#cdeeff` – ein blasses, entsättigtes Eisblau. Nicht kräftig-cyan wie die Fokusmarkierung (`--game-mp`, `#4dd0d6`), sondern bewusst blass/„vereist": Der Kontrast zur normalen, kräftig-blauen ATB-Farbe (`--game-atb`, `#4ea1f5`) trägt die Aussage „ausgebremst" über die Entsättigung, nicht nur über den Farbton – dieselbe Anmutung wie ein vereister Bildschirmrand.
 - **Die Rückkehr zur Normalfarbe zeigt das Ende der Wirkdauer** – der Zustand hat damit von selbst einen Anfang und ein Ende, ohne separaten Countdown.
 - **Kein zusätzliches Icon am Gegner.** Die Erstfassung sah eines vor; mit einem tragfähigen Farbwechsel ist es ein zweiter Träger derselben Aussage – derselbe Fehler, aus dem die Streichung des Silhouetten-Scheins und des Vortretens folgt.
 
 ## Sprites dürfen nicht ziehbar sein (Playtest 02.08.2026)
 
 **Befund:** Sprites lassen sich mit der Maus ziehen. Der Nutzer vermutet, das sei der Preis für die Klickbarkeit der Zielauswahl – **ist es nicht.** Natives Bild-Dragging (`draggable` / Text-Selektion) ist unabhängig vom Klick-Handler abschaltbar; die Zielauswahl bleibt vollständig erhalten. Reiner Umsetzungs-Fix, keine Design-Frage.
+
+**Umgesetzt (Umsetzungs-Session 02.08.2026):** `draggable="false"` auf allen Sprite-`<img>`s (Party und Gegner) plus `-webkit-user-drag: none; user-select: none;` in `Stage.svelte` (fängt Browser ab, die `draggable` auf `<img>` ignorieren bzw. ein Bild sonst per Text-Selektion mitziehen). Die Zielauswahl (Klick auf `.enemy-stack`) ist unverändert, da sie ausschließlich über den Klick-Handler läuft, nicht über natives Drag-Verhalten.
 
 ## Offene Punkte
 

@@ -87,17 +87,17 @@ describe('§3.3 Shock-Aufbau', () => {
   })
 })
 
-describe('§3.4 Limit-Ladung (Esper-Modell, relativ, Konzept-Review 01.08.2026)', () => {
-  it('zugefügter Schaden lädt mit 60 · Anteil der Ziel-maxHP', () => {
-    expect(limitGainOnDealt(12, 100)).toBeCloseTo(7.2, 10)
+describe('§3.4 Limit-Ladung (Esper-Modell, relativ, Ladehoehe angehoben 02.08.2026)', () => {
+  it('zugefügter Schaden lädt mit 135 · Anteil der Ziel-maxHP', () => {
+    expect(limitGainOnDealt(12, 100)).toBeCloseTo(16.2, 10)
   })
 
-  it('erlittener Schaden lädt mit 80 · Anteil der eigenen maxHP (Einzelziel)', () => {
-    expect(limitGainOnTaken(12, 100)).toBeCloseTo(9.6, 10)
+  it('erlittener Schaden lädt mit 150 · Anteil der eigenen maxHP (Einzelziel)', () => {
+    expect(limitGainOnTaken(12, 100)).toBeCloseTo(18, 10)
   })
 
   it('erlittener AoE-Schaden lädt mit Faktor 0,75 (niedriger als Einzelziel)', () => {
-    expect(limitGainOnTaken(12, 100, true)).toBeCloseTo(7.2, 10)
+    expect(limitGainOnTaken(12, 100, true)).toBeCloseTo(13.5, 10)
   })
 
   it('Zünden: schaden(4,5·ATK, DEF) mit DEF-Ignore auf das stärkste Ziel', () => {

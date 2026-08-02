@@ -145,19 +145,3 @@ describe('Kopfraum und HUD', () => {
     }
   })
 })
-
-describe('Vortreten bei Bereitschaft', () => {
-  it('verschiebt um (+12, +12) su und laesst die Reserve unter B1 intakt', () => {
-    const front = PARTY_SLOTS[0]
-    expect(anchorX(front, true) - anchorX(front)).toBe(12)
-    expect(anchorBottom(front) - anchorBottom(front, true)).toBe(12)
-    // 20 su Reserve unter B1, davon 12 fuer den Schritt -> 8 su bleiben fuer Bodenaufsaetze.
-    expect(anchorBottom(front, true)).toBe(8)
-    expect(anchorBottom(front, true)).toBeGreaterThan(0)
-  })
-
-  it('das Kopf-HUD wandert mit', () => {
-    const back = PARTY_SLOTS[1]
-    expect(hudBottom(back, SPRITE_SU) - hudBottom(back, SPRITE_SU, true)).toBe(12)
-  })
-})

@@ -36,7 +36,7 @@ export const BARREL: Character = {
   name: 'Barrel',
   base: { hp: 140, mp: 20, atk: 11, mag: 5, def: 8, spd: 80 },
   growth: { hp: 1.1, atk: 1.073, mag: 1.073, def: 1.05, spd: 1.0 },
-  special: { id: 'suppress', mpCost: 6, unlockedFromZone: 10 },
+  special: { id: 'suppress', mpCost: 6, unlockedFromZone: 9 },
   specialUnlocked: false,
   controlMode: 'auto',
   hp: 140,
