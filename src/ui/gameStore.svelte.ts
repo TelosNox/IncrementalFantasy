@@ -14,6 +14,7 @@
 import Decimal from 'break_eternity.js'
 import { CHARACTERS, CLAUDE } from '../content/characters'
 import type { IntroId } from '../content/introductions'
+import { INN_HOST_LINES } from '../content/innLines'
 import { GATE_MONSTER_IDS, MONSTERS } from '../content/monsters'
 import { ZONES } from '../content/zones'
 import {
@@ -205,6 +206,8 @@ export class GameStore {
   innElapsed = $state(0)
   /** feinspec §3.8c (M11) - true = Niederlage-Pflichtaufenthalt (kein "Leave now"); false = freiwillig angemeldet. */
   innForced = $state(false)
+  /** ui-layout.md "Gasthaus-Szene" Punkt 5 (M19b) - genau eine, pro Aufenthalt gezogene Wirtszeile. */
+  innHostLine = $state(INN_HOST_LINES[0])
   /** ui-layout.md "Freischaltungs-Hinweis" - kurzer, nicht-blockierender Toast bei Rollout-Flag-Wechseln. */
   calloutMessage = $state<string | null>(null)
   /** M7 - Bestiarium-Modal (Sidebar-Button öffnet, s. `BestiaryModal.svelte`). */
@@ -526,9 +529,16 @@ export class GameStore {
     this.save = { ...this.save, inn: { queued: !this.save.inn.queued } }
   }
 
-  /** feinspec §3.8b (M11) - freiwilligen Gasthaus-Aufenthalt vorzeitig beenden (bei Niederlage gesperrt). */
+  /**
+   * feinspec §3.8b - freiwilligen Gasthaus-Aufenthalt vorzeitig beenden (bei Niederlage gesperrt).
+   * M19b-Fund: Der Totzeit-Schutz ("FRUEHESTENS nach Ablauf von INN_DEAD_TIME") fehlte hier bisher
+   * komplett - ein Klick auf "Leave now" waehrend der Totzeit hat sie faktisch abgeschafft. Einziger
+   * Aufrufer ist der Button in `Stage.svelte`, der zwar erst ab Takt 2 eingeblendet wird, aber die
+   * eigentliche Sperre gehoert hier in den Store (ui-layout.md Abnahme: "auch ueber Tastatur/Hotkeys").
+   */
   leaveInn(): void {
     if (this.innForced) return
+    if (this.innElapsed < INN_DEAD_TIME) return
     this.#leaveInn()
   }
 
@@ -919,12 +929,21 @@ export class GameStore {
     this.phase = 'inn'
     this.innForced = forced
     this.innElapsed = 0
+    this.innHostLine = INN_HOST_LINES[Math.floor(Math.random() * INN_HOST_LINES.length)]
     this.#innNextZone = nextZone
     this.save = { ...this.save, inn: { queued: false } }
     this.#queueIntro('inn')
   }
 
-  /** feinspec §3.8b (M11) - 10s Totzeit, danach 5%/s auf HP+MP gleichzeitig; endet automatisch bei voller Heilung. */
+  /**
+   * feinspec §3.8b (M11) - 10s Totzeit, danach 5%/s auf HP+MP gleichzeitig; endet automatisch bei
+   * voller Heilung. M19b-Fund: der Auto-Exit-Check lief bisher auf JEDEM Tick, auch waehrend der
+   * Totzeit - eine Party, die den Aufenthalt bereits bei vollen HP/MP betritt (z. B. freiwillig
+   * angemeldet, ohne im letzten Kampf Schaden genommen zu haben), war damit "sofort fertig" und
+   * verliess das Gasthaus, bevor auch nur eine Sekunde Totzeit verstrichen war. Widerspricht §3.8b
+   * woertlich ("Waehrend der Totzeit gibt es keinen Ausstieg") - der Guard gilt fuer BEIDE
+   * Enden (automatisch UND "Aufbrechen"), nicht nur fuer `leaveInn()`.
+   */
   #advanceInn(deltaSeconds: number): void {
     this.innElapsed += deltaSeconds
     const boostMult = this.reunionBoostMult
@@ -934,6 +953,8 @@ export class GameStore {
       const party = this.save.party.map((c) => applyInnRecovery(c, this.save.partyLevel, healSeconds, boostMult))
       this.save = { ...this.save, party }
     }
+
+    if (this.innElapsed < INN_DEAD_TIME) return
 
     const fullyHealed = this.save.party.every((c) => {
       const maxHp = deriveCharacterMaxHp(c, this.save.partyLevel, boostMult)

@@ -2,6 +2,7 @@
   import reactorRow from '../assets/regions/reactor_row_224.png'
   import bargainBazaar from '../assets/regions/bargain_bazaar_224.png'
   import megacorpTower from '../assets/regions/megacorp_tower_224.png'
+  import inn from '../assets/regions/inn_224.png'
   import { GATE_MONSTER_IDS } from '../content/monsters'
   import { INN_DEAD_TIME, SHOCK_MAX, SHOCK_WINDOW } from '../core/formulas'
   import { CHARACTER_SPRITES, ENEMY_SPRITES } from './sprites'
@@ -32,9 +33,12 @@
   let stageHeight = $state(0)
   const s = $derived(stageScale(stageWidth, stageHeight))
 
+  /** ui-layout.md "Gasthaus-Szene" (M19b) - Buehnenwechsel statt Overlay: keine Gegner, andere Kulisse. */
+  const inInn = $derived(game.phase === 'inn')
+
   // encounter-zyklus1.md/feinspec §3.7 - Region 1 = Zone 1-8, Region 2 = 9-18, Region 3 = 19-30.
   const backdrop = $derived(
-    game.save.currentZone <= 8 ? reactorRow : game.save.currentZone <= 18 ? bargainBazaar : megacorpTower,
+    inInn ? inn : game.save.currentZone <= 8 ? reactorRow : game.save.currentZone <= 18 ? bargainBazaar : megacorpTower,
   )
   /**
    * Ueberschuss oberhalb des Bleeds (Playtest-Fund M13): Der Bleed traegt 96 su ueber der
@@ -42,10 +46,17 @@
    * Darueber lag sonst ein schwarzer Balken, also genau das, was `ui-layout.md` "Verankerung
    * und Bleed" ausschliesst. Die Stage traegt deshalb die oberste Himmelsfarbe der jeweiligen
    * Kulisse als Hintergrund - die oberste Backdrop-Zeile ist exakt `sky_top` der Palette
-   * (`docs/spec/assets/generate_regions.py`, Werte auch in `regionen-kulissen.md` §11).
+   * (`docs/spec/assets/generate_regions.py`, Werte auch in `regionen-kulissen.md` §11). Der
+   * Inn-Wert ist derselbe `sky_top` der INN-Palette dort (M19a).
    */
   const skyColor = $derived(
-    game.save.currentZone <= 8 ? '#3a4d61' : game.save.currentZone <= 18 ? '#5d4269' : '#33495e',
+    inInn
+      ? '#6b5644'
+      : game.save.currentZone <= 8
+        ? '#3a4d61'
+        : game.save.currentZone <= 18
+          ? '#5d4269'
+          : '#33495e',
   )
   const regionLabel = $derived(
     game.save.currentZone <= 8
@@ -54,6 +65,73 @@
         ? 'R2 · Bargain Bazaar'
         : 'R3 · MegaCorp Tower',
   )
+
+  /**
+   * ui-layout.md "Gasthaus-Szene" Punkt (2) (M19b) - "ein Fenster, in dem die Signaturfarbe der
+   * aktuellen Region liegt". `accent` je Region aus `docs/spec/assets/generate_regions.py`
+   * (REACTOR_ROW/BARGAIN_BAZAAR/MEGACORP_TOWER), dieselben Zonen-Grenzen wie `skyColor` oben.
+   */
+  const regionAccent = $derived(
+    game.save.currentZone <= 8 ? '#5fbf7a' : game.save.currentZone <= 18 ? '#d95a9c' : '#4b7fd4',
+  )
+
+  /**
+   * Fensterglas-Rechteck der Inn-Kulisse, in su relativ zur `.backdrop`-Box (deren Top-Left dem
+   * Canvas-Pixel (0,0) des 224x128-Assets entspricht, 1 Asset-Pixel = 3 su). Aus
+   * `docs/spec/assets/generate_regions.py` INN_WINDOW_GLASS = (86, -4, 20, 22) in Region-lokalen
+   * Koordinaten, `to_canvas` addiert BLEED_X=28/BLEED_TOP=32 -> Canvas-Pixel (114, 28, 20, 22) ->
+   * ×3 su. Kein Python-Import moeglich (andere Sprache/Toolchain), deshalb hier von Hand
+   * uebertragen - aendert sich `INN_WINDOW`/`WINDOW_NOOK_INSET` dort, muss es hier nachgezogen werden.
+   */
+  const INN_WINDOW_GLASS_SU = { left: 342, top: 84, width: 60, height: 66 }
+
+  /**
+   * ui-layout.md "Gasthaus-Szene" Punkt (1) (M19b) - die Dimmung ist der einzige Fortschrittstraeger
+   * der Totzeit (kein Countdown, kein Balken). Faehrt linear ueber `INN_DEAD_TIME` herunter und
+   * bleibt danach (Takt "Nacht") auf dem dunkelsten Wert stehen.
+   */
+  const INN_DARK_LEVEL = 0.4
+  const innDimProgress = $derived(inInn ? Math.min(1, game.innElapsed / INN_DEAD_TIME) : 0)
+  const innBrightnessFilter = $derived(`brightness(${1 - innDimProgress * (1 - INN_DARK_LEVEL)})`)
+
+  /**
+   * ui-layout.md "Gasthaus-Szene" Punkt (1)/(3) (M19b) - gestaffelte Ankunft: Stehende zuerst,
+   * Gefallene zuletzt (getragen). Reihenfolge aus der bestehenden Slot-Zuordnung (`partyPlaced`
+   * unten), nicht neu gemischt - Figur i bleibt auf Slot i, nur der Zeitpunkt ihres Erscheinens
+   * verschiebt sich. Die Verzoegerungen liegen mit Absicht innerhalb der ersten ~80% der Totzeit,
+   * damit die letzte Ankunft nicht mit dem Ende der Dimmung kollidiert.
+   */
+  const partyArrivalOrder = $derived.by(() => {
+    if (!inInn) return new Map<string, number>()
+    const standing = game.party.filter((u) => u.hp > 0)
+    const fallen = game.party.filter((u) => u.hp <= 0)
+    const order = [...standing, ...fallen]
+    const spacing = INN_DEAD_TIME / (order.length + 1)
+    return new Map(order.map((u, i) => [u.id, i * spacing]))
+  })
+
+  function hasArrived(unitId: string): boolean {
+    if (!inInn) return true
+    return game.innElapsed >= (partyArrivalOrder.get(unitId) ?? 0)
+  }
+
+  /**
+   * ui-layout.md "Gasthaus-Szene" Punkt (4) (M19b) - "Aufbruch: Blende". Der Store wechselt die
+   * Phase sofort zurueck auf 'battle' (keine zusaetzliche Wartezeit); dieser kurze Schwarzblitz ist
+   * rein kosmetisch und blockiert nichts - die Simulation laeuft darunter bereits normal weiter.
+   */
+  let showBlende = $state(false)
+  let previousPhase = game.phase
+  $effect(() => {
+    const phase = game.phase
+    if (previousPhase === 'inn' && phase !== 'inn') {
+      showBlende = true
+      setTimeout(() => {
+        showBlende = false
+      }, 380)
+    }
+    previousPhase = phase
+  })
 
   // kampf-analyse-shock.md §6 - Shock-Ring erst ab Region 3 sichtbar ("gebündelt mit Tofa").
   const shockVisible = $derived(game.save.currentZone >= REGION3_JOIN_ZONE)
@@ -86,15 +164,11 @@
   // diese Markierung ist die Informationsgrundlage, die Defend erst zu einer Entscheidung
   // macht (feinspec §3.9 "Anzeige"), statt einer Rate-Aktion.
   const nextEnemyTargetId = $derived.by(() => {
+    if (inInn) return null
     const alive = game.party.filter((p) => p.hp > 0)
     if (!alive.length) return null
     return alive.reduce((highest, p) => (p.hp > highest.hp ? p : highest)).id
   })
-
-  function formatInnRemaining(): string {
-    if (game.innElapsed < INN_DEAD_TIME) return `Dead time: ${Math.ceil(INN_DEAD_TIME - game.innElapsed)}s`
-    return 'Healing…'
-  }
 
   const SHOCK_WINDOW_COLOR = '#ffcc33'
   // dezente atmosphaerische Abdunklung/Entsaettigung der hinteren Reihe (Tiefenhinweis,
@@ -109,10 +183,11 @@
    * im `hud`-Snippet unten). Die Shock-Fenster-Kennzeichnung am Gegner-Sprite ist eine eigene,
    * unveraenderte Anzeige (kampf-analyse-shock.md §6), keine der "zwei Markierungen".
    */
-  function partyImgFilter(isFallen: boolean, dimmed: boolean): string {
+  function partyImgFilter(isFallen: boolean, dimmed: boolean, innFilter: string | null): string {
     const parts: string[] = []
     if (dimmed) parts.push(DEPTH_FILTER)
     if (isFallen) parts.push('grayscale(0.85)', 'brightness(0.45)')
+    if (innFilter) parts.push(innFilter)
     return parts.length ? parts.join(' ') : 'none'
   }
   function enemyImgFilter(inWindow: boolean, dimmed: boolean): string {
@@ -133,7 +208,26 @@
   bind:clientWidth={stageWidth}
   bind:clientHeight={stageHeight}
 >
-  <div class="backdrop" style:background-image={`url(${backdrop})`}></div>
+  <div class="backdrop" style:background-image={`url(${backdrop})`} style:filter={inInn ? innBrightnessFilter : 'none'}>
+    {#if inInn}
+      <!-- ui-layout.md "Gasthaus-Szene" Punkt (2) (M19b) - Fensterschein in der Signaturfarbe der
+           aktuellen Region, Kulissen-Leben statt Signal (§4/§10): gedaempfte Opacity, `mix-blend-mode:
+           color` faerbt nur den bereits gemalten neutralen Glasfarbton um, statt ihn zu uebermalen. -->
+      <div
+        class="inn-window-glow"
+        style:left="calc({INN_WINDOW_GLASS_SU.left} * var(--s))"
+        style:top="calc({INN_WINDOW_GLASS_SU.top} * var(--s))"
+        style:width="calc({INN_WINDOW_GLASS_SU.width} * var(--s))"
+        style:height="calc({INN_WINDOW_GLASS_SU.height} * var(--s))"
+        style:background={regionAccent}
+      ></div>
+    {/if}
+  </div>
+
+  {#if showBlende}
+    <!-- ui-layout.md "Gasthaus-Szene" Punkt (4) (M19b) - "Aufbruch: Blende", rein kosmetisch. -->
+    <div class="blende"></div>
+  {/if}
 
   <!-- ui-layout.md "Freischaltungs-Hinweis": ueberdeckt kurzzeitig die normale Statuszeile,
        pausiert aber nichts - reines Lesbarkeits-Add-on bei Rollout-Flag-Wechseln.
@@ -148,9 +242,14 @@
       {:else if game.phase === 'retry'}
         Defeat – no healing, retry penalty {Math.ceil(game.retryRemaining)}s
       {:else if game.phase === 'inn'}
-        🛏 At the inn – {formatInnRemaining()}
-        {#if !game.innForced}
-          <button class="leave-inn" onclick={() => game.leaveInn()}>Leave now</button>
+        <!-- ui-layout.md "Gasthaus-Szene" Punkt (1)/(5) (M19b) - genau eine Wirtszeile, kein
+             Countdown/Ladebalken (die Dimmung auf der Kulisse traegt den Fortschritt allein).
+             Die Schaltflaeche erscheint erst ab Takt 2 (Ende der Totzeit), nicht ausgegraut davor
+             (Punkt 4/Abnahme: sonst laedt sie waehrend der Totzeit zu einem Ausstieg ein, den es
+             nicht gibt). -->
+        🛏 {game.innHostLine}
+        {#if !game.innForced && game.innElapsed >= INN_DEAD_TIME}
+          <button class="leave-inn" onclick={() => game.leaveInn()}>Head out</button>
         {/if}
       {:else if game.awaitingUnit}
         {game.awaitingUnit.name} is ready – choose an action
@@ -170,11 +269,18 @@
     {#snippet partySprite(placed: Placed<(typeof game.party)[number]>)}
       {@const unit = placed.unit}
       {@const isFallen = unit.hp <= 0}
+      {@const arrived = hasArrived(unit.id)}
       <!-- ui-layout.md "Gefallene Figuren" - eine KO'te Figur bleibt an ihrem Platz stehen
            (entsaettigt) statt zu verschwinden; sie kehrt erst nach dem naechsten Sieg zurueck
-           (Sieg-Erholung, feinspec §3.5). Kein Revive-Hinweis - es gibt keine Wiederbelebung. -->
+           (Sieg-Erholung, feinspec §3.5). Kein Revive-Hinweis - es gibt keine Wiederbelebung.
+           ui-layout.md "Gasthaus-Szene" Punkt (1)/(3) (M19b) - im Gasthaus erscheint jede Figur
+           erst mit ihrer Ankunftsverzoegerung (`hasArrived`), gestaffelt statt gleichzeitig; eine
+           gefallene Figur "steht auf", sobald sie hier ankommt UND ihre HP-Leiste ueber 0 liegt -
+           dieselbe Bedingung wie im Kampf (`isFallen`), kein neuer Wert fuer die Szene. -->
       <img
         class="sprite"
+        class:inn-arriving={inInn}
+        class:arrived
         data-actor-id={unit.id}
         src={CHARACTER_SPRITES[unit.id]}
         alt={unit.name}
@@ -184,7 +290,7 @@
         style:width="calc({placed.size} * var(--s))"
         style:height="calc({placed.size} * var(--s))"
         style:z-index={placed.slot.back ? 1 : 2}
-        style:filter={partyImgFilter(isFallen, placed.slot.back)}
+        style:filter={partyImgFilter(isFallen, placed.slot.back, inInn ? innBrightnessFilter : null)}
       />
     {/snippet}
 
@@ -274,25 +380,32 @@
       {#each partyPlaced as placed (placed.unit.id)}
         {@render partySprite(placed)}
       {/each}
-      {#each enemyPlaced as placed (placed.index)}
-        {@render enemySprite(placed)}
-      {/each}
+      <!-- ui-layout.md "Gasthaus-Szene" Punkt (1) (M19b) - Buehnenwechsel statt Overlay: keine
+           Gegner im Gasthaus, auch keine eingefrorenen aus dem zuletzt verlassenen Kampf. -->
+      {#if !inInn}
+        {#each enemyPlaced as placed (placed.index)}
+          {@render enemySprite(placed)}
+        {/each}
+      {/if}
     </div>
 
     <div class="layer-hud">
       {#each partyPlaced as placed (placed.unit.id)}
         {@const unit = placed.unit}
-        {@render hud(
-          unit.name,
-          (Math.max(0, unit.hp) / unit.maxHp) * 100,
-          Math.min(1, unit.atb) * 100,
-          hudBottom(placed.slot, placed.size),
-          anchorX(placed.slot),
-          unit.id === nextEnemyTargetId && unit.hp > 0 ? 'threat' : null,
-          placed.slot.back,
-          unit.suppress > 0,
-        )}
+        {#if hasArrived(unit.id)}
+          {@render hud(
+            unit.name,
+            (Math.max(0, unit.hp) / unit.maxHp) * 100,
+            Math.min(1, unit.atb) * 100,
+            hudBottom(placed.slot, placed.size),
+            anchorX(placed.slot),
+            unit.id === nextEnemyTargetId && unit.hp > 0 ? 'threat' : null,
+            placed.slot.back,
+            unit.suppress > 0,
+          )}
+        {/if}
       {/each}
+      {#if !inInn}
       {#each enemyPlaced as placed (placed.index)}
         {@const enemy = placed.unit}
         {#if enemy.hp > 0}
@@ -358,6 +471,7 @@
           {/if}
         {/if}
       {/each}
+      {/if}
     </div>
   </div>
 </div>
@@ -385,6 +499,50 @@
     background-size: 100% 100%;
     background-repeat: no-repeat;
     image-rendering: pixelated;
+    transition: filter 1s linear;
+  }
+
+  /* ui-layout.md "Gasthaus-Szene" Punkt (2) - gedaempfter, farbiger Fensterschein statt eines
+     zweiten Bildes (regionen-kulissen.md §6a Punkt 4). `mix-blend-mode: color` uebernimmt nur
+     Farbton/Saettigung der Signaturfarbe, die vom Baukasten gemalte Helligkeit des Glases bleibt
+     erhalten - kein flaches Uebermalen. */
+  .inn-window-glow {
+    position: absolute;
+    mix-blend-mode: color;
+    opacity: 0.55;
+    pointer-events: none;
+  }
+
+  /* ui-layout.md "Gasthaus-Szene" Punkt (1)/(3) - gestaffelte Ankunft: unsichtbar bis zur eigenen
+     Verzoegerung, dann ein ruhiges Einblenden (kein Bewegungs-Feuerwerk). */
+  .sprite.inn-arriving {
+    opacity: 0;
+    transition:
+      opacity 0.9s ease,
+      filter 1s linear;
+  }
+
+  .sprite.inn-arriving.arrived {
+    opacity: 1;
+  }
+
+  /* ui-layout.md "Gasthaus-Szene" Punkt (4) - "Aufbruch: Blende", rein kosmetisch, blockiert nichts. */
+  .blende {
+    position: absolute;
+    inset: 0;
+    z-index: 30;
+    background: #000;
+    pointer-events: none;
+    animation: blende-fade 0.38s ease-out forwards;
+  }
+
+  @keyframes blende-fade {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
   }
 
   /* Die Buehnenbox selbst: 504 x 288 su, horizontal zentriert, Unterkante am Stage-Boden. */
