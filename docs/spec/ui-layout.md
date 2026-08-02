@@ -417,7 +417,81 @@ Das übrige UI-Design (Shop-/Materia-/Prestige-Panels, Farben-Feinschliff, Respo
 - **Humor-Spotlight (F2):** Das Gasthaus ist einer der wenigen Orte des Kapitels außerhalb des Kampfes – ein Parodie-Moment gehört hierher (Wirt, Schild, Übernachtungsritual). Konkrete Ausgestaltung offen, gehört zu `regionen-kulissen.md`.
 - **Keine Zahlen im Bild** (siehe „Keine konkreten Zahlen im Text" oben) – die Leisten zeigen den Fortschritt, kein „+240 HP".
 
-*Offen:* Ob die Szene überspringbar ist. **Vermutlich nicht** – ein Skip würde die Totzeit aushebeln, die gerade die Entscheidung trägt. Zu entscheiden, sobald die Totzeit-Höhe steht.
+### Ausspezifiziert (02.08.2026, Konzept-Session)
+
+Die vier offen gebliebenen Punkte, in der Reihenfolge, in der sie beim Zeichnen anfallen. Mechanik unverändert: `feinspec-kapitel1.md` §3.8b (`INN_DEAD_TIME` 10 s, `INN_RATE` 5 %/s auf HP **und** MP, Anmeldung vorab bzw. bei Niederlage automatisch). Der Aufenthalt ist damit ein Bogen von rund 30 s: 10 s ohne jede Zustandsänderung, 20 s Auffüllen.
+
+#### (1) Die Totzeit: das Einchecken ist der Vorgang, das Dimmen ist die Uhr
+
+**Das Problem präzise:** „Heilung als Vorgang zeigen" trägt nur die zweiten 20 s, weil erst dort etwas messbar passiert. Die ersten 10 s sind der eigentliche Härtefall – ausgerechnet der Teil, der die Balance trägt, hat mechanisch **nichts** zu zeigen. Ein Bild ohne Veränderung ist dort exakt derselbe Defekt-Eindruck wie der eingefrorene Kampfbildschirm, nur hübscher tapeziert.
+
+**Beschluss: die Totzeit wird nicht bebildert, sondern *besetzt* – mit dem Ankommen.** Die Fiktion liefert den fehlenden Inhalt frei Haus: Man heilt nicht, während man an der Rezeption steht. Der Ablauf des Aufenthalts wird zu einem Ritual mit drei Takten:
+
+| Takt | Dauer | Was zu sehen ist |
+|---|---|---|
+| **Ankunft** | die 10 s Totzeit | Die Party trifft ein – gestaffelt, nicht gleichzeitig. Wirtszeile. Das Licht im Raum dimmt herunter. |
+| **Nacht** | die ~20 s Heilung | Raum gedimmt, Leisten füllen sich, Gefallene stehen nacheinander auf. |
+| **Aufbruch** | Blende | Licht an, zurück auf die Kampfbühne. |
+
+**Das Herunterdimmen des Lichts ist der Fortschrittsträger der Totzeit** – und der eigentliche Kern dieses Beschlusses. Es ist ein **kontinuierlicher, gerichteter, sofort peripher lesbarer** Vorgang, dessen Ende exakt der Moment ist, in dem die Leisten anspringen. Damit hat die Totzeit eine ablesbare Restlaufzeit, **ohne Countdown und ohne Zahl** (Zahlenverbot bleibt gewahrt), und der Übergang von Takt 1 zu Takt 2 braucht keine Ansage: Es ist dunkel, also fängt es an.
+
+Warum nicht ein Ladebalken oder ein Sanduhr-Symbol: Beide sind ein **zweiter Träger derselben Aussage** und dazu ein UI-Element in einer Szene, die gerade dadurch wirkt, dass sie keine ist – derselbe Fehler, aus dem oben das Suppress-Icon und der Silhouetten-Schein gestrichen wurden.
+
+- **Die gestaffelte Ankunft füllt die Sekunden, in denen sonst nichts ist.** Vier Figuren, die nacheinander eintreffen, sind vier kleine Ereignisse statt eines Standbilds. Reihenfolge: Stehende zuerst, Gefallene zuletzt (sie werden getragen, s. (3)).
+- **Genau eine Wirtszeile pro Aufenthalt**, aus einem Pool gezogen (`regionen-kulissen.md`, Humor). Nicht mehr – zwei Zeilen sind bereits ein Dialog, und ein Dialog, den man zum vierzigsten Mal sieht, ist die Definition einer Zwischensequenz.
+- **Kein Bewegungs-Feuerwerk.** Die Szene ist ein ruhiger Ort; sie soll den Kontrast zum Kampf tragen, nicht ihn überbieten.
+
+⚠️ **Ausdrücklich als Risiko notiert – Wiederholungsermüdung.** Was beim dritten Aufenthalt „ein Ort" ist, ist beim vierzigsten „schon wieder". Der Aufenthalt kommt nach jeder Niederlage automatisch (§3.8c); in einem Retry-lastigen Lauf sind das zweistellige Zahlen pro Region. Das ist der einzige echte Einwand gegen diesen Beschluss, und er wird **nicht** durch mehr Inhalt gelöst (mehr Inhalt macht die Wiederholung teurer, nicht billiger), sondern durch **wenig Inhalt, der nicht altert**: ein stehendes Bild, ein wechselnder Satz, kein Ablauf, den man „durchsitzen" muss. Zu beobachten (E2, gespielt).
+
+#### (2) Ein Gasthaus, Palette je Kapitel – nicht eines je Region
+
+**Beschluss: ein einziges Motiv für alle 15 Regionen.** Variiert werden nur **Palette (je Kapitel)** und **der Fensterschein (Signaturfarbe der aktuellen Region)**.
+
+Zur Ausgangsannahme: Kapitel 1 hat **drei** Regionen (`regionen-kulissen.md` §6: Reactor Row, Bargain Bazaar, MegaCorp Tower), das Gesamtspiel 15 in fünf Kapiteln. „Faktor vier" wäre also entweder Faktor drei (Kapitel 1) oder Faktor fünfzehn (Endausbau) – und Fünfzehn ist die Zahl, gegen die entschieden werden muss, weil ein Muster, das man in Kapitel 1 setzt, für alle folgenden gilt.
+
+**Warum ein Motiv, und zwar nicht aus Sparsamkeit:**
+
+- **Das Gasthaus ist kein Ort, sondern ein Zustand.** §2 („ein Motiv, nicht eine Szene") begründet Regions-Wiedererkennung damit, dass der Spieler *wissen soll, wo er ist*. Beim Gasthaus soll er wissen, *was gerade passiert* – und das ist überall dasselbe. Konstanz ist hier das Merkmal, nicht der Mangel: Das immer gleiche Bild ist der schnellste Weg zu „ah, Heilpause", ohne einen Blick auf die Leisten.
+- **Der Kontrast zum Kampf ist die Aufgabe der Szene.** Der Kampf wechselt die Kulisse alle paar Zonen; wenn das Gasthaus mitwechselt, verliert es genau die Verlässlichkeit, die es vom Kampf unterscheidet.
+- **Die Kosten liegen nicht mehr beim Rendern.** Seit dem Baukasten (§7) ist eine Variante Palette + Rezeptur. Was fünfzehn Gasthäuser teuer macht, ist die **Motiverfindung** – fünfzehn Wirte, fünfzehn Gags, fünfzehn Räume, die alle dasselbe tun. Und der Humor-Ertrag sinkt mit jedem: Der vierte Wirt ist die Hälfte des ersten wert.
+
+**Was die Zugehörigkeit trotzdem trägt** – es soll ja nicht wirken, als sei man aus dem Spiel gefallen:
+
+- **Palette je Kapitel** (`regionen-kulissen.md` §11, sieben Werte). Der Palettenwechsel je Kapitel ist bereits das etablierte Fortschrittssignal; das Gasthaus zieht schlicht mit. Fünf Paletten über das ganze Spiel, für Kapitel 1 genau eine.
+- **Ein Fenster, in dem die Signaturfarbe der aktuellen Region liegt.** Draußen ist noch der Reaktor giftgrün / die Reklame magenta. Ein Wert pro Region, kein Bild pro Region – und der einzige Ort in der Szene, an dem Region überhaupt eine Rolle spielt. Der Schein ist **Kulissen-Leben, kein Signal** (§4/§10): gedämpft, nie in Konkurrenz zu HP-Rot, Shock-Gold oder Fokus-Cyan.
+
+**Innenraum, nicht Fassade von außen.** Die Fassade wäre billiger (der Baukasten kann `sign`, `window_grid`, `lamp_string` bereits), scheitert aber am Wichtigsten: Die Party muss **sichtbar auf der Bühne stehen**, weil ihre HP/MP-Leisten der Hauptträger der ganzen Szene sind. Sprites, die durch eine Tür verschwinden, nehmen die Leisten mit. Der Innenraum hält dagegen das **Slot-Raster des Bühnen-Frameworks** ein: dieselben Positionen, dieselben Leisten an denselben Stellen wie im Kampf. Der Spieler muss nichts neu suchen – nur die Kulisse dahinter ist eine andere.
+
+Der Innenraum ordnet sich dem bestehenden Bänder-Aufbau unter (§3): Rückwand mit Fenster statt Himmelband, Möbelmasse als B1, Boden als B2. Neue Bausteine (Bett, Tresen, Feuerstelle) gehören danach **allen** Regionen (§7).
+
+#### (3) Gefallene Figuren werden gezeigt – und ihr Aufstehen ist der Rhythmus der Nacht
+
+**Beschluss: ja, gezeigt.** Die Kampfregel „am Boden, nicht weg" gilt hier erst recht – ein Verschwinden im Moment der Erholung wäre die Umkehrung der Aussage, die die Szene machen soll.
+
+- **Ankunft (Takt 1):** Gefallene werden **hereingetragen** und abgelegt, zuletzt in der Reihenfolge. Das ist zugleich der stärkste Träger der Totzeit: Es sagt ohne ein Wort, warum man hier ist.
+- **Nacht (Takt 2):** Jede gefallene Figur **steht auf, sobald ihre HP-Leiste eine sichtbare Schwelle überschreitet.** Das ist der eigentliche Gewinn dieses Punktes: Die 20 s Auffüllen bekommen **einzelne Ereignisse** statt nur vier gleichmäßig kriechende Leisten. Bei einem Wipe stehen vier Figuren nacheinander auf – vier Auszahlungsmomente, gestaffelt, ohne dass eine Sekunde Wartezeit hinzukommt.
+- **Die Schwelle ist die bestehende KO-/Wiederbelebungsschwelle der Kampfmechanik**, nicht eine neue Zahl für die Szene. Was auf der Bühne aufsteht, ist genau das, was im Kampf wieder handlungsfähig wäre – sonst behauptet das Bild einen Zustand, den die Mechanik nicht kennt.
+- **Kein Effekt-Aufschlag beim Aufstehen** (kein Blitz, kein Ausrufezeichen). Die Figur steht, das genügt; ein Signal-Effekt wäre wieder ein zweiter Träger.
+
+#### (4) Nicht überspringbar – aber der Aufenthalt darf früher enden
+
+**Beschluss: kein Skip.** Die Neigung aus der Erstfassung wird bestätigt, mit der jetzt sauberen Begründung: Die Totzeit sind **Fixkosten gegen Heil-Spam** (§3.8b). Ein Skip macht sie zu null und damit Heilen jederzeit zur dominanten Wahl – „durchhalten oder heilen" gäbe es dann nicht mehr. Das ist keine Komfortfrage, das ist die Mechanik.
+
+**Die mildere Alternative, die dasselbe Unbehagen adressiert – und warum sie nicht trägt:** Man könnte das *Bild* abkürzbar machen, ohne die *Zeit* abzukürzen (zurück auf die Kampfbühne, Uhr läuft weiter). Verworfen: Wer das nutzt, sitzt wieder vor einem eingefrorenen Kampfbildschirm, in dem sich nichts rührt – exakt der Befund, der diesen ganzen Abschnitt ausgelöst hat. Ein Ausweg, der ins Ausgangsproblem zurückführt, ist keiner.
+
+**Was stattdessen erlaubt wird – der Aufenthalt ist vorzeitig beendbar, sobald die Totzeit abgelaufen ist.** Ab Takt 2 gibt es „Aufbrechen": Die Party geht mit dem Stand, den sie bis dahin erreicht hat, zurück in den Kampf.
+
+- **Das hebelt nichts aus.** Die Fixkosten sind zu diesem Zeitpunkt bereits bezahlt; abgekürzt wird nur der *lineare* Teil, dessen Preis ohnehin proportional zum Nutzen ist.
+- **Es fügt eine Entscheidung hinzu, statt eine wegzunehmen:** „halb geheilt zurück oder auf voll warten" – dieselbe Kosten-Nutzen-Frage in klein, und sie macht die Totzeit als Fixkostenblock *spürbarer*, nicht schwächer.
+- **Bei Niederlage identisch** – der automatische Aufenthalt ist kein Sonderfall.
+- **In `feinspec-kapitel1.md` §3.8b nachgezogen** (02.08.2026): Die Abbruchbedingung des Aufenthalts steht jetzt dort im Mechanik-Block – „Ende: automatisch bei voll ODER auf Befehl, frühestens nach `INN_DEAD_TIME`". Kein offener Punkt mehr.
+- **Der Aufbruch ist der dritte Takt der Szene**, nicht ein Zusatz daneben: Ob er auf Befehl oder automatisch bei voll kommt, sieht gleich aus – Licht an, Blende, zurück auf die Kampfbühne.
+- **Die Schaltfläche existiert erst ab Takt 2.** Sie erscheint mit dem Ende der Dimmung, nicht ausgegraut schon vorher. Ein sichtbarer, aber gesperrter Knopf während der Totzeit würde zum Ausstieg einladen, den es dort nicht gibt – und die Totzeit damit als Gängelung markieren statt als Preis.
+
+#### Was hier ausdrücklich nicht beschlossen wird
+
+- **Keine Interaktion im Gasthaus.** Kein Shop, kein Menü, kein Gespräch mit Auswahl. Der Aufenthalt ist eine Pause; ein Ort, an dem man etwas erledigen *kann*, wird zu einem Ort, an dem man etwas erledigen *muss* (`../02_Leitfaden_Kernmechaniken.md` §4).
+- **Keine Zeitkosten aus der Szene.** Blenden, Ankunft und Aufbruch liegen **innerhalb** der 30 s, nicht davor oder danach. Die Szene bebildert die Totzeit, sie kauft keine zusätzliche.
 
 ## Suppress sichtbar machen (Playtest 02.08.2026)
 

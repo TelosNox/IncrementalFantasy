@@ -129,6 +129,21 @@ Je Region: das eine Motiv, die Signaturfarbe, das eine Detail. Namen und Reihenf
 
 **Palettenwechsel je Kapitel ist beabsichtigt:** Der Kapitelfortschritt soll auch ohne Text ablesbar sein – Kapitel 1 ist künstlich beleuchtete Nacht, Kapitel 2 bringt zum ersten Mal Tageslicht („The Great Outdoors" hält damit sein Versprechen), Kapitel 5 kippt ins Unwirkliche.
 
+## 6a. Die Gasthaus-Kulisse (beschlossen 02.08.2026)
+
+**Eine einzige Kulisse für alle 15 Regionen** – ein Innenraum. Begründung, Bänder-Zuordnung und die Rolle der Party-Sprites stehen in `ui-layout.md`, „Gasthaus-Szene" (2); hier nur, was der Generator wissen muss.
+
+- **Motiv:** Schankraum-Innenansicht. Rückwand mit **einem Fenster** (an der Stelle des Himmelbands), Möbelmasse als B1 (Tresen, Bettreihe), Boden als B2. Format und Maßstab wie jede andere Kulisse (§9) – die Szene benutzt dieselbe Bühnenbox und dasselbe Slot-Raster.
+- **Variiert wird nur zweierlei:**
+  1. **Palette je Kapitel**, nicht je Region – fünf Paletten im Endausbau, für Kapitel 1 genau eine. Der Palettenwechsel je Kapitel ist ohnehin das etablierte Fortschrittssignal (§6, Schlussabsatz).
+  2. **Der Fensterschein trägt die Signaturfarbe der aktuellen Region** (§6, Spalte „Signaturfarbe"). Ein Wert pro Region, kein Bild pro Region. Draußen ist noch der Reaktor giftgrün, der Bazaar magenta.
+- **Der Fensterschein ist Atmosphäre, kein Signal** (§4, §10): gedämpft, nie in Konkurrenz zu HP-Rot, Shock-Gold oder Fokus-Cyan – und mit der HUD-Lesbarkeit derselbe Fall wie jede Akzentfläche.
+- **Zwei Lichtzustände, nicht einer.** Die Szene dimmt während der Totzeit von „hell" auf „Nacht" und am Ende zurück. Der Generator liefert dafür **keine zwei Bilder**, sondern eine Kulisse, die zur Laufzeit abgedunkelt wird – die Dimmung ist ein UI-Vorgang, kein Asset. (Der Grund, warum sie überhaupt existiert, steht in `ui-layout.md` (1): sie ist der Fortschrittsträger der Totzeit.)
+- **Kulissen-Leben (§10):** höchstens ein Element, etwa Glut in der Feuerstelle. Ein ruhiger Ort ist die Aufgabe – der Kontrast zum Kampf ist der Punkt.
+- **Neue Bausteine** (Bett, Tresen, Feuerstelle, Innen-Fensternische) gehören nach §7 anschließend **allen** Regionen. Das ist der erste Innenraum überhaupt; der Baukasten war bisher rein auf Außensilhouetten ausgelegt.
+
+**Humor (F2), Randbedingungen:** Wirt, Schild, Übernachtungsritual. **Genau eine Wirtszeile pro Aufenthalt**, aus einem Pool gezogen – der Aufenthalt wiederholt sich oft (nach jeder Niederlage automatisch), und zwei Zeilen sind bereits ein Dialog. Aufhänger, der die Mechanik ernst nimmt statt sie zu ignorieren: Das Gasthaus kostet **kein Gil, nur Zeit** (`feinspec-kapitel1.md` §3.8b) – ein Wirt, der davon unbeeindruckt ist, ist der Gag.
+
 ## 7. Werkzeug: Baukasten statt Einzelfunktionen
 
 **Gebaut in M12.** `assets/region_kit.py` enthält Bausteine, Prüfmodus und Gegenprobe; `assets/generate_regions.py` enthält **nur noch Paletten und Rezepturen** – eine Region ist eine `Palette` plus eine Liste `(Baustein, Parameter)`. Aufruf: `python generate_regions.py [--check] [--report]`. Details und Abweichungen: `../07_Umsetzungsentscheidungen.md`, Umsetzungsentscheidungen 20–30.

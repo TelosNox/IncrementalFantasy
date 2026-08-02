@@ -291,9 +291,18 @@ Ablauf:     INN_DEAD_TIME = 10 s, in denen NICHTS geheilt wird (Fixkosten),
             danach INN_RATE = 5 %/s auf HP UND MP gleichzeitig.
 Kosten:     ausschließlich Zeit. Kein Gil.
 Limit:      unberührt – existiert außerhalb von Gate-Kämpfen ohnehin nicht (§3.4).
+Ende:       automatisch, sobald HP und MP voll sind – ODER auf Spielerbefehl
+            („Aufbrechen"), aber FRUEHESTENS nach Ablauf von INN_DEAD_TIME.
+            Waehrend der Totzeit gibt es keinen Ausstieg.
 ```
 
 Voll heilen aus dem Nichts dauert damit **30 s** (10 s Totzeit + 20 s Erholung). Die Totzeit ist der eigentliche Design-Kern: Sie macht häufiges kleines Nachheilen unwirtschaftlich und belohnt „weiterkämpfen, bis man es wirklich braucht" – eine Optimierungsfrage mit echter Antwort statt einer Selbstverständlichkeit.
+
+**Vorzeitiger Aufbruch (ergänzt 02.08.2026, Konzept-Session):** Ab dem Ende der Totzeit kann der Spieler den Aufenthalt jederzeit beenden und mit dem bis dahin erreichten HP/MP-Stand in den Kampf zurück. Das gilt auch für den bei Niederlage automatisch ausgelösten Aufenthalt – kein Sonderfall.
+
+Das **schwächt die Fixkosten nicht**, weil sie zum Zeitpunkt des Ausstiegs bereits vollständig bezahlt sind; abgekürzt wird ausschließlich der lineare Teil, dessen Preis ohnehin proportional zu seinem Nutzen ist. Der Anreiz gegen Heil-Spam bleibt damit exakt derselbe (jeder Besuch kostet 10 s, egal wie kurz er ausfällt) – hinzu kommt eine zweite, kleinere Kosten-Nutzen-Frage: „halb geheilt zurück oder auf voll warten". Sie macht die Totzeit als Fixkostenblock **spürbarer**, weil der Spieler den Unterschied zwischen dem unverhandelbaren und dem verhandelbaren Teil des Aufenthalts erlebt.
+
+Der Ausstieg wird bewusst **nicht** während der Totzeit angeboten: Er wäre dann ein Skip der Fixkosten und damit ihre Abschaffung. Zur Darstellung (die Totzeit wird als Ankunft bebildert, der Aufbruch ist der dritte Takt der Szene) s. `ui-layout.md`, „Gasthaus-Szene".
 
 **Warum Zeit statt Gil:** Ein Gil-Preis kann in einen Deadlock laufen (wenig HP + kein Gil = kein Ausweg). Zeit kann das nie. Zudem ist die gesamte Ökonomie ohnehin in Zeit denominiert. *Nebenwirkung:* Gil hat damit weiterhin nur **einen** Sink (Waffen) – ein zweiter bleibt offen (`oekonomie-waehrungen.md`).
 
