@@ -29,6 +29,7 @@ Gearbeitet wird durchgehend in **Claude Code**, aber in zwei klar getrennten Mod
   1. Entscheidung treffen und umsetzen (Fortschritt hat Vorrang vor Rückfragen),
   2. als nummerierte **„Umsetzungsentscheidung"** in `docs/07_Umsetzungsentscheidungen.md` festhalten – mit Begründung und Spec-Bezug (append-only, Nummerierung fortlaufend; **nicht** mehr im Meilenstein-Plan),
   3. bei **design-relevanten** Funden zusätzlich die betroffene `docs/spec/*.md` korrigieren, damit die nächste Konzept-Session den Stand sieht.
+  4. **Entwertet die neue Entscheidung die Begründung einer früheren** (nicht nur ihr Ergebnis), das explizit im neuen Eintrag vermerken (z. B. „entwertet Begründung von Entscheidung #NN") statt den alten Eintrag stillschweigend stehen zu lassen. Grund: Entscheidungen werden dort dokumentiert, wo sie fallen, nicht dort, wo sie wirken – ohne Querverweis bleibt eine überholte Begründung unentdeckt liegen, obwohl das Ergebnis längst woanders korrigiert wurde (Beispiel: die Ablehnung eines festen Popups wegen der „visuellen Klammer" blieb unkommentiert stehen, nachdem genau diese Klammer eine Woche später gestrichen wurde).
 
 Beides bleibt der verbindlichen Prüfinstanz `docs/02_Leitfaden_Kernmechaniken.md` unterworfen – auch im Umsetzungs-Modus.
 
