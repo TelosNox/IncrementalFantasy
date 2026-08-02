@@ -230,6 +230,52 @@ Die Bottom-Leiste trägt je Figur ein **Charakter-Panel** (HP/MP/ATB/Limit) plus
 - **Skalierung:** feste Grundaktionen oben (Attack, Special, Limit; Defend ab Boss-Event); **Materia unter der Kategorie „Magic ▸"** als **scroll-/blätterbare Unterliste** → das Popup behält seine Größe, egal wie viele Materia (rutscht nie aus dem Bild). Kategorie nur sichtbar, wenn Materia-Aktionen existieren.
 - **Platz:** Popup wächst nach **oben** in die Stage (über der Bottom-Leiste), auf der Party-Seite (links), damit es die Gegner-Seite und deren HUD nicht verdeckt. **Es weicht der eigenen Figur aus** (s. Bühnen-Framework, „Skalierung"): Läge es über der Figur, deren Aktion es abfragt, verdeckt es genau das, worauf es sich bezieht – bei kleiner Bühne messbar ein Drittel davon. Maßgeblich ist die Figur **in ihrer vorgetretenen Position**, nicht ihr Slot.
 
+## Tastensteuerung (beschlossen 02.08.2026)
+
+**Anlass (Nutzer, gespielt):** Das Aktions-Popup öffnet am Panel der **jeweils** handelnden Figur (s. „Platz" oben). Bei mehreren bereiten Manual-Figuren arbeitet die Warteschlange (`gambits.md` §3) sie nacheinander ab – das Popup **springt dabei über die ganze Bottom-Leiste**, und der Cursor muss jedes Mal hinterher. Der Weg skaliert mit der Fensterbreite **und** mit der Party-Größe: Bei Claude allein (P1) gibt es ihn kaum, mit vier Figuren ist er maximal.
+
+**Warum das kein Komfort-Thema ist.** Manuelles Spiel ist der Clutch-Modus (`gambits.md` §3); die Sessions vom 30.07.2026 haben die **Idle-Konvergenz** als Kernproblem diagnostiziert – Spieler landen bei Typ V, weil manuell zu teuer ist. Reibungskosten der Ausführung sind damit direkt Balance-relevant, nicht Politur. Und ausgerechnet die Phase mit voller Party, in der manuelles Spiel den größten Unterschied macht, hat den längsten Mausweg.
+
+**Verworfen: das Popup an einer festen Stelle öffnen.** Das wäre die mildere Änderung – kein neuer Eingabekanal, Mausweg trotzdem weg. Kosten: Die Verortung am Panel ist die **visuelle Klammer** zwischen Popup und der vorgetretenen Figur (s. „Vortreten bei Bereitschaft" und „Platz"; das Popup weicht der Figur sogar aktiv aus, statt sie zu verdecken). Ein festes Popup bricht diese Klammer und lässt „wer ist eigentlich dran?" wieder offen. Die Tastensteuerung entfernt die Bewegung und **erhält** die Klammer.
+
+### Belegung
+
+| Taste | Aktion |
+|---|---|
+| **A** | Attack |
+| **S** | Special |
+| **D** | Defend (ab Freischaltung) |
+
+- **An die Bedeutung gebunden, nicht an die Zeilenposition.** Alle drei Aktionen tragen ihren eigenen Anfangsbuchstaben – das ist eindeutig ohne Zusatzbeschriftung, und die Taste bleibt dieselbe, egal wie viele Zeilen das Popup gerade hat. Eine positionsgebundene Belegung („A = erste Zeile") würde beim Erscheinen von Limit oder Defend still ihre Wirkung ändern.
+- **D ist tot, solange Defend nicht freigeschaltet ist** – kein Fehlerton, keine Ersatzwirkung. Konsequenz aus der Bedeutungsbindung.
+- **Limit bekommt bewusst keine Taste.** Es steht im Popup zwischen Special und Defend; auf der Nachbartaste F wäre es genau eine Fingerbreite von A/S/D entfernt – und ein versehentlich verheiztes Limit ist an einem Gate teuer, wo es nur einmal geladen ist. Limit gibt es ohnehin nur in Gate-/Boss-Kämpfen, dort steht die Uhr (Wait-Pause), und ein Mausklick kostet nichts. **Der Preis, ehrlich benannt:** Ausgerechnet die Aktion mit dem größten Einsatz behält den Mausweg. Bewusst so – es ist die Aktion, bei der man hinschauen *soll*.
+- **Keine Tasten für die Zielwahl**, weil es keinen Zielwahl-Schritt mehr gibt (`feinspec-kapitel1.md` §3.9, revidiert am selben Tag). Der Fokuswechsel bleibt Maus/Tipp auf den Gegner – er ist die **Entscheidung**, nicht die Ausführung, und darf ruhig einen bewussten Handgriff kosten.
+
+### Regeln (verbindlich)
+
+- **Nur wirksam, solange ein Aktions-Popup offen ist.** Kein Popup = keine Wirkung.
+- **Kein Key-Repeat, keine gepufferten Eingaben.** Jeder Tastendruck gilt für genau das Popup, das beim Druck offen ist; Eingaben davor werden verworfen. Ohne diese Regel rasselt bei gehaltener Taste eine ganze Popup-Serie durch – derselbe Mechanismus, mit dem man Einführungs-Popups wegklickt, ohne sie zu lesen, und ein direkter Verstoß gegen „Manual heißt **überlegt**, nicht reflexschnell" (`gambits.md` §4).
+- **Tot, solange ein blockierendes Einführungs-Popup steht** (s. „Mechanik-Einführung"). Sonst quittiert ein reflexhaftes A die Erklärung, die es gerade lesen sollte.
+- **Nicht ausführbare Aktionen sind auch per Taste nicht ausführbar** (Special ohne MP): keine Wirkung, kein Alarm – der gedämpfte Zeilenzustand ist die Auskunft.
+
+### Sichtbarkeit: unterstrichener Anfangsbuchstabe
+
+Ein Hotkey, der nicht im Popup steht, existiert für den Spieler nicht. Angezeigt wird er als **Unterstreichung des Anfangsbuchstabens** (A̲ttack, S̲pecial, D̲efend).
+
+**Warum nicht über Schriftstil, Gewicht oder Größe:** Diese Achse ist bereits vergeben. Das Popup kodiert die Verfügbarkeit über **hell + dickere Schrift** vs. **gedämpft + dünne Schrift** (s. „Zustandskodierung doppelt"). Ein fett gesetztes „S" in einer ausgegrauten Special-Zeile behauptet Verfügbarkeit, die nicht besteht – derselbe Fehlertyp wie die Gold-Kollision zwischen Fokusmarker und Shock-Ring, und ebenso ein Lesbarkeitsfehler statt einer Geschmacksfrage. Gemischte Schriftgrade innerhalb eines Wortes scheiden zusätzlich technisch aus (gebrochene Skalierung mitten im Wort, Pixelfont).
+
+**Warum nicht Klammerung** („(A)ttack"): Das Popup misst fest 232 CSS-px und skaliert bewusst nicht mit `s` – es darf nicht wachsen. Klammern verbreitern alle Zeilen und beschädigen das Wortbild der FF7-Menübox.
+
+**Der Gewinn der Unterstreichung:** Sie kostet null Breite, benutzt eine bisher freie Achse, und sie **erbt die Zustandskodierung automatisch** – in einer gedämpften Zeile ist auch der Unterstrich gedämpft, die Taste sieht damit von selbst so unverfügbar aus, wie sie ist.
+
+**Die Unterstreichung steht für sich – es gibt bewusst keine Einführung dazu** (Nutzer-Entscheidung 02.08.2026: *„das ist ein Muster, das man allgemein aus Software kennt"*). Erwogen und **verworfen** wurde ein Satz in Einführung Nr. 2 („ATB & Angreifen"). Der Grund ist nicht, dass die Konvention garantiert bekannt wäre, sondern dass die **Nicht-Entdeckung folgenlos ist**: Wer die Tasten nie bemerkt, klickt weiter und spielt dasselbe Spiel. Das unterscheidet sie grundsätzlich von den Mechaniken der Kanon-Liste, wo Nicht-Entdeckung direkt in Typ V mündet – und damit greift dort die Regel „Popup nur, wenn der Spieler etwas *tun* kann" gegen einen Tasten-Hinweis. Nr. 2 ist außerdem die erste echte Einführung; ein Ergonomie-Zusatz verwässert ihre Botschaft.
+
+⚠️ **Zu beobachten (gespielt):** Ob die Unterstreichung ohne jede Erwähnung als Tastenhinweis gelesen wird. Falls im Playtest niemand die Tasten benutzt, ist die Nachrüstung **ein Satz** in Nr. 2 – billig genug, um es erst zu messen. Der Hinweis verstieße auch nicht gegen das Zahlenverbot der Einführungen: Eine Taste ist kein Balance-Wert und kann durch kein Rebalancing zur Falschaussage werden.
+
+### Folge für die Bühne
+
+Wer per Tastatur spielt, folgt mit den Augen **nicht mehr dem Cursor**. Damit ist das **Vortreten der handelnden Figur** kein Schmuck mehr, sondern das einzige verbleibende Signal, wessen Popup gerade offen ist (die Popup-Position allein wird nicht mehr angesteuert und daher auch nicht mehr angesehen). Der Effekt muss entsprechend deutlich sein – das ist ein **neues Argument für die 12-su-Bewegung**, die bisher allein über „lebt von der Bewegung, nicht vom Endzustand" begründet war.
+
 ## Freischaltungs-Hinweis (Unlock-Callout)
 
 **Neu, Playtest-Korrektur nach M6:** Die Default-Attack-Freischaltung in Zone 5 (feinspec §7.1, Punkt 3) ist im Leitfaden explizit als **spürbarer Automatik-Beat** markiert („★ Erster 'vom Tappen zum mühelosen Fortschritt'-Moment", `gambits.md` §2 „Erlösung"). Ohne jede Ankündigung wirkt derselbe Moment im Playtest umgekehrt: **verwirrend statt befreiend** – der Spieler sieht nur, dass plötzlich nichts mehr abgefragt wird, ohne zu verstehen, warum. Das ist ein Onboarding-Fehler (Anti-Pattern #4 „Komplexität ohne Onboarding", `02_Leitfaden_Kernmechaniken.md`), keine Geschmacksfrage.

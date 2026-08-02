@@ -49,7 +49,8 @@ Der Auto/Manual-Schalter sitzt **pro Figur**. Spontanes Eingreifen im laufenden 
 
 1. Manual-Figur wird **bereit** (ATB voll) → die **gesamte Kampfuhr pausiert** (globale Wait-Pause).
 2. Am Panel der Figur öffnet ein **Aktions-Popup** (FF7-Menübox; Darstellung/Position: `ui-layout.md`).
-3. Der Spieler wählt Aktion + bei Bedarf **Ziel**. **Präzisiert nach dem ersten Playtest** (die Zielwahl war nie umgesetzt, obwohl dieser Punkt sie schon versprach): Normale **Angriffe** folgen einem **gruppenweiten Fokusziel**, das pro Kampf einmal gesetzt wird und bis zum Tod des Gegners gilt – auch für Figuren im Auto-Modus. Bei **Specials** (und ab Kap. 2 Materia) wählt der Spieler das Ziel dagegen **pro Einsatz** – **vorausgewählt ist das Fokusziel, Antippen ändert es**; Fähigkeiten ohne Gegnerziel (Heilung) treffen die Gruppe. Eine Regel, keine Ausnahmen: Auch Barrels Suppress zielt vorab auf den Fokus, obwohl der schnellste Gegner oft die klügere Wahl wäre – das zu erkennen ist genau die Einsicht, die manuelles Spiel belohnen soll, und keine Aufgabe der Vorauswahl. Vollständige Regeln inkl. Reset pro Kampf und Standardregel ohne Fokus: `feinspec-kapitel1.md` §3.9.
+3. Der Spieler wählt **nur die Aktion** – **es gibt keinen Zielwahl-Schritt** (revidiert 02.08.2026). Jede Aktion mit Gegnerziel trifft das **gruppenweite Fokusziel**, das zu Kampfbeginn auf den vordersten Gegner gesetzt wird, bis zum Tod des Ziels gilt und jederzeit per Klick auf einen Gegner gewechselt werden kann – auch für Figuren im Auto-Modus. Fähigkeiten ohne Gegnerziel (Heilung) treffen die Gruppe.
+   **Begründung:** *Die Entscheidung gehört dem Spieler, die Ausführung soll billig sein* – dieselbe Achse, die §5a für den Editor in Kapitel 2 setzt. Auch Barrels Suppress folgt dem Fokus, obwohl der schnellste Gegner oft die klügere Wahl wäre; das zu erkennen bleibt die Einsicht, die manuelles Spiel belohnt, sie kostet nur einen **Fokuswechsel** statt eines Extra-Schritts bei jedem Einsatz. Vollständige Regeln, verworfene Pro-Einsatz-Variante und die Grenze für Kapitel 2: `feinspec-kapitel1.md` §3.9.
 4. Aktion feuert → Uhr läuft weiter. **Mehrere gleichzeitig bereite** Manual-Figuren werden als **Warteschlange** nacheinander abgefragt.
 
 **Aktions-Gruppen im Popup (skaliert mit dem Fortschritt):**
@@ -58,6 +59,8 @@ Der Auto/Manual-Schalter sitzt **pro Figur**. Spontanes Eingreifen im laufenden 
 - **Defend:** erscheint als **kontextuelles Event**, sobald der **erste Boss sichtbar eine Groß-Attacke auflädt** (Onboarding genau bei Bedarf; in Kapitel 1 spätestens an Vaultron).
 - **Magic ▸ (Materia-Kategorie):** erscheint **erst, wenn Materia-Aktionen vorhanden sind** (ab Kap. 2); öffnet als **scroll-/blätterbare Unterliste** → beliebig viele Zauber, ohne dass das Popup wächst.
 - **Nicht ausführbare Aktionen** (z. B. Special ohne MP) bleiben **sichtbar, aber ausgegraut** (gedämpft + dünne Schrift) – nie verstecken, damit die Optionen lernbar bleiben.
+
+**Tastensteuerung:** Attack/Special/Defend sind zusätzlich über **A/S/D** auslösbar (Details, Regeln und Sichtbarkeit: `ui-layout.md`, „Tastensteuerung"). Das ist die Ergonomie-Seite desselben Prinzips wie Punkt 3: Die Entscheidung bleibt beim Spieler, die Ausführung wird billig.
 
 ## 4. Idle-Anteil & manuelle Prüfsteine (Balance-Philosophie)
 

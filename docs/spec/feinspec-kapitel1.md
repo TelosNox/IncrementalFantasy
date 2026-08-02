@@ -323,26 +323,36 @@ Gegner-Seite: siehe `gegner-encounter.md` §6a (Regel: höchste aktuelle HP).
 ```
 Fokusziel:  EIN Ziel für die GANZE Gruppe, gilt für alle normalen Angriffe.
             Gilt auch für Figuren im Auto-Modus.
-            Reset zu Beginn JEDES Kampfes (kein Übertrag zwischen Kämpfen).
-            Bei nur einem lebenden Gegner automatisch gesetzt.
+            Reset zu Beginn JEDES Kampfes (kein Übertrag zwischen Kämpfen);
+            dabei sofort auf die Standardregel GESETZT, nicht leer gelassen.
             Stirbt das Ziel und leben mehrere: Rückfall auf die Standardregel,
             Spieler kann jederzeit neu wählen. Nie ein Zustand ohne Ziel.
 
-Standardregel (kein Fokus gesetzt): der NÄCHSTSTEHENDE Gegner.
+Standardregel: der NÄCHSTSTEHENDE Gegner = Slot E1 (Encounter-Reihenfolge,
+            `ui-layout.md` Slot-Raster). Gilt, bis Kap. 2 einen erworbenen
+            Automatismus darüberlegt (Gambit-Bedingung, `gambits.md` §5a).
 
-Specials (und ab Kap. 2 Materia): der SPIELER wählt das Ziel pro Einsatz.
-            Vorausgewählt ist das Fokusziel; Antippen ändert es.
+Specials (und ab Kap. 2 Materia): ebenfalls das Fokusziel. KEINE Zielwahl pro Einsatz.
             Fähigkeiten ohne Gegnerziel (Heilung) treffen die Gruppe.
-            Die Special-Zielwahl verschiebt das Fokusziel NICHT.
 ```
 
-#### Vorauswahl im Aktions-Popup
+#### Ein Ziel, kein Zielwahl-Schritt (revidiert 02.08.2026)
 
-> **Vorausgewählt ist immer das Fokusziel – für jede Fähigkeit, die einen Gegner anvisiert.** Fähigkeiten ohne Gegnerziel (Air is…' Heilung) treffen die Gruppe.
+> **Das Fokusziel gilt für jede Aktion, die einen Gegner anvisiert – für Angriffe wie für Specials, für Manual- wie für Auto-Figuren.** Es gibt im Aktions-Popup **keinen Zielwahl-Schritt**: Aktion wählen heißt Aktion ausführen. Wer ein anderes Ziel will, **wechselt das Fokusziel** (Klick/Tipp auf den Gegner) – vor oder nach der Aktion, jederzeit.
 
 Eine Regel, **keine Ausnahmen**. Das ersetzt die vier gewachsenen Heuristiken, die bis hierher im Code lebten (Claude → stärkstes, Tofa → schwächstes, Barrel → schnellstes, Limit → stärkstes) und die nie jemand entschieden hat.
 
-**Unterschied zum Auto-Angriff, und warum eine Vorauswahl hier trotzdem richtig ist:** Beim Auto-Angriff *feuerte* die verborgene Regel ohne den Spieler – das war das Problem. Im Popup ist die Vorauswahl **sichtbar und überschreibbar**; der Spieler sieht, worauf gezielt wird, und tippt gegebenenfalls woanders hin. Sichtbare Vorauswahl ≠ verborgene Regel.
+**Begründung (Nutzer-Entscheidung 02.08.2026):** *„Der relevante Anteil des Spielers im manuellen Modus ist die Entscheidung selbst, nicht deren Ausführung. Daher sollte die Ausführung möglichst einfach sein."* Das ist **dieselbe Achse, die `gambits.md` §5a für Kapitel 2 setzt** – der Gambit-Editor „automatisiert nicht die Entscheidung, sondern die Ausführung". Ein Bestätigungsschritt pro Einsatz ist Ausführung. Ihn zu streichen bringt Kapitel 1 auf die Linie, auf der Kapitel 2 ohnehin steht, statt Kapitel 1 zu verarmen.
+
+**Praktischer Anlass:** Das Popup öffnet am Panel der jeweiligen Figur und springt damit über die Bottom-Leiste; jeder zusätzliche Interaktionsschritt kostet einen weiteren Mausweg, der mit Fensterbreite *und* Party-Größe wächst (s. `ui-layout.md`, „Tastensteuerung"). Der Zielwahl-Schritt war der teuerste davon, weil er von der Bottom-Leiste auf die Stage und zurück führte.
+
+**Unterschied zum Auto-Angriff, und warum das trotzdem kein Rückfall ist:** Beim Auto-Angriff *feuerte* eine **verborgene** Regel ohne den Spieler – das war das Problem. Das Fokusziel ist kein verborgener Zustand: Es trägt eine permanente Markierung auf der Bühne (cyan, Silhouette + Glyphe, `ui-layout.md` „Markierungen"), es wird pro Kampf zurückgesetzt, und es ist jederzeit mit einem Klick änderbar. Sichtbarer Zustand ≠ verborgene Regel.
+
+**Verworfen: Zielwahl pro Einsatz bei Specials** (die Fassung von M11). Sie erlaubte, in *einem* Zug von der Gruppenlinie abzuweichen – etwa Barrels Suppress auf den schnellen Heiler zu legen, während die Angriffe auf dem Tank bleiben. Das ist ein echter Verlust und wird hier bewusst getragen:
+
+- Die Einsicht (§3.9 unten: „zu erkennen, dass der Schnelle das Problem ist") bleibt **vollständig erhalten** – sie kostet jetzt einen Fokuswechsel statt eines Popup-Tipps. Sie wird **teurer, nicht unmöglich**.
+- **Der Preis, ehrlich benannt:** Ein Fokuswechsel dreht zugleich die Ziele der Auto-Figuren, und die Wait-Pause hält nur während einer Manual-Auswahl. Wer für einen Suppress kurz umschaltet, lenkt in dieser Zeit auch die übrige Party um. Das ist kein Fehler, sondern die Konsequenz aus „ein Ziel für die ganze Gruppe" – und es ist auf der Bühne sichtbar.
+- **Grenze für Kapitel 2:** Die Regel trägt, solange Einzelziele nur auf der Gegnerseite liegen. Sobald Materia Einzelziel-Effekte auf die **eigene Party** bringt (Einzelheilung, Buff), fehlt ein Kanal. Die Antwort ist dann **eine Regel statt einer Auswahl** (z. B. „trifft die Figur mit der niedrigsten HP"), **nicht** ein wiedereingeführter Zielwahl-Schritt.
 
 **Warum auch Barrels Suppress keine Ausnahme bekommt** (naheliegend wäre „schnellster Gegner"): Der Wert einer Unterdrückung ist der Schaden, den der Gegner im Wirkzeitraum *nicht* anrichtet – also sein **Durchsatz (≈ ATK · SPD)**, nicht seine Geschwindigkeit allein. In Kapitel 1 funktioniert „SPD ≥ 140" nur zufällig, weil ATK kaum streut (6–10) und SPD das Produkt dominiert; die Regel bricht genau dort, wo es zählt: **Alle drei Bosse sind langsame Schwerschläger.** Vaultron (ATK 14, SPD 70) hat den zweithöchsten Durchsatz des Kapitels und würde von einer SPD-Schwelle nie erfasst.
 
@@ -496,7 +506,7 @@ Das ist die **einzige** Auto-Regel. Kein Special, kein Heal, kein Suppress, kein
 
 **Referenz für "aufmerksames manuelles Spiel"** (was der Spieler über Special/Heal/Suppress/Limit erreichen kann, und was die Pacing-Simulation für Gates ansetzt): Limit hat Vorrang, sobald voll; sonst je Figur ihr Special, sofern MP reicht (Air is... heilt bei Verbündeten-HP < 45 %, Tofa schlägt vor, wenn das Ziel noch nicht geschockt ist, Barrel unterdrückt bevorzugt SPD ≥ 140, sonst das stärkste Ziel); sonst Attack. Implementiert in `core/gambits.ts` als `resolveOptimalAction` (nur für die Pacing-Simulation aufgerufen, nicht vom Live-Spiel – dort wählt der Spieler selbst im Popup). **Korrektur (Playtest-Fund nach M11, s. `06_Implementierungsplan_Kapitel1.md`):** Claudes Cross Slash hat keinen eigenen taktischen Zweck (anders als Suppress/Limit) und folgt daher wie ein normaler Angriff der Fokusziel-Regel (§3.9) statt immer das stärkste Ziel zu treffen – die Vorfassung hatte das versehentlich 1:1 von der alten "stärkstes Ziel"-Heuristik übernommen und ignorierte damit ein vom Spieler gesetztes Fokusziel.
 
-**Diese Referenz-Policy darf klug sein – die Vorauswahl im Popup (§3.9) nicht.** Sie definiert die Obergrenze für Spielertyp **M** (§12) und modelliert einen aufmerksamen Menschen, der Bedrohungen erkennt. **Zu korrigieren ist dabei Barrels Kriterium:** „SPD ≥ 140" erfasst **keinen** der drei Bosse (alle SPD 70–90), obwohl Vaultron mit ATK 14 der zweitstärkste Schadensträger des Kapitels ist – der Wert einer Unterdrückung bemisst sich am **Durchsatz (≈ ATK · SPD)**, nicht an der Geschwindigkeit allein. In der Fläche fällt das nicht auf (dort streut ATK kaum und SPD dominiert das Produkt), an den Gates spielt die Policy Barrel damit aber systematisch schlecht – und verzerrt so ausgerechnet die M/T/V-Korridore aus §12 B2, weil M künstlich geschwächt wäre. Kriterium auf Durchsatz umstellen.
+**Diese Referenz-Policy darf klug sein – die Standardregel des Fokusziels (§3.9) nicht.** Sie definiert die Obergrenze für Spielertyp **M** (§12) und modelliert einen aufmerksamen Menschen, der Bedrohungen erkennt. **Zu korrigieren ist dabei Barrels Kriterium:** „SPD ≥ 140" erfasst **keinen** der drei Bosse (alle SPD 70–90), obwohl Vaultron mit ATK 14 der zweitstärkste Schadensträger des Kapitels ist – der Wert einer Unterdrückung bemisst sich am **Durchsatz (≈ ATK · SPD)**, nicht an der Geschwindigkeit allein. In der Fläche fällt das nicht auf (dort streut ATK kaum und SPD dominiert das Produkt), an den Gates spielt die Policy Barrel damit aber systematisch schlecht – und verzerrt so ausgerechnet die M/T/V-Korridore aus §12 B2, weil M künstlich geschwächt wäre. Kriterium auf Durchsatz umstellen.
 
 ---
 
