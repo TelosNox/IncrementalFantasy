@@ -21,6 +21,18 @@
   const canGoForward = $derived(zoneNavEnabled && game.save.currentZone < game.maxZoneReached)
   const atWall = $derived(game.save.currentZone >= game.maxZoneReached)
 
+  // oekonomie-waehrungen.md §1a / ui-layout.md "Erschöpfte Zonen" (M18) - haengt am Ist-Ertrag,
+  // nicht am Cutoff-Wert (`game.isZoneExhausted`). Ein Marker fuer beide genannten Orte: die
+  // Zonenwahl (Stepper, `selectZone` wechselt sofort) UND die aktuell bespielte Zone - hier
+  // dieselbe Zone, da dieses Spiel keine separate Vorschau vor dem Zonenwechsel kennt.
+  const currentZoneExhausted = $derived(game.isZoneExhausted(game.save.currentZone))
+
+  // ui-layout.md "Bester Versuch am Gate" (M18) - nur an einem Gate, nur nach einer Niederlage
+  // dort sichtbar (kein Eintrag vor dem ersten Versuch).
+  const gateBestAttempt = $derived(
+    game.isCurrentZoneGate ? game.save.gateBestAttempts[game.save.currentZone] : undefined,
+  )
+
   // Architektur §6 "Export/Import als Sicherheitsnetz" (M10) - reines Datei-Handling, kein
   // eigener State noetig; game.importSave() macht die eigentliche Validierung/Uebernahme.
   let fileInput: HTMLInputElement | undefined = $state()
@@ -46,12 +58,21 @@
 <div class="sidebar">
   <div class="title">IncrementalFantasy</div>
   <div class="subtitle">Chapter 1 – The Grid</div>
-  <div class="zone">R{regionIndex} · {regionName} · Zone {game.save.currentZone}</div>
+  <div class="zone" class:exhausted={currentZoneExhausted}>
+    R{regionIndex} · {regionName} · Zone {game.save.currentZone}{#if currentZoneExhausted} · exhausted{/if}
+  </div>
+
+  {#if gateBestAttempt !== undefined}
+    <!-- ui-layout.md "Bester Versuch am Gate" (M18) - rein rueckblickend, keine Prognose. -->
+    <div class="gate-best">Best attempt: boss down to {gateBestAttempt}% HP</div>
+  {/if}
 
   <!-- feinspec §3.8a (M11) - Zonen-Rückkehr: jede geschaffte Zone frei anwählbar, vor und zurück. -->
   <div class="zone-nav">
     <button disabled={!canGoBack} onclick={() => game.selectZone(game.save.currentZone - 1)}>◀</button>
-    <span class="zone-nav-label">Zone {game.save.currentZone} / {game.maxZoneReached}</span>
+    <span class="zone-nav-label" class:exhausted={currentZoneExhausted}>
+      Zone {game.save.currentZone} / {game.maxZoneReached}{#if currentZoneExhausted} · exhausted{/if}
+    </span>
     <button disabled={!canGoForward} onclick={() => game.selectZone(game.save.currentZone + 1)}>▶</button>
   </div>
   {#if !atWall}
@@ -153,6 +174,22 @@
     color: var(--game-text-bright);
     font-size: 13px;
     margin-top: 4px;
+  }
+
+  /* ui-layout.md "Erschöpfte Zonen" - gedaempft + duenne Schrift, dasselbe Vokabular wie nicht
+     ausfuehrbare Aktionen im Aktions-Popup ("sichtbar, aber sofort als 'bringt nichts' lesbar"). */
+  .zone.exhausted,
+  .zone-nav-label.exhausted {
+    color: var(--game-text);
+    font-weight: 300;
+    opacity: 0.7;
+  }
+
+  .gate-best {
+    margin-top: 4px;
+    color: var(--game-text);
+    font-size: 11px;
+    opacity: 0.8;
   }
 
   .zone-nav {

@@ -51,6 +51,10 @@ export interface BattleUnit {
   counterActive?: boolean
   /** M16 - Anzahl bereits erfolgter Konter im aktuellen Fenster; deckelt die Wucht (s. `dealDamage`). */
   counterHits?: number
+  /** gegner-encounter.md §5a (M18) - Menge/Ziel-Index des zuletzt ausgeteilten Heil-Bursts, fuer die
+   * Kampfanzeige (Heilzahl). Bleibt stehen, solange `actionsDone % 3 === 0` (s. `tick.ts`). */
+  lastHealAmount?: number
+  lastHealTargetIndex?: number
   controlMode?: ControlMode
   canSpecial?: boolean
   specialId?: string
@@ -186,7 +190,7 @@ export function dealDamage(attacker: BattleUnit, target: BattleUnit, rawAtk: num
     if (buildup.windowTriggered) target.shockTimer = SHOCK_WINDOW
   }
   if (attacker.side === 'party' && attacker.limitAllowed) {
-    attacker.limit = Math.min(LIMIT_MAX, attacker.limit + limitGainOnDealt(dmg))
+    attacker.limit = Math.min(LIMIT_MAX, attacker.limit + limitGainOnDealt(dmg, target.maxHp))
   }
   // gegner-encounter.md §5a/§7 (M16) - Konter-Fenster: jeder Treffer waehrend `counterActive`
   // schlaegt mit voller Wucht zurueck (gleiche Formel wie ein regulaerer Gegner-Treffer), aber
@@ -212,6 +216,6 @@ export function aoeParty(party: BattleUnit[], damage: number): void {
     if (!isAlive(p)) continue
     const dmg = p.defending ? Math.round(damage * 0.5) : damage
     p.hp -= dmg
-    if (p.limitAllowed) p.limit = Math.min(LIMIT_MAX, p.limit + limitGainOnTaken(dmg, true))
+    if (p.limitAllowed) p.limit = Math.min(LIMIT_MAX, p.limit + limitGainOnTaken(dmg, p.maxHp, true))
   }
 }

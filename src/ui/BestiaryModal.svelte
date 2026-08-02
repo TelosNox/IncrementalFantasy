@@ -6,7 +6,6 @@
   import { game } from './gameStore.svelte'
   import { MONSTERS, MONSTER_INSPIRED_BY } from '../content/monsters'
   import { ENEMY_SPRITES } from './sprites'
-  import { atbInterval, enemyHealAmount } from '../core/formulas'
 
   const catalog = $derived(Object.keys(MONSTERS))
   const discovered = $derived(Object.keys(game.save.bestiary))
@@ -19,16 +18,11 @@
   // Monster inkl. Gates).
   const STAT_MAX = { hp: 250, atk: 16, def: 16, spd: 180 }
 
-  // gegner-encounter.md §5a (Korrektur aus dem Konzept-Review 01.08.2026) - "der heilt" liest der
-  // Spieler ohnehin an der HP-Leiste ab; Analyse muss am Heiler eine Information liefern, die die
-  // Kampfanzeige NICHT hergibt (E4). Heilmenge/Takt geben die Rechnung "kommt mein Schaden pro
-  // Sekunde gegen die Heilung an?" her. Aus den unskalierten Basiswerten wie die übrigen Bars
-  // oben (keine Zonen-Skalierung im Bestiarium).
-  const healInfo = $derived(
-    monster?.trait === 'heal'
-      ? { amount: enemyHealAmount(monster.base.atk), interval: atbInterval(monster.base.spd) }
-      : null,
-  )
+  // gegner-encounter.md §5a (zurueckgenommen 01.08.2026, M18) - die Analyse-Anforderung (Heilmenge/
+  // Takt als exklusive Information) ist an der Typ-Karten-Regel gescheitert: Das Bestiarium
+  // beschreibt die Gegner-Art, keine zonen-skalierte Instanz, und fuehrt deshalb keine absoluten
+  // Zahlen. Nur noch ein zahlenfreier Tag - "der heilt" liest der Spieler ohnehin an der HP-Leiste ab.
+  const isHealer = $derived(monster?.trait === 'heal')
 </script>
 
 {#if game.bestiaryOpen}
@@ -82,10 +76,10 @@
               {/if}
             {/if}
 
-            {#if healInfo}
+            {#if isHealer}
               <div class="weakness-row">
-                <span class="weakness-label">Heals:</span>
-                <span class="weakness-tag">{healInfo.amount} HP / ~{healInfo.interval.toFixed(1)}s</span>
+                <span class="weakness-label">Trait:</span>
+                <span class="weakness-tag">Heals its group</span>
               </div>
             {/if}
           </div>

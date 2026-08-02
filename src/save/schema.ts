@@ -4,7 +4,7 @@
 import type Decimal from 'break_eternity.js'
 import type { BestiaryEntry, Character } from '../core/entities'
 
-export const SAVE_VERSION = 6
+export const SAVE_VERSION = 7
 
 export interface SaveFlags {
   autoAttackUnlocked: boolean
@@ -70,5 +70,19 @@ export interface SaveState {
    * Reset in `reunion()`, s. `ui/gameStore.svelte.ts`).
    */
   introsSeen: Record<string, boolean>
+  /**
+   * oekonomie-waehrungen.md §1a / ui-layout.md "Erschöpfte Zonen" (M18) - je Zone, in der der
+   * Kipp-Moment (erster ertragloser Sieg) bereits gemeldet wurde. Nur zur Deduplizierung der
+   * Einmal-Meldung; der binäre Marker selbst haengt live an `isZoneExhausted`, nicht an diesem Feld.
+   */
+  exhaustedZonesNotified: Record<number, boolean>
+  /**
+   * ui-layout.md "Bester Versuch am Gate" (M18) - je Gate-Zone (Zonenindex) der niedrigste bisher
+   * erreichte Rest-HP-Anteil des Bosses (Prozent, 0-100) ueber alle verlorenen Versuche. Nur nach
+   * einer Niederlage vorhanden (kein Eintrag vor dem ersten Versuch). Faellt bei der Reunion zurueck
+   * (s. `ui/gameStore.svelte.ts` `reunion()`) - ein Bestwert aus einem staerkeren Durchlauf waere
+   * nach dem Level-1-Reset unerreichbar.
+   */
+  gateBestAttempts: Record<number, number>
   // "offline" entfaellt - Offline-Progress stillgelegt (feinspec §3.8e, M11)
 }

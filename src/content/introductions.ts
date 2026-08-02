@@ -77,7 +77,7 @@ export const INTRODUCTIONS: Record<IntroId, Introduction> = {
     id: 'special_mp',
     title: 'Special Ability & MP',
     lines: [
-      'Claude\'s Cross Slash hits far harder than a regular swing - but it draws from a personal MP pool that only refills between fights.',
+      'Claude\'s Overcommit hits far harder than a regular swing - but it draws from a personal MP pool that only refills between fights.',
       'Spend it on the fight that needs it, not the one that doesn\'t.',
     ],
   },

@@ -40,6 +40,8 @@ function sampleSaveState(): SaveState {
     },
     inn: { queued: false },
     introsSeen: { claude_intro: true },
+    exhaustedZonesNotified: { 5: true },
+    gateBestAttempts: { 8: 42 },
   }
 }
 
@@ -61,6 +63,8 @@ describe('Architektur §6 - Save-Round-Trip (serialize -> deserialize)', () => {
     expect(restored.flags).toEqual(original.flags)
     expect(restored.inn).toEqual(original.inn)
     expect(restored.introsSeen).toEqual(original.introsSeen)
+    expect(restored.exhaustedZonesNotified).toEqual(original.exhaustedZonesNotified)
+    expect(restored.gateBestAttempts).toEqual(original.gateBestAttempts)
     expect(restored.currencies.reunionEssence.eq(original.currencies.reunionEssence)).toBe(true)
   })
 
@@ -314,5 +318,41 @@ describe('Architektur §6 - Migrations-Grundgerüst', () => {
 
     expect(migrated.version).toBe(SAVE_VERSION)
     expect(migrated.introsSeen).toEqual({})
+  })
+
+  // M18 (02.08.2026) - beide neuen Felder sind rein additiv und starten fuer Alt-Saves leer:
+  // die Einmal-Meldung "erschoepft" hat noch niemand gesehen, und vergangene Gate-Niederlagen
+  // lassen sich nicht rueckwirkend rekonstruieren.
+  it('migriert v6 nach v7: exhaustedZonesNotified/gateBestAttempts starten leer', () => {
+    const v6 = {
+      version: 6,
+      chapter: 1,
+      currentZone: 20,
+      maxZoneReached: 20,
+      chapterBossDefeated: false,
+      party: [{ ...CLAUDE }],
+      partyLevel: 15,
+      partyExp: 3,
+      roster: ['claude'],
+      currencies: { reunionEssence: '0' },
+      bestiary: {},
+      reunionCount: 0,
+      flags: {
+        autoAttackUnlocked: true,
+        mpVisible: true,
+        manualToggleUnlocked: true,
+        defenseUnlocked: true,
+        materiaUnlocked: false,
+        gambitsUnlocked: false,
+      },
+      inn: { queued: false },
+      introsSeen: { claude_intro: true },
+    } as unknown as SerializedSaveState
+
+    const migrated = migrate(v6)
+
+    expect(migrated.version).toBe(SAVE_VERSION)
+    expect(migrated.exhaustedZonesNotified).toEqual({})
+    expect(migrated.gateBestAttempts).toEqual({})
   })
 })

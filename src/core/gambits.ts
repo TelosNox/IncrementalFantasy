@@ -112,7 +112,7 @@ export function resolvePartyAction(actor: BattleUnit, state: BattleState): void 
  * Auto-Figuren aufgerufen (dafür ist `resolvePartyAction` da) - dient der
  * Pacing-Simulation (`tests/chapter-playthrough.test.ts`), um zu validieren,
  * dass manuelles Spiel (Spielertyp "M", feinspec §12) einen echten Unterschied
- * macht. Normale Angriffe/Claudes Cross Slash/Tofas Shock Strike nutzen dieselbe
+ * macht. Normale Angriffe/Claudes Overcommit/Tofas Shock Strike nutzen dieselbe
  * Fokusziel-Regel wie Auto (§3.9, ueber `smartTarget`) - sie haben keinen eigenen
  * taktischen Zweck, der eine Abweichung rechtfertigt. Nur Barrel (Suppress: höchster
  * Schadensdurchsatz ATK*SPD, §3.9/§4.7 M11-Nachtrag) und Limit (§3.4: explizit
@@ -193,7 +193,7 @@ export function resolveOptimalAction(actor: BattleUnit, state: BattleState): voi
   }
 
   if (actor.name === 'Claude') {
-    // feinspec §3.9/§6.1 - Cross Slash hat keinen eigenen taktischen Zweck (anders als
+    // feinspec §3.9/§6.1 - Overcommit hat keinen eigenen taktischen Zweck (anders als
     // Suppress/Shock Strike/Heal) und folgt daher wie ein normaler Angriff der Fokusziel-Regel.
     const tgt = smartTarget(state)
     if (tgt && actor.mp >= actor.specialMpCost!) {

@@ -774,7 +774,7 @@ describe('M16 (Abnahme ersetzt 01.08.2026) - Zielwahl entscheidet Ausgang/Dauer 
 
 // Playtest-Fund (Nachtrag zu M11): Ein voll geheilter, gate-angemessen leveled Claude
 // (Solo, Barrel stoesst erst in Zone 9 dazu) besiegte Blandzilla (Zone 8) auch OHNE je
-// Limit zu zuenden (nur Attack/Cross Slash) - das Gate lehrte "Limit als Wand-Brecher"
+// Limit zu zuenden (nur Attack/Overcommit) - das Gate lehrte "Limit als Wand-Brecher"
 // (feinspec §7.1) dadurch nicht mehr zuverlaessig. `content/zones.ts` Zone 8 auf
 // Groesse 1,8 angehoben (vorher 1,6); dieser Test haelt das Zielverhalten fest, statt
 // nur die Zahl selbst zu pruefen (die haette man auch "zufaellig richtig" treffen koennen).

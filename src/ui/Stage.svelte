@@ -189,6 +189,7 @@
       <img
         class="sprite"
         class:stepping
+        data-actor-id={unit.id}
         src={CHARACTER_SPRITES[unit.id]}
         alt={unit.name}
         style:left="calc({anchorX(placed.slot, stepping)} * var(--s))"
@@ -331,6 +332,34 @@
               style:bottom="calc({hudBottom(placed.slot, placed.size, false) + 21} * var(--s))"
             >
               ⚡ Mako core charging…{enemy.counterActive ? ' (retaliates if struck!)' : ''}
+            </div>
+          {/if}
+          {#if enemy.trait === 'heal' && enemy.actionsDone % 3 === 2}
+            <!-- gegner-encounter.md §5a (M18) - Telegraf vor dem Heil-Puls, gleiches Vokabular
+                 wie der Boss-Konter-Telegraf oben (`ui-layout.md` "charging glow"). -->
+            <div
+              class="telegraph charging"
+              style:left="calc({placed.slot.x} * var(--s))"
+              style:bottom="calc({hudBottom(placed.slot, placed.size, false) + 21} * var(--s))"
+            >
+              ✚ readying a heal…
+            </div>
+          {/if}
+        {/if}
+      {/each}
+      {#each enemyPlaced as placed (placed.index)}
+        {@const enemy = placed.unit}
+        {#if enemy.hp > 0 && enemy.trait === 'heal' && enemy.actionsDone % 3 === 0 && enemy.lastHealAmount}
+          {@const healTarget = enemyPlaced.find((p) => p.index === enemy.lastHealTargetIndex)}
+          {#if healTarget && healTarget.unit.hp > 0}
+            <!-- gegner-encounter.md §5a (M18) - sichtbare Heilzahl ueber dem geheilten Ziel,
+                 bleibt stehen, solange der Puls-Zustand haelt (naechste eigene Aktion loescht ihn). -->
+            <div
+              class="heal-number"
+              style:left="calc({healTarget.slot.x} * var(--s))"
+              style:bottom="calc({hudBottom(healTarget.slot, healTarget.size, false) + 34} * var(--s))"
+            >
+              +{enemy.lastHealAmount} HP
             </div>
           {/if}
         {/if}
@@ -545,6 +574,17 @@
   .telegraph.charging {
     color: var(--game-gold);
     border: 1px solid var(--game-gold);
+  }
+
+  .heal-number {
+    position: absolute;
+    transform: translateX(-50%);
+    color: #6dffb0;
+    font-size: calc(7 * var(--s));
+    font-weight: 700;
+    text-shadow: 0 0 calc(3 * var(--s)) rgba(0, 0, 0, 0.8);
+    pointer-events: none;
+    white-space: nowrap;
   }
 
   @keyframes pulse {

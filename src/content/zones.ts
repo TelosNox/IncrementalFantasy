@@ -49,7 +49,7 @@ export const ZONES: Zone[] = [
   //
   // Playtest-Nachtrag (M11): 1,6 reichte nicht - ein voll geheilter, angemessen
   // leveled Claude (Solo, s. BARREL_JOIN_ZONE) gewann auch OHNE je Limit zu zuenden
-  // (nur Attack/Cross Slash), das Gate lehrte "Limit als Wand-Brecher" (feinspec §7.1)
+  // (nur Attack/Overcommit), das Gate lehrte "Limit als Wand-Brecher" (feinspec §7.1)
   // dadurch nicht mehr zuverlaessig. Auf 1,8 angehoben: simulationsvalidiertes Fenster
   // 1,7-1,9 HP, in dem "kein Limit" verliert, aber "Limit sobald voll" (die M-Referenz,
   // `resolveOptimalAction`) weiterhin gewinnt - ab 2,0 kippt auch die Limit-Linie.

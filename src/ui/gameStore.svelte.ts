@@ -14,7 +14,7 @@
 import Decimal from 'break_eternity.js'
 import { CHARACTERS, CLAUDE } from '../content/characters'
 import type { IntroId } from '../content/introductions'
-import { MONSTERS } from '../content/monsters'
+import { GATE_MONSTER_IDS, MONSTERS } from '../content/monsters'
 import { ZONES } from '../content/zones'
 import {
   createEnemyUnit,
@@ -28,7 +28,7 @@ import type { BattleUnit } from '../core/battle'
 import type { BestiaryEntry, Character, ControlMode, Zone } from '../core/entities'
 import { resolvePartyAction, resolvePartyTarget } from '../core/gambits'
 import { INN_DEAD_TIME, LIMIT_MAX, RETRY_PENALTY, expToNext, limitFireDamage } from '../core/formulas'
-import { applyInnRecovery, applyVictoryExp, applyVictoryRecovery, zoneReward } from '../core/progression'
+import { applyInnRecovery, applyVictoryExp, applyVictoryRecovery, isZoneExhausted, zoneReward } from '../core/progression'
 import { battleTick, createBattleState, DT, type BattleState } from '../core/tick'
 import { SAVE_VERSION, type SaveState } from '../save/schema'
 import { serializeToJson } from '../save/serialize'
@@ -136,6 +136,8 @@ function freshSaveState(): SaveState {
     },
     inn: { queued: false },
     introsSeen: {},
+    exhaustedZonesNotified: {},
+    gateBestAttempts: {},
   }
 }
 
@@ -258,6 +260,15 @@ export class GameStore {
   /** gambits.md §4 "manuelle Prüfsteine" - Auto greift an Gates nur stumpf an; Hinweis, dass Manuell hier lohnt. */
   get isCurrentZoneGate(): boolean {
     return findZone(this.save.currentZone).isGate
+  }
+
+  /**
+   * oekonomie-waehrungen.md §1a / ui-layout.md "Erschöpfte Zonen" (M18) - binärer Marker fuer
+   * die Zonenwahl UND die aktuell bespielte Zone (beide rufen dieselbe Funktion mit dem jeweils
+   * betroffenen Zonenindex auf). Haengt am Ist-Ertrag (`isZoneExhausted`), nicht am Cutoff-Wert.
+   */
+  isZoneExhausted(zoneIndex: number): boolean {
+    return isZoneExhausted(findZone(zoneIndex), this.save.partyLevel)
   }
 
   /** feinspec §3.8a (M11) - höchste je erreichte Zone; Obergrenze der freien Zonen-Auswahl. */
@@ -418,7 +429,7 @@ export class GameStore {
     unit.defending = false
 
     if (unit.name === 'Air is...') {
-      // feinspec §6.1 - Heal Wind: Party-weite Heilung (2,2×MAG), kein Gegner-Ziel noetig.
+      // feinspec §6.1 - Second Wind: Party-weite Heilung (2,2×MAG), kein Gegner-Ziel noetig.
       unit.mp -= unit.specialMpCost!
       const heal = Math.round(unit.mag * 2.2)
       for (const p of this.battle.party) {
@@ -445,7 +456,7 @@ export class GameStore {
       // feinspec §6.1/§3.3 - Shock Strike: normaler Treffer + 45 Shock-Bonus obendrauf.
       dealDamage(unit, target, unit.atk, 45)
     } else {
-      // feinspec §6.1 - Cross Slash: großer Einzelziel-Treffer (kein eigener taktischer
+      // feinspec §6.1 - Overcommit: großer Einzelziel-Treffer (kein eigener taktischer
       // Zweck wie Suppress/Shock Strike/Heal, folgt daher wie ein normaler Angriff §3.9).
       dealDamage(unit, target, Math.round(unit.atk * 3.0))
     }
@@ -569,6 +580,9 @@ export class GameStore {
       reunionCount,
       flags: { ...this.save.flags, gambitsUnlocked: true },
       inn: { queued: false },
+      // ui-layout.md "Bester Versuch am Gate" - faellt bei der Reunion zurueck: die Party steht auf
+      // Level 1, ein Bestwert aus einem staerkeren Durchlauf waere unerreichbar (entmutigt statt misst).
+      gateBestAttempts: {},
     }
     this.phase = 'battle'
     this.battle = spawnBattle(findZone(1), party, 1, this.reunionBoostMult)
@@ -755,6 +769,14 @@ export class GameStore {
     const zone = findZone(this.save.currentZone)
     const reward = zoneReward(zone, this.save.partyLevel)
 
+    // ui-layout.md "Erschöpfte Zonen" (M18) - Kipp-Moment: der erste ertraglose Sieg in dieser
+    // Zone wird einmalig gemeldet, danach traegt nur noch der stille Marker (`isZoneExhausted`).
+    let exhaustedZonesNotified = this.save.exhaustedZonesNotified
+    if (reward.exp === 0 && !exhaustedZonesNotified[zone.zone]) {
+      exhaustedZonesNotified = { ...exhaustedZonesNotified, [zone.zone]: true }
+      this.#triggerCallout('These grunts have nothing left to teach you.')
+    }
+
     // stats-kampfwerte.md §4.1 - die Wellen-Summe geht EINMAL in den Party-Topf, nicht je Figur.
     const leveled = applyVictoryExp(this.save.partyLevel, this.save.partyExp, reward.exp)
     const partyLevel = leveled.level
@@ -777,6 +799,7 @@ export class GameStore {
         partyExp: leveled.exp,
         bestiary,
         chapterBossDefeated: true,
+        exhaustedZonesNotified,
       }
       this.phase = 'chapter-complete'
       this.#queueIntro('reunion')
@@ -843,6 +866,7 @@ export class GameStore {
       maxZoneReached,
       flags,
       bestiary,
+      exhaustedZonesNotified,
     }
 
     if (this.save.inn.queued) {
@@ -857,10 +881,26 @@ export class GameStore {
   /** feinspec §3.8c (M11) - Niederlage: HP/MP-Stand bleibt wie er war (KEINE Heilung), danach Zeitstrafe + Gasthaus. */
   #onLoss(): void {
     const party = syncPartyFromBattle(this.save.party, this.battle.party)
-    this.save = { ...this.save, party }
+    this.save = { ...this.save, party, gateBestAttempts: this.#updatedGateBestAttempts() }
     this.phase = 'retry'
     this.retryRemaining = RETRY_PENALTY
     this.#queueIntro('zone_return')
+  }
+
+  /**
+   * ui-layout.md "Bester Versuch am Gate" (M18) - nur an einem Gate: Rest-HP% des Bosses (nicht
+   * seiner Adds, s. Vaultrons Blando-Begleiter) beim verlorenen Versuch, niedrigster Wert gewinnt.
+   * Kein Eintrag, wenn diese Zone kein Gate ist oder der Boss aus irgendeinem Grund fehlt.
+   */
+  #updatedGateBestAttempts(): Record<number, number> {
+    const zone = findZone(this.save.currentZone)
+    if (!zone.isGate) return this.save.gateBestAttempts
+    const boss = this.battle.enemies.find((e) => GATE_MONSTER_IDS.has(e.id))
+    if (!boss) return this.save.gateBestAttempts
+    const remainingPct = Math.round((Math.max(0, boss.hp) / boss.maxHp) * 100)
+    const prevBest = this.save.gateBestAttempts[zone.zone]
+    if (prevBest !== undefined && prevBest <= remainingPct) return this.save.gateBestAttempts
+    return { ...this.save.gateBestAttempts, [zone.zone]: remainingPct }
   }
 
   /**

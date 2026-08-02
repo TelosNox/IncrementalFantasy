@@ -6,6 +6,7 @@
 // v4 -> v5: der Kapitel-Boss ist Pflicht (Umsetzungsentscheidung 61), `canReunion`
 // haengt jetzt an `chapterBossDefeated` statt `currentZone >= 30`.
 // v5 -> v6: M17 (Mechanik-Einführung) fügt `introsSeen` hinzu.
+// v6 -> v7: M18 (Spec-Rückstand) fügt `exhaustedZonesNotified`/`gateBestAttempts` hinzu.
 // Ältere Stände laufen die Kette der Reihe nach durch; künftige Schritte werden
 // hier nur noch angehängt.
 
@@ -13,8 +14,14 @@ import type { Character } from '../core/entities'
 import { SAVE_VERSION } from './schema'
 import type { SerializedSaveState } from './serialize'
 
+/** v6-Save-Shape (vor M18): kein `exhaustedZonesNotified`/`gateBestAttempts`. */
+interface SerializedSaveStateV6
+  extends Omit<SerializedSaveState, 'version' | 'exhaustedZonesNotified' | 'gateBestAttempts'> {
+  version: 6
+}
+
 /** v5-Save-Shape (vor M17): kein `introsSeen`. */
-interface SerializedSaveStateV5 extends Omit<SerializedSaveState, 'version' | 'introsSeen'> {
+interface SerializedSaveStateV5 extends Omit<SerializedSaveStateV6, 'version' | 'introsSeen'> {
   version: 5
 }
 
@@ -141,7 +148,7 @@ function migrateV4toV5(data: SerializedSaveStateV4): SerializedSaveStateV5 {
  * jeweiligen Trigger auch tatsächlich auslösen (Flags, Roster, Zonenfortschritt,
  * Bestiarium-Eintrag), s. `ui/gameStore.svelte.ts` für die Live-Trigger-Stellen.
  */
-function migrateV5toV6(data: SerializedSaveStateV5): SerializedSaveState {
+function migrateV5toV6(data: SerializedSaveStateV5): SerializedSaveStateV6 {
   const introsSeen: Record<string, boolean> = {}
   const started = data.currentZone > 1 || data.maxZoneReached > 1
   if (started) {
@@ -169,9 +176,26 @@ function migrateV5toV6(data: SerializedSaveStateV5): SerializedSaveState {
   }
 }
 
+/**
+ * v6 -> v7 (M18, 02.08.2026): "Erschöpfte Zonen" (`oekonomie-waehrungen.md` §1a/`ui-layout.md`)
+ * und "Bester Versuch am Gate" (`ui-layout.md`) fügen zwei rein additive Save-Felder hinzu. Beide
+ * starten für Alt-Saves leer: `exhaustedZonesNotified` deduplizert nur die Einmal-Meldung (der
+ * binäre Marker selbst ist reine Live-Berechnung aus `partyLevel`/`currentZone`, kein Rückstand
+ * nachzuholen), `gateBestAttempts` kennt naturgemäß keine vergangenen Niederlagen rückwirkend.
+ */
+function migrateV6toV7(data: SerializedSaveStateV6): SerializedSaveState {
+  return {
+    ...data,
+    version: 7,
+    exhaustedZonesNotified: {},
+    gateBestAttempts: {},
+  }
+}
+
 export function migrate(
   data:
     | SerializedSaveState
+    | SerializedSaveStateV6
     | SerializedSaveStateV5
     | SerializedSaveStateV4
     | SerializedSaveStateV3
@@ -180,19 +204,24 @@ export function migrate(
 ): SerializedSaveState {
   if ((data as { version: number }).version === SAVE_VERSION) return data as SerializedSaveState
   if ((data as { version: number }).version === 1) {
-    return migrateV5toV6(migrateV4toV5(migrateV3toV4(migrateV2toV3(migrateV1toV2(data as SerializedSaveStateV1)))))
+    return migrateV6toV7(
+      migrateV5toV6(migrateV4toV5(migrateV3toV4(migrateV2toV3(migrateV1toV2(data as SerializedSaveStateV1))))),
+    )
   }
   if ((data as { version: number }).version === 2) {
-    return migrateV5toV6(migrateV4toV5(migrateV3toV4(migrateV2toV3(data as SerializedSaveStateV2))))
+    return migrateV6toV7(migrateV5toV6(migrateV4toV5(migrateV3toV4(migrateV2toV3(data as SerializedSaveStateV2)))))
   }
   if ((data as { version: number }).version === 3) {
-    return migrateV5toV6(migrateV4toV5(migrateV3toV4(data as SerializedSaveStateV3)))
+    return migrateV6toV7(migrateV5toV6(migrateV4toV5(migrateV3toV4(data as SerializedSaveStateV3))))
   }
   if ((data as { version: number }).version === 4) {
-    return migrateV5toV6(migrateV4toV5(data as SerializedSaveStateV4))
+    return migrateV6toV7(migrateV5toV6(migrateV4toV5(data as SerializedSaveStateV4)))
   }
   if ((data as { version: number }).version === 5) {
-    return migrateV5toV6(data as SerializedSaveStateV5)
+    return migrateV6toV7(migrateV5toV6(data as SerializedSaveStateV5))
+  }
+  if ((data as { version: number }).version === 6) {
+    return migrateV6toV7(data as SerializedSaveStateV6)
   }
   // Kein weiterer Vorgänger vorhanden - ein unbekannter/höherer Versionsstand ist ein
   // fremder/korrupter Save. Sichtbare Warnung statt stillem Überschreiben (Architektur §6, M10).

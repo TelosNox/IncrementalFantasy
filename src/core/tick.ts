@@ -5,7 +5,7 @@
 import type { BattleUnit } from './battle'
 import { aoeParty, isAlive } from './battle'
 import { resolvePartyAction } from './gambits'
-import { LIMIT_MAX, atbFillPerTick, enemyHealAmount, limitGainOnTaken, physicalDamage } from './formulas'
+import { LIMIT_MAX, atbFillPerTick, enemyHealBurstAmount, limitGainOnTaken, physicalDamage } from './formulas'
 
 /** feinspec §2 - Tick-Auflösung des Simulations-/Loop-Takts. */
 export const DT = 0.1
@@ -67,16 +67,28 @@ function resolveEnemyAction(actor: BattleUnit, state: BattleState): void {
     return
   }
 
-  // gegner-encounter.md §5a (M16) - Heiler heilt statt anzugreifen: das verletzteste lebende
-  // Gruppenmitglied (sich selbst eingeschlossen), gemessen am HP-Anteil. Ist niemand verletzt,
-  // faellt der Zug auf den normalen Angriff unten zurueck (kein wirkungsloser Leerlauf-Zug).
+  // gegner-encounter.md §5a (M18, Konzept-Review 01.08.2026) - Heiler heilt seit dem
+  // M17-Playtest-Befund ("Balken bewegt sich fast gar nicht") in Schueben statt bei jedem
+  // eigenen Zug: Attack, Telegraf (kein Zug), Heil-Puls - dieselbe Taktung wie der Boss-AoE-Zyklus
+  // unten. Gleiche Heilung pro Sekunde wie vorher (`enemyHealBurstAmount`), aber sichtbar.
   if (actor.trait === 'heal') {
-    const allies = state.enemies.filter(isAlive)
-    const hurt = allies.filter((e) => e.hp < e.maxHp)
-    if (hurt.length) {
-      const target = hurt.reduce((lowest, e) => (e.hp / e.maxHp < lowest.hp / lowest.maxHp ? e : lowest))
-      target.hp = Math.min(target.maxHp, target.hp + enemyHealAmount(actor.atk))
+    actor.actionsDone += 1
+    if (actor.actionsDone % 3 === 2) {
+      // Telegraf-Zug: laedt auf statt zu handeln, analog zum Boss-Konter-Telegraf oben.
       return
+    }
+    if (actor.actionsDone % 3 === 0) {
+      const allies = state.enemies.filter(isAlive)
+      const hurt = allies.filter((e) => e.hp < e.maxHp)
+      if (hurt.length) {
+        const target = hurt.reduce((lowest, e) => (e.hp / e.maxHp < lowest.hp / lowest.maxHp ? e : lowest))
+        const amount = enemyHealBurstAmount(actor.atk)
+        target.hp = Math.min(target.maxHp, target.hp + amount)
+        actor.lastHealAmount = amount
+        actor.lastHealTargetIndex = state.enemies.indexOf(target)
+        return
+      }
+      // niemand verletzt -> faellt in den normalen Angriff unten (kein wirkungsloser Leerlauf-Zug).
     }
   }
 
@@ -110,7 +122,7 @@ function resolveEnemyAction(actor: BattleUnit, state: BattleState): void {
   const rawDmg = physicalDamage(actor.atk, tgt.def)
   const dmg = tgt.defending ? Math.round(rawDmg * 0.5) : rawDmg
   tgt.hp -= dmg
-  if (tgt.limitAllowed) tgt.limit = Math.min(LIMIT_MAX, tgt.limit + limitGainOnTaken(dmg))
+  if (tgt.limitAllowed) tgt.limit = Math.min(LIMIT_MAX, tgt.limit + limitGainOnTaken(dmg, tgt.maxHp))
 
   if (actor.trait === 'poison') {
     tgt.poisonTicks = 4

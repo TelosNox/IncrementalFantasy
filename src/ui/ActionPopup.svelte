@@ -17,10 +17,62 @@
 
   // FF7-Signatur: Limit in bunten Buchstaben, sobald geladen (ui-layout.md).
   const RAINBOW = ['#ff5c5c', '#ffa64d', '#ffe14d', '#5cff8f', '#5cc3ff', '#b366ff']
+
+  let popupEl: HTMLDivElement | undefined = $state()
+  let dodgeX = $state(0)
+
+  /**
+   * ui-layout.md "Preis davon, und die Regel dagegen" (M13-Nachzieher, M18) - U1/U2 skaliert
+   * absichtlich nicht mit `s` (sonst waere Text bei kleiner Buehne unlesbar), darf die Figur,
+   * ueber der es waechst, deshalb aber nie ueberdecken (M13-Abnahme: 34% bei Stage 540x720
+   * blieb bis M18 unbehoben). Stage und BottomBar liegen in getrennten DOM-Teilbaeumen ohne
+   * gemeinsames Koordinatensystem (`--s` ist auf `.stage` gescoped, `GameScreen.svelte` haelt
+   * beide nur als Geschwister-Grid-Zellen) - Laufzeitmessung per `getBoundingClientRect` statt
+   * einer zweiten, driftenden Kopie der Buehnen-Geometrie in dieser Komponente.
+   */
+  function avoidOverlap(): void {
+    if (!popupEl) return
+    dodgeX = 0
+    requestAnimationFrame(() => {
+      if (!popupEl) return
+      const sprite = document.querySelector(`[data-actor-id="${unit.id}"]`)
+      if (!sprite) return
+      const spriteRect = sprite.getBoundingClientRect()
+      const popupRect = popupEl.getBoundingClientRect()
+      const overlapsX = popupRect.left < spriteRect.right && popupRect.right > spriteRect.left
+      const overlapsY = popupRect.top < spriteRect.bottom && popupRect.bottom > spriteRect.top
+      if (!overlapsX || !overlapsY) return
+      const gap = 6
+      const rightShift = spriteRect.right - popupRect.left + gap
+      const leftShift = spriteRect.left - popupRect.right - gap
+      const fitsInViewport = (shift: number) =>
+        popupRect.left + shift >= 0 && popupRect.right + shift <= window.innerWidth
+      const fitsRight = fitsInViewport(rightShift)
+      const fitsLeft = fitsInViewport(leftShift)
+      // Bevorzugt die kuerzere Ausweichrichtung, faellt aber auf die andere zurueck, wenn sie
+      // das Popup aus dem Viewport schieben wuerde (nutzlos ausgewichen ist nicht ausgewichen).
+      const preferRight = Math.abs(rightShift) <= Math.abs(leftShift)
+      if (preferRight && fitsRight) dodgeX = rightShift
+      else if (!preferRight && fitsLeft) dodgeX = leftShift
+      else if (fitsRight) dodgeX = rightShift
+      else if (fitsLeft) dodgeX = leftShift
+      else dodgeX = preferRight ? rightShift : leftShift
+    })
+  }
+
+  $effect(() => {
+    if (ready) avoidOverlap()
+  })
+
+  $effect(() => {
+    if (!ready) return
+    window.addEventListener('resize', avoidOverlap)
+    return () => window.removeEventListener('resize', avoidOverlap)
+  })
 </script>
 
 {#if ready}
-  <div class="popup">
+  <div class="popup" bind:this={popupEl} style:transform="translateX({dodgeX}px)">
     <div class="popup-title">{unit.name} – ready</div>
 
     <button class="row" onclick={() => game.attack(unit)}>Attack</button>

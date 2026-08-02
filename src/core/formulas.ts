@@ -24,7 +24,7 @@ export const EXP_GROWTH = 1.22
 
 /**
  * gegner-encounter.md §5a (M16) - Heiler-Gegner: Heilmenge relativ zu seinem eigenen ATK,
- * analog zu Air is...' Heal Wind (2,2×MAG, feinspec §6.1). Startwert 2,5 war im Browser-Playtest
+ * analog zu Air is...' Second Wind (2,2×MAG, feinspec §6.1). Startwert 2,5 war im Browser-Playtest
  * (01.08.2026) zu stark: Bandbox heilt (auch) sich selbst, sobald es das verletzteste Ziel ist -
  * gegen zwei fokussierende Angreifer (~15 Schaden je Treffer, eigenes ATB-Tempo) hielt 2,5×ATK
  * (33 HP je 2s) beim Live-Test locker mit, das gezielte Toeten fuehlte sich NICHT eindeutig
@@ -35,9 +35,23 @@ export const EXP_GROWTH = 1.22
  */
 export const ENEMY_HEAL_MULT = 1.2
 
-/** §5a - Heilmenge eines Heiler-Gegners fuer einen Verbuendeten. */
+/**
+ * gegner-encounter.md §5a (M18, Konzept-Review 01.08.2026) - Heiler-Gegner heilen seit dem
+ * M17-Playtest-Befund ("der Balken bewegt sich fast gar nicht") gebuendelt statt jeden eigenen
+ * Zug: alle drei Aktionen ein Puls (Attack, Telegraf, Heilung), `HEAL_BURST_MULT`-mal so gross
+ * wie der alte Dauerwert - macht den Ausschlag sichtbar, bei gleicher Heilung pro Sekunde
+ * (`ENEMY_HEAL_MULT` bleibt bewusst 1,2, s. Umsetzungsentscheidung 76). S. `tick.ts` resolveEnemyAction.
+ */
+export const HEAL_BURST_MULT = 3
+
+/** §5a - Heilmenge eines Heiler-Gegners fuer einen Verbuendeten (unskalierte Basisrate, s. `HEAL_BURST_MULT`). */
 export function enemyHealAmount(atk: number): number {
   return Math.round(atk * ENEMY_HEAL_MULT)
+}
+
+/** gegner-encounter.md §5a (M18) - tatsaechlich ausgeteilte Menge je Heil-Puls: 3,6×ATK statt 1,2×ATK. */
+export function enemyHealBurstAmount(atk: number): number {
+  return Math.round(atk * ENEMY_HEAL_MULT * HEAL_BURST_MULT)
 }
 
 /**
@@ -130,19 +144,21 @@ export function applyShockBuildup(currentShock: number, damage: number, bonus = 
 }
 
 /**
- * §3.4 Limit-Ladung bei zugefügtem Schaden. Esper-Modell-Revision: die alten Raten
- * (0,35/0,50/0,40) waren gegen eine über den ganzen Run persistierende Leiste
- * kalibriert und damit faktisch bedeutungslos (Leiste war ohnehin meist voll).
- * Jetzt startet Limit pro Gate-Kampf bei 0 und soll dort 1-2x volllaufen (§3.4) -
- * deutlich höhere Rate nötig. Startwert, s. §11 offene Playtest-Stellschraube.
+ * §3.4 Limit-Ladung bei zugefügtem Schaden. Konzept-Review 01.08.2026 (nach dem
+ * M17-Playtest): relative statt absolute Rate - Schaden und HP wachsen über Zone
+ * und Level, LIMIT_MAX bleibt fix bei 100, eine absolute Rate driftet also übers
+ * Kapitel. Jetzt am Anteil der Ziel-maxHP: limit += 60 * (schaden / maxHP des Ziels).
  */
-export function limitGainOnDealt(damage: number): number {
-  return damage * 0.2
+export function limitGainOnDealt(damage: number, targetMaxHp: number): number {
+  return 60 * (damage / targetMaxHp)
 }
 
-/** §3.4 Limit-Ladung bei erlittenem Schaden (AoE: niedriger als Einzelziel, je Figur). */
-export function limitGainOnTaken(damage: number, isAoe = false): number {
-  return damage * (isAoe ? 0.22 : 0.3)
+/**
+ * §3.4 Limit-Ladung bei erlittenem Schaden, relativ zur eigenen maxHP
+ * (AoE: · 0,75 des Werts, je Figur).
+ */
+export function limitGainOnTaken(damage: number, ownMaxHp: number, isAoe = false): number {
+  return 80 * (damage / ownMaxHp) * (isAoe ? 0.75 : 1)
 }
 
 /** §3.4 Limit-Zünden: schaden(4,5·ATK, DEF) mit DEF-Ignore auf das stärkste Ziel. */

@@ -130,3 +130,13 @@ export function zoneReward(zone: Zone, partyLevel: number): ZoneReward {
   if (factor === 0) return { exp: 0 }
   return { exp: Math.max(1, Math.round(raw * factor)) }
 }
+
+/**
+ * oekonomie-waehrungen.md §1a / ui-layout.md "Erschöpfte Zonen" (M18) - eine Zone gilt als
+ * erschöpft, wenn ein Sieg dort aktuell keine EXP mehr bringt. Haengt bewusst am tatsaechlichen
+ * Ertrag (`zoneReward`), nicht an `EXP_DAMPING_CUTOFF` direkt - verschiebt sich der Cutoff,
+ * bleibt diese Funktion ohne Anpassung korrekt.
+ */
+export function isZoneExhausted(zone: Zone, partyLevel: number): boolean {
+  return zoneReward(zone, partyLevel).exp === 0
+}

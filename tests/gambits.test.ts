@@ -13,7 +13,7 @@ import { createBattleState } from '../src/core/tick'
 // der eine Abweichung rechtfertigt.
 
 describe('feinspec §3.9 - Specials ohne eigenen Zweck folgen dem Fokusziel', () => {
-  it('Claudes Cross Slash trifft das gesetzte Fokusziel, nicht automatisch das stärkste', () => {
+  it('Claudes Overcommit trifft das gesetzte Fokusziel, nicht automatisch das stärkste', () => {
     const claude = { ...CLAUDE, specialUnlocked: true }
     const unit = createPartyUnit(claude, 1, 6)
     const strong = createEnemyUnit(BLANDO, 6) // volle HP - waere ohne Fix das automatische Ziel

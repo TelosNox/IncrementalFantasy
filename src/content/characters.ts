@@ -22,7 +22,7 @@ export const CLAUDE: Character = {
   name: 'Claude',
   base: { hp: 110, mp: 20, atk: 14, mag: 6, def: 4, spd: 100 },
   growth: { hp: 1.1, atk: 1.073, mag: 1.073, def: 1.05, spd: 1.0 },
-  special: { id: 'cross_slash', mpCost: 8, unlockedFromZone: 3 },
+  special: { id: 'overcommit', mpCost: 8, unlockedFromZone: 3 },
   specialUnlocked: false,
   controlMode: 'auto',
   hp: 110,
