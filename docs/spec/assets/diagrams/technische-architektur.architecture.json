@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "IncrementalFantasy – Technische Architektur",
+    "quality_profile": "showcase",
+    "viewBox": [1370, 540],
+    "views": [
+      { "id": "laufzeit", "label": "Laufzeit", "focus": ["spieler", "ui", "store", "core"], "note": "Eingaben gehen in den Store, der Store ruft den reinen Sim-Kern mit festem Zeitschritt." },
+      { "id": "persistenz", "label": "Persistenz", "focus": ["store", "save", "storage"], "note": "Ein Save-Slot im localStorage, BigNumber-Felder als String." },
+      { "id": "auslieferung", "label": "Auslieferung", "focus": ["vite", "pages", "spieler"], "note": "Rein statischer Build über GitHub Actions auf GitHub Pages – kein Server, kein Account." }
+    ]
+  },
+  "components": [
+    { "id": "content", "type": "database", "label": "src/content", "sublabel": "Balance-Tabellen (TS)", "pos": [900, 110], "size": [180, 60] },
+    { "id": "tests", "type": "external", "label": "Vitest", "sublabel": "/tests", "pos": [1190, 110], "size": [180, 60] },
+
+    { "id": "spieler", "type": "external", "label": "Spieler:in", "sublabel": "Browser, ein Tab", "pos": [30, 270], "size": [180, 60] },
+    { "id": "ui", "type": "frontend", "label": "src/ui", "sublabel": "Svelte-Komponenten", "pos": [320, 270], "size": [180, 60] },
+    { "id": "store", "type": "frontend", "label": "gameStore", "sublabel": "einziger Sim-State", "pos": [610, 270], "size": [180, 60] },
+    { "id": "core", "type": "backend", "label": "src/core", "sublabel": "rein, kein DOM", "pos": [900, 270], "size": [180, 60], "tag": "deterministisch" },
+
+    { "id": "vite", "type": "cloud", "label": "Vite-Build", "sublabel": "GitHub Actions", "pos": [30, 430], "size": [180, 60] },
+    { "id": "pages", "type": "cloud", "label": "GitHub Pages", "sublabel": "statisch, kein Backend", "pos": [320, 430], "size": [180, 60] },
+    { "id": "save", "type": "backend", "label": "src/save", "sublabel": "Schema & Migration", "pos": [610, 430], "size": [180, 60] },
+    { "id": "storage", "type": "database", "label": "localStorage", "sublabel": "ein Save-Slot", "pos": [900, 430], "size": [180, 60] }
+  ],
+  "connections": [
+    { "id": "spieler-ui", "from": "spieler", "to": "ui", "label": "Eingaben", "variant": "emphasis" },
+    { "id": "ui-store", "from": "ui", "to": "store", "label": "Aktionen", "variant": "emphasis" },
+    { "id": "store-core", "from": "store", "to": "core", "label": "Tick DT 0,1 s", "variant": "emphasis" },
+
+    { "id": "content-core", "from": "content", "to": "core", "label": "Balance-Werte", "fromSide": "bottom", "toSide": "top", "labelAt": [990, 220] },
+    { "id": "tests-core", "from": "tests", "to": "core", "label": "prüft gegen sim_chapter1.py", "variant": "dashed", "fromSide": "bottom", "toSide": "right", "via": [[1280, 300]], "labelAt": [1180, 235] },
+
+    { "id": "store-save", "from": "store", "to": "save", "label": "Autosave", "fromSide": "bottom", "toSide": "top", "labelAt": [700, 380] },
+    { "id": "save-storage", "from": "save", "to": "storage", "label": "serialisiert" },
+
+    { "id": "vite-pages", "from": "vite", "to": "pages", "label": "npm run build" },
+    { "id": "pages-spieler", "from": "pages", "to": "spieler", "label": "lädt die App", "fromSide": "top", "toSide": "bottom", "via": [[410, 380], [120, 380]] }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Stack", "items": ["TypeScript + Svelte, gebaut mit Vite", "DOM und CSS statt Canvas – das Spiel ist UI-lastig", "break_eternity.js für BigNumber ab Tag 1"] },
+    { "dot": "emerald", "title": "Leitprinzip der Struktur", "items": ["src/core kennt weder DOM noch Svelte-Stores", "Fester Zeitschritt DT = 0,1 s im requestAnimationFrame-Akkumulator", "Determinismus ohne RNG macht Kämpfe exakt reproduzierbar"] },
+    { "dot": "violet", "title": "Persistenz", "items": ["Ein Save-Slot im localStorage, kein Server, kein Account", "BigNumber-Felder als String, nie als JSON-number", "Korrupter Save warnt sichtbar statt still zu überschreiben"] },
+    { "dot": "amber", "title": "Stand", "items": ["src/core/offline.ts ist seit M11 stillgelegt", "Tests laufen gegen die Referenzwerte aus sim_chapter1.py", "Kein E2E-Testing in v1 – manuelles Playtesting"] }
+  ]
+}

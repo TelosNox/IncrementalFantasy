@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "IncrementalFantasy – Systemüberblick",
+    "quality_profile": "showcase",
+    "viewBox": [1370, 590],
+    "views": [
+      { "id": "kern-loop", "label": "Kern-Loop", "focus": ["zonen", "kampf", "gates"], "note": "Zonen liefern Encounter, die Party kämpft automatisch, Boss-Gates schalten die nächste Region frei." },
+      { "id": "build-achse", "label": "Build-Achse", "focus": ["kampf", "beute", "materia", "ausruestung"], "note": "Siege liefern EXP und AP; Materia und Ausrüstung wirken auf den Kampf zurück." },
+      { "id": "meta-achse", "label": "Meta-Achse", "focus": ["gates", "reunion", "essenz", "gambits", "kampf"], "note": "Reunion ist die vertikale Achse: Essenz kauft die strategische Automatik." }
+    ]
+  },
+  "components": [
+    { "id": "beute", "type": "database", "label": "EXP & AP", "sublabel": "Run-Währungen", "pos": [320, 110], "size": [180, 60] },
+    { "id": "materia", "type": "database", "label": "Materia", "sublabel": "Build-Herzstück", "pos": [610, 110], "size": [180, 60], "tag": "knappe Slots" },
+    { "id": "ausruestung", "type": "cloud", "label": "Ausrüstung", "sublabel": "trägt die Slots", "pos": [900, 110], "size": [180, 60] },
+
+    { "id": "zonen", "type": "cloud", "label": "Zonen & Regionen", "sublabel": "horizontale Achse", "pos": [30, 270], "size": [180, 60] },
+    { "id": "kampf", "type": "backend", "label": "Auto-Kampf", "sublabel": "Tick-Loop, volle Party", "pos": [320, 270], "size": [180, 60] },
+    { "id": "gates", "type": "security", "label": "Boss-Gates", "sublabel": "Meilenstein-Tore", "pos": [610, 270], "size": [180, 60] },
+
+    { "id": "reunion", "type": "security", "label": "Reunion", "sublabel": "Makro-Prestige", "pos": [610, 430], "size": [180, 60] },
+    { "id": "essenz", "type": "database", "label": "Reunion-Essenz", "sublabel": "Upgrade-Menü", "pos": [900, 430], "size": [180, 60] },
+    { "id": "gambits", "type": "backend", "label": "Gambits", "sublabel": "vertikale Achse", "pos": [1190, 430], "size": [180, 60] }
+  ],
+  "connections": [
+    { "id": "zonen-kampf", "from": "zonen", "to": "kampf", "label": "Encounter", "variant": "emphasis" },
+    { "id": "kampf-gates", "from": "kampf", "to": "gates", "label": "Zone geschafft", "variant": "emphasis" },
+    { "id": "gates-zonen", "from": "gates", "to": "zonen", "label": "schaltet nächste Region frei", "fromSide": "right", "toSide": "top", "via": [[1135, 300], [1135, 30], [120, 30]], "labelAt": [780, 16] },
+
+    { "id": "kampf-beute", "from": "kampf", "to": "beute", "label": "je Sieg", "fromSide": "top", "toSide": "bottom" },
+    { "id": "beute-materia", "from": "beute", "to": "materia", "label": "AP levelt Materia" },
+    { "id": "ausruestung-materia", "from": "ausruestung", "to": "materia", "label": "Slots & Paare" },
+    { "id": "materia-kampf", "from": "materia", "to": "kampf", "label": "Fähigkeiten im Kampf", "variant": "emphasis", "fromSide": "top", "toSide": "left", "via": [[700, 75], [305, 75], [305, 300]], "labelAt": [520, 62] },
+
+    { "id": "gates-reunion", "from": "gates", "to": "reunion", "label": "Meilenstein erlaubt Reset", "variant": "dashed", "fromSide": "bottom", "toSide": "top", "labelAt": [700, 380] },
+    { "id": "reunion-essenz", "from": "reunion", "to": "essenz", "label": "Ertrag" },
+    { "id": "essenz-gambits", "from": "essenz", "to": "gambits", "label": "schaltet frei" },
+    { "id": "gambits-kampf", "from": "gambits", "to": "kampf", "label": "steuert die Aktionen", "variant": "emphasis", "fromSide": "bottom", "toSide": "bottom", "via": [[1280, 550], [410, 550]] }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Kern-Loop", "items": ["Die Party kämpft ab Minute 1 automatisch", "Zonen sind die messbare Progression", "Niederlage kostet nur Zeit: Gasthaus heilen, sonst zurück farmen"] },
+    { "dot": "emerald", "title": "Horizontale Achse – Regionen", "items": ["Kampfsystem wird gestaffelt eingeführt", "Bestiarium füllt sich in Kapitel 1 still beim Erst-Kill", "Analyse als bedienbare Mechanik erst ab Kapitel 2"] },
+    { "dot": "violet", "title": "Vertikale Achse – Reunion", "items": ["Essenz kauft Gambits, Slots, Materia-Typen, Roster", "Zurückgesetzt: Zonen, Gruppenlevel, Materia-Level, Slots", "Erhalten: Materia-Typen und -Evolutionen, Bestiarium, Charaktere"] },
+    { "dot": "amber", "title": "Vier Währungen", "items": ["EXP → Gruppenlevel, AP → Materia-Level", "Materia-Prestige aus dem Cap-Reset → Evolution", "Reunion-Essenz → Meta-Macht; Gil gestrichen (30.07.2026)"] }
+  ]
+}
